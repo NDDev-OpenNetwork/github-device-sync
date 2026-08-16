@@ -1,0 +1,109 @@
+schema_version: 1
+
+policy:
+  id: "repository-default"
+  tier: "base"
+  priority: 100
+  distribution: "public"
+
+apply:
+  git:
+    default_branch: "main"
+    integration: "pull-request"
+    branch_cleanup: "merged-only"
+  agent:
+    generated_projection_edit: "forbidden"
+    profiles:
+      append:
+        - "core"
+  security:
+    secrets_in_repository: "forbidden"
+    external_write_requires_approval: true
+    public_projection_scan: "required"
+  context:
+    private_parent_persistence: "forbidden"
+  package_management:
+    language_dependency_managers:
+      - "uv"
+      - "bun"
+    forbidden_executables:
+      - "pip"
+      - "pipx"
+      - "poetry"
+      - "npm"
+      - "npx"
+      - "pnpm"
+      - "yarn"
+      - "corepack"
+      - "mise"
+      - "asdf"
+    npm_family_on_managed_path: "forbidden"
+    mutable_version_resolution: "forbidden"
+    remote_stream_to_shell: "forbidden"
+  rollout:
+    mode: "pull-request"
+  github:
+    merge:
+      allow_merge_commit:
+        management: "managed"
+        value: false
+      allow_squash_merge:
+        management: "managed"
+        value: true
+      allow_rebase_merge:
+        management: "managed"
+        value: false
+      allow_auto_merge:
+        management: "managed"
+        value: false
+      allow_update_branch:
+        management: "managed"
+        value: true
+      delete_branch_on_merge:
+        management: "managed"
+        value: true
+      merge_commit_title:
+        management: "observed"
+      merge_commit_message:
+        management: "observed"
+      squash_merge_commit_title:
+        management: "managed"
+        value: "PR_TITLE"
+      squash_merge_commit_message:
+        management: "managed"
+        value: "PR_BODY"
+    actions:
+      enabled:
+        management: "managed"
+        value: true
+      allowed_actions:
+        management: "observed"
+      sha_pinning_required:
+        management: "observed"
+      selected_actions:
+        management: "observed"
+    workflow:
+      default_workflow_permissions:
+        management: "managed"
+        value: "read"
+      can_approve_pull_request_reviews:
+        management: "managed"
+        value: false
+    releases:
+      immutable:
+        management: "observed"
+    security:
+      management: "observed"
+    rulesets:
+      management: "observed"
+
+constraints:
+  monotonic:
+    - "security.external_write_requires_approval"
+    - "security.public_projection_scan"
+    - "context.private_parent_persistence"
+    - "agent.generated_projection_edit"
+    - "security.secrets_in_repository"
+    - "package_management.npm_family_on_managed_path"
+    - "package_management.mutable_version_resolution"
+    - "package_management.remote_stream_to_shell"

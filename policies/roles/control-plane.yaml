@@ -1,0 +1,19 @@
+schema_version: 1
+
+policy:
+  id: "control-plane"
+  tier: "role"
+  priority: 100
+  distribution: "public"
+
+match:
+  roles:
+    - "control-plane"
+
+apply:
+  agent:
+    profiles:
+      append:
+        - "estate-admin"
+  rollout:
+    mode: "pull-request"

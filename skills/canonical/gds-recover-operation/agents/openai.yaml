@@ -1,0 +1,6 @@
+interface:
+  display_name: "GDS Recover Operation"
+  short_description: "Recover one journaled interrupted operation"
+  default_prompt: "Use $gds-recover-operation to inspect and recover one operation."
+policy:
+  allow_implicit_invocation: false

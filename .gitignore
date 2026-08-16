@@ -1,0 +1,34 @@
+# GDS control-plane source. Repository checkouts live in device workspace roots,
+# while observed state, caches, locks, and journals live outside Git.
+
+# OS / Finder junk
+.DS_Store
+._*
+
+# Editor / IDE junk
+*.swp
+*~
+.idea/
+.vscode/
+
+# Local scratch
+/var/
+__pycache__/
+*.py[cod]
+
+# CI build_command produces this binary in the workspace root; it must not
+# make the worktree dirty for the assurance gate's RequireCleanWorktree check.
+/gds
+
+# Serena policy lives in the tracked .serena/.gitignore file.
+.zcode/
+
+# Device-local harness runtime output: adapter lock files and the installed
+# agent-skill projections written by `gds harness sync`. These are per-device
+# materialization, not canonical estate sources.
+.gds/harness/
+.agents/skills/
+.claude/skills/
+
+# Build artefacts from ad-hoc helper commands.
+/gds-apply-projection

@@ -1,0 +1,49 @@
+# Repository brief
+{{- if .Purpose }}
+
+{{ .Purpose }}
+{{- end }}
+{{- if .Capabilities }}
+
+## What it does
+{{ range .Capabilities }}
+- {{ . }}
+{{- end }}
+{{- end }}
+{{- if .Entrypoints }}
+
+## Where to change what
+{{ range .Entrypoints }}
+- {{ .Change }} — `{{ .Path }}`
+{{- end }}
+{{- end }}
+
+## How to verify
+{{- if .Commands }}
+{{ range .Commands }}
+- {{ .Label }}: {{ .Command }}
+{{- end }}
+{{- else }}
+
+- No repository-owned verification command is declared; report `NOT_PROVEN`.
+{{- end }}
+
+## Working here
+
+- Generated files carry a `GENERATED FILE` header. Change the canonical input
+  named in `edit-source` and regenerate; editing the output detaches it from
+  `.gds/bundle.lock.yaml`.
+- One Git repository is one mutation boundary. Work that crosses repositories
+  starts with `gds context --json`; work inside this one does not need it.
+- Provider writes go through plan → approve → apply and are journaled.
+{{- if .SkillProfiles }}
+- Task-specific procedures live in `skills/canonical/<name>/SKILL.md`; the
+  profiles active here are `{{ .SkillProfiles }}`. Load one when the task
+  matches it.
+{{- end }}
+
+## Facts
+
+- Repository `{{ .RepositoryID }}`, roles `{{ .Roles }}`, bundle `{{ .BundleVersion }}`.
+- Canonical inputs: `.gds/repository.yaml`; compiled result: `.gds/compiled-policy.json`.
+- Visibility `{{ .VisibilityContract }}`, data `{{ .DataClassification }}`.

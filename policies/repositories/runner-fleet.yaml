@@ -1,0 +1,31 @@
+schema_version: 1
+
+policy:
+  id: "runner-fleet"
+  tier: "repository"
+  priority: 100
+  distribution: "private"
+
+apply:
+  github:
+    merge:
+      # The base default is squash-only. This repository is deliberately not:
+      # CONTRIBUTING.md requires that a pull-request branch reach main with its
+      # commits intact, because the fleet's audit records, canary evidence and
+      # ADRs reference individual commits rather than a collapsed one. Squash
+      # and rebase integration would break those references.
+      allow_merge_commit:
+        management: "managed"
+        value: true
+      allow_squash_merge:
+        management: "managed"
+        value: false
+      allow_rebase_merge:
+        management: "managed"
+        value: false
+      # Auto-merge only releases a pull request once the required checks and
+      # the organization's signature rule have already passed; it grants no
+      # exemption from them.
+      allow_auto_merge:
+        management: "managed"
+        value: true

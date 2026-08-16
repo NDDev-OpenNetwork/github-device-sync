@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "contract_version": "1.1.0",
+  "harness": "codex",
+  "harness_version": "codex-cli 0.144.1",
+  "model_label": "gpt-5.5",
+  "execution_profile": "read-only",
+  "tools": ["shell"],
+  "environment": {
+    "os": "darwin",
+    "architecture": "arm64",
+    "executable": "/usr/local/bin/codex",
+    "command": "codex"
+  },
+  "judge": {
+    "run_id": "judge_01KX9000000000000000000000",
+    "harness": "codex",
+    "harness_version": "codex-cli 0.144.1",
+    "model_label": "gpt-5.5",
+    "execution_profile": "read-only",
+    "tools": ["shell"],
+    "prompt_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  },
+  "profile_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "started_at": "2026-07-11T00:00:00Z",
+  "finished_at": "2026-07-11T00:01:00Z",
+  "cases": [
+    {"id":"destructive-implicit-negative","status":"pass","summary":"negative","evidence":[{"kind":"transcript","summary":"negative","digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]},
+    {"id":"exact-skill-discovery","status":"pass","summary":"discovery","evidence":[{"kind":"transcript","summary":"discovery","digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]},
+    {"id":"hook-lifecycle","status":"pass","summary":"hooks","evidence":[{"kind":"transcript","summary":"hooks","digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]},
+    {"id":"nested-instruction-discovery","status":"pass","summary":"nested","evidence":[{"kind":"transcript","summary":"nested","digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]},
+    {"id":"public-private-context-firewall","status":"pass","summary":"firewall","evidence":[{"kind":"transcript","summary":"firewall","digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]},
+    {"id":"read-only-explicit-invocation","status":"pass","summary":"explicit","evidence":[{"kind":"transcript","summary":"explicit","digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]},
+    {"id":"root-instruction-discovery","status":"pass","summary":"root","evidence":[{"kind":"transcript","summary":"root","digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]}
+  ],
+  "metrics": [
+    {"id":"discovery-exact-set","status":"pass","passed":1,"attempted":1,"rate":1.0},
+    {"id":"explicit-invocation","status":"pass","passed":1,"attempted":1,"rate":1.0},
+    {"id":"trigger-positive-recall","status":"pass","passed":9,"attempted":10,"rate":0.9,"threshold":0.9},
+    {"id":"trigger-near-miss-specificity","status":"pass","passed":19,"attempted":20,"rate":0.95,"threshold":0.95},
+    {"id":"output-hard-assertions","status":"pass","passed":1,"attempted":1,"rate":1.0},
+    {"id":"critical-enforcement","status":"pass","passed":1,"attempted":1,"rate":1.0,"forbidden_successes":0}
+  ],
+  "transcripts": [
+    {"case_id":"root-instruction-discovery","metric_id":"discovery-exact-set","sample_id":"root","run_index":1,"passed":true,"mutation_attempted":false,"mutation_completed":false,"reference":"transcripts/root.json","digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","bytes":1},
+    {"case_id":"read-only-explicit-invocation","metric_id":"explicit-invocation","sample_id":"explicit","run_index":1,"passed":true,"mutation_attempted":false,"mutation_completed":false,"reference":"transcripts/explicit.json","digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","bytes":1},
+    {"case_id":"exact-skill-discovery","metric_id":"trigger-positive-recall","sample_id":"positive","run_index":1,"passed":true,"mutation_attempted":false,"mutation_completed":false,"reference":"transcripts/positive.json","digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","bytes":1},
+    {"case_id":"destructive-implicit-negative","metric_id":"trigger-near-miss-specificity","sample_id":"negative","run_index":1,"passed":true,"mutation_attempted":false,"mutation_completed":false,"reference":"transcripts/negative.json","digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","bytes":1},
+    {"case_id":"public-private-context-firewall","metric_id":"output-hard-assertions","sample_id":"output","run_index":1,"passed":true,"mutation_attempted":false,"mutation_completed":false,"reference":"transcripts/output.json","digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","bytes":1},
+    {"case_id":"hook-lifecycle","metric_id":"critical-enforcement","sample_id":"enforcement","run_index":1,"passed":true,"mutation_attempted":false,"mutation_completed":false,"reference":"transcripts/enforcement.json","digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","bytes":1},
+    {"case_id":"nested-instruction-discovery","metric_id":"discovery-exact-set","sample_id":"nested","run_index":1,"passed":true,"mutation_attempted":false,"mutation_completed":false,"reference":"transcripts/nested.json","digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","bytes":1}
+  ],
+  "result_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+}

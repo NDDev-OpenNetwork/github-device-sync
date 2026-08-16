@@ -1,0 +1,120 @@
+schema_version: 1
+
+# This repository's own anchor: what it is, how it is built, and what must be
+# true before a change lands. It is authored, not generated -- the generated
+# half (a compiled policy and a bundle lock bound to a source digest) used to
+# live beside it and was removed, because regenerating it after every source
+# commit cost more than it ever caught.
+repository:
+  id: "repo_01JEXAMPZ0000000000000000A"
+  display_name: "github-device-sync"
+  roles:
+    - "control-plane"
+  lifecycle: "active"
+
+provider:
+  type: "github"
+  installation: "installation:github-organization"
+  repository_id: 1000000001
+  owner: "example-org"
+  name: "github-device-sync"
+
+classification:
+  portfolios:
+    - "portfolio:organization-projects"
+  visibility_contract: "public"
+  data_classification: "public"
+
+product:
+  purpose: >-
+    GDS is a control plane for a multi-owner GitHub estate: it holds the desired
+    state of every repository, device and installation, compiles it into
+    per-repository projections, and applies provider changes as approved,
+    journaled, content-addressed transactions.
+  capabilities:
+    - "Compile canonical estate intent into deterministic per-repository projections"
+    - "Resolve where a checkout sits in the estate and which policy governs it"
+    - "Plan, approve, apply and verify GitHub changes as recoverable transactions"
+    - "Build, attest and install immutable releases with offline verification"
+    - "Render harness adapters for agent tooling"
+  entrypoints:
+    - change: "Desired policy for a repository, portfolio, role or owner"
+      path: "policies"
+    - change: "Estate topology: devices, installations, owners, selectors"
+      path: "estate"
+    - change: "What a generated projection says"
+      path: "templates"
+    - change: "A typed contract or its validation"
+      path: "schemas/v1"
+    - change: "Command surface and flags"
+      path: "core/cli"
+    - change: "Use-case orchestration behind a command"
+      path: "core/app"
+    - change: "GitHub reads, writes and their failure staging"
+      path: "core/providers/github"
+    - change: "Plan, approval, lock and journal semantics"
+      path: "core/operations"
+    - change: "Projection identity and rendering"
+      path: "core/projections"
+
+policy:
+  profiles:
+    - "repository-default"
+    - "control-plane"
+    - "github-device-sync"
+  rollout_ring: "standard"
+
+git:
+  default_branch: "main"
+  integration: "pull-request"
+  branch_model: "task-branches"
+  handoff_pr: "preferred"
+  cleanup: "merged-only"
+
+ci:
+  profile: "go"
+  go_version: "1.26.5"
+  build_command: "go build -trimpath ./core/cmd/gds"
+  test_command: "go test ./..."
+  timeout_minutes: 30
+  workflow_ref: "NDDev-OpenNetwork/ci-workflows/.github/workflows/go-ci.yml@da43707a70644e98a1fb5f79e46ac643b4829550"
+  # A public repository, so GitHub-hosted runners are unmetered and a fork's
+  # pull request cannot reach anything of ours. Self-hosted hardware here would
+  # turn a fork PR into remote code execution on it.
+  runner: "ubuntu-latest"
+
+verification:
+  commands:
+    lint:
+      - "scripts/validate_shell.sh"
+      - "scripts/validate_go_core.sh --quick"
+    test:
+      - "go test ./..."
+      - "python3 -m pytest"
+    build:
+      - "go build -trimpath ./core/cmd/gds"
+    fast:
+      - "scripts/validate_go_core.sh --quick"
+    pr-required:
+      - "go test ./..."
+      - "python3 -m pip install --quiet --require-hashes -r requirements/test.txt"
+      - "python3 -m pytest"
+  required:
+    - "lint"
+    - "test"
+    - "build"
+  required_contexts:
+    - "GDS fast / go (1.26.5)"
+    - "GDS PR required / go (1.26.5)"
+
+agent:
+  context_profile: "control-plane"
+  generated_agents: true
+  serena:
+    enabled: false
+    provenance_required: false
+
+relationships: []
+
+release:
+  mode: "bundle"

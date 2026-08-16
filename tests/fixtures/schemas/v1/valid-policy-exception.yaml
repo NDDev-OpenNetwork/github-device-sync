@@ -1,0 +1,9 @@
+schema_version: 1
+exception:
+  id: "exc_01KX7BV07RHD6KRA4Z4J0KCHGR"
+  repository_id: "repo_01JEXAMPZ0000000000000000C"
+  policy_path: "security.external_write_requires_approval"
+  requested_value: false
+  reason: "Time-bounded fixture for compiler enforcement tests."
+  owner_approval_ref: "approval:fixture-001"
+  expires_at: "2099-01-01T00:00:00Z"

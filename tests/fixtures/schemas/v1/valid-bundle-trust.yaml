@@ -1,0 +1,27 @@
+schema_version: 1
+trust_domain: "gds-release"
+source:
+  owner: "example-user"
+  repository: "github-device-sync"
+  allowed_workflows:
+    - ".github/workflows/release-bundle.yml"
+  allowed_refs:
+    - "refs/heads/main"
+    - "refs/tags/gds-v*"
+release:
+  minimum_release_sequence: 1
+  allowed_channels:
+    - "canary"
+    - "stable"
+verification:
+  attestation: "required"
+  sbom_for_executables: "required"
+  offline_material: "required"
+  trusted_root_digest: "sha256:65ca537f6ed8a47fd0e560c421baa1f6c1efb8b25fc200d8c5c02c0e92eb2b9c"
+  verifier:
+    name: "github-cli"
+    version: "2.96.0"
+    executables:
+      - os: "darwin"
+        arch: "arm64"
+        digest: "sha256:02d2d4a85241c6a8c0b77ebb1ec76fc723caf7fb128e00915b306b968847cba1"

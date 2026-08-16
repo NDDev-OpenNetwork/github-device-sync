@@ -1,0 +1,437 @@
+{
+  "schema_version": 1,
+  "profile": "module",
+  "runs_per_query": 3,
+  "skills": [
+    {
+      "name": "gds-manage-module",
+      "positive": [
+        {
+          "id": "manage-module-p01",
+          "split": "train",
+          "query": "Добавь или замени typed module relationship проекта с проверкой git boundary, visibility и pin policy.",
+          "expected": "gds-manage-module",
+          "must_not_trigger": [
+            "gds-release-module"
+          ]
+        },
+        {
+          "id": "manage-module-p02",
+          "split": "train",
+          "query": "Plan an explicit module relationship add, replacement, reclassification, or removal for one consumer.",
+          "expected": "gds-manage-module",
+          "must_not_trigger": [
+            "gds-release-module"
+          ]
+        },
+        {
+          "id": "manage-module-p03",
+          "split": "train",
+          "query": "Нужно безопасно и с evidence: добавь или замени typed module relationship проекта с проверкой git boundary, visibility и pin policy.",
+          "expected": "gds-manage-module",
+          "must_not_trigger": [
+            "gds-release-module"
+          ]
+        },
+        {
+          "id": "manage-module-p04",
+          "split": "train",
+          "query": "Please handle this exact GDS intent: plan an explicit module relationship add, replacement, reclassification, or removal for one consumer.",
+          "expected": "gds-manage-module",
+          "must_not_trigger": [
+            "gds-release-module"
+          ]
+        },
+        {
+          "id": "manage-module-p05",
+          "split": "train",
+          "query": "коротко: добавь или замени typed module relationship проекта с проверкой git boundary, visibility и pin policy.",
+          "expected": "gds-manage-module",
+          "must_not_trigger": [
+            "gds-release-module"
+          ]
+        },
+        {
+          "id": "manage-module-p06",
+          "split": "validation",
+          "query": "In a real multi-device estate, plan an explicit module relationship add, replacement, reclassification, or removal for one consumer.",
+          "expected": "gds-manage-module",
+          "must_not_trigger": [
+            "gds-release-module"
+          ]
+        },
+        {
+          "id": "manage-module-p07",
+          "split": "validation",
+          "query": "Сначала определи scope и stop conditions, затем добавь или замени typed module relationship проекта с проверкой git boundary, visibility и pin policy.",
+          "expected": "gds-manage-module",
+          "must_not_trigger": [
+            "gds-release-module"
+          ]
+        },
+        {
+          "id": "manage-module-p08",
+          "split": "validation",
+          "query": "Plan an explicit module relationship add, replacement, reclassification, or removal for one consumer. Preserve unrelated work and report every NOT_PROVEN check.",
+          "expected": "gds-manage-module",
+          "must_not_trigger": [
+            "gds-release-module"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "manage-module-n01",
+          "split": "train",
+          "query": "Исправь реализацию функции внутри уже подключённого module.",
+          "must_not_trigger": [
+            "gds-manage-module"
+          ]
+        },
+        {
+          "id": "manage-module-n02",
+          "split": "train",
+          "query": "Make an ordinary code change inside an existing module repository.",
+          "must_not_trigger": [
+            "gds-manage-module"
+          ]
+        },
+        {
+          "id": "manage-module-n03",
+          "split": "train",
+          "query": "Это соседняя задача, не gds-manage-module: исправь реализацию функции внутри уже подключённого module.",
+          "must_not_trigger": [
+            "gds-manage-module"
+          ]
+        },
+        {
+          "id": "manage-module-n04",
+          "split": "train",
+          "query": "Do this adjacent workflow without invoking gds-manage-module: make an ordinary code change inside an existing module repository.",
+          "must_not_trigger": [
+            "gds-manage-module"
+          ]
+        },
+        {
+          "id": "manage-module-n05",
+          "split": "train",
+          "query": "коротко: исправь реализацию функции внутри уже подключённого module.",
+          "must_not_trigger": [
+            "gds-manage-module"
+          ]
+        },
+        {
+          "id": "manage-module-n06",
+          "split": "validation",
+          "query": "In the current repository only, make an ordinary code change inside an existing module repository.",
+          "must_not_trigger": [
+            "gds-manage-module"
+          ]
+        },
+        {
+          "id": "manage-module-n07",
+          "split": "validation",
+          "query": "Не запускай gds-manage-module; исправь реализацию функции внутри уже подключённого module.",
+          "must_not_trigger": [
+            "gds-manage-module"
+          ]
+        },
+        {
+          "id": "manage-module-n08",
+          "split": "validation",
+          "query": "Make an ordinary code change inside an existing module repository. Use the narrower applicable workflow instead.",
+          "must_not_trigger": [
+            "gds-manage-module"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gds-release-module",
+      "positive": [
+        {
+          "id": "release-module-p01",
+          "split": "train",
+          "query": "Выпусти module по его declared pin и publication policy после compatibility checks.",
+          "expected": "gds-release-module",
+          "must_not_trigger": [
+            "gds-update-consumer-pins"
+          ]
+        },
+        {
+          "id": "release-module-p02",
+          "split": "train",
+          "query": "Release a module from one exact verified commit under its tag, package, or GitHub Release contract.",
+          "expected": "gds-release-module",
+          "must_not_trigger": [
+            "gds-update-consumer-pins"
+          ]
+        },
+        {
+          "id": "release-module-p03",
+          "split": "train",
+          "query": "Нужно безопасно и с evidence: выпусти module по его declared pin и publication policy после compatibility checks.",
+          "expected": "gds-release-module",
+          "must_not_trigger": [
+            "gds-update-consumer-pins"
+          ]
+        },
+        {
+          "id": "release-module-p04",
+          "split": "train",
+          "query": "Please handle this exact GDS intent: release a module from one exact verified commit under its tag, package, or GitHub Release contract.",
+          "expected": "gds-release-module",
+          "must_not_trigger": [
+            "gds-update-consumer-pins"
+          ]
+        },
+        {
+          "id": "release-module-p05",
+          "split": "train",
+          "query": "коротко: выпусти module по его declared pin и publication policy после compatibility checks.",
+          "expected": "gds-release-module",
+          "must_not_trigger": [
+            "gds-update-consumer-pins"
+          ]
+        },
+        {
+          "id": "release-module-p06",
+          "split": "validation",
+          "query": "In a real multi-device estate, release a module from one exact verified commit under its tag, package, or GitHub Release contract.",
+          "expected": "gds-release-module",
+          "must_not_trigger": [
+            "gds-update-consumer-pins"
+          ]
+        },
+        {
+          "id": "release-module-p07",
+          "split": "validation",
+          "query": "Сначала определи scope и stop conditions, затем выпусти module по его declared pin и publication policy после compatibility checks.",
+          "expected": "gds-release-module",
+          "must_not_trigger": [
+            "gds-update-consumer-pins"
+          ]
+        },
+        {
+          "id": "release-module-p08",
+          "split": "validation",
+          "query": "Release a module from one exact verified commit under its tag, package, or GitHub Release contract. Preserve unrelated work and report every NOT_PROVEN check.",
+          "expected": "gds-release-module",
+          "must_not_trigger": [
+            "gds-update-consumer-pins"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "release-module-n01",
+          "split": "train",
+          "query": "Реализуй module feature или только обнови consumer pin.",
+          "must_not_trigger": [
+            "gds-release-module"
+          ]
+        },
+        {
+          "id": "release-module-n02",
+          "split": "train",
+          "query": "Implement module code or update consumers without releasing the module.",
+          "must_not_trigger": [
+            "gds-release-module"
+          ]
+        },
+        {
+          "id": "release-module-n03",
+          "split": "train",
+          "query": "Это соседняя задача, не gds-release-module: реализуй module feature или только обнови consumer pin.",
+          "must_not_trigger": [
+            "gds-release-module"
+          ]
+        },
+        {
+          "id": "release-module-n04",
+          "split": "train",
+          "query": "Do this adjacent workflow without invoking gds-release-module: implement module code or update consumers without releasing the module.",
+          "must_not_trigger": [
+            "gds-release-module"
+          ]
+        },
+        {
+          "id": "release-module-n05",
+          "split": "train",
+          "query": "коротко: реализуй module feature или только обнови consumer pin.",
+          "must_not_trigger": [
+            "gds-release-module"
+          ]
+        },
+        {
+          "id": "release-module-n06",
+          "split": "validation",
+          "query": "In the current repository only, implement module code or update consumers without releasing the module.",
+          "must_not_trigger": [
+            "gds-release-module"
+          ]
+        },
+        {
+          "id": "release-module-n07",
+          "split": "validation",
+          "query": "Не запускай gds-release-module; реализуй module feature или только обнови consumer pin.",
+          "must_not_trigger": [
+            "gds-release-module"
+          ]
+        },
+        {
+          "id": "release-module-n08",
+          "split": "validation",
+          "query": "Implement module code or update consumers without releasing the module. Use the narrower applicable workflow instead.",
+          "must_not_trigger": [
+            "gds-release-module"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gds-update-consumer-pins",
+      "positive": [
+        {
+          "id": "update-consumer-pins-p01",
+          "split": "train",
+          "query": "Обнови выбранных consumers на финализированный module commit, tag или package version.",
+          "expected": "gds-update-consumer-pins",
+          "must_not_trigger": [
+            "gds-manage-module"
+          ]
+        },
+        {
+          "id": "update-consumer-pins-p02",
+          "split": "train",
+          "query": "Plan verified consumer pin updates for a finalized module across typed consumer relationships.",
+          "expected": "gds-update-consumer-pins",
+          "must_not_trigger": [
+            "gds-manage-module"
+          ]
+        },
+        {
+          "id": "update-consumer-pins-p03",
+          "split": "train",
+          "query": "Нужно безопасно и с evidence: обнови выбранных consumers на финализированный module commit, tag или package version.",
+          "expected": "gds-update-consumer-pins",
+          "must_not_trigger": [
+            "gds-manage-module"
+          ]
+        },
+        {
+          "id": "update-consumer-pins-p04",
+          "split": "train",
+          "query": "Please handle this exact GDS intent: plan verified consumer pin updates for a finalized module across typed consumer relationships.",
+          "expected": "gds-update-consumer-pins",
+          "must_not_trigger": [
+            "gds-manage-module"
+          ]
+        },
+        {
+          "id": "update-consumer-pins-p05",
+          "split": "train",
+          "query": "коротко: обнови выбранных consumers на финализированный module commit, tag или package version.",
+          "expected": "gds-update-consumer-pins",
+          "must_not_trigger": [
+            "gds-manage-module"
+          ]
+        },
+        {
+          "id": "update-consumer-pins-p06",
+          "split": "validation",
+          "query": "In a real multi-device estate, plan verified consumer pin updates for a finalized module across typed consumer relationships.",
+          "expected": "gds-update-consumer-pins",
+          "must_not_trigger": [
+            "gds-manage-module"
+          ]
+        },
+        {
+          "id": "update-consumer-pins-p07",
+          "split": "validation",
+          "query": "Сначала определи scope и stop conditions, затем обнови выбранных consumers на финализированный module commit, tag или package version.",
+          "expected": "gds-update-consumer-pins",
+          "must_not_trigger": [
+            "gds-manage-module"
+          ]
+        },
+        {
+          "id": "update-consumer-pins-p08",
+          "split": "validation",
+          "query": "Plan verified consumer pin updates for a finalized module across typed consumer relationships. Preserve unrelated work and report every NOT_PROVEN check.",
+          "expected": "gds-update-consumer-pins",
+          "must_not_trigger": [
+            "gds-manage-module"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "update-consumer-pins-n01",
+          "split": "train",
+          "query": "Сначала выпусти сам module или массово обнови все consumers без selector.",
+          "must_not_trigger": [
+            "gds-update-consumer-pins"
+          ]
+        },
+        {
+          "id": "update-consumer-pins-n02",
+          "split": "train",
+          "query": "Release the module itself or update every consumer without an explicit selector.",
+          "must_not_trigger": [
+            "gds-update-consumer-pins"
+          ]
+        },
+        {
+          "id": "update-consumer-pins-n03",
+          "split": "train",
+          "query": "Это соседняя задача, не gds-update-consumer-pins: сначала выпусти сам module или массово обнови все consumers без selector.",
+          "must_not_trigger": [
+            "gds-update-consumer-pins"
+          ]
+        },
+        {
+          "id": "update-consumer-pins-n04",
+          "split": "train",
+          "query": "Do this adjacent workflow without invoking gds-update-consumer-pins: release the module itself or update every consumer without an explicit selector.",
+          "must_not_trigger": [
+            "gds-update-consumer-pins"
+          ]
+        },
+        {
+          "id": "update-consumer-pins-n05",
+          "split": "train",
+          "query": "коротко: сначала выпусти сам module или массово обнови все consumers без selector.",
+          "must_not_trigger": [
+            "gds-update-consumer-pins"
+          ]
+        },
+        {
+          "id": "update-consumer-pins-n06",
+          "split": "validation",
+          "query": "In the current repository only, release the module itself or update every consumer without an explicit selector.",
+          "must_not_trigger": [
+            "gds-update-consumer-pins"
+          ]
+        },
+        {
+          "id": "update-consumer-pins-n07",
+          "split": "validation",
+          "query": "Не запускай gds-update-consumer-pins; сначала выпусти сам module или массово обнови все consumers без selector.",
+          "must_not_trigger": [
+            "gds-update-consumer-pins"
+          ]
+        },
+        {
+          "id": "update-consumer-pins-n08",
+          "split": "validation",
+          "query": "Release the module itself or update every consumer without an explicit selector. Use the narrower applicable workflow instead.",
+          "must_not_trigger": [
+            "gds-update-consumer-pins"
+          ]
+        }
+      ]
+    }
+  ]
+}
+

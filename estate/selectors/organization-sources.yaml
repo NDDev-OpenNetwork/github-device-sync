@@ -1,0 +1,21 @@
+schema_version: 1
+
+selector:
+  id: "organization-sources"
+  priority: 100
+
+match:
+  owner: "owner:acme"
+  fork: false
+  visibility:
+    - "public"
+    - "private"
+
+assign:
+  management_mode: "managed"
+  portfolios:
+    - "portfolio:organization-projects"
+  policy_profiles:
+    - "repository-default"
+    - "organization-default"
+  rollout_ring: "standard"

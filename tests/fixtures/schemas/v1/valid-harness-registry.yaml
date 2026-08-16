@@ -1,0 +1,9 @@
+schema_version: 1
+
+harnesses:
+  - id: "antigravity-cli"
+    status: "provisional"
+    profile: "harnesses/antigravity-cli/profile.yaml"
+    verified_at: "2026-07-11"
+    runtime_evidence: "not-proven"
+    legacy_aliases: []

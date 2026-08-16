@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/rollout-request.schema.json",
+  "title": "GDS side-effect-free rollout planning request v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "rollout_id", "created_at", "bundle", "repository_ids", "rings", "gates"],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "rollout_id": {
+      "$ref": "common.schema.json#/$defs/rolloutId"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "bundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "release_sequence", "channel", "artifact_digest", "manifest_digest"],
+      "properties": {
+        "version": {
+          "$ref": "common.schema.json#/$defs/semanticVersion"
+        },
+        "release_sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "channel": {
+          "enum": ["canary", "stable", "frozen"]
+        },
+        "artifact_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        },
+        "manifest_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        }
+      }
+    },
+    "repository_ids": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 2000,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "common.schema.json#/$defs/repositoryId"
+      }
+    },
+    "rings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/kebabId"
+          },
+          "max_repositories": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2000
+          },
+          "cumulative_percent": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 100
+          }
+        },
+        "oneOf": [
+          {
+            "required": ["max_repositories"]
+          },
+          {
+            "required": ["cumulative_percent"]
+          }
+        ]
+      }
+    },
+    "gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_failure_rate"],
+      "properties": {
+        "max_failure_rate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    }
+  }
+}

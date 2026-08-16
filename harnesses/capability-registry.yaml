@@ -1,0 +1,122 @@
+schema_version: 1
+
+harnesses:
+  - id: "antigravity-cli"
+    status: "provisional"
+    profile: "harnesses/antigravity-cli/profile.yaml"
+    verified_at: "2026-07-11"
+    runtime_evidence: "delegated"
+    legacy_aliases:
+      - "antigravity"
+
+  - id: "claude-code"
+    status: "provisional"
+    profile: "harnesses/claude-code/profile.yaml"
+    verified_at: "2026-07-11"
+    runtime_evidence: "delegated"
+    legacy_aliases: []
+
+  - id: "codex"
+    status: "provisional"
+    profile: "harnesses/codex/profile.yaml"
+    verified_at: "2026-07-11"
+    runtime_evidence: "delegated"
+    legacy_aliases: []
+
+  - id: "cursor-cli"
+    status: "provisional"
+    profile: "harnesses/cursor-cli/profile.yaml"
+    verified_at: "2026-07-11"
+    runtime_evidence: "delegated"
+    legacy_aliases: []
+
+  - id: "cline"
+    status: "provisional"
+    profile: "harnesses/cline/profile.yaml"
+    verified_at: "2026-07-26"
+    runtime_evidence: "delegated"
+    legacy_aliases: []
+
+  - id: "github-copilot-cli"
+    status: "provisional"
+    profile: "harnesses/github-copilot-cli/profile.yaml"
+    verified_at: "2026-07-26"
+    runtime_evidence: "delegated"
+    legacy_aliases: []
+
+  - id: "grok-build"
+    status: "provisional"
+    profile: "harnesses/grok-build/profile.yaml"
+    verified_at: "2026-07-26"
+    runtime_evidence: "delegated"
+    legacy_aliases: []
+
+  - id: "junie-cli"
+    status: "provisional"
+    profile: "harnesses/junie-cli/profile.yaml"
+    verified_at: "2026-07-26"
+    runtime_evidence: "delegated"
+    legacy_aliases: []
+
+  - id: "kimicode"
+    status: "provisional"
+    profile: "harnesses/kimicode/profile.yaml"
+    verified_at: "2026-07-11"
+    runtime_evidence: "delegated"
+    legacy_aliases: []
+
+  - id: "kilo-cli"
+    status: "provisional"
+    profile: "harnesses/kilo-cli/profile.yaml"
+    verified_at: "2026-07-26"
+    runtime_evidence: "delegated"
+    legacy_aliases: []
+
+  - id: "kiro-cli"
+    status: "provisional"
+    profile: "harnesses/kiro-cli/profile.yaml"
+    verified_at: "2026-07-26"
+    runtime_evidence: "delegated"
+    legacy_aliases: []
+
+  - id: "mimocode"
+    status: "provisional"
+    profile: "harnesses/mimocode/profile.yaml"
+    verified_at: "2026-07-11"
+    runtime_evidence: "delegated"
+    legacy_aliases: []
+
+  - id: "opencode"
+    status: "provisional"
+    profile: "harnesses/opencode/profile.yaml"
+    verified_at: "2026-07-11"
+    runtime_evidence: "delegated"
+    legacy_aliases: []
+
+  - id: "pi"
+    status: "provisional"
+    profile: "harnesses/pi/profile.yaml"
+    verified_at: "2026-07-11"
+    runtime_evidence: "delegated"
+    legacy_aliases: []
+
+  - id: "qwen-code"
+    status: "provisional"
+    profile: "harnesses/qwen-code/profile.yaml"
+    verified_at: "2026-07-26"
+    runtime_evidence: "delegated"
+    legacy_aliases: []
+
+  - id: "qoder-cli"
+    status: "provisional"
+    profile: "harnesses/qoder-cli/profile.yaml"
+    verified_at: "2026-07-26"
+    runtime_evidence: "delegated"
+    legacy_aliases: []
+
+  - id: "zcode"
+    status: "provisional"
+    profile: "harnesses/zcode/profile.yaml"
+    verified_at: "2026-07-11"
+    runtime_evidence: "delegated"
+    legacy_aliases: []

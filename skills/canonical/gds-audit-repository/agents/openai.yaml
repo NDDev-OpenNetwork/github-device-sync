@@ -1,0 +1,4 @@
+interface:
+  display_name: "GDS Audit Repository"
+  short_description: "Audit one repository without making changes"
+  default_prompt: "Use $gds-audit-repository to produce a read-only repository audit."

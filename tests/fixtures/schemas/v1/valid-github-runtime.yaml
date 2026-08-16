@@ -1,0 +1,29 @@
+schema_version: 1
+
+github:
+  installations:
+    "installation:github-organization":
+      app_id: "123456"
+      provider_installation_id: "900001"
+    "installation:github-personal":
+      app_id: "123457"
+      provider_installation_id: "900002"
+    "installation:github-example-media":
+      app_id: "123458"
+      provider_installation_id: "900003"
+    "installation:github-guild":
+      app_id: "123459"
+      provider_installation_id: "900004"
+    "installation:github-opennetwork":
+      app_id: "123460"
+      provider_installation_id: "900005"
+  max_repositories: 2000
+
+secret_store:
+  provider: "environment"
+  references:
+    "secret:gds/github-app/organization": "GDS_GITHUB_APP_ORGANIZATION_KEY"
+    "secret:gds/github-app/personal": "GDS_GITHUB_APP_PERSONAL_KEY"
+    "secret:gds/github-app/example-media": "GDS_GITHUB_APP_EXAMPLE_MEDIA_KEY"
+    "secret:gds/github-app/guild": "GDS_GITHUB_APP_GUILD_KEY"
+    "secret:gds/github-app/opennetwork": "GDS_GITHUB_APP_OPENNETWORK_KEY"

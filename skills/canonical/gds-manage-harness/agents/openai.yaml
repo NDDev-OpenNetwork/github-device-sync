@@ -1,0 +1,6 @@
+interface:
+  display_name: "GDS Manage Harness"
+  short_description: "Update one harness adapter from current evidence"
+  default_prompt: "Use $gds-manage-harness to change one approved harness adapter."
+policy:
+  allow_implicit_invocation: false

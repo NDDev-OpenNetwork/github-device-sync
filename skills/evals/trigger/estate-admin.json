@@ -1,0 +1,1882 @@
+{
+  "schema_version": 1,
+  "profile": "estate-admin",
+  "runs_per_query": 3,
+  "skills": [
+    {
+      "name": "gds-audit-estate",
+      "positive": [
+        {
+          "id": "audit-estate-p01",
+          "split": "train",
+          "query": "Проведи read-only аудит всего GDS estate по репозиториям, политикам и rollout state.",
+          "expected": "gds-audit-estate",
+          "must_not_trigger": [
+            "gds-plan-estate-change"
+          ]
+        },
+        {
+          "id": "audit-estate-p02",
+          "split": "train",
+          "query": "Audit the whole GDS estate across repositories, policies, installations, and rollout state without applying fixes.",
+          "expected": "gds-audit-estate",
+          "must_not_trigger": [
+            "gds-plan-estate-change"
+          ]
+        },
+        {
+          "id": "audit-estate-p03",
+          "split": "train",
+          "query": "Нужно безопасно и с evidence: проведи read-only аудит всего GDS estate по репозиториям, политикам и rollout state.",
+          "expected": "gds-audit-estate",
+          "must_not_trigger": [
+            "gds-plan-estate-change"
+          ]
+        },
+        {
+          "id": "audit-estate-p04",
+          "split": "train",
+          "query": "Please handle this exact GDS intent: audit the whole GDS estate across repositories, policies, installations, and rollout state without applying fixes.",
+          "expected": "gds-audit-estate",
+          "must_not_trigger": [
+            "gds-plan-estate-change"
+          ]
+        },
+        {
+          "id": "audit-estate-p05",
+          "split": "train",
+          "query": "коротко: проведи read-only аудит всего GDS estate по репозиториям, политикам и rollout state.",
+          "expected": "gds-audit-estate",
+          "must_not_trigger": [
+            "gds-plan-estate-change"
+          ]
+        },
+        {
+          "id": "audit-estate-p06",
+          "split": "validation",
+          "query": "In a real multi-device estate, audit the whole GDS estate across repositories, policies, installations, and rollout state without applying fixes.",
+          "expected": "gds-audit-estate",
+          "must_not_trigger": [
+            "gds-plan-estate-change"
+          ]
+        },
+        {
+          "id": "audit-estate-p07",
+          "split": "validation",
+          "query": "Сначала определи scope и stop conditions, затем проведи read-only аудит всего GDS estate по репозиториям, политикам и rollout state.",
+          "expected": "gds-audit-estate",
+          "must_not_trigger": [
+            "gds-plan-estate-change"
+          ]
+        },
+        {
+          "id": "audit-estate-p08",
+          "split": "validation",
+          "query": "Audit the whole GDS estate across repositories, policies, installations, and rollout state without applying fixes. Preserve unrelated work and report every NOT_PROVEN check.",
+          "expected": "gds-audit-estate",
+          "must_not_trigger": [
+            "gds-plan-estate-change"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "audit-estate-n01",
+          "split": "train",
+          "query": "Проверь только текущий репозиторий и перечисли его локальные проблемы.",
+          "must_not_trigger": [
+            "gds-audit-estate"
+          ]
+        },
+        {
+          "id": "audit-estate-n02",
+          "split": "train",
+          "query": "Inspect only this repository and report its local drift.",
+          "must_not_trigger": [
+            "gds-audit-estate"
+          ]
+        },
+        {
+          "id": "audit-estate-n03",
+          "split": "train",
+          "query": "Это соседняя задача, не gds-audit-estate: проверь только текущий репозиторий и перечисли его локальные проблемы.",
+          "must_not_trigger": [
+            "gds-audit-estate"
+          ]
+        },
+        {
+          "id": "audit-estate-n04",
+          "split": "train",
+          "query": "Do this adjacent workflow without invoking gds-audit-estate: inspect only this repository and report its local drift.",
+          "must_not_trigger": [
+            "gds-audit-estate"
+          ]
+        },
+        {
+          "id": "audit-estate-n05",
+          "split": "train",
+          "query": "коротко: проверь только текущий репозиторий и перечисли его локальные проблемы.",
+          "must_not_trigger": [
+            "gds-audit-estate"
+          ]
+        },
+        {
+          "id": "audit-estate-n06",
+          "split": "validation",
+          "query": "In the current repository only, inspect only this repository and report its local drift.",
+          "must_not_trigger": [
+            "gds-audit-estate"
+          ]
+        },
+        {
+          "id": "audit-estate-n07",
+          "split": "validation",
+          "query": "Не запускай gds-audit-estate; проверь только текущий репозиторий и перечисли его локальные проблемы.",
+          "must_not_trigger": [
+            "gds-audit-estate"
+          ]
+        },
+        {
+          "id": "audit-estate-n08",
+          "split": "validation",
+          "query": "Inspect only this repository and report its local drift. Use the narrower applicable workflow instead.",
+          "must_not_trigger": [
+            "gds-audit-estate"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gds-plan-estate-change",
+      "positive": [
+        {
+          "id": "plan-estate-change-p01",
+          "split": "train",
+          "query": "Составь side-effect-free план изменения, затрагивающего несколько репозиториев GDS.",
+          "expected": "gds-plan-estate-change",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "plan-estate-change-p02",
+          "split": "train",
+          "query": "Build a structured no-write plan for a change spanning repositories, policies, harnesses, or governance.",
+          "expected": "gds-plan-estate-change",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "plan-estate-change-p03",
+          "split": "train",
+          "query": "Нужно безопасно и с evidence: составь side-effect-free план изменения, затрагивающего несколько репозиториев GDS.",
+          "expected": "gds-plan-estate-change",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "plan-estate-change-p04",
+          "split": "train",
+          "query": "Please handle this exact GDS intent: build a structured no-write plan for a change spanning repositories, policies, harnesses, or governance.",
+          "expected": "gds-plan-estate-change",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "plan-estate-change-p05",
+          "split": "train",
+          "query": "коротко: составь side-effect-free план изменения, затрагивающего несколько репозиториев GDS.",
+          "expected": "gds-plan-estate-change",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "plan-estate-change-p06",
+          "split": "validation",
+          "query": "In a real multi-device estate, build a structured no-write plan for a change spanning repositories, policies, harnesses, or governance.",
+          "expected": "gds-plan-estate-change",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "plan-estate-change-p07",
+          "split": "validation",
+          "query": "Сначала определи scope и stop conditions, затем составь side-effect-free план изменения, затрагивающего несколько репозиториев GDS.",
+          "expected": "gds-plan-estate-change",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "plan-estate-change-p08",
+          "split": "validation",
+          "query": "Build a structured no-write plan for a change spanning repositories, policies, harnesses, or governance. Preserve unrelated work and report every NOT_PROVEN check.",
+          "expected": "gds-plan-estate-change",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "plan-estate-change-n01",
+          "split": "train",
+          "query": "Примени уже утверждённый план и внеси изменения во все targets.",
+          "must_not_trigger": [
+            "gds-plan-estate-change"
+          ]
+        },
+        {
+          "id": "plan-estate-change-n02",
+          "split": "train",
+          "query": "Apply the approved estate plan and mutate its targets.",
+          "must_not_trigger": [
+            "gds-plan-estate-change"
+          ]
+        },
+        {
+          "id": "plan-estate-change-n03",
+          "split": "train",
+          "query": "Это соседняя задача, не gds-plan-estate-change: примени уже утверждённый план и внеси изменения во все targets.",
+          "must_not_trigger": [
+            "gds-plan-estate-change"
+          ]
+        },
+        {
+          "id": "plan-estate-change-n04",
+          "split": "train",
+          "query": "Do this adjacent workflow without invoking gds-plan-estate-change: apply the approved estate plan and mutate its targets.",
+          "must_not_trigger": [
+            "gds-plan-estate-change"
+          ]
+        },
+        {
+          "id": "plan-estate-change-n05",
+          "split": "train",
+          "query": "коротко: примени уже утверждённый план и внеси изменения во все targets.",
+          "must_not_trigger": [
+            "gds-plan-estate-change"
+          ]
+        },
+        {
+          "id": "plan-estate-change-n06",
+          "split": "validation",
+          "query": "In the current repository only, apply the approved estate plan and mutate its targets.",
+          "must_not_trigger": [
+            "gds-plan-estate-change"
+          ]
+        },
+        {
+          "id": "plan-estate-change-n07",
+          "split": "validation",
+          "query": "Не запускай gds-plan-estate-change; примени уже утверждённый план и внеси изменения во все targets.",
+          "must_not_trigger": [
+            "gds-plan-estate-change"
+          ]
+        },
+        {
+          "id": "plan-estate-change-n08",
+          "split": "validation",
+          "query": "Apply the approved estate plan and mutate its targets. Use the narrower applicable workflow instead.",
+          "must_not_trigger": [
+            "gds-plan-estate-change"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gds-triage-estate-drift",
+      "positive": [
+        {
+          "id": "triage-estate-drift-p01",
+          "split": "train",
+          "query": "Классифицируй, дедуплицируй и приоритизируй обнаруженный estate drift без исправлений.",
+          "expected": "gds-triage-estate-drift",
+          "must_not_trigger": [
+            "gds-rollout-policy"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-p02",
+          "split": "train",
+          "query": "Triage verified estate drift, assign canonical owners, and propose remediation without applying it.",
+          "expected": "gds-triage-estate-drift",
+          "must_not_trigger": [
+            "gds-rollout-policy"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-p03",
+          "split": "train",
+          "query": "Нужно безопасно и с evidence: классифицируй, дедуплицируй и приоритизируй обнаруженный estate drift без исправлений.",
+          "expected": "gds-triage-estate-drift",
+          "must_not_trigger": [
+            "gds-rollout-policy"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-p04",
+          "split": "train",
+          "query": "Please handle this exact GDS intent: triage verified estate drift, assign canonical owners, and propose remediation without applying it.",
+          "expected": "gds-triage-estate-drift",
+          "must_not_trigger": [
+            "gds-rollout-policy"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-p05",
+          "split": "train",
+          "query": "коротко: классифицируй, дедуплицируй и приоритизируй обнаруженный estate drift без исправлений.",
+          "expected": "gds-triage-estate-drift",
+          "must_not_trigger": [
+            "gds-rollout-policy"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-p06",
+          "split": "validation",
+          "query": "In a real multi-device estate, triage verified estate drift, assign canonical owners, and propose remediation without applying it.",
+          "expected": "gds-triage-estate-drift",
+          "must_not_trigger": [
+            "gds-rollout-policy"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-p07",
+          "split": "validation",
+          "query": "Сначала определи scope и stop conditions, затем классифицируй, дедуплицируй и приоритизируй обнаруженный estate drift без исправлений.",
+          "expected": "gds-triage-estate-drift",
+          "must_not_trigger": [
+            "gds-rollout-policy"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-p08",
+          "split": "validation",
+          "query": "Triage verified estate drift, assign canonical owners, and propose remediation without applying it. Preserve unrelated work and report every NOT_PROVEN check.",
+          "expected": "gds-triage-estate-drift",
+          "must_not_trigger": [
+            "gds-rollout-policy"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "triage-estate-drift-n01",
+          "split": "train",
+          "query": "Автоматически исправь весь найденный drift во всех репозиториях.",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-n02",
+          "split": "train",
+          "query": "Silently auto-fix every detected drift item.",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-n03",
+          "split": "train",
+          "query": "Это соседняя задача, не gds-triage-estate-drift: автоматически исправь весь найденный drift во всех репозиториях.",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-n04",
+          "split": "train",
+          "query": "Do this adjacent workflow without invoking gds-triage-estate-drift: silently auto-fix every detected drift item.",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-n05",
+          "split": "train",
+          "query": "коротко: автоматически исправь весь найденный drift во всех репозиториях.",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-n06",
+          "split": "validation",
+          "query": "In the current repository only, silently auto-fix every detected drift item.",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-n07",
+          "split": "validation",
+          "query": "Не запускай gds-triage-estate-drift; автоматически исправь весь найденный drift во всех репозиториях.",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-n08",
+          "split": "validation",
+          "query": "Silently auto-fix every detected drift item. Use the narrower applicable workflow instead.",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gds-rollout-policy",
+      "positive": [
+        {
+          "id": "rollout-policy-p01",
+          "split": "train",
+          "query": "Раскати immutable GDS bundle по canary и bounded waves с pause gates.",
+          "expected": "gds-rollout-policy",
+          "must_not_trigger": [
+            "gds-manage-repository"
+          ]
+        },
+        {
+          "id": "rollout-policy-p02",
+          "split": "train",
+          "query": "Roll out an immutable GDS bundle through canaries and bounded waves with adoption verification.",
+          "expected": "gds-rollout-policy",
+          "must_not_trigger": [
+            "gds-manage-repository"
+          ]
+        },
+        {
+          "id": "rollout-policy-p03",
+          "split": "train",
+          "query": "Нужно безопасно и с evidence: раскати immutable GDS bundle по canary и bounded waves с pause gates.",
+          "expected": "gds-rollout-policy",
+          "must_not_trigger": [
+            "gds-manage-repository"
+          ]
+        },
+        {
+          "id": "rollout-policy-p04",
+          "split": "train",
+          "query": "Please handle this exact GDS intent: roll out an immutable GDS bundle through canaries and bounded waves with adoption verification.",
+          "expected": "gds-rollout-policy",
+          "must_not_trigger": [
+            "gds-manage-repository"
+          ]
+        },
+        {
+          "id": "rollout-policy-p05",
+          "split": "train",
+          "query": "коротко: раскати immutable GDS bundle по canary и bounded waves с pause gates.",
+          "expected": "gds-rollout-policy",
+          "must_not_trigger": [
+            "gds-manage-repository"
+          ]
+        },
+        {
+          "id": "rollout-policy-p06",
+          "split": "validation",
+          "query": "In a real multi-device estate, roll out an immutable GDS bundle through canaries and bounded waves with adoption verification.",
+          "expected": "gds-rollout-policy",
+          "must_not_trigger": [
+            "gds-manage-repository"
+          ]
+        },
+        {
+          "id": "rollout-policy-p07",
+          "split": "validation",
+          "query": "Сначала определи scope и stop conditions, затем раскати immutable GDS bundle по canary и bounded waves с pause gates.",
+          "expected": "gds-rollout-policy",
+          "must_not_trigger": [
+            "gds-manage-repository"
+          ]
+        },
+        {
+          "id": "rollout-policy-p08",
+          "split": "validation",
+          "query": "Roll out an immutable GDS bundle through canaries and bounded waves with adoption verification. Preserve unrelated work and report every NOT_PROVEN check.",
+          "expected": "gds-rollout-policy",
+          "must_not_trigger": [
+            "gds-manage-repository"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "rollout-policy-n01",
+          "split": "train",
+          "query": "Измени canonical policy и опубликуй новый bundle.",
+          "must_not_trigger": [
+            "gds-rollout-policy"
+          ]
+        },
+        {
+          "id": "rollout-policy-n02",
+          "split": "train",
+          "query": "Edit the canonical policy and publish a new bundle.",
+          "must_not_trigger": [
+            "gds-rollout-policy"
+          ]
+        },
+        {
+          "id": "rollout-policy-n03",
+          "split": "train",
+          "query": "Это соседняя задача, не gds-rollout-policy: измени canonical policy и опубликуй новый bundle.",
+          "must_not_trigger": [
+            "gds-rollout-policy"
+          ]
+        },
+        {
+          "id": "rollout-policy-n04",
+          "split": "train",
+          "query": "Do this adjacent workflow without invoking gds-rollout-policy: edit the canonical policy and publish a new bundle.",
+          "must_not_trigger": [
+            "gds-rollout-policy"
+          ]
+        },
+        {
+          "id": "rollout-policy-n05",
+          "split": "train",
+          "query": "коротко: измени canonical policy и опубликуй новый bundle.",
+          "must_not_trigger": [
+            "gds-rollout-policy"
+          ]
+        },
+        {
+          "id": "rollout-policy-n06",
+          "split": "validation",
+          "query": "In the current repository only, edit the canonical policy and publish a new bundle.",
+          "must_not_trigger": [
+            "gds-rollout-policy"
+          ]
+        },
+        {
+          "id": "rollout-policy-n07",
+          "split": "validation",
+          "query": "Не запускай gds-rollout-policy; измени canonical policy и опубликуй новый bundle.",
+          "must_not_trigger": [
+            "gds-rollout-policy"
+          ]
+        },
+        {
+          "id": "rollout-policy-n08",
+          "split": "validation",
+          "query": "Edit the canonical policy and publish a new bundle. Use the narrower applicable workflow instead.",
+          "must_not_trigger": [
+            "gds-rollout-policy"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gds-manage-repository",
+      "positive": [
+        {
+          "id": "manage-repository-p01",
+          "split": "train",
+          "query": "Подготовь lifecycle-план onboarding или rename одного GitHub repository с сохранением stable ID.",
+          "expected": "gds-manage-repository",
+          "must_not_trigger": [
+            "gds-manage-fork"
+          ]
+        },
+        {
+          "id": "manage-repository-p02",
+          "split": "train",
+          "query": "Plan an explicit repository onboarding, rename, transfer, archive, or rehome while preserving stable identity.",
+          "expected": "gds-manage-repository",
+          "must_not_trigger": [
+            "gds-manage-fork"
+          ]
+        },
+        {
+          "id": "manage-repository-p03",
+          "split": "train",
+          "query": "Нужно безопасно и с evidence: подготовь lifecycle-план onboarding или rename одного GitHub repository с сохранением stable ID.",
+          "expected": "gds-manage-repository",
+          "must_not_trigger": [
+            "gds-manage-fork"
+          ]
+        },
+        {
+          "id": "manage-repository-p04",
+          "split": "train",
+          "query": "Please handle this exact GDS intent: plan an explicit repository onboarding, rename, transfer, archive, or rehome while preserving stable identity.",
+          "expected": "gds-manage-repository",
+          "must_not_trigger": [
+            "gds-manage-fork"
+          ]
+        },
+        {
+          "id": "manage-repository-p05",
+          "split": "train",
+          "query": "коротко: подготовь lifecycle-план onboarding или rename одного GitHub repository с сохранением stable ID.",
+          "expected": "gds-manage-repository",
+          "must_not_trigger": [
+            "gds-manage-fork"
+          ]
+        },
+        {
+          "id": "manage-repository-p06",
+          "split": "validation",
+          "query": "In a real multi-device estate, plan an explicit repository onboarding, rename, transfer, archive, or rehome while preserving stable identity.",
+          "expected": "gds-manage-repository",
+          "must_not_trigger": [
+            "gds-manage-fork"
+          ]
+        },
+        {
+          "id": "manage-repository-p07",
+          "split": "validation",
+          "query": "Сначала определи scope и stop conditions, затем подготовь lifecycle-план onboarding или rename одного GitHub repository с сохранением stable ID.",
+          "expected": "gds-manage-repository",
+          "must_not_trigger": [
+            "gds-manage-fork"
+          ]
+        },
+        {
+          "id": "manage-repository-p08",
+          "split": "validation",
+          "query": "Plan an explicit repository onboarding, rename, transfer, archive, or rehome while preserving stable identity. Preserve unrelated work and report every NOT_PROVEN check.",
+          "expected": "gds-manage-repository",
+          "must_not_trigger": [
+            "gds-manage-fork"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "manage-repository-n01",
+          "split": "train",
+          "query": "Исправь feature-код внутри существующего репозитория.",
+          "must_not_trigger": [
+            "gds-manage-repository"
+          ]
+        },
+        {
+          "id": "manage-repository-n02",
+          "split": "train",
+          "query": "Implement an ordinary source-code feature in the current repository.",
+          "must_not_trigger": [
+            "gds-manage-repository"
+          ]
+        },
+        {
+          "id": "manage-repository-n03",
+          "split": "train",
+          "query": "Это соседняя задача, не gds-manage-repository: исправь feature-код внутри существующего репозитория.",
+          "must_not_trigger": [
+            "gds-manage-repository"
+          ]
+        },
+        {
+          "id": "manage-repository-n04",
+          "split": "train",
+          "query": "Do this adjacent workflow without invoking gds-manage-repository: implement an ordinary source-code feature in the current repository.",
+          "must_not_trigger": [
+            "gds-manage-repository"
+          ]
+        },
+        {
+          "id": "manage-repository-n05",
+          "split": "train",
+          "query": "коротко: исправь feature-код внутри существующего репозитория.",
+          "must_not_trigger": [
+            "gds-manage-repository"
+          ]
+        },
+        {
+          "id": "manage-repository-n06",
+          "split": "validation",
+          "query": "In the current repository only, implement an ordinary source-code feature in the current repository.",
+          "must_not_trigger": [
+            "gds-manage-repository"
+          ]
+        },
+        {
+          "id": "manage-repository-n07",
+          "split": "validation",
+          "query": "Не запускай gds-manage-repository; исправь feature-код внутри существующего репозитория.",
+          "must_not_trigger": [
+            "gds-manage-repository"
+          ]
+        },
+        {
+          "id": "manage-repository-n08",
+          "split": "validation",
+          "query": "Implement an ordinary source-code feature in the current repository. Use the narrower applicable workflow instead.",
+          "must_not_trigger": [
+            "gds-manage-repository"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gds-manage-fork",
+      "positive": [
+        {
+          "id": "manage-fork-p01",
+          "split": "train",
+          "query": "Подготовь безопасный lifecycle-план fork с сохранением fork-specific commits и upstream identity.",
+          "expected": "gds-manage-fork",
+          "must_not_trigger": [
+            "gds-manage-harness"
+          ]
+        },
+        {
+          "id": "manage-fork-p02",
+          "split": "train",
+          "query": "Plan an explicit fork sync, rehome, detach, freeze, or archive without losing maintained commits.",
+          "expected": "gds-manage-fork",
+          "must_not_trigger": [
+            "gds-manage-harness"
+          ]
+        },
+        {
+          "id": "manage-fork-p03",
+          "split": "train",
+          "query": "Нужно безопасно и с evidence: подготовь безопасный lifecycle-план fork с сохранением fork-specific commits и upstream identity.",
+          "expected": "gds-manage-fork",
+          "must_not_trigger": [
+            "gds-manage-harness"
+          ]
+        },
+        {
+          "id": "manage-fork-p04",
+          "split": "train",
+          "query": "Please handle this exact GDS intent: plan an explicit fork sync, rehome, detach, freeze, or archive without losing maintained commits.",
+          "expected": "gds-manage-fork",
+          "must_not_trigger": [
+            "gds-manage-harness"
+          ]
+        },
+        {
+          "id": "manage-fork-p05",
+          "split": "train",
+          "query": "коротко: подготовь безопасный lifecycle-план fork с сохранением fork-specific commits и upstream identity.",
+          "expected": "gds-manage-fork",
+          "must_not_trigger": [
+            "gds-manage-harness"
+          ]
+        },
+        {
+          "id": "manage-fork-p06",
+          "split": "validation",
+          "query": "In a real multi-device estate, plan an explicit fork sync, rehome, detach, freeze, or archive without losing maintained commits.",
+          "expected": "gds-manage-fork",
+          "must_not_trigger": [
+            "gds-manage-harness"
+          ]
+        },
+        {
+          "id": "manage-fork-p07",
+          "split": "validation",
+          "query": "Сначала определи scope и stop conditions, затем подготовь безопасный lifecycle-план fork с сохранением fork-specific commits и upstream identity.",
+          "expected": "gds-manage-fork",
+          "must_not_trigger": [
+            "gds-manage-harness"
+          ]
+        },
+        {
+          "id": "manage-fork-p08",
+          "split": "validation",
+          "query": "Plan an explicit fork sync, rehome, detach, freeze, or archive without losing maintained commits. Preserve unrelated work and report every NOT_PROVEN check.",
+          "expected": "gds-manage-fork",
+          "must_not_trigger": [
+            "gds-manage-harness"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "manage-fork-n01",
+          "split": "train",
+          "query": "Синхронизируй обычную task branch с origin.",
+          "must_not_trigger": [
+            "gds-manage-fork"
+          ]
+        },
+        {
+          "id": "manage-fork-n02",
+          "split": "train",
+          "query": "Perform generic branch synchronization in a source repository.",
+          "must_not_trigger": [
+            "gds-manage-fork"
+          ]
+        },
+        {
+          "id": "manage-fork-n03",
+          "split": "train",
+          "query": "Это соседняя задача, не gds-manage-fork: синхронизируй обычную task branch с origin.",
+          "must_not_trigger": [
+            "gds-manage-fork"
+          ]
+        },
+        {
+          "id": "manage-fork-n04",
+          "split": "train",
+          "query": "Do this adjacent workflow without invoking gds-manage-fork: perform generic branch synchronization in a source repository.",
+          "must_not_trigger": [
+            "gds-manage-fork"
+          ]
+        },
+        {
+          "id": "manage-fork-n05",
+          "split": "train",
+          "query": "коротко: синхронизируй обычную task branch с origin.",
+          "must_not_trigger": [
+            "gds-manage-fork"
+          ]
+        },
+        {
+          "id": "manage-fork-n06",
+          "split": "validation",
+          "query": "In the current repository only, perform generic branch synchronization in a source repository.",
+          "must_not_trigger": [
+            "gds-manage-fork"
+          ]
+        },
+        {
+          "id": "manage-fork-n07",
+          "split": "validation",
+          "query": "Не запускай gds-manage-fork; синхронизируй обычную task branch с origin.",
+          "must_not_trigger": [
+            "gds-manage-fork"
+          ]
+        },
+        {
+          "id": "manage-fork-n08",
+          "split": "validation",
+          "query": "Perform generic branch synchronization in a source repository. Use the narrower applicable workflow instead.",
+          "must_not_trigger": [
+            "gds-manage-fork"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gds-manage-harness",
+      "positive": [
+        {
+          "id": "manage-harness-p01",
+          "split": "train",
+          "query": "Обнови capability profile одного agent harness после проверки официального контракта и runtime discovery.",
+          "expected": "gds-manage-harness",
+          "must_not_trigger": [
+            "gds-migrate-schema"
+          ]
+        },
+        {
+          "id": "manage-harness-p02",
+          "split": "train",
+          "query": "Plan one harness adapter add, update, migration, verification, or retirement from current official evidence.",
+          "expected": "gds-manage-harness",
+          "must_not_trigger": [
+            "gds-migrate-schema"
+          ]
+        },
+        {
+          "id": "manage-harness-p03",
+          "split": "train",
+          "query": "Нужно безопасно и с evidence: обнови capability profile одного agent harness после проверки официального контракта и runtime discovery.",
+          "expected": "gds-manage-harness",
+          "must_not_trigger": [
+            "gds-migrate-schema"
+          ]
+        },
+        {
+          "id": "manage-harness-p04",
+          "split": "train",
+          "query": "Please handle this exact GDS intent: plan one harness adapter add, update, migration, verification, or retirement from current official evidence.",
+          "expected": "gds-manage-harness",
+          "must_not_trigger": [
+            "gds-migrate-schema"
+          ]
+        },
+        {
+          "id": "manage-harness-p05",
+          "split": "train",
+          "query": "коротко: обнови capability profile одного agent harness после проверки официального контракта и runtime discovery.",
+          "expected": "gds-manage-harness",
+          "must_not_trigger": [
+            "gds-migrate-schema"
+          ]
+        },
+        {
+          "id": "manage-harness-p06",
+          "split": "validation",
+          "query": "In a real multi-device estate, plan one harness adapter add, update, migration, verification, or retirement from current official evidence.",
+          "expected": "gds-manage-harness",
+          "must_not_trigger": [
+            "gds-migrate-schema"
+          ]
+        },
+        {
+          "id": "manage-harness-p07",
+          "split": "validation",
+          "query": "Сначала определи scope и stop conditions, затем обнови capability profile одного agent harness после проверки официального контракта и runtime discovery.",
+          "expected": "gds-manage-harness",
+          "must_not_trigger": [
+            "gds-migrate-schema"
+          ]
+        },
+        {
+          "id": "manage-harness-p08",
+          "split": "validation",
+          "query": "Plan one harness adapter add, update, migration, verification, or retirement from current official evidence. Preserve unrelated work and report every NOT_PROVEN check.",
+          "expected": "gds-manage-harness",
+          "must_not_trigger": [
+            "gds-migrate-schema"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "manage-harness-n01",
+          "split": "train",
+          "query": "Незаметно поменяй глобальную конфигурацию всех CLI пользователя.",
+          "must_not_trigger": [
+            "gds-manage-harness"
+          ]
+        },
+        {
+          "id": "manage-harness-n02",
+          "split": "train",
+          "query": "Silently rewrite every user-global harness configuration.",
+          "must_not_trigger": [
+            "gds-manage-harness"
+          ]
+        },
+        {
+          "id": "manage-harness-n03",
+          "split": "train",
+          "query": "Это соседняя задача, не gds-manage-harness: незаметно поменяй глобальную конфигурацию всех CLI пользователя.",
+          "must_not_trigger": [
+            "gds-manage-harness"
+          ]
+        },
+        {
+          "id": "manage-harness-n04",
+          "split": "train",
+          "query": "Do this adjacent workflow without invoking gds-manage-harness: silently rewrite every user-global harness configuration.",
+          "must_not_trigger": [
+            "gds-manage-harness"
+          ]
+        },
+        {
+          "id": "manage-harness-n05",
+          "split": "train",
+          "query": "коротко: незаметно поменяй глобальную конфигурацию всех CLI пользователя.",
+          "must_not_trigger": [
+            "gds-manage-harness"
+          ]
+        },
+        {
+          "id": "manage-harness-n06",
+          "split": "validation",
+          "query": "In the current repository only, silently rewrite every user-global harness configuration.",
+          "must_not_trigger": [
+            "gds-manage-harness"
+          ]
+        },
+        {
+          "id": "manage-harness-n07",
+          "split": "validation",
+          "query": "Не запускай gds-manage-harness; незаметно поменяй глобальную конфигурацию всех CLI пользователя.",
+          "must_not_trigger": [
+            "gds-manage-harness"
+          ]
+        },
+        {
+          "id": "manage-harness-n08",
+          "split": "validation",
+          "query": "Silently rewrite every user-global harness configuration. Use the narrower applicable workflow instead.",
+          "must_not_trigger": [
+            "gds-manage-harness"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gds-migrate-schema",
+      "positive": [
+        {
+          "id": "migrate-schema-p01",
+          "split": "train",
+          "query": "Спланируй reversible миграцию GDS manifests и state на новую schema version.",
+          "expected": "gds-migrate-schema",
+          "must_not_trigger": [
+            "gds-recover-operation"
+          ]
+        },
+        {
+          "id": "migrate-schema-p02",
+          "split": "train",
+          "query": "Rehearse and plan an explicit versioned GDS schema migration with fixtures, canaries, and rollback.",
+          "expected": "gds-migrate-schema",
+          "must_not_trigger": [
+            "gds-recover-operation"
+          ]
+        },
+        {
+          "id": "migrate-schema-p03",
+          "split": "train",
+          "query": "Нужно безопасно и с evidence: спланируй reversible миграцию GDS manifests и state на новую schema version.",
+          "expected": "gds-migrate-schema",
+          "must_not_trigger": [
+            "gds-recover-operation"
+          ]
+        },
+        {
+          "id": "migrate-schema-p04",
+          "split": "train",
+          "query": "Please handle this exact GDS intent: rehearse and plan an explicit versioned GDS schema migration with fixtures, canaries, and rollback.",
+          "expected": "gds-migrate-schema",
+          "must_not_trigger": [
+            "gds-recover-operation"
+          ]
+        },
+        {
+          "id": "migrate-schema-p05",
+          "split": "train",
+          "query": "коротко: спланируй reversible миграцию GDS manifests и state на новую schema version.",
+          "expected": "gds-migrate-schema",
+          "must_not_trigger": [
+            "gds-recover-operation"
+          ]
+        },
+        {
+          "id": "migrate-schema-p06",
+          "split": "validation",
+          "query": "In a real multi-device estate, rehearse and plan an explicit versioned GDS schema migration with fixtures, canaries, and rollback.",
+          "expected": "gds-migrate-schema",
+          "must_not_trigger": [
+            "gds-recover-operation"
+          ]
+        },
+        {
+          "id": "migrate-schema-p07",
+          "split": "validation",
+          "query": "Сначала определи scope и stop conditions, затем спланируй reversible миграцию GDS manifests и state на новую schema version.",
+          "expected": "gds-migrate-schema",
+          "must_not_trigger": [
+            "gds-recover-operation"
+          ]
+        },
+        {
+          "id": "migrate-schema-p08",
+          "split": "validation",
+          "query": "Rehearse and plan an explicit versioned GDS schema migration with fixtures, canaries, and rollback. Preserve unrelated work and report every NOT_PROVEN check.",
+          "expected": "gds-migrate-schema",
+          "must_not_trigger": [
+            "gds-recover-operation"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "migrate-schema-n01",
+          "split": "train",
+          "query": "Только переформатируй YAML без изменения контракта.",
+          "must_not_trigger": [
+            "gds-migrate-schema"
+          ]
+        },
+        {
+          "id": "migrate-schema-n02",
+          "split": "train",
+          "query": "Make an ordinary data edit or cosmetic YAML reformat.",
+          "must_not_trigger": [
+            "gds-migrate-schema"
+          ]
+        },
+        {
+          "id": "migrate-schema-n03",
+          "split": "train",
+          "query": "Это соседняя задача, не gds-migrate-schema: только переформатируй YAML без изменения контракта.",
+          "must_not_trigger": [
+            "gds-migrate-schema"
+          ]
+        },
+        {
+          "id": "migrate-schema-n04",
+          "split": "train",
+          "query": "Do this adjacent workflow without invoking gds-migrate-schema: make an ordinary data edit or cosmetic YAML reformat.",
+          "must_not_trigger": [
+            "gds-migrate-schema"
+          ]
+        },
+        {
+          "id": "migrate-schema-n05",
+          "split": "train",
+          "query": "коротко: только переформатируй YAML без изменения контракта.",
+          "must_not_trigger": [
+            "gds-migrate-schema"
+          ]
+        },
+        {
+          "id": "migrate-schema-n06",
+          "split": "validation",
+          "query": "In the current repository only, make an ordinary data edit or cosmetic YAML reformat.",
+          "must_not_trigger": [
+            "gds-migrate-schema"
+          ]
+        },
+        {
+          "id": "migrate-schema-n07",
+          "split": "validation",
+          "query": "Не запускай gds-migrate-schema; только переформатируй YAML без изменения контракта.",
+          "must_not_trigger": [
+            "gds-migrate-schema"
+          ]
+        },
+        {
+          "id": "migrate-schema-n08",
+          "split": "validation",
+          "query": "Make an ordinary data edit or cosmetic YAML reformat. Use the narrower applicable workflow instead.",
+          "must_not_trigger": [
+            "gds-migrate-schema"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gds-recover-operation",
+      "positive": [
+        {
+          "id": "recover-operation-p01",
+          "split": "train",
+          "query": "Разбери journal прерванной GDS operation и подготовь безопасный resume, abort или compensation.",
+          "expected": "gds-recover-operation",
+          "must_not_trigger": [
+            "gds-maintain-agent-system"
+          ]
+        },
+        {
+          "id": "recover-operation-p02",
+          "split": "train",
+          "query": "Inspect one interrupted operation or stale lock and reconstruct a safe recovery plan from durable evidence.",
+          "expected": "gds-recover-operation",
+          "must_not_trigger": [
+            "gds-maintain-agent-system"
+          ]
+        },
+        {
+          "id": "recover-operation-p03",
+          "split": "train",
+          "query": "Нужно безопасно и с evidence: разбери journal прерванной GDS operation и подготовь безопасный resume, abort или compensation.",
+          "expected": "gds-recover-operation",
+          "must_not_trigger": [
+            "gds-maintain-agent-system"
+          ]
+        },
+        {
+          "id": "recover-operation-p04",
+          "split": "train",
+          "query": "Please handle this exact GDS intent: inspect one interrupted operation or stale lock and reconstruct a safe recovery plan from durable evidence.",
+          "expected": "gds-recover-operation",
+          "must_not_trigger": [
+            "gds-maintain-agent-system"
+          ]
+        },
+        {
+          "id": "recover-operation-p05",
+          "split": "train",
+          "query": "коротко: разбери journal прерванной GDS operation и подготовь безопасный resume, abort или compensation.",
+          "expected": "gds-recover-operation",
+          "must_not_trigger": [
+            "gds-maintain-agent-system"
+          ]
+        },
+        {
+          "id": "recover-operation-p06",
+          "split": "validation",
+          "query": "In a real multi-device estate, inspect one interrupted operation or stale lock and reconstruct a safe recovery plan from durable evidence.",
+          "expected": "gds-recover-operation",
+          "must_not_trigger": [
+            "gds-maintain-agent-system"
+          ]
+        },
+        {
+          "id": "recover-operation-p07",
+          "split": "validation",
+          "query": "Сначала определи scope и stop conditions, затем разбери journal прерванной GDS operation и подготовь безопасный resume, abort или compensation.",
+          "expected": "gds-recover-operation",
+          "must_not_trigger": [
+            "gds-maintain-agent-system"
+          ]
+        },
+        {
+          "id": "recover-operation-p08",
+          "split": "validation",
+          "query": "Inspect one interrupted operation or stale lock and reconstruct a safe recovery plan from durable evidence. Preserve unrelated work and report every NOT_PROVEN check.",
+          "expected": "gds-recover-operation",
+          "must_not_trigger": [
+            "gds-maintain-agent-system"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "recover-operation-n01",
+          "split": "train",
+          "query": "Сделай общий rollback последних коммитов без operation ID.",
+          "must_not_trigger": [
+            "gds-recover-operation"
+          ]
+        },
+        {
+          "id": "recover-operation-n02",
+          "split": "train",
+          "query": "Run a generic rollback without an interrupted operation or journal identity.",
+          "must_not_trigger": [
+            "gds-recover-operation"
+          ]
+        },
+        {
+          "id": "recover-operation-n03",
+          "split": "train",
+          "query": "Это соседняя задача, не gds-recover-operation: сделай общий rollback последних коммитов без operation ID.",
+          "must_not_trigger": [
+            "gds-recover-operation"
+          ]
+        },
+        {
+          "id": "recover-operation-n04",
+          "split": "train",
+          "query": "Do this adjacent workflow without invoking gds-recover-operation: run a generic rollback without an interrupted operation or journal identity.",
+          "must_not_trigger": [
+            "gds-recover-operation"
+          ]
+        },
+        {
+          "id": "recover-operation-n05",
+          "split": "train",
+          "query": "коротко: сделай общий rollback последних коммитов без operation ID.",
+          "must_not_trigger": [
+            "gds-recover-operation"
+          ]
+        },
+        {
+          "id": "recover-operation-n06",
+          "split": "validation",
+          "query": "In the current repository only, run a generic rollback without an interrupted operation or journal identity.",
+          "must_not_trigger": [
+            "gds-recover-operation"
+          ]
+        },
+        {
+          "id": "recover-operation-n07",
+          "split": "validation",
+          "query": "Не запускай gds-recover-operation; сделай общий rollback последних коммитов без operation ID.",
+          "must_not_trigger": [
+            "gds-recover-operation"
+          ]
+        },
+        {
+          "id": "recover-operation-n08",
+          "split": "validation",
+          "query": "Run a generic rollback without an interrupted operation or journal identity. Use the narrower applicable workflow instead.",
+          "must_not_trigger": [
+            "gds-recover-operation"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gds-maintain-agent-system",
+      "positive": [
+        {
+          "id": "maintain-agent-system-p01",
+          "split": "train",
+          "query": "Обнови сам GDS agent system: source facts, schemas, skills, adapters и generators с canary release.",
+          "expected": "gds-maintain-agent-system",
+          "must_not_trigger": [
+            "gds-release-control-plane"
+          ]
+        },
+        {
+          "id": "maintain-agent-system-p02",
+          "split": "train",
+          "query": "Maintain the GDS agent operating system itself and prepare a validated immutable canary release.",
+          "expected": "gds-maintain-agent-system",
+          "must_not_trigger": [
+            "gds-release-control-plane"
+          ]
+        },
+        {
+          "id": "maintain-agent-system-p03",
+          "split": "train",
+          "query": "Нужно безопасно и с evidence: обнови сам GDS agent system: source facts, schemas, skills, adapters и generators с canary release.",
+          "expected": "gds-maintain-agent-system",
+          "must_not_trigger": [
+            "gds-release-control-plane"
+          ]
+        },
+        {
+          "id": "maintain-agent-system-p04",
+          "split": "train",
+          "query": "Please handle this exact GDS intent: maintain the GDS agent operating system itself and prepare a validated immutable canary release.",
+          "expected": "gds-maintain-agent-system",
+          "must_not_trigger": [
+            "gds-release-control-plane"
+          ]
+        },
+        {
+          "id": "maintain-agent-system-p05",
+          "split": "train",
+          "query": "коротко: обнови сам GDS agent system: source facts, schemas, skills, adapters и generators с canary release.",
+          "expected": "gds-maintain-agent-system",
+          "must_not_trigger": [
+            "gds-release-control-plane"
+          ]
+        },
+        {
+          "id": "maintain-agent-system-p06",
+          "split": "validation",
+          "query": "In a real multi-device estate, maintain the GDS agent operating system itself and prepare a validated immutable canary release.",
+          "expected": "gds-maintain-agent-system",
+          "must_not_trigger": [
+            "gds-release-control-plane"
+          ]
+        },
+        {
+          "id": "maintain-agent-system-p07",
+          "split": "validation",
+          "query": "Сначала определи scope и stop conditions, затем обнови сам GDS agent system: source facts, schemas, skills, adapters и generators с canary release.",
+          "expected": "gds-maintain-agent-system",
+          "must_not_trigger": [
+            "gds-release-control-plane"
+          ]
+        },
+        {
+          "id": "maintain-agent-system-p08",
+          "split": "validation",
+          "query": "Maintain the GDS agent operating system itself and prepare a validated immutable canary release. Preserve unrelated work and report every NOT_PROVEN check.",
+          "expected": "gds-maintain-agent-system",
+          "must_not_trigger": [
+            "gds-release-control-plane"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "maintain-agent-system-n01",
+          "split": "train",
+          "query": "Реализуй обычную продуктовую feature в одном managed project.",
+          "must_not_trigger": [
+            "gds-maintain-agent-system"
+          ]
+        },
+        {
+          "id": "maintain-agent-system-n02",
+          "split": "train",
+          "query": "Implement an ordinary repository feature unrelated to the GDS agent system.",
+          "must_not_trigger": [
+            "gds-maintain-agent-system"
+          ]
+        },
+        {
+          "id": "maintain-agent-system-n03",
+          "split": "train",
+          "query": "Это соседняя задача, не gds-maintain-agent-system: реализуй обычную продуктовую feature в одном managed project.",
+          "must_not_trigger": [
+            "gds-maintain-agent-system"
+          ]
+        },
+        {
+          "id": "maintain-agent-system-n04",
+          "split": "train",
+          "query": "Do this adjacent workflow without invoking gds-maintain-agent-system: implement an ordinary repository feature unrelated to the GDS agent system.",
+          "must_not_trigger": [
+            "gds-maintain-agent-system"
+          ]
+        },
+        {
+          "id": "maintain-agent-system-n05",
+          "split": "train",
+          "query": "коротко: реализуй обычную продуктовую feature в одном managed project.",
+          "must_not_trigger": [
+            "gds-maintain-agent-system"
+          ]
+        },
+        {
+          "id": "maintain-agent-system-n06",
+          "split": "validation",
+          "query": "In the current repository only, implement an ordinary repository feature unrelated to the GDS agent system.",
+          "must_not_trigger": [
+            "gds-maintain-agent-system"
+          ]
+        },
+        {
+          "id": "maintain-agent-system-n07",
+          "split": "validation",
+          "query": "Не запускай gds-maintain-agent-system; реализуй обычную продуктовую feature в одном managed project.",
+          "must_not_trigger": [
+            "gds-maintain-agent-system"
+          ]
+        },
+        {
+          "id": "maintain-agent-system-n08",
+          "split": "validation",
+          "query": "Implement an ordinary repository feature unrelated to the GDS agent system. Use the narrower applicable workflow instead.",
+          "must_not_trigger": [
+            "gds-maintain-agent-system"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gds-release-control-plane",
+      "positive": [
+        {
+          "id": "release-control-plane-p01",
+          "split": "train",
+          "query": "Подготовь reproducible release проверенного GDS CLI, plugin и immutable bundle.",
+          "expected": "gds-release-control-plane",
+          "must_not_trigger": [
+            "gds-audit-estate"
+          ]
+        },
+        {
+          "id": "release-control-plane-p02",
+          "split": "train",
+          "query": "Release a verified GDS control-plane artifact with monotonic sequence, provenance, checksums, and SBOM policy.",
+          "expected": "gds-release-control-plane",
+          "must_not_trigger": [
+            "gds-audit-estate"
+          ]
+        },
+        {
+          "id": "release-control-plane-p03",
+          "split": "train",
+          "query": "Нужно безопасно и с evidence: подготовь reproducible release проверенного GDS CLI, plugin и immutable bundle.",
+          "expected": "gds-release-control-plane",
+          "must_not_trigger": [
+            "gds-audit-estate"
+          ]
+        },
+        {
+          "id": "release-control-plane-p04",
+          "split": "train",
+          "query": "Please handle this exact GDS intent: release a verified GDS control-plane artifact with monotonic sequence, provenance, checksums, and SBOM policy.",
+          "expected": "gds-release-control-plane",
+          "must_not_trigger": [
+            "gds-audit-estate"
+          ]
+        },
+        {
+          "id": "release-control-plane-p05",
+          "split": "train",
+          "query": "коротко: подготовь reproducible release проверенного GDS CLI, plugin и immutable bundle.",
+          "expected": "gds-release-control-plane",
+          "must_not_trigger": [
+            "gds-audit-estate"
+          ]
+        },
+        {
+          "id": "release-control-plane-p06",
+          "split": "validation",
+          "query": "In a real multi-device estate, release a verified GDS control-plane artifact with monotonic sequence, provenance, checksums, and SBOM policy.",
+          "expected": "gds-release-control-plane",
+          "must_not_trigger": [
+            "gds-audit-estate"
+          ]
+        },
+        {
+          "id": "release-control-plane-p07",
+          "split": "validation",
+          "query": "Сначала определи scope и stop conditions, затем подготовь reproducible release проверенного GDS CLI, plugin и immutable bundle.",
+          "expected": "gds-release-control-plane",
+          "must_not_trigger": [
+            "gds-audit-estate"
+          ]
+        },
+        {
+          "id": "release-control-plane-p08",
+          "split": "validation",
+          "query": "Release a verified GDS control-plane artifact with monotonic sequence, provenance, checksums, and SBOM policy. Preserve unrelated work and report every NOT_PROVEN check.",
+          "expected": "gds-release-control-plane",
+          "must_not_trigger": [
+            "gds-audit-estate"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "release-control-plane-n01",
+          "split": "train",
+          "query": "Разрабатывай новую feature или раскати уже выпущенный bundle по repositories.",
+          "must_not_trigger": [
+            "gds-release-control-plane"
+          ]
+        },
+        {
+          "id": "release-control-plane-n02",
+          "split": "train",
+          "query": "Develop a feature or roll an existing bundle out to managed repositories.",
+          "must_not_trigger": [
+            "gds-release-control-plane"
+          ]
+        },
+        {
+          "id": "release-control-plane-n03",
+          "split": "train",
+          "query": "Это соседняя задача, не gds-release-control-plane: разрабатывай новую feature или раскати уже выпущенный bundle по repositories.",
+          "must_not_trigger": [
+            "gds-release-control-plane"
+          ]
+        },
+        {
+          "id": "release-control-plane-n04",
+          "split": "train",
+          "query": "Do this adjacent workflow without invoking gds-release-control-plane: develop a feature or roll an existing bundle out to managed repositories.",
+          "must_not_trigger": [
+            "gds-release-control-plane"
+          ]
+        },
+        {
+          "id": "release-control-plane-n05",
+          "split": "train",
+          "query": "коротко: разрабатывай новую feature или раскати уже выпущенный bundle по repositories.",
+          "must_not_trigger": [
+            "gds-release-control-plane"
+          ]
+        },
+        {
+          "id": "release-control-plane-n06",
+          "split": "validation",
+          "query": "In the current repository only, develop a feature or roll an existing bundle out to managed repositories.",
+          "must_not_trigger": [
+            "gds-release-control-plane"
+          ]
+        },
+        {
+          "id": "release-control-plane-n07",
+          "split": "validation",
+          "query": "Не запускай gds-release-control-plane; разрабатывай новую feature или раскати уже выпущенный bundle по repositories.",
+          "must_not_trigger": [
+            "gds-release-control-plane"
+          ]
+        },
+        {
+          "id": "release-control-plane-n08",
+          "split": "validation",
+          "query": "Develop a feature or roll an existing bundle out to managed repositories. Use the narrower applicable workflow instead.",
+          "must_not_trigger": [
+            "gds-release-control-plane"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gds-onboard-repository",
+      "positive": [
+        {
+          "id": "onboard-repository-p01",
+          "split": "train",
+          "query": "Onboard a brand-new repository into the GDS estate end to end, from anchor through selector classification to device materialization.",
+          "expected": "gds-onboard-repository",
+          "must_not_trigger": [
+            "gds-manage-repository",
+            "gds-reconcile-provider-change"
+          ]
+        },
+        {
+          "id": "onboard-repository-p02",
+          "split": "train",
+          "query": "Добавь новый репозиторий в GDS estate полностью: anchor, selector, materialization на устройствах, регенерация projections.",
+          "expected": "gds-onboard-repository",
+          "must_not_trigger": [
+            "gds-manage-repository",
+            "gds-reconcile-provider-change"
+          ]
+        },
+        {
+          "id": "onboard-repository-p03",
+          "split": "train",
+          "query": "Walk the full onboarding sequence to add a new repository to the estate so it appears on target devices.",
+          "expected": "gds-onboard-repository",
+          "must_not_trigger": [
+            "gds-manage-repository",
+            "gds-reconcile-provider-change"
+          ]
+        },
+        {
+          "id": "onboard-repository-p04",
+          "split": "train",
+          "query": "Help me onboard a new repo into gds: create the anchor, classify it, materialize it on devices, regenerate projections.",
+          "expected": "gds-onboard-repository",
+          "must_not_trigger": [
+            "gds-manage-repository",
+            "gds-reconcile-provider-change"
+          ]
+        },
+        {
+          "id": "onboard-repository-p05",
+          "split": "train",
+          "query": "I need to add a brand-new repository to the estate end to end, not just change an existing one.",
+          "expected": "gds-onboard-repository",
+          "must_not_trigger": [
+            "gds-manage-repository",
+            "gds-reconcile-provider-change"
+          ]
+        },
+        {
+          "id": "onboard-repository-p06",
+          "split": "validation",
+          "query": "Проведи полный onboarding нового репозитория: stable ID, portfolio, device placement, projections.",
+          "expected": "gds-onboard-repository",
+          "must_not_trigger": [
+            "gds-manage-repository",
+            "gds-reconcile-provider-change"
+          ]
+        },
+        {
+          "id": "onboard-repository-p07",
+          "split": "validation",
+          "query": "Add a brand-new repository to the GDS estate covering anchor, selectors, devices, and projections in one pass.",
+          "expected": "gds-onboard-repository",
+          "must_not_trigger": [
+            "gds-manage-repository",
+            "gds-reconcile-provider-change"
+          ]
+        },
+        {
+          "id": "onboard-repository-p08",
+          "split": "validation",
+          "query": "Зарегай новый репозиторий в estate полностью — от provider creation до projection regeneration.",
+          "expected": "gds-onboard-repository",
+          "must_not_trigger": [
+            "gds-manage-repository",
+            "gds-reconcile-provider-change"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "onboard-repository-n01",
+          "split": "train",
+          "query": "Change the lifecycle of an existing repository that already has an anchor.",
+          "must_not_trigger": [
+            "gds-onboard-repository"
+          ]
+        },
+        {
+          "id": "onboard-repository-n02",
+          "split": "train",
+          "query": "Переименуй существующий репозиторий.",
+          "must_not_trigger": [
+            "gds-onboard-repository"
+          ]
+        },
+        {
+          "id": "onboard-repository-n03",
+          "split": "train",
+          "query": "Fix a bug inside an existing repository's source code.",
+          "must_not_trigger": [
+            "gds-onboard-repository"
+          ]
+        },
+        {
+          "id": "onboard-repository-n04",
+          "split": "train",
+          "query": "Archive a repository that is already onboarded.",
+          "must_not_trigger": [
+            "gds-onboard-repository"
+          ]
+        },
+        {
+          "id": "onboard-repository-n05",
+          "split": "train",
+          "query": "Transfer an existing repository to a new owner.",
+          "must_not_trigger": [
+            "gds-onboard-repository"
+          ]
+        },
+        {
+          "id": "onboard-repository-n06",
+          "split": "validation",
+          "query": "Audit the estate to find drift.",
+          "must_not_trigger": [
+            "gds-onboard-repository"
+          ]
+        },
+        {
+          "id": "onboard-repository-n07",
+          "split": "validation",
+          "query": "Roll out a bundle across managed repositories.",
+          "must_not_trigger": [
+            "gds-onboard-repository"
+          ]
+        },
+        {
+          "id": "onboard-repository-n08",
+          "split": "validation",
+          "query": "Materialize an already-onboarded repository on a new device.",
+          "must_not_trigger": [
+            "gds-onboard-repository"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gds-reconcile-provider-change",
+      "positive": [
+        {
+          "id": "reconcile-provider-change-p01",
+          "split": "train",
+          "query": "Reconcile the estate after a GitHub repository was renamed, transferred, or its owner login changed case.",
+          "expected": "gds-reconcile-provider-change",
+          "must_not_trigger": [
+            "gds-triage-estate-drift",
+            "gds-onboard-repository"
+          ]
+        },
+        {
+          "id": "reconcile-provider-change-p02",
+          "split": "train",
+          "query": "Актуализируй estate после того как GitHub переименовал/перенёс репозиторий или изменился case owner-login.",
+          "expected": "gds-reconcile-provider-change",
+          "must_not_trigger": [
+            "gds-triage-estate-drift",
+            "gds-onboard-repository"
+          ]
+        },
+        {
+          "id": "reconcile-provider-change-p03",
+          "split": "train",
+          "query": "A provider-side change happened (rename/transfer/archive); walk the reconciliation so the estate follows.",
+          "expected": "gds-reconcile-provider-change",
+          "must_not_trigger": [
+            "gds-triage-estate-drift",
+            "gds-onboard-repository"
+          ]
+        },
+        {
+          "id": "reconcile-provider-change-p04",
+          "split": "train",
+          "query": "Fix stale provider strings in device inventory and anchors after an external repository change.",
+          "expected": "gds-reconcile-provider-change",
+          "must_not_trigger": [
+            "gds-triage-estate-drift",
+            "gds-onboard-repository"
+          ]
+        },
+        {
+          "id": "reconcile-provider-change-p05",
+          "split": "train",
+          "query": "Re-snapshot observed inventory and re-resolve selectors after a repository moved across owners.",
+          "expected": "gds-reconcile-provider-change",
+          "must_not_trigger": [
+            "gds-triage-estate-drift",
+            "gds-onboard-repository"
+          ]
+        },
+        {
+          "id": "reconcile-provider-change-p06",
+          "split": "validation",
+          "query": "Реконсилируй estate: provider изменил репозиторий, нужно обновить anchors, inventory, selectors, projections.",
+          "expected": "gds-reconcile-provider-change",
+          "must_not_trigger": [
+            "gds-triage-estate-drift",
+            "gds-onboard-repository"
+          ]
+        },
+        {
+          "id": "reconcile-provider-change-p07",
+          "split": "validation",
+          "query": "Reconcile the estate to provider reality after an external rename, transfer, or archive.",
+          "expected": "gds-reconcile-provider-change",
+          "must_not_trigger": [
+            "gds-triage-estate-drift",
+            "gds-onboard-repository"
+          ]
+        },
+        {
+          "id": "reconcile-provider-change-p08",
+          "split": "validation",
+          "query": "A repository was archived on GitHub; make sure it reclassifies to archived-projects and projections regenerate.",
+          "expected": "gds-reconcile-provider-change",
+          "must_not_trigger": [
+            "gds-triage-estate-drift",
+            "gds-onboard-repository"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "reconcile-provider-change-n01",
+          "split": "train",
+          "query": "Just show me the drift without fixing anything.",
+          "must_not_trigger": [
+            "gds-reconcile-provider-change"
+          ]
+        },
+        {
+          "id": "reconcile-provider-change-n02",
+          "split": "train",
+          "query": "Покажи дрейф estate без правок.",
+          "must_not_trigger": [
+            "gds-reconcile-provider-change"
+          ]
+        },
+        {
+          "id": "reconcile-provider-change-n03",
+          "split": "train",
+          "query": "Fix a local branch or commit inside one repository.",
+          "must_not_trigger": [
+            "gds-reconcile-provider-change"
+          ]
+        },
+        {
+          "id": "reconcile-provider-change-n04",
+          "split": "train",
+          "query": "Audit the estate read-only.",
+          "must_not_trigger": [
+            "gds-reconcile-provider-change"
+          ]
+        },
+        {
+          "id": "reconcile-provider-change-n05",
+          "split": "train",
+          "query": "Onboard a brand-new repository that does not exist yet.",
+          "must_not_trigger": [
+            "gds-reconcile-provider-change"
+          ]
+        },
+        {
+          "id": "reconcile-provider-change-n06",
+          "split": "validation",
+          "query": "Roll out a new bundle version.",
+          "must_not_trigger": [
+            "gds-reconcile-provider-change"
+          ]
+        },
+        {
+          "id": "reconcile-provider-change-n07",
+          "split": "validation",
+          "query": "Change canonical policy sources.",
+          "must_not_trigger": [
+            "gds-reconcile-provider-change"
+          ]
+        },
+        {
+          "id": "reconcile-provider-change-n08",
+          "split": "validation",
+          "query": "Bootstrap a brand-new device.",
+          "must_not_trigger": [
+            "gds-reconcile-provider-change"
+          ]
+        }
+      ]
+    }
+  ]
+}

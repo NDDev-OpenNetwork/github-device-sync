@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "profile": "portfolio",
+  "status": "runtime-not-proven",
+  "tasks": [
+    {
+      "id": "gds-triage-estate-drift-output",
+      "skill": "gds-triage-estate-drift",
+      "prompt": "Classify and route current estate drift evidence without applying remediation or hiding exceptions.",
+      "assertions": [
+        {
+          "id": "no-mutation",
+          "method": "deterministic",
+          "evidence": [
+            "filesystem-diff",
+            "git-diff",
+            "tool-events"
+          ]
+        },
+        {
+          "id": "portfolio-selector-resolved",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate portfolio selector resolved."
+        },
+        {
+          "id": "drift-deduplicated-and-prioritized",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate drift deduplicated and prioritized."
+        },
+        {
+          "id": "canonical-remediation-owners",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate canonical remediation owners."
+        }
+      ]
+    },
+    {
+      "id": "gds-change-portfolio-output",
+      "skill": "gds-change-portfolio",
+      "prompt": "Plan one bounded portfolio-wide change across independent repository fixtures without applying it.",
+      "assertions": [
+        {
+          "id": "independent-repository-subplans",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate independent repository subplans."
+        },
+        {
+          "id": "representative-canary",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate representative canary."
+        },
+        {
+          "id": "bounded-resumable-waves",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate bounded resumable waves."
+        },
+        {
+          "id": "aggregate-partial-failure-report",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate aggregate partial-failure report."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/module-harness-bridge.schema.json",
+  "title": "NDDev module to GDS harness bridge v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract",
+    "consumer",
+    "relationship_scope",
+    "evidence_owner",
+    "runtime_tests",
+    "mappings"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "contract": {
+      "const": "nddev-module-harness-bridge/v2"
+    },
+    "consumer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository_id"],
+      "properties": {
+        "repository_id": {
+          "$ref": "common.schema.json#/$defs/repositoryId"
+        }
+      }
+    },
+    "relationship_scope": {
+      "const": "git-submodule-consumer"
+    },
+    "evidence_owner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository"],
+      "properties": {
+        "repository": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*/[A-Za-z0-9][A-Za-z0-9._-]*$"
+        }
+      }
+    },
+    "runtime_tests": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required"],
+      "properties": {
+        "required": {
+          "const": false
+        }
+      }
+    },
+    "mappings": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "module_id",
+          "harness_id",
+          "lifecycle"
+        ],
+        "properties": {
+          "module_id": {
+            "$ref": "common.schema.json#/$defs/kebabId"
+          },
+          "harness_id": {
+            "$ref": "common.schema.json#/$defs/kebabId"
+          },
+          "lifecycle": {
+            "enum": ["active", "renamed", "retired"]
+          },
+          "module_aliases": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^nddev-[a-z0-9]+(?:-[a-z0-9]+)*-app$"
+            }
+          }
+        }
+      }
+    }
+  }
+}

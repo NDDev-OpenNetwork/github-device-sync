@@ -1,0 +1,19 @@
+schema_version: 1
+
+# A portfolio-tier policy. Portfolios cut across owners: a server repository is
+# governed the same way whoever owns it, which is exactly what an owner tier
+# cannot express.
+policy:
+  id: "servers-default"
+  tier: "portfolio"
+  priority: 100
+  distribution: "public"
+
+match:
+  portfolios:
+    - "portfolio:servers"
+
+apply:
+  git:
+    integration: "direct"
+    branch_cleanup: "merged-only"

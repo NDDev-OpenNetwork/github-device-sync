@@ -1,0 +1,62 @@
+{
+  "compiled_policy": {
+    "bundle_version": "0.1.0-dev",
+    "digest": "sha256:4c6fc116ed45d1908cfa0389b54b01cc6834485be67b0368103077d92fa77193",
+    "repository_id": "repo_01JEXAMPZ0000000000000000C"
+  },
+  "effective": {
+    "agent": {
+      "generated_agents": true,
+      "profiles": [
+        "core"
+      ]
+    },
+    "git": {
+      "integration": "pull-request"
+    },
+    "security": {
+      "external_write_requires_approval": true
+    }
+  },
+  "provenance": {
+    "/effective/agent/generated_agents": {
+      "file": "policies/base/repository-default.yaml",
+      "operation": "set",
+      "priority": 100,
+      "source": "repository-default",
+      "tier": "base"
+    },
+    "/effective/agent/profiles/0": {
+      "file": "policies/base/repository-default.yaml",
+      "operation": "append",
+      "priority": 100,
+      "source": "repository-default",
+      "tier": "base"
+    },
+    "/effective/git/integration": {
+      "file": "policies/base/repository-default.yaml",
+      "operation": "set",
+      "priority": 100,
+      "source": "repository-default",
+      "tier": "base"
+    },
+    "/effective/security/external_write_requires_approval": {
+      "file": "policies/base/repository-default.yaml",
+      "operation": "set",
+      "priority": 100,
+      "source": "repository-default",
+      "tier": "base"
+    }
+  },
+  "schema_version": 1,
+  "sources": [
+    {
+      "digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "distribution": "public",
+      "id": "repository-default",
+      "path": "policies/base/repository-default.yaml",
+      "priority": 100,
+      "tier": "base"
+    }
+  ]
+}

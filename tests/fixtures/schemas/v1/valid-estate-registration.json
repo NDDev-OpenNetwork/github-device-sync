@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "device_id": "device_01JEXAMPZ00000000000000000",
+  "estate": {
+    "repository_id": "repo_01JEXAMPZ0000000000000000C",
+    "root": "/home/owner/Developer/control-plane/github-device-sync",
+    "anchor_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  }
+}

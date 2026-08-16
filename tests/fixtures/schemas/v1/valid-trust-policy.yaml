@@ -1,0 +1,12 @@
+schema_version: 1
+policy_id: "estate-trust"
+identities:
+  - actor_id: "owner:example-user"
+    roles: ["estate-approver", "release-approver"]
+    keys:
+      - algorithm: "ed25519"
+        key_id: "owner-primary-2026"
+        public_key: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        valid_from: "2026-01-01T00:00:00Z"
+        valid_until: "2027-01-01T00:00:00Z"
+        status: "active"

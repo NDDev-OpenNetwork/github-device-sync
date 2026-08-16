@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/owner.schema.json",
+  "title": "GDS provider owner descriptor v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "owner", "defaults", "classification"],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "owner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "installation", "provider_login"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^owner:[a-z0-9][a-z0-9._-]{0,127}$"
+        },
+        "installation": {
+          "$ref": "common.schema.json#/$defs/installationReference"
+        },
+        "provider_login": {
+          "$ref": "common.schema.json#/$defs/githubOwner"
+        }
+      }
+    },
+    "defaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy_profile", "rollout_ring"],
+      "properties": {
+        "policy_profile": {
+          "$ref": "common.schema.json#/$defs/kebabId"
+        },
+        "rollout_ring": {
+          "$ref": "common.schema.json#/$defs/rolloutRing"
+        }
+      }
+    },
+    "classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fork_portfolio", "source_portfolio"],
+      "properties": {
+        "fork_portfolio": {
+          "$ref": "common.schema.json#/$defs/portfolioReference"
+        },
+        "source_portfolio": {
+          "$ref": "common.schema.json#/$defs/portfolioReference"
+        }
+      }
+    }
+  }
+}

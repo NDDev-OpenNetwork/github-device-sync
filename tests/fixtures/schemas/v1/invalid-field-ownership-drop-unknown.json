@@ -1,0 +1,1 @@
+{"schema_version":1,"resource_type":"github-ruleset","resource_id":"9","observed_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","identity_paths":["/id"],"owned_paths":["/enforcement"],"external_paths":["/bypass_actors"],"unknown_field_policy":"drop","adopted_at":"2026-08-09T00:00:00Z"}

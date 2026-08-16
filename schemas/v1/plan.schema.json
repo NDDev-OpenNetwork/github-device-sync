@@ -1,0 +1,1700 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/plan.schema.json",
+  "title": "GDS mutation plan v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "plan_id",
+    "operation",
+    "created_at",
+    "expires_at",
+    "actor",
+    "scope",
+    "preconditions",
+    "steps",
+    "approval_class",
+    "plan_digest"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "plan_id": {
+      "$ref": "common.schema.json#/$defs/planId"
+    },
+    "operation": {
+      "$ref": "common.schema.json#/$defs/kebabId"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "actor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "session_id"],
+      "properties": {
+        "type": {
+          "enum": ["agent-session", "controller", "human"]
+        },
+        "session_id": {
+          "$ref": "common.schema.json#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repositories"],
+      "properties": {
+        "task_id": {
+          "$ref": "common.schema.json#/$defs/taskId"
+        },
+        "repositories": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/repositoryId"
+          }
+        }
+      }
+    },
+    "preconditions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/precondition"
+      }
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/step"
+      }
+    },
+    "approval_class": {
+      "$ref": "common.schema.json#/$defs/kebabId"
+    },
+    "plan_digest": {
+      "$ref": "common.schema.json#/$defs/sha256Digest"
+    }
+  },
+  "$defs": {
+    "precondition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository_id",
+        "head_oid",
+        "manifest_digest",
+        "policy_digest"
+      ],
+      "properties": {
+        "repository_id": {
+          "$ref": "common.schema.json#/$defs/repositoryId"
+        },
+        "head_oid": {
+          "$ref": "common.schema.json#/$defs/gitOid"
+        },
+        "worktree_fingerprint": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        },
+        "index_tree_oid": {
+          "$ref": "common.schema.json#/$defs/gitOid"
+        },
+        "upstream_oid": {
+          "$ref": "common.schema.json#/$defs/gitOid"
+        },
+        "remote_default_oid": {
+          "$ref": "common.schema.json#/$defs/gitOid"
+        },
+        "remote_evidence_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        },
+        "manifest_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        },
+        "policy_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        }
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "step_id",
+        "repository_id",
+        "action",
+        "requires_approval",
+        "compensation"
+		,"write_set"
+      ],
+      "properties": {
+        "step_id": {
+          "$ref": "common.schema.json#/$defs/kebabId"
+        },
+        "repository_id": {
+          "$ref": "common.schema.json#/$defs/repositoryId"
+        },
+        "action": {
+          "$ref": "common.schema.json#/$defs/kebabId"
+        },
+        "requires_approval": {
+          "type": "boolean"
+        },
+        "write_set": {
+          "type": "array", "minItems": 1, "maxItems": 64, "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "^[^\\u0000\\r\\n]+$"}
+        },
+        "compensation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mode"],
+          "properties": {
+            "mode": {
+              "enum": ["none", "explicit-plan", "manual", "automatic"]
+            },
+            "action": {
+              "$ref": "common.schema.json#/$defs/kebabId"
+            },
+            "reversible": {
+              "type": "boolean"
+            },
+            "idempotent": {
+              "type": "boolean"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "mode": {
+                    "const": "explicit-plan"
+                  }
+                },
+                "required": ["mode"]
+              },
+              "then": {
+                "required": ["action"]
+              }
+            },
+            {
+              "if": {
+                "properties": {"mode": {"const": "automatic"}},
+                "required": ["mode"]
+              },
+              "then": {
+                "required": ["action", "reversible", "idempotent"],
+                "properties": {
+                  "reversible": {"const": true},
+                  "idempotent": {"const": true}
+                }
+              }
+            }
+          ]
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "projection": {
+              "$ref": "#/$defs/projectionParameters"
+            },
+            "source_verification": {
+              "$ref": "#/$defs/sourceVerificationParameters"
+            },
+            "recovery": {
+              "$ref": "#/$defs/recoveryParameters"
+            },
+            "recovery_ref": {
+              "$ref": "#/$defs/recoveryRefParameters"
+            },
+            "checkout_sync": {
+              "$ref": "#/$defs/checkoutSyncParameters"
+            },
+            "handoff": {
+              "$ref": "#/$defs/handoffParameters"
+            },
+            "completion": {
+              "$ref": "#/$defs/completionParameters"
+            },
+            "repository_anchor": {
+              "$ref": "#/$defs/repositoryAnchorParameters"
+            },
+            "estate_registration": {
+              "$ref": "#/$defs/estateRegistrationParameters"
+            },
+            "gitlink_pin": {
+              "$ref": "#/$defs/gitlinkPinParameters"
+            },
+            "module_release": {
+              "$ref": "#/$defs/moduleReleaseParameters"
+            },
+            "repository_provider": {
+              "$ref": "#/$defs/repositoryProviderParameters"
+            },
+            "checkout_materialization": {
+              "$ref": "#/$defs/checkoutMaterializationParameters"
+            },
+            "checkout_quarantine": {
+              "$ref": "#/$defs/checkoutQuarantineParameters"
+            },
+            "fork_sync": {
+              "$ref": "#/$defs/forkSyncParameters"
+            },
+            "fork_detach": {
+              "$ref": "#/$defs/forkDetachParameters"
+            },
+            "harness_adapter": {
+              "$ref": "#/$defs/harnessAdapterParameters"
+            },
+            "github_governance": {
+              "$ref": "#/$defs/githubGovernanceParameters"
+            },
+            "github_change": {
+              "$ref": "#/$defs/githubChangeParameters"
+            },
+            "github_classification": {
+              "$ref": "#/$defs/githubClassificationParameters"
+            },
+            "github_ruleset": {
+              "$ref": "#/$defs/githubRulesetParameters"
+            },
+            "remote_update": {
+              "$ref": "#/$defs/remoteUpdateParameters"
+            },
+            "release_installation": {
+              "$ref": "#/$defs/releaseInstallationParameters"
+            }
+          },
+          "minProperties": 1
+        }
+      }
+    },
+    "projectionParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["input_digest", "output_digest", "files"],
+      "properties": {
+        "input_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        },
+        "output_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        },
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "digest"],
+            "properties": {
+              "path": {
+                "$ref": "common.schema.json#/$defs/safeRelativePath"
+              },
+              "digest": {
+                "$ref": "common.schema.json#/$defs/sha256Digest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "releaseInstallationParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operation",
+        "install_root",
+        "release_directory",
+        "evidence_directory",
+        "trust_policy_path",
+        "consumer_version",
+        "expected_current_target",
+        "record",
+        "candidate_digest",
+        "files"
+      ],
+      "properties": {
+        "operation": {"enum": ["install", "upgrade", "rollback", "remove"]},
+        "install_root": {"type": "string", "minLength": 2, "maxLength": 4096, "pattern": "^/"},
+        "release_directory": {"type": "string", "minLength": 2, "maxLength": 4096, "pattern": "^/"},
+        "evidence_directory": {"type": "string", "minLength": 2, "maxLength": 4096, "pattern": "^/"},
+        "trust_policy_path": {"type": "string", "minLength": 2, "maxLength": 4096, "pattern": "^/"},
+        "consumer_version": {"$ref": "common.schema.json#/$defs/semanticVersion"},
+        "expected_current_target": {
+          "type": "string",
+          "maxLength": 180,
+          "pattern": "^(?:|releases/[0-9]{10,20}--[0-9A-Za-z.+-]+--[0-9a-f]{16})$"
+        },
+        "record": {"$ref": "release-installation.schema.json"},
+        "candidate_digest": {"$ref": "common.schema.json#/$defs/sha256Digest"},
+        "files": {
+          "type": "array",
+          "minItems": 10,
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["target", "digest", "size"],
+            "properties": {
+              "target": {"$ref": "common.schema.json#/$defs/safeRelativePath"},
+              "digest": {"$ref": "common.schema.json#/$defs/sha256Digest"},
+              "size": {"type": "integer", "minimum": 1, "maximum": 536870912}
+            }
+          }
+        },
+        "rollback_authorization": {
+          "$ref": "rollback-authorization.schema.json"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"operation": {"const": "rollback"}},
+            "required": ["operation"]
+          },
+          "then": {"required": ["rollback_authorization"]},
+          "else": {"not": {"required": ["rollback_authorization"]}}
+        }
+      ]
+    },
+    "recoveryRefParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reference", "new_oid", "expected_old_oid"],
+      "properties": {
+        "reference": {
+          "type": "string",
+          "pattern": "^refs/gds/recovery/[A-Za-z0-9][A-Za-z0-9._/-]*$"
+        },
+        "new_oid": {
+          "$ref": "common.schema.json#/$defs/gitOid"
+        },
+        "expected_old_oid": {
+          "$ref": "common.schema.json#/$defs/gitOid"
+        }
+      }
+    },
+    "checkoutSyncParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "worktree_root",
+        "branch_ref",
+        "upstream_ref",
+        "expected_head_oid",
+        "target_oid",
+        "remote_evidence_digest",
+        "refresh_max_age_seconds"
+      ],
+      "properties": {
+        "worktree_root": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^/"
+        },
+        "branch_ref": {"$ref": "common.schema.json#/$defs/localBranchRef"},
+        "upstream_ref": {
+          "type": "string",
+          "minLength": 21,
+          "maxLength": 512,
+          "pattern": "^refs/remotes/origin/[A-Za-z0-9][A-Za-z0-9._/-]*$"
+        },
+        "expected_head_oid": {
+          "$ref": "common.schema.json#/$defs/gitOid"
+        },
+        "target_oid": {
+          "$ref": "common.schema.json#/$defs/gitOid"
+        },
+        "remote_evidence_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        },
+        "refresh_max_age_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3600
+        }
+      }
+    },
+    "handoffParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "worktree_root",
+        "branch_ref",
+        "remote_ref",
+        "expected_head_oid",
+        "expected_remote_oid",
+        "files",
+        "message",
+        "author",
+        "commit_time",
+        "required_checks",
+        "draft_pr_policy",
+        "remote_evidence_digest",
+        "refresh_max_age_seconds"
+      ],
+      "properties": {
+        "worktree_root": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^/"
+        },
+        "branch_ref": {"$ref": "common.schema.json#/$defs/localBranchRef"},
+        "remote_ref": {"$ref": "common.schema.json#/$defs/localBranchRef"},
+        "expected_head_oid": {
+          "$ref": "common.schema.json#/$defs/gitOid"
+        },
+        "expected_remote_oid": {
+          "$ref": "common.schema.json#/$defs/gitOid"
+        },
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "state", "content_digest", "status_digest"],
+            "properties": {
+              "path": {
+                "$ref": "common.schema.json#/$defs/safeRelativePath"
+              },
+              "state": {
+                "enum": ["modified", "untracked", "deleted"]
+              },
+              "content_digest": {
+                "$ref": "common.schema.json#/$defs/sha256Digest"
+              },
+              "status_digest": {
+                "$ref": "common.schema.json#/$defs/sha256Digest"
+              }
+            }
+          }
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "author": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "email"],
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "email": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 320,
+              "pattern": "^[^@\\s<>]+@[^@\\s<>]+$"
+            }
+          }
+        },
+        "commit_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "required_checks": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/notProvenCheck"
+          }
+        },
+        "draft_pr_policy": {
+          "enum": ["never", "preferred", "required"]
+        },
+        "remote_evidence_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        },
+        "refresh_max_age_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3600
+        }
+      }
+    },
+    "completionParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "worktree_root",
+        "default_branch_ref",
+        "task_branch_ref",
+        "expected_default_oid",
+        "expected_task_oid",
+        "integration_policy",
+        "required_checks",
+        "remote_evidence_digest",
+        "refresh_max_age_seconds",
+        "dependency_order"
+      ],
+      "properties": {
+        "worktree_root": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^/"
+        },
+        "default_branch_ref": {"$ref": "common.schema.json#/$defs/localBranchRef"},
+        "task_branch_ref": {"$ref": "common.schema.json#/$defs/localBranchRef"},
+        "expected_default_oid": {
+          "$ref": "common.schema.json#/$defs/gitOid"
+        },
+        "expected_task_oid": {
+          "$ref": "common.schema.json#/$defs/gitOid"
+        },
+        "integration_policy": {
+          "enum": ["pull-request", "direct"]
+        },
+        "required_checks": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/notProvenCheck"
+          }
+        },
+        "remote_evidence_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        },
+        "refresh_max_age_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3600
+        },
+        "dependency_order": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4095
+        }
+      }
+    },
+    "notProvenCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "status", "commands"],
+      "properties": {
+        "name": {
+          "$ref": "common.schema.json#/$defs/kebabId"
+        },
+        "status": {
+          "const": "not-proven"
+        },
+        "commands": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/singleLineCommand"
+          }
+        }
+      }
+    },
+    "forkDetachParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["worktree_root", "remote", "expected_url"],
+      "properties": {
+        "worktree_root": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^/"},
+        "remote": {"const": "upstream"},
+        "expected_url": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^[^\\u0000\\r\\n]+$"}
+      }
+    },
+    "forkSyncParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "worktree_root",
+        "branch_ref",
+        "expected_origin_oid",
+        "expected_upstream_oid",
+        "policy",
+        "preserve_fork_commits"
+      ],
+      "properties": {
+        "worktree_root": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^/"},
+        "branch_ref": {"$ref": "common.schema.json#/$defs/localBranchRef"},
+        "expected_origin_oid": {"$ref": "common.schema.json#/$defs/gitOid"},
+        "expected_upstream_oid": {"$ref": "common.schema.json#/$defs/gitOid"},
+        "policy": {"enum": ["upstream-tracking", "maintained-patch"]},
+        "preserve_fork_commits": {"const": true}
+      }
+    },
+    "checkoutQuarantineParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "workspace_root",
+        "checkout_path",
+        "state_root",
+        "quarantine_path",
+        "head_oid",
+        "branch_ref",
+        "anchor_digest",
+        "device_id",
+        "repository_id",
+        "device_descriptor_path",
+        "device_descriptor_digest"
+      ],
+      "properties": {
+        "workspace_root": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^/"},
+        "checkout_path": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^/"},
+        "state_root": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^/"},
+        "quarantine_path": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^/"},
+        "head_oid": {"$ref": "common.schema.json#/$defs/gitOid"},
+        "branch_ref": {"$ref": "common.schema.json#/$defs/localBranchRef"},
+        "anchor_digest": {"$ref": "common.schema.json#/$defs/sha256Digest"},
+        "device_id": {"$ref": "common.schema.json#/$defs/deviceId"},
+        "repository_id": {"$ref": "common.schema.json#/$defs/repositoryId"},
+        "device_descriptor_path": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^/"},
+        "device_descriptor_digest": {"$ref": "common.schema.json#/$defs/sha256Digest"}
+      }
+    },
+    "checkoutMaterializationParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "workspace_root",
+        "target_path",
+        "source_path",
+        "branch_ref",
+        "head_oid",
+        "filter",
+        "mode",
+        "device_id",
+        "repository_id",
+        "anchor_content",
+        "anchor_digest",
+        "device_descriptor_path",
+        "device_descriptor_digest"
+      ],
+      "properties": {
+        "workspace_root": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^/"},
+        "target_path": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^/"},
+        "source_path": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^/"},
+        "branch_ref": {"$ref": "common.schema.json#/$defs/localBranchRef"},
+        "head_oid": {"$ref": "common.schema.json#/$defs/gitOid"},
+        "filter": {"enum": ["full", "blob-none"]},
+        "mode": {"enum": ["active", "reference", "ephemeral"]},
+        "device_id": {"$ref": "common.schema.json#/$defs/deviceId"},
+        "repository_id": {"$ref": "common.schema.json#/$defs/repositoryId"},
+        "anchor_content": {"type": "string", "minLength": 1, "maxLength": 524288},
+        "anchor_digest": {"$ref": "common.schema.json#/$defs/sha256Digest"},
+        "device_descriptor_path": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^/"},
+        "device_descriptor_digest": {"$ref": "common.schema.json#/$defs/sha256Digest"}
+      }
+    },
+    "repositoryProviderParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operation",
+        "provider_repository_id",
+        "mutation_capability_id",
+        "expected_provider_digest",
+        "current_installation",
+        "current_owner",
+        "current_name",
+        "current_lifecycle",
+        "target_installation",
+        "target_owner",
+        "target_name",
+        "target_lifecycle"
+      ],
+      "properties": {
+        "operation": {"enum": ["rename", "transfer", "archive", "delete"]},
+        "provider_repository_id": {"type": "string", "pattern": "^[1-9][0-9]{0,19}$"},
+        "mutation_capability_id": {"$ref": "common.schema.json#/$defs/mutationCapabilityReference"},
+        "expected_provider_digest": {"$ref": "common.schema.json#/$defs/sha256Digest"},
+        "current_installation": {"$ref": "common.schema.json#/$defs/installationReference"},
+        "current_owner": {"$ref": "common.schema.json#/$defs/githubOwner"},
+        "current_name": {"$ref": "common.schema.json#/$defs/repositoryName"},
+        "current_lifecycle": {"$ref": "common.schema.json#/$defs/lifecycle"},
+        "target_installation": {"$ref": "common.schema.json#/$defs/installationReference"},
+        "target_owner": {"$ref": "common.schema.json#/$defs/githubOwner"},
+        "target_name": {"$ref": "common.schema.json#/$defs/repositoryName"},
+        "target_lifecycle": {"$ref": "common.schema.json#/$defs/lifecycle"},
+        "analysis_root": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^/"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"operation": {"const": "delete"}}, "required": ["operation"]},
+          "then": {"required": ["analysis_root"]}
+        }
+      ]
+    },
+    "moduleReleaseParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["module_root", "version", "tag_ref", "commit_oid", "required_checks", "assets"],
+      "properties": {
+        "module_root": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^/"},
+        "version": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 255,
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
+        },
+        "tag_style": {"enum": ["v-semver", "semver"]},
+        "tag_ref": {
+          "type": "string",
+          "minLength": 15,
+          "maxLength": 512,
+          "pattern": "^refs/tags/v?(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
+        },
+        "commit_oid": {"$ref": "common.schema.json#/$defs/gitOid"},
+        "required_checks": {
+          "type": "array",
+          "maxItems": 16,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "head_sha",
+              "status",
+              "conclusion",
+              "completed_at",
+              "details_url",
+              "external_id",
+              "app_id",
+              "app_slug",
+              "run_id",
+              "job_id"
+            ],
+            "properties": {
+              "id": {"type": "integer", "minimum": 1},
+              "name": {"type": "string", "minLength": 1, "maxLength": 256},
+              "head_sha": {"$ref": "common.schema.json#/$defs/gitOid"},
+              "status": {"const": "completed"},
+              "conclusion": {"const": "success"},
+              "completed_at": {"type": "string", "format": "date-time"},
+              "details_url": {"type": "string", "format": "uri", "maxLength": 2048},
+              "external_id": {"type": "string", "maxLength": 512},
+              "app_id": {"const": 15368},
+              "app_slug": {"const": "github-actions"},
+              "run_id": {"type": "integer", "minimum": 1},
+              "job_id": {"type": "integer", "minimum": 1}
+            }
+          }
+        },
+        "assets": {
+          "type": "array",
+          "maxItems": 16,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "name", "size", "sha256"],
+            "properties": {
+              "path": {"type": "string", "minLength": 2, "maxLength": 4096, "pattern": "^/"},
+              "name": {"type": "string", "minLength": 1, "maxLength": 255, "pattern": "^[^/\\\\\\u0000\\r\\n]+$"},
+              "size": {"type": "integer", "minimum": 1, "maximum": 67108864},
+              "sha256": {"$ref": "common.schema.json#/$defs/sha256Digest"}
+            }
+          }
+        },
+        "harness_evidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["harness_id", "harness_root_sha", "module_sha", "executable_version", "suite_version", "suite_cases_digest", "evidence_digest", "generated_at", "expires_at"],
+          "properties": {
+            "harness_id": {"$ref": "common.schema.json#/$defs/kebabId"},
+            "harness_root_sha": {"$ref": "common.schema.json#/$defs/gitOid"},
+            "module_sha": {"$ref": "common.schema.json#/$defs/gitOid"},
+            "executable_version": {"type": "string", "minLength": 1, "maxLength": 255},
+            "suite_version": {"type": "string", "minLength": 1, "maxLength": 255},
+            "suite_cases_digest": {"$ref": "common.schema.json#/$defs/sha256Digest"},
+            "evidence_digest": {"$ref": "common.schema.json#/$defs/sha256Digest"},
+            "generated_at": {"type": "string", "format": "date-time"},
+            "expires_at": {"type": "string", "format": "date-time"}
+          }
+        }
+      }
+    },
+    "gitlinkPinParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "consumer_root",
+        "module_root",
+        "module_id",
+        "gitmodules_name",
+        "expected_old_oid",
+        "target_oid",
+        "target_ref"
+      ],
+      "properties": {
+        "consumer_root": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^/"},
+        "module_root": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^/"},
+        "module_id": {"$ref": "common.schema.json#/$defs/repositoryId"},
+        "gitmodules_name": {
+          "description": "The .gitmodules entry name, which is a submodule name and not a GitHub repository name. Every module in this estate names it by path, so the repository anchor has always typed it as a safe relative path; this said repositoryName, which forbids the slash, and no module pin could be planned at all.",
+          "$ref": "common.schema.json#/$defs/safeRelativePath"
+        },
+        "expected_old_oid": {"$ref": "common.schema.json#/$defs/gitOid"},
+        "target_oid": {"$ref": "common.schema.json#/$defs/gitOid"},
+        "target_ref": {
+          "type": "string",
+          "minLength": 12,
+          "maxLength": 512,
+          "pattern": "^refs/(heads|tags)/[A-Za-z0-9][A-Za-z0-9._/-]*$"
+        }
+      }
+    },
+    "estateRegistrationParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "materialization_root",
+        "relative_path",
+        "expected_state",
+        "expected_observation_digest",
+        "repository_id",
+        "content",
+        "content_digest"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 4096,
+          "pattern": "^/"
+        },
+        "materialization_root": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^/"
+        },
+        "relative_path": {
+          "$ref": "common.schema.json#/$defs/safeRelativePath"
+        },
+        "expected_state": {
+          "enum": ["missing", "regular"]
+        },
+        "expected_content_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        },
+        "expected_observation_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        },
+        "repository_id": {
+          "$ref": "common.schema.json#/$defs/repositoryId"
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "content_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"expected_state": {"const": "regular"}},
+            "required": ["expected_state"]
+          },
+          "then": {"required": ["expected_content_digest"]}
+        },
+        {
+          "if": {
+            "properties": {"expected_state": {"const": "missing"}},
+            "required": ["expected_state"]
+          },
+          "then": {"not": {"required": ["expected_content_digest"]}}
+        }
+      ]
+    },
+    "repositoryAnchorParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "worktree_root",
+        "expected_state",
+        "expected_observation_digest",
+        "repository_id",
+        "content",
+        "content_digest"
+      ],
+      "properties": {
+        "worktree_root": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^/"
+        },
+        "expected_state": {
+          "enum": ["missing", "regular"]
+        },
+        "expected_content_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        },
+        "expected_observation_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        },
+        "repository_id": {
+          "$ref": "common.schema.json#/$defs/repositoryId"
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 524288
+        },
+        "content_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"expected_state": {"const": "regular"}},
+            "required": ["expected_state"]
+          },
+          "then": {"required": ["expected_content_digest"]}
+        },
+        {
+          "if": {
+            "properties": {"expected_state": {"const": "missing"}},
+            "required": ["expected_state"]
+          },
+          "then": {"not": {"required": ["expected_content_digest"]}}
+        }
+      ]
+    },
+    "recoveryParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operation_id",
+        "state_digest",
+        "mode",
+        "reason",
+        "lock_count"
+      ],
+      "properties": {
+        "operation_id": {
+          "$ref": "common.schema.json#/$defs/operationId"
+        },
+        "state_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        },
+        "mode": {
+          "enum": ["abort-interrupted", "close-partial", "release-stale-locks"]
+        },
+        "reason": {
+          "$ref": "common.schema.json#/$defs/kebabId"
+        },
+        "lock_count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "harnessAdapterParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operation",
+        "harness",
+        "target_root",
+        "candidate_digest",
+        "files"
+      ],
+      "properties": {
+        "operation": {
+          "enum": ["install", "update", "rollback", "remove"]
+        },
+        "harness": {
+          "$ref": "common.schema.json#/$defs/kebabId"
+        },
+        "target_root": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^/"
+        },
+        "source_root": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^/"
+        },
+        "candidate_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        },
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/harnessAdapterFile"
+          }
+        },
+        "previous_candidate_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        },
+        "previous_files": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/harnessAdapterFile"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "operation": {"enum": ["update", "rollback"]}
+            },
+            "required": ["operation"]
+          },
+          "then": {
+            "required": ["previous_candidate_digest", "previous_files"]
+          },
+          "else": {
+            "not": {
+              "anyOf": [
+                {"required": ["previous_candidate_digest"]},
+                {"required": ["previous_files"]}
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {"const": "rollback"}
+            },
+            "required": ["operation"]
+          },
+          "then": {"required": ["source_root"]},
+          "else": {"not": {"required": ["source_root"]}}
+        }
+      ]
+    },
+    "harnessAdapterFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "digest", "size"],
+      "properties": {
+        "path": {
+          "$ref": "common.schema.json#/$defs/safeRelativePath"
+        },
+        "digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1048576
+        }
+      }
+    },
+    "remoteUpdateParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root", "remote", "expected_url", "target_url"],
+      "properties": {
+        "root": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^/"},
+        "remote": {"const": "origin"},
+        "expected_url": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "^[^\\u0000\\r\\n]+$"},
+        "target_url": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "^[^\\u0000\\r\\n]+$"}
+      }
+    },
+    "githubGovernanceParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "read_installation_id",
+        "mutation_capability_id",
+        "provider_repository_id",
+        "owner",
+        "name",
+        "post_state",
+        "expected_evidence_digest"
+      ],
+      "properties": {
+        "read_installation_id": {
+          "$ref": "common.schema.json#/$defs/installationReference"
+        },
+        "mutation_capability_id": {
+          "$ref": "common.schema.json#/$defs/mutationCapabilityReference"
+        },
+        "provider_repository_id": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "owner": {
+          "$ref": "common.schema.json#/$defs/githubOwner"
+        },
+        "name": {
+          "$ref": "common.schema.json#/$defs/repositoryName"
+        },
+        "post_state": {
+          "enum": ["exact", "discover-selected-actions", "discover-actions-permissions"]
+        },
+        "expected_evidence_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        },
+        "desired_evidence_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        },
+        "repository_settings": {
+          "$ref": "#/$defs/githubMergeChange"
+        },
+        "actions_permissions": {
+          "$ref": "#/$defs/githubActionsChange"
+        },
+        "selected_actions_permissions": {
+          "$ref": "#/$defs/githubSelectedActionsChange"
+        },
+        "workflow_permissions": {
+          "$ref": "#/$defs/githubWorkflowChange"
+        },
+        "immutable_releases": {
+          "$ref": "#/$defs/githubImmutableReleasesChange"
+        }
+      },
+      "oneOf": [
+        {
+          "required": ["repository_settings"],
+          "not": {"anyOf": [
+            {"required": ["actions_permissions"]},
+            {"required": ["selected_actions_permissions"]},
+            {"required": ["workflow_permissions"]},
+            {"required": ["immutable_releases"]}
+          ]}
+        },
+        {
+          "required": ["actions_permissions"],
+          "not": {"anyOf": [
+            {"required": ["repository_settings"]},
+            {"required": ["selected_actions_permissions"]},
+            {"required": ["workflow_permissions"]},
+            {"required": ["immutable_releases"]}
+          ]}
+        },
+        {
+          "required": ["selected_actions_permissions"],
+          "not": {"anyOf": [
+            {"required": ["repository_settings"]},
+            {"required": ["actions_permissions"]},
+            {"required": ["workflow_permissions"]},
+            {"required": ["immutable_releases"]}
+          ]}
+        },
+        {
+          "required": ["workflow_permissions"],
+          "not": {"anyOf": [
+            {"required": ["repository_settings"]},
+            {"required": ["actions_permissions"]},
+            {"required": ["selected_actions_permissions"]},
+            {"required": ["immutable_releases"]}
+          ]}
+        },
+        {
+          "required": ["immutable_releases"],
+          "not": {"anyOf": [
+            {"required": ["repository_settings"]},
+            {"required": ["actions_permissions"]},
+            {"required": ["selected_actions_permissions"]},
+            {"required": ["workflow_permissions"]}
+          ]}
+        }
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {"post_state": {"const": "exact"}},
+            "required": ["post_state"]
+          },
+          "then": {"required": ["desired_evidence_digest"]},
+          "else": {"not": {"required": ["desired_evidence_digest"]}}
+        }
+      ]
+    },
+    "githubChangeParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope"],
+      "properties": {
+        "scope": {"$ref": "#/$defs/githubChangeScope"},
+        "branch": {"$ref": "#/$defs/githubBranchChange"},
+        "content": {"$ref": "#/$defs/githubContentChange"},
+        "pull_request": {"$ref": "#/$defs/githubPullRequestChange"}
+      },
+      "oneOf": [
+        {
+          "required": ["branch"],
+          "not": {"anyOf": [{"required": ["content"]}, {"required": ["pull_request"]}]}
+        },
+        {
+          "required": ["content"],
+          "not": {"anyOf": [{"required": ["branch"]}, {"required": ["pull_request"]}]}
+        },
+        {
+          "required": ["pull_request"],
+          "not": {"anyOf": [{"required": ["branch"]}, {"required": ["content"]}]}
+        }
+      ]
+    },
+    "githubChangeScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "read_installation_id",
+        "mutation_capability_id",
+        "provider_repository_id",
+        "owner",
+        "name",
+        "change_set_digest",
+        "base_branch",
+        "base_sha",
+        "head_branch"
+      ],
+      "properties": {
+        "read_installation_id": {"$ref": "common.schema.json#/$defs/installationReference"},
+        "mutation_capability_id": {"$ref": "common.schema.json#/$defs/mutationCapabilityReference"},
+        "provider_repository_id": {"type": "integer", "minimum": 1, "maximum": 9007199254740991},
+        "owner": {"$ref": "common.schema.json#/$defs/githubOwner"},
+        "name": {"$ref": "common.schema.json#/$defs/repositoryName"},
+        "change_set_digest": {"$ref": "common.schema.json#/$defs/sha256Digest"},
+        "base_branch": {"$ref": "common.schema.json#/$defs/branchName"},
+        "base_sha": {"$ref": "common.schema.json#/$defs/gitOid"},
+        "head_branch": {"$ref": "common.schema.json#/$defs/branchName"}
+      }
+    },
+    "githubBranchChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expected_state", "target_sha"],
+      "properties": {
+        "expected_state": {"enum": ["missing", "present"]},
+        "expected_sha": {"$ref": "common.schema.json#/$defs/gitOid"},
+        "target_sha": {"$ref": "common.schema.json#/$defs/gitOid"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"expected_state": {"const": "present"}}, "required": ["expected_state"]},
+          "then": {"required": ["expected_sha"]},
+          "else": {"not": {"required": ["expected_sha"]}}
+        }
+      ]
+    },
+    "githubContentChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "message",
+        "expected_state",
+        "final_status",
+        "content_base64",
+        "content_digest"
+      ],
+      "properties": {
+        "path": {"$ref": "common.schema.json#/$defs/safeRelativePath"},
+        "message": {"type": "string", "minLength": 1, "maxLength": 512, "pattern": "^[^\\u0000\\r\\n]+$"},
+        "expected_state": {"enum": ["missing", "regular"]},
+        "expected_sha": {"$ref": "common.schema.json#/$defs/gitOid"},
+        "final_status": {"enum": ["added", "modified"]},
+        "content_base64": {
+          "type": "string",
+          "maxLength": 1398104,
+          "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
+        },
+        "content_digest": {"$ref": "common.schema.json#/$defs/sha256Digest"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"expected_state": {"const": "regular"}}, "required": ["expected_state"]},
+          "then": {"required": ["expected_sha"]},
+          "else": {"not": {"required": ["expected_sha"]}}
+        }
+      ]
+    },
+    "githubPullRequestChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "body", "files"],
+      "properties": {
+        "title": {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "^[^\\u0000\\r\\n]+$"},
+        "body": {"type": "string", "maxLength": 65536, "pattern": "^[^\\u0000]*$"},
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 100,
+          "items": {"$ref": "#/$defs/githubPlannedFile"}
+        }
+      }
+    },
+    "githubPlannedFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "status", "content_digest"],
+      "properties": {
+        "path": {"$ref": "common.schema.json#/$defs/safeRelativePath"},
+        "status": {"enum": ["added", "modified"]},
+        "content_digest": {"$ref": "common.schema.json#/$defs/sha256Digest"}
+      }
+    },
+    "githubClassificationParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope", "expected", "desired"],
+      "properties": {
+        "scope": {"$ref": "#/$defs/githubClassificationScope"},
+        "expected": {"$ref": "#/$defs/githubPropertyValues"},
+        "desired": {"$ref": "#/$defs/githubPropertyValues"}
+      }
+    },
+    "githubClassificationScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "read_installation_id",
+        "mutation_capability_id",
+        "provider_repository_id",
+        "owner",
+        "name"
+      ],
+      "properties": {
+        "read_installation_id": {"$ref": "common.schema.json#/$defs/installationReference"},
+        "mutation_capability_id": {"$ref": "common.schema.json#/$defs/mutationCapabilityReference"},
+        "provider_repository_id": {"type": "integer", "minimum": 1, "maximum": 9007199254740991},
+        "owner": {"$ref": "common.schema.json#/$defs/githubOwner"},
+        "name": {"$ref": "common.schema.json#/$defs/repositoryName"}
+      }
+    },
+    "githubPropertyValues": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {"$ref": "#/$defs/githubPropertyValue"}
+    },
+    "githubPropertyValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["property_name", "value"],
+      "properties": {
+        "property_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 75,
+          "pattern": "^[A-Za-z0-9_#$-]{1,75}$"
+        },
+        "value": {
+          "oneOf": [
+            {"type": "null"},
+            {"type": "string", "maxLength": 75, "pattern": "^[\\u0020-\\u0021\\u0023-\\u007E]*$"},
+            {
+              "type": "array",
+              "maxItems": 200,
+              "uniqueItems": true,
+              "items": {"type": "string", "minLength": 1, "maxLength": 75, "pattern": "^[\\u0020-\\u0021\\u0023-\\u007E]+$"}
+            }
+          ]
+        }
+      }
+    },
+    "githubRulesetParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope", "desired"],
+      "properties": {
+        "scope": {"$ref": "#/$defs/githubClassificationScope"},
+        "expected": {"$ref": "#/$defs/githubRulesetState"},
+        "desired": {"$ref": "#/$defs/githubDesiredRuleset"}
+      }
+    },
+    "githubRulesetState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "target",
+        "source_type",
+        "source",
+        "enforcement",
+        "bypass_actors_known",
+        "bypass_actors",
+        "condition_includes",
+        "condition_excludes",
+        "rules"
+      ],
+      "properties": {
+        "id": {"type": "integer", "minimum": 1, "maximum": 9007199254740991},
+        "name": {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "^[^\\u0000\\r\\n]+$"},
+        "target": {"const": "branch"},
+        "source_type": {"const": "Repository"},
+        "source": {"type": "string", "minLength": 3, "maxLength": 256, "pattern": "^[^\\u0000\\r\\n]+/[^\\u0000\\r\\n]+$"},
+        "enforcement": {"enum": ["active", "disabled", "evaluate"]},
+        "bypass_actors_known": {"const": false},
+        "bypass_actors": {"type": "array", "maxItems": 0},
+        "condition_includes": {"$ref": "#/$defs/githubRulesetConditions"},
+        "condition_excludes": {"$ref": "#/$defs/githubRulesetConditions"},
+        "rules": {"$ref": "#/$defs/githubRulesetRules"},
+        "writable_digest": {"$ref": "common.schema.json#/$defs/sha256Digest"}
+      }
+    },
+    "githubDesiredRuleset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "target", "enforcement", "rules"],
+      "properties": {
+        "id": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
+        "name": {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "^[^\\u0000\\r\\n]+$"},
+        "target": {"const": "branch"},
+        "enforcement": {"const": "active"},
+        "rules": {"$ref": "#/$defs/githubRulesetRules"}
+      }
+    },
+    "githubRulesetConditions": {
+      "type": "array",
+      "maxItems": 100,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "^[^\\u0000\\r\\n]+$"}
+    },
+    "githubRulesetRules": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {"$ref": "#/$defs/githubRulesetRule"}
+    },
+    "githubRulesetRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "enum": [
+            "deletion",
+            "non_fast_forward",
+            "required_linear_history",
+            "required_signatures",
+            "pull_request",
+            "required_status_checks"
+          ]
+        },
+        "required_approving_review_count": {"type": "integer", "minimum": 0, "maximum": 6},
+        "dismiss_stale_reviews_on_push": {"type": "boolean"},
+        "require_code_owner_review": {"type": "boolean"},
+        "required_review_thread_resolution": {"type": "boolean"},
+        "required_status_checks": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 50,
+          "items": {"$ref": "#/$defs/githubRequiredStatusCheck"}
+        },
+        "strict_required_status_checks_policy": {"type": "boolean"},
+        "external_parameters": {"type": "object"},
+        "opaque_parameters": {"type": "object"}
+      }
+    },
+    "githubRequiredStatusCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["context"],
+      "properties": {
+        "context": {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "^[^\\u0000\\r\\n]+$"},
+        "integration_id": {"type": "integer", "minimum": 0, "maximum": 9007199254740991}
+      }
+    },
+    "githubMergeChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expected", "desired"],
+      "properties": {
+        "expected": {"$ref": "#/$defs/githubMergeSettings"},
+        "desired": {"$ref": "#/$defs/githubMergeSettings"}
+      }
+    },
+    "githubActionsChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expected", "desired"],
+      "properties": {
+        "expected": {"$ref": "#/$defs/githubActionsPermissions"},
+        "desired": {"$ref": "#/$defs/githubActionsPermissions"}
+      }
+    },
+    "githubSelectedActionsChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expected", "desired"],
+      "properties": {
+        "expected": {"$ref": "#/$defs/githubSelectedActionsPermissions"},
+        "desired": {"$ref": "#/$defs/githubSelectedActionsPermissions"}
+      }
+    },
+    "githubWorkflowChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expected", "desired"],
+      "properties": {
+        "expected": {"$ref": "#/$defs/githubWorkflowPermissions"},
+        "desired": {"$ref": "#/$defs/githubWorkflowPermissions"}
+      }
+    },
+    "githubImmutableReleasesChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expected", "desired"],
+      "properties": {
+        "expected": {"$ref": "#/$defs/githubImmutableReleases"},
+        "desired": {"$ref": "#/$defs/githubImmutableReleases"}
+      }
+    },
+    "githubMergeSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "allow_merge_commit",
+        "allow_squash_merge",
+        "allow_rebase_merge",
+        "allow_auto_merge",
+        "allow_update_branch",
+        "delete_branch_on_merge"
+      ],
+      "properties": {
+        "allow_merge_commit": {"type": "boolean"},
+        "allow_squash_merge": {"type": "boolean"},
+        "allow_rebase_merge": {"type": "boolean"},
+        "allow_auto_merge": {"type": "boolean"},
+        "allow_update_branch": {"type": "boolean"},
+        "delete_branch_on_merge": {"type": "boolean"},
+        "merge_commit_title": {"enum": ["PR_TITLE", "MERGE_MESSAGE"]},
+        "merge_commit_message": {"enum": ["PR_TITLE", "PR_BODY", "BLANK"]},
+        "squash_merge_commit_title": {"enum": ["PR_TITLE", "COMMIT_OR_PR_TITLE"]},
+        "squash_merge_commit_message": {"enum": ["PR_BODY", "COMMIT_MESSAGES", "BLANK"]}
+      }
+    },
+    "githubActionsPermissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "allowed_actions", "sha_pinning_required"],
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "allowed_actions": {"enum": ["", "all", "local_only", "selected"]},
+        "sha_pinning_required": {"type": "boolean"}
+      }
+    },
+    "githubSelectedActionsPermissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["github_owned_allowed", "verified_allowed", "patterns_allowed"],
+      "properties": {
+        "github_owned_allowed": {"type": "boolean"},
+        "verified_allowed": {"type": "boolean"},
+        "patterns_allowed": {
+          "type": "array",
+          "maxItems": 100,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024,
+            "pattern": "^[^\\u0000\\r\\n]+$"
+          }
+        }
+      }
+    },
+    "githubWorkflowPermissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default_workflow_permissions", "can_approve_pull_request_reviews"],
+      "properties": {
+        "default_workflow_permissions": {"enum": ["read", "write"]},
+        "can_approve_pull_request_reviews": {"type": "boolean"}
+      }
+    },
+    "githubImmutableReleases": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "enforced_by_owner"],
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "enforced_by_owner": {"type": "boolean"}
+      }
+    },
+    "sourceVerificationParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "status",
+        "verified_at",
+        "next_review",
+        "evidence_ref",
+        "observed_at",
+        "http_status",
+        "content_bytes",
+        "observed_digest",
+        "candidate_digest"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/kebabId"
+        },
+        "status": {
+          "$ref": "common.schema.json#/$defs/kebabId"
+        },
+        "verified_at": {
+          "type": "string",
+          "format": "date"
+        },
+        "next_review": {
+          "type": "string",
+          "format": "date"
+        },
+        "evidence_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$"
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "http_status": {
+          "const": 200
+        },
+        "content_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4194304
+        },
+        "observed_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        },
+        "candidate_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        }
+      }
+    }
+  }
+}

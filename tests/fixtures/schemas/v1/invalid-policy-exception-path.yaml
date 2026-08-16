@@ -1,0 +1,9 @@
+schema_version: 1
+exception:
+  id: "exc_01KX7BV07RHD6KRA4Z4J0KCHGR"
+  repository_id: "repo_01JEXAMPZ0000000000000000C"
+  policy_path: "git.integration"
+  requested_value: "direct"
+  reason: "Unsupported exception path."
+  owner_approval_ref: "approval:fixture-002"
+  expires_at: "2099-01-01T00:00:00Z"

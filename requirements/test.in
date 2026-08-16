@@ -1,0 +1,2 @@
+-r schema-validator.in
+pytest==9.1.1

@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/skill-registry.schema.json",
+  "title": "GDS canonical skill registry v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "namespace",
+    "budgets",
+    "profiles",
+    "plugins",
+    "skills"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "namespace": {
+      "const": "gds"
+    },
+    "budgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "initial_metadata_chars",
+        "description_chars",
+        "skill_lines"
+      ],
+      "properties": {
+        "initial_metadata_chars": {
+          "type": "integer",
+          "minimum": 1024,
+          "maximum": 8000
+        },
+        "description_chars": {
+          "type": "integer",
+          "minimum": 64,
+          "maximum": 1024
+        },
+        "skill_lines": {
+          "type": "integer",
+          "minimum": 40,
+          "maximum": 500
+        }
+      }
+    },
+    "profiles": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "scope", "skills"],
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/kebabId"
+          },
+          "scope": {
+            "enum": [
+              "repository",
+              "control-plane",
+              "module",
+              "device",
+              "portfolio"
+            ]
+          },
+          "skills": {
+            "$ref": "common.schema.json#/$defs/kebabIdSet"
+          }
+        }
+      }
+    },
+    "plugins": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "profiles"],
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/kebabId"
+          },
+          "profiles": {
+            "$ref": "common.schema.json#/$defs/kebabIdSet"
+          }
+        }
+      }
+    },
+    "skills": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "path", "invocation", "mutation", "interface"],
+        "properties": {
+          "name": {
+            "$ref": "common.schema.json#/$defs/kebabId"
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^skills/canonical/gds-[a-z0-9-]+$"
+          },
+          "invocation": {
+            "enum": ["implicit", "explicit-only"]
+          },
+          "mutation": {
+            "enum": ["none", "local", "external"]
+          },
+          "interface": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["display_name", "short_description", "default_prompt"],
+            "properties": {
+              "display_name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "short_description": {
+                "type": "string",
+                "minLength": 25,
+                "maxLength": 64
+              },
+              "default_prompt": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

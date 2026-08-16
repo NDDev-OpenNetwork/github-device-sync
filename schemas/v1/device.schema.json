@@ -1,0 +1,217 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/device.schema.json",
+  "title": "GDS portable device desired configuration v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "device",
+    "workspace_roots",
+    "materialization",
+    "harnesses",
+    "state"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "device": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "os",
+        "architecture"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/deviceId"
+        },
+        "name": {
+          "$ref": "common.schema.json#/$defs/kebabId"
+        },
+        "os": {
+          "enum": [
+            "macos",
+            "linux"
+          ]
+        },
+        "architecture": {
+          "enum": [
+            "arm64",
+            "aarch64",
+            "x86_64"
+          ]
+        },
+        "class": {
+          "description": "Optional device-class intent, used by the phased bootstrap orchestrator to select the macos-ubuntu-bootstrap profile/gui/docker flags and by placement reasoning. Vocabulary is mirrored from the macos-ubuntu-bootstrap rldyour-contract.json targets block so the same facts are declared once. Omitted on devices that do not pin a class; cross-field rules are enforced semantically, not here.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "profile": {
+              "description": "desktop = a workstation (LSP/agents only); desktop-builds = a workstation with local Docker (local-dev-with-builds); server = a headless container-execution host.",
+              "enum": [
+                "desktop",
+                "desktop-builds",
+                "server"
+              ]
+            },
+            "gui": {
+              "description": "Whether the device runs a GUI session. The server profile is always disabled.",
+              "enum": [
+                "enabled",
+                "disabled"
+              ]
+            },
+            "docker_mode": {
+              "description": "Local Docker posture. desktop permits only none; desktop-builds requires rootful; server permits none/rootful/rootless. macOS never installs local Docker.",
+              "enum": [
+                "none",
+                "rootful",
+                "rootless"
+              ]
+            },
+            "execution_policy": {
+              "description": "source-lsp-only for desktop; local-dev-with-builds for desktop-builds; container-execution-only for server.",
+              "enum": [
+                "source-lsp-only",
+                "local-dev-with-builds",
+                "container-execution-only"
+              ]
+            },
+            "hardening": {
+              "description": "Server-only hardening toggles. Permitted only when profile is server.",
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "ssh": {
+                  "type": "boolean"
+                },
+                "ufw": {
+                  "type": "boolean"
+                },
+                "fail2ban": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "workspace_roots": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "common.schema.json#/$defs/portablePath"
+      },
+      "minProperties": 1,
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/kebabId"
+      }
+    },
+    "materialization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "default_mode",
+        "include"
+      ],
+      "properties": {
+        "default_mode": {
+          "$ref": "#/$defs/materializationMode"
+        },
+        "include": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "selector",
+              "workspace_root",
+              "mode"
+            ],
+            "properties": {
+              "selector": {
+                "$ref": "common.schema.json#/$defs/referenceId"
+              },
+              "workspace_root": {
+                "$ref": "common.schema.json#/$defs/kebabId"
+              },
+              "mode": {
+                "$ref": "#/$defs/materializationMode"
+              }
+            }
+          }
+        }
+      }
+    },
+    "harnesses": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "common.schema.json#/$defs/kebabId"
+      }
+    },
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "common.schema.json#/$defs/portablePath"
+        }
+      }
+    },
+    "repositories": {
+      "description": "Observed inventory: the Git repositories actually checked out on this device. Recorded so the estate can be read without a live scan; it is evidence, not intent. Placement is still decided by materialization, and a drifted entry is a finding, never an instruction. Optional, because a device that has not been observed must not be described as empty.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "provider",
+          "path",
+          "materialization"
+        ],
+        "properties": {
+          "provider": {
+            "description": "Provider slug, `owner/name`.",
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*/[A-Za-z0-9][A-Za-z0-9._-]*$"
+          },
+          "workspace_root": {
+            "description": "Key of the `workspace_roots` entry this checkout sits under. Absent for an out-of-estate checkout, which by ADR 0025 has no declared root.",
+            "$ref": "common.schema.json#/$defs/kebabId"
+          },
+          "path": {
+            "description": "Checkout path relative to the device's Developer root.",
+            "$ref": "common.schema.json#/$defs/safeRelativePath"
+          },
+          "materialization": {
+            "description": "How the checkout exists: a device-placed `checkout`, a superproject-owned `git-submodule`, or an `out-of-estate` working copy that the estate does not govern.",
+            "enum": [
+              "checkout",
+              "git-submodule",
+              "out-of-estate"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "materializationMode": {
+      "enum": [
+        "active",
+        "reference",
+        "ephemeral",
+        "absent"
+      ]
+    }
+  }
+}

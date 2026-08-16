@@ -1,0 +1,4 @@
+interface:
+  display_name: "GDS Orient"
+  short_description: "Resolve current GDS scope and boundaries"
+  default_prompt: "Use $gds-orient to explain the current verified GDS context."

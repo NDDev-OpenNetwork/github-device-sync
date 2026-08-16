@@ -1,0 +1,380 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/common.schema.json",
+  "title": "GDS v1 common definitions",
+  "$defs": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "gdsId": {
+      "type": "string",
+      "pattern": "^(repo|estate|device|owner|portfolio|installation|plan|operation|rollout|exception|task|lock)_[0-7][0-9A-HJKMNP-TV-Z]{25}$"
+    },
+    "repositoryId": {
+      "type": "string",
+      "pattern": "^repo_[0-7][0-9A-HJKMNP-TV-Z]{25}$"
+    },
+    "estateId": {
+      "type": "string",
+      "pattern": "^estate_[0-7][0-9A-HJKMNP-TV-Z]{25}$"
+    },
+    "deviceId": {
+      "type": "string",
+      "pattern": "^device_[0-7][0-9A-HJKMNP-TV-Z]{25}$"
+    },
+    "planId": {
+      "type": "string",
+      "pattern": "^plan_[0-7][0-9A-HJKMNP-TV-Z]{25}$"
+    },
+    "rolloutId": {
+      "type": "string",
+      "pattern": "^rollout_[0-7][0-9A-HJKMNP-TV-Z]{25}$"
+    },
+    "operationId": {
+      "type": "string",
+      "pattern": "^op_[0-7][0-9A-HJKMNP-TV-Z]{25}$"
+    },
+    "taskId": {
+      "type": "string",
+      "pattern": "^task_[0-7][0-9A-HJKMNP-TV-Z]{25}$"
+    },
+    "installationReference": {
+      "type": "string",
+      "anyOf": [
+        {
+          "pattern": "^installation_[0-7][0-9A-HJKMNP-TV-Z]{25}$"
+        },
+        {
+          "pattern": "^installation:[a-z0-9][a-z0-9._-]{0,127}$"
+        }
+      ]
+    },
+    "mutationCapabilityReference": {
+      "type": "string",
+      "pattern": "^mutation:[a-z0-9][a-z0-9._-]{0,127}$"
+    },
+    "portfolioReference": {
+      "type": "string",
+      "anyOf": [
+        {
+          "pattern": "^portfolio_[0-7][0-9A-HJKMNP-TV-Z]{25}$"
+        },
+        {
+          "pattern": "^portfolio:[a-z0-9][a-z0-9._-]{0,127}$"
+        }
+      ]
+    },
+    "referenceId": {
+      "type": "string",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/gdsId"
+        },
+        {
+          "pattern": "^(owner|portfolio|installation|policy|device):[a-z0-9][a-z0-9._-]{0,127}$"
+        }
+      ]
+    },
+    "kebabId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "semanticVersion": {
+      "type": "string",
+      "maxLength": 128,
+      "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
+    },
+    "sourceCommit": {
+      "type": "string",
+      "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+    },
+    "sourceRef": {
+      "type": "string",
+      "minLength": 12,
+      "maxLength": 300,
+      "pattern": "^refs/(?:heads|tags)/(?!/)(?!.*(?:\\.\\.|//|@\\{|\\.lock(?:/|$)))(?!.*[./]$)[A-Za-z0-9._+/-]+$"
+    },
+    "safeRelativePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)[A-Za-z0-9._/-]+$"
+    },
+    "sha256Digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "gitOid": {
+      "type": "string",
+      "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+    },
+    "githubOwner": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 39,
+      "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$"
+    },
+    "repositoryName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "pattern": "^[A-Za-z0-9._-]+$"
+    },
+    "branchName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255,
+      "pattern": "^(?!HEAD$)(?![-./])(?!.*(?:\\.\\.|//|@\\{|\\.lock(?:/|$)|/\\.))(?!.*[./]$)[A-Za-z0-9._/-]+$"
+    },
+    "localBranchRef": {
+      "type": "string",
+      "minLength": 12,
+      "maxLength": 266,
+      "pattern": "^refs/heads/(?!HEAD$)(?![-./])(?!.*(?:\\.\\.|//|@\\{|\\.lock(?:/|$)|/\\.))(?!.*[./]$)[A-Za-z0-9._/-]+$"
+    },
+    "visibility": {
+      "enum": ["public", "private", "internal"]
+    },
+    "dataClassification": {
+      "enum": ["public", "internal", "private", "secret"]
+    },
+    "managementMode": {
+      "enum": ["managed", "observe-only", "unmanaged", "quarantined"]
+    },
+    "lifecycle": {
+      "enum": [
+        "active",
+        "maintenance",
+        "frozen",
+        "archived",
+        "tombstoned",
+        "unknown"
+      ]
+    },
+    "repositoryRole": {
+      "enum": [
+        "control-plane",
+        "project",
+        "module",
+        "portfolio-registry",
+        "superproject",
+        "template",
+        "docs",
+        "mirror",
+        "experiment"
+      ]
+    },
+    "rolloutRing": {
+      "enum": ["standard", "canary-control-plane", "canary-modules", "quarantine"]
+    },
+    "singleLineCommand": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2048,
+      "pattern": "^[^\\u0000\\r\\n]+$"
+    },
+    "providerNumericId": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{0,19}$"
+    },
+    "secretReference": {
+      "type": "string",
+      "pattern": "^secret:[A-Za-z0-9._/-]{1,240}$"
+    },
+    "secretReferenceMap": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 64,
+      "propertyNames": {
+        "$ref": "#/$defs/secretReference"
+      }
+    },
+    "environmentSecretStore": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "references"],
+      "properties": {
+        "provider": {"const": "environment"},
+        "references": {
+          "$ref": "#/$defs/secretReferenceMap",
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{0,127}$"
+          }
+        }
+      }
+    },
+    "fileSecretStore": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "references"],
+      "properties": {
+        "provider": {"const": "file"},
+        "references": {
+          "$ref": "#/$defs/secretReferenceMap",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 1024,
+            "pattern": "^/[^\\u0000\\r\\n]+$"
+          }
+        }
+      }
+    },
+    "macosKeychainSecretStore": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "service", "references"],
+      "properties": {
+        "provider": {"const": "macos-keychain"},
+        "service": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[^\\u0000\\r\\n]+$"
+        },
+        "references": {
+          "$ref": "#/$defs/secretReferenceMap",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[^\\u0000\\r\\n]+$"
+          }
+        }
+      }
+    },
+    "linuxSecretServiceStore": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "attribute", "references"],
+      "properties": {
+        "provider": {"const": "linux-secret-service"},
+        "attribute": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9._-]+$"
+        },
+        "references": {
+          "$ref": "#/$defs/secretReferenceMap",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[^\\u0000\\r\\n]+$"
+          }
+        }
+      }
+    },
+    "ghCliSecretStore": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "references"],
+      "properties": {
+        "provider": {"const": "gh-cli"},
+        "references": {
+          "$ref": "#/$defs/secretReferenceMap",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9._/-]+$"
+          }
+        }
+      }
+    },
+    "appInstallation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["app_id", "provider_installation_id"],
+      "properties": {
+        "app_id": {"$ref": "#/$defs/providerNumericId"},
+        "provider_installation_id": {"$ref": "#/$defs/providerNumericId"}
+      }
+    },
+    "ghCliInstallation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["account_login", "account_type"],
+      "properties": {
+        "account_login": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,127})?$"
+        },
+        "account_type": {"enum": ["organization", "user"]}
+      }
+    },
+    "runtimeInstallation": {
+      "oneOf": [
+        {"$ref": "#/$defs/appInstallation"},
+        {"$ref": "#/$defs/ghCliInstallation"}
+      ]
+    },
+    "secretStore": {
+      "oneOf": [
+        {"$ref": "#/$defs/environmentSecretStore"},
+        {"$ref": "#/$defs/fileSecretStore"},
+        {"$ref": "#/$defs/macosKeychainSecretStore"},
+        {"$ref": "#/$defs/linuxSecretServiceStore"},
+        {"$ref": "#/$defs/ghCliSecretStore"}
+      ]
+    },
+    "portablePath": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 512,
+      "pattern": "^(~/|\\$\\{[A-Z][A-Z0-9_]*\\}(?:/|$))"
+    },
+    "stringSet": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "stringListMutation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "append": {
+          "$ref": "#/$defs/stringSet"
+        },
+        "remove": {
+          "$ref": "#/$defs/stringSet"
+        }
+      },
+      "minProperties": 1
+    },
+    "kebabIdSet": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/kebabId"
+      }
+    },
+    "kebabIdListMutation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "append": {
+          "$ref": "#/$defs/kebabIdSet"
+        },
+        "remove": {
+          "$ref": "#/$defs/kebabIdSet"
+        }
+      },
+      "minProperties": 1
+    }
+  }
+}

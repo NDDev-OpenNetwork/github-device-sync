@@ -1,0 +1,49 @@
+schema_version: 1
+
+# Discovery and mutation are deliberately two different installations: reading
+# the estate needs no write scope anywhere, so the credential that can write is
+# separate, narrower, and names the operations it may perform.
+mutation:
+  id: "mutation:github-organization"
+  installation: "installation:github-organization"
+  provider: "github"
+
+scope:
+  management_modes:
+    - "managed"
+  lifecycles:
+    - "active"
+    - "maintenance"
+
+operations:
+  - "branch"
+  - "content"
+  - "pull-request"
+  - "repository-ruleset"
+  - "repository-settings"
+  - "repository-release"
+  - "workflow-caller"
+  - "repository-lifecycle"
+
+permissions:
+  repository_selection: "selected"
+  repository:
+    administration: "write"
+    contents: "write"
+    custom_properties: "write"
+    metadata: "read"
+    pull_requests: "write"
+    workflows: "write"
+  organization: {}
+
+gates:
+  auto_merge: "forbidden"
+  delete: "separate-approval"
+  force: "forbidden"
+  permissions: "forbidden"
+  ruleset_bypass: "forbidden"
+  visibility: "separate-approval"
+
+credentials:
+  strategy: "github-app-installation-token"
+  secret_ref: "secret:gds/github-mutation-app/organization"

@@ -1,0 +1,26 @@
+schema_version: 1
+
+policy:
+  id: "public-module"
+  tier: "role"
+  priority: 100
+  distribution: "public"
+
+match:
+  roles:
+    - "module"
+  visibility_contract:
+    - "public"
+
+apply:
+  github:
+    releases:
+      immutable:
+        management: "managed"
+        value: true
+  agent:
+    profiles:
+      append:
+        - "module"
+  release:
+    compatibility_contract_required: true

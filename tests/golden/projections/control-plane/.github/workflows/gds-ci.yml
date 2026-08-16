@@ -1,0 +1,67 @@
+# GENERATED FILE - DO NOT EDIT DIRECTLY
+# generator: gds
+# bundle: 0.4.0-dev
+# source-tree-digest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+# input-digest: sha256:f0c36457a882b62dbf434cb9441229f73021aea0e0091df609f1bdcab8718442
+# output-digest: sha256:f6f173457cc65a195b469109188c6de024ca0ea212327c2d725a165fa64fb67f
+# edit-source:
+#   - .gds/repository.yaml
+#   - policies/base/repository-default.yaml
+#   - policies/repositories/github-device-sync.yaml
+#   - policies/roles/control-plane.yaml
+#   - templates/agents/repository.md.tmpl
+#   - templates/github-actions/go.yml.tmpl
+#   - templates/harnesses/claude.md.tmpl
+name: gds-ci
+
+on:
+  pull_request:
+    branches:
+      - "main"
+  push:
+    branches:
+      - "main"
+
+permissions: {}
+
+concurrency:
+  group: gds-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fast:
+    name: GDS fast
+    permissions:
+      contents: read
+    uses: NDDev-OpenNetwork/ci-workflows/.github/workflows/go-ci.yml@da43707a70644e98a1fb5f79e46ac643b4829550
+    with:
+      fetch_depth: 0
+      # The fleet creates one virtual machine per job and destroys it after,
+      # so there is no warm cache for setup-go to own and nothing for a stale
+      # one to corrupt. Delegating cache ownership would instead add a
+      # dependency on the GitHub cache service, which the fleet contract does
+      # not promise and which this repository does not need: the golden image
+      # bakes the exact Go toolchain named below.
+      cache: false
+      runner: "ubuntu-latest"
+      go_version: "1.26.5"
+      test_command: "go test ./..."
+      timeout_minutes: 30
+  pr-required:
+    name: GDS PR required
+    # Serialized behind fast: both tiers run the integrated assurance scenario,
+    # which asserts wall-clock budgets, and running two of them side by side on
+    # one host measures contention rather than the code. It is also the right
+    # gate order — there is no value in the expensive tier once fast is red.
+    needs: fast
+    permissions:
+      contents: read
+    uses: NDDev-OpenNetwork/ci-workflows/.github/workflows/go-ci.yml@da43707a70644e98a1fb5f79e46ac643b4829550
+    with:
+      fetch_depth: 0
+      cache: false
+      runner: "ubuntu-latest"
+      go_version: "1.26.5"
+      build_command: "go build -trimpath ./core/cmd/gds"
+      test_command: "go test ./... && python3 -m pip install --quiet --require-hashes -r requirements/test.txt && python3 -m pytest"
+      timeout_minutes: 30

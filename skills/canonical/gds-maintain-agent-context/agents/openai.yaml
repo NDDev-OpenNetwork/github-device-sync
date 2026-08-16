@@ -1,0 +1,4 @@
+interface:
+  display_name: "GDS Maintain Agent Context"
+  short_description: "Refresh agent context from verified facts"
+  default_prompt: "Use $gds-maintain-agent-context to refresh affected generated context."

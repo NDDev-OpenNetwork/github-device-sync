@@ -1,0 +1,24 @@
+schema_version: 1
+github:
+  capabilities:
+    mutation:github-personal:
+      app_id: "456789"
+      provider_installation_id: "9101112"
+    mutation:github-organization:
+      app_id: "456790"
+      provider_installation_id: "9101113"
+    mutation:github-example-media:
+      app_id: "456791"
+      provider_installation_id: "9101114"
+    mutation:github-opennetwork:
+      app_id: "456792"
+      provider_installation_id: "9101115"
+  max_repositories: 2000
+  minimum_mutation_spacing_ms: 1000
+secret_store:
+  provider: "environment"
+  references:
+    secret:gds/github-mutation-app/personal: "GDS_GITHUB_MUTATION_APP_PERSONAL_KEY"
+    secret:gds/github-mutation-app/organization: "GDS_GITHUB_MUTATION_APP_ORGANIZATION_KEY"
+    secret:gds/github-mutation-app/example-media: "GDS_GITHUB_MUTATION_APP_EXAMPLE_MEDIA_KEY"
+    secret:gds/github-mutation-app/opennetwork: "GDS_GITHUB_MUTATION_APP_OPENNETWORK_KEY"

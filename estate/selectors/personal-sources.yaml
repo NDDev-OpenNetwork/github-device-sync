@@ -1,0 +1,21 @@
+schema_version: 1
+
+selector:
+  id: "personal-sources"
+  priority: 100
+
+match:
+  owner: "owner:example-user"
+  fork: false
+  visibility:
+    - "public"
+    - "private"
+
+assign:
+  management_mode: "observe-only"
+  portfolios:
+    - "portfolio:personal-projects"
+  policy_profiles:
+    - "repository-default"
+    - "personal-default"
+  rollout_ring: "standard"

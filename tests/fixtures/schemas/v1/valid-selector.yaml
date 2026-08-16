@@ -1,0 +1,18 @@
+schema_version: 1
+
+selector:
+  id: "personal-forks"
+  priority: 100
+
+match:
+  owner: "owner:example"
+  fork: true
+
+assign:
+  management_mode: "observe-only"
+  portfolios:
+    - "portfolio:forks"
+  policy_profiles:
+    - "repository-default"
+    - "fork-default"
+  rollout_ring: "standard"

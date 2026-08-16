@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/policy-exception.schema.json",
+  "title": "GDS policy exception v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "exception"],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "exception": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "repository_id",
+        "policy_path",
+        "requested_value",
+        "reason",
+        "owner_approval_ref",
+        "expires_at"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^exc_[0-9A-HJKMNP-TV-Z]{26}$"
+        },
+        "repository_id": {
+          "$ref": "common.schema.json#/$defs/repositoryId"
+        },
+        "policy_path": {
+          "enum": [
+            "security.external_write_requires_approval",
+            "security.public_projection_scan",
+            "context.private_parent_persistence"
+          ]
+        },
+        "requested_value": {
+          "oneOf": [
+            {"type": "boolean"},
+            {"type": "string", "minLength": 1, "maxLength": 128}
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "^[^\\r\\n]+$"
+        },
+        "owner_approval_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

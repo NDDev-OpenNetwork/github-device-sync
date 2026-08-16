@@ -1,0 +1,10 @@
+schema_version: 1
+dependencies:
+  - id: "example-runtime-clone"
+    repository_slug: "example-org/example-module"
+    url: "https://github.com/example-org/example-module.git"
+    consumption: "runtime-clone"
+    consumer: "macos-ubuntu-bootstrap"
+    pinned_sha: "not-a-valid-git-object-id"
+    available_head: "dc6db7522fd0bbaa87312a9345bc28ac6daeb0ea"
+    reconciliation: "current"

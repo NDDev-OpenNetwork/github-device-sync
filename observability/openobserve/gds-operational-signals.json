@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "minimum_openobserve_version": "0.90.3",
+  "stream_placeholder": "${GDS_OTEL_STREAM}",
+  "dashboard": {
+    "name": "GDS control plane",
+    "description": "Operational view; the local SQLite journal remains recovery authority.",
+    "panels": [
+      {"id":"operation-outcomes","title":"Operation outcomes","signal":"logs","query":"SELECT event_name, COUNT(*) AS events FROM \"${GDS_OTEL_STREAM}\" WHERE operation_id IS NOT NULL GROUP BY event_name ORDER BY events DESC"},
+      {"id":"partial-operations","title":"Partial operations","signal":"logs","query":"SELECT operation_id, plan_id, device_id, MAX(_timestamp) AS last_seen FROM \"${GDS_OTEL_STREAM}\" WHERE event_name = 'operation.partial' GROUP BY operation_id, plan_id, device_id ORDER BY last_seen DESC"},
+      {"id":"lock-conflicts","title":"Write-set lock conflicts","signal":"logs","query":"SELECT repository_id, COUNT(*) AS conflicts FROM \"${GDS_OTEL_STREAM}\" WHERE event_name = 'lock.conflict' GROUP BY repository_id ORDER BY conflicts DESC"},
+      {"id":"evidence-freshness","title":"Stale evidence","signal":"logs","query":"SELECT evidence_type, harness_id, device_id, COUNT(*) AS stale_count FROM \"${GDS_OTEL_STREAM}\" WHERE freshness_state IN ('stale','expired','unavailable') GROUP BY evidence_type, harness_id, device_id"},
+      {"id":"exporter-health","title":"Exporter backlog and drops","signal":"metrics","query":"SELECT name, MAX(value) AS current_value FROM \"${GDS_OTEL_STREAM}\" WHERE name IN ('gds.telemetry.pending','gds.telemetry.dropped') GROUP BY name"},
+      {"id":"release-gates","title":"Release gate failures","signal":"logs","query":"SELECT channel, error_class, COUNT(*) AS failures FROM \"${GDS_OTEL_STREAM}\" WHERE event_name = 'release.gate.rejected' GROUP BY channel, error_class"}
+    ]
+  },
+  "alerts": [
+    {"id":"gds-partial-operation","severity":"critical","period_minutes":5,"threshold":0,"operator":"greater-than","query":"SELECT COUNT(*) AS value FROM \"${GDS_OTEL_STREAM}\" WHERE event_name = 'operation.partial'"},
+    {"id":"gds-telemetry-dropped","severity":"high","period_minutes":5,"threshold":0,"operator":"greater-than","query":"SELECT COALESCE(MAX(value),0) AS value FROM \"${GDS_OTEL_STREAM}\" WHERE name = 'gds.telemetry.dropped'"},
+    {"id":"gds-release-gate-rejected","severity":"high","period_minutes":15,"threshold":0,"operator":"greater-than","query":"SELECT COUNT(*) AS value FROM \"${GDS_OTEL_STREAM}\" WHERE event_name = 'release.gate.rejected'"},
+    {"id":"gds-evidence-expired","severity":"high","period_minutes":15,"threshold":0,"operator":"greater-than","query":"SELECT COUNT(*) AS value FROM \"${GDS_OTEL_STREAM}\" WHERE freshness_state IN ('expired','unavailable')"}
+  ]
+}

@@ -1,0 +1,17 @@
+schema_version: 1
+
+policy:
+  id: "fork-default"
+  tier: "portfolio"
+  priority: 100
+  distribution: "public"
+
+match:
+  portfolios:
+    - "portfolio:forks"
+
+apply:
+  git:
+    integration: "pull-request"
+  rollout:
+    mode: "pull-request"

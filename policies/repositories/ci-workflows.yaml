@@ -1,0 +1,33 @@
+schema_version: 1
+
+policy:
+  id: "ci-workflows"
+  tier: "repository"
+  priority: 100
+  distribution: "public"
+
+apply:
+  github:
+    merge:
+      # The base default is squash-only. This repository is deliberately not,
+      # and the projection said otherwise for as long as it existed: the
+      # compiled policy declared `allow_squash_merge: true` under
+      # `management: managed` while the live repository has allowed the merge
+      # method only. A reconcile run would have flipped a governance model that
+      # the repository's own ruleset, its instruction docs and its contributor
+      # guide all describe correctly.
+      #
+      # Why merge commits: ci-workflows publishes reusable workflows that other
+      # repositories pin by full commit SHA. Consumers, ADRs, the
+      # runtime-coverage ledger and release provenance all reference individual
+      # commits. Collapsing a branch would break every one of those references,
+      # so squash and rebase are disabled and `main` takes merge commits.
+      allow_merge_commit:
+        management: "managed"
+        value: true
+      allow_squash_merge:
+        management: "managed"
+        value: false
+      allow_rebase_merge:
+        management: "managed"
+        value: false

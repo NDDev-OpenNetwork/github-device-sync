@@ -1,0 +1,25 @@
+schema_version: 1
+
+device:
+  id: "device_01JEXAMPZ00000000000000003"
+  name: "example-macbook"
+  os: "macos"
+  architecture: "arm64"
+
+workspace_roots:
+  personal: "${HOME}/Developer/personal"
+  organization: "${HOME}/Developer/organization"
+
+materialization:
+  default_mode: "absent"
+  include:
+    - selector: "portfolio:active-projects"
+      workspace_root: "personal"
+      mode: "active"
+
+harnesses:
+  - "codex"
+  - "claude-code"
+
+state:
+  path: "${XDG_STATE_HOME}/github-device-sync"

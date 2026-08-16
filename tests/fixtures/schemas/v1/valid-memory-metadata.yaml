@@ -1,0 +1,14 @@
+gds_memory_schema: 1
+scope_id: "repo_01JEXAMPZ0000000000000000C"
+status: "generated-unverified"
+visibility: "private"
+source_commit: "433c46b6923f7dc1efb96713b9ffc9330ca8ba58"
+source_state: "working-tree"
+source_digest: "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+generated_by: "gds-memory-compiler"
+bundle_version: "0.1.0-dev"
+verified_at: "2026-07-11T12:00:00Z"
+refresh_triggers:
+  - "architecture-source-change"
+sources:
+  - "docs/architecture/README.md"

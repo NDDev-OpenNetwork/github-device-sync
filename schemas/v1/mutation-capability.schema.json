@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/mutation-capability.schema.json",
+  "title": "GDS GitHub mutation capability v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "mutation",
+    "scope",
+    "operations",
+    "permissions",
+    "gates",
+    "credentials"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "mutation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "installation", "provider"],
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/mutationCapabilityReference"
+        },
+        "installation": {
+          "$ref": "common.schema.json#/$defs/installationReference"
+        },
+        "provider": {
+          "const": "github"
+        }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["management_modes", "lifecycles"],
+      "properties": {
+        "management_modes": {
+          "const": ["managed"]
+        },
+        "lifecycles": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/lifecycle"
+          }
+        }
+      }
+    },
+    "operations": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "branch",
+          "content",
+          "custom-properties",
+          "pull-request",
+          "repository-delete",
+          "repository-lifecycle",
+          "repository-release",
+          "repository-ruleset",
+          "repository-settings",
+          "workflow-caller"
+        ]
+      }
+    },
+    "permissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository_selection", "repository", "organization"],
+      "properties": {
+        "repository_selection": {
+          "const": "selected"
+        },
+        "repository": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "administration",
+            "contents",
+            "custom_properties",
+            "metadata",
+            "pull_requests",
+            "workflows"
+          ],
+          "properties": {
+            "administration": {"const": "write"},
+            "contents": {"const": "write"},
+            "custom_properties": {"const": "write"},
+            "metadata": {"const": "read"},
+            "pull_requests": {"const": "write"},
+            "workflows": {"const": "write"}
+          }
+        },
+        "organization": {
+          "type": "object",
+          "maxProperties": 0
+        }
+      }
+    },
+    "gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "auto_merge",
+        "delete",
+        "force",
+        "permissions",
+        "ruleset_bypass",
+        "visibility"
+      ],
+      "properties": {
+        "auto_merge": {"const": "forbidden"},
+        "delete": {"const": "separate-approval"},
+        "force": {"const": "forbidden"},
+        "permissions": {"const": "forbidden"},
+        "ruleset_bypass": {"const": "forbidden"},
+        "visibility": {"const": "separate-approval"}
+      }
+    },
+    "credentials": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["strategy", "secret_ref"],
+      "properties": {
+        "strategy": {"const": "github-app-installation-token"},
+        "secret_ref": {
+          "type": "string",
+          "pattern": "^secret:[A-Za-z0-9._/-]{1,240}$"
+        }
+      }
+    }
+  }
+}

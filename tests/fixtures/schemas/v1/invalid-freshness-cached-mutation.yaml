@@ -1,0 +1,10 @@
+schema_version: 1
+claims:
+  mutation-precondition: {mode: "cached", max_age_seconds: 1}
+  worktree-index: {mode: "cached", max_age_seconds: 30}
+  local-context: {mode: "cached", max_age_seconds: 300}
+  provider-observation: {mode: "cached", max_age_seconds: 900}
+  device-inventory: {mode: "cached", max_age_seconds: 21600}
+  harness-runtime: {mode: "cached", max_age_seconds: 259200}
+  release-promotion: {mode: "cached", max_age_seconds: 86400}
+  vendor-fact: {mode: "cached", max_age_seconds: 86400}

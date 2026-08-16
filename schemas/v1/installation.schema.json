@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/installation.schema.json",
+  "title": "GDS GitHub installation descriptor v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "installation",
+    "management",
+    "permissions",
+    "credentials"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "installation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "provider",
+        "account_type",
+        "account_login",
+        "app_installation_id_source"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/installationReference"
+        },
+        "provider": {
+          "const": "github"
+        },
+        "account_type": {
+          "enum": ["user", "organization"]
+        },
+        "account_login": {
+          "$ref": "common.schema.json#/$defs/githubOwner"
+        },
+        "app_installation_id_source": {
+          "enum": ["secure-runtime"]
+        }
+      }
+    },
+    "management": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["discover_all_repositories", "default_mode"],
+      "properties": {
+        "discover_all_repositories": {
+          "type": "boolean"
+        },
+        "default_mode": {
+          "$ref": "common.schema.json#/$defs/managementMode"
+        }
+      }
+    },
+    "permissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository_selection", "repository", "organization"],
+      "properties": {
+        "repository_selection": {
+          "enum": ["all", "selected"]
+        },
+        "repository": {
+          "$ref": "#/$defs/permissionSet"
+        },
+        "organization": {
+          "$ref": "#/$defs/permissionSet"
+        }
+      }
+    },
+    "credentials": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["strategy", "secret_ref"],
+      "properties": {
+        "strategy": {
+          "const": "github-app-installation-token"
+        },
+        "secret_ref": {
+          "type": "string",
+          "pattern": "^secret:[A-Za-z0-9._/-]{1,240}$"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "permissionSet": {
+      "type": "object",
+      "minProperties": 0,
+      "maxProperties": 64,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]{1,63}$"
+      },
+      "additionalProperties": {
+        "const": "read"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "management": {
+            "properties": {
+              "discover_all_repositories": {"const": true}
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "permissions": {
+            "properties": {
+              "repository_selection": {"const": "all"}
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/rollback-authorization.schema.json",
+  "title": "GDS exact bundle rollback authorization v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "rollout_id",
+    "target_sequence",
+    "target_digest",
+    "scope_digest",
+    "reason",
+    "approval_ref",
+    "expires_at"
+  ],
+  "properties": {
+    "rollout_id": {"$ref": "common.schema.json#/$defs/rolloutId"},
+    "target_sequence": {"type": "integer", "minimum": 1},
+    "target_digest": {"$ref": "common.schema.json#/$defs/sha256Digest"},
+    "scope_digest": {"$ref": "common.schema.json#/$defs/sha256Digest"},
+    "reason": {"type": "string", "minLength": 8, "maxLength": 1024},
+    "approval_ref": {"type": "string", "minLength": 8, "maxLength": 512, "pattern": "^approval:[A-Za-z0-9._:/-]+$"},
+    "expires_at": {"type": "string", "format": "date-time"}
+  }
+}

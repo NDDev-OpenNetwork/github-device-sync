@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/audit-snapshot.schema.json",
+  "title": "GDS signed reconciliation audit snapshot v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "snapshot_id",
+    "estate_id",
+    "reconciliation_id",
+    "created_at",
+    "payload_digest",
+    "payload",
+    "signature"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "snapshot_id": {
+      "type": "string",
+      "pattern": "^audit_[0-7][0-9A-HJKMNP-TV-Z]{25}$"
+    },
+    "estate_id": {
+      "$ref": "common.schema.json#/$defs/estateId"
+    },
+    "reconciliation_id": {
+      "type": "string",
+      "pattern": "^reconciliation_[0-7][0-9A-HJKMNP-TV-Z]{25}$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "payload_digest": {
+      "$ref": "common.schema.json#/$defs/sha256Digest"
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reconciliation_id", "result"],
+      "properties": {
+        "reconciliation_id": {
+          "type": "string",
+          "pattern": "^reconciliation_[0-7][0-9A-HJKMNP-TV-Z]{25}$"
+        },
+        "result": {
+          "type": "object",
+          "maxProperties": 128
+        }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "public_key", "value"],
+      "properties": {
+        "algorithm": {
+          "const": "ed25519"
+        },
+        "public_key": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{43}$"
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{86}$"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "actor": {
+    "session_id": "session-example",
+    "type": "agent-session"
+  },
+  "approval_class": "local-write",
+  "created_at": "2026-07-11T05:00:00Z",
+  "expires_at": "2026-07-11T05:15:00Z",
+  "operation": "update-projection",
+  "plan_digest": "sha256:633b5b9a287c7257eb1bc7b7fb88af01ff976dfbb7e3d6f5ba657112979d8ed2",
+  "plan_id": "plan_01KX7BV07RHD6KRA4Z4J0KCHGV",
+  "preconditions": [
+    {
+      "head_oid": "0123456789abcdef0123456789abcdef01234567",
+      "manifest_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "policy_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "repository_id": "repo_01JEXAMPZ0000000000000000C"
+    }
+  ],
+  "schema_version": 1,
+  "scope": {
+    "repositories": [
+      "repo_01JEXAMPZ0000000000000000C"
+    ]
+  },
+  "steps": [
+    {
+      "action": "write-projection",
+      "compensation": {
+        "action": "restore-projection",
+        "mode": "explicit-plan"
+      },
+      "repository_id": "repo_01JEXAMPZ0000000000000000C",
+      "requires_approval": true,
+      "step_id": "step-001",
+      "write_set": [
+        "repository"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "command": "gds validate schemas",
+  "result": "failed",
+  "exit_class": "validation",
+  "exit_code": 0,
+  "scope": {},
+  "findings": [
+    {
+      "code": "GDS_INSTANCE_INVALID",
+      "severity": "high",
+      "message": "Example failure"
+    }
+  ],
+  "mutation": { "attempted": false, "completed": false }
+}

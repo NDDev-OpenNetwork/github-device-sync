@@ -1,0 +1,6 @@
+interface:
+  display_name: "GDS Manage Fork"
+  short_description: "Manage a fork without losing maintained commits"
+  default_prompt: "Use $gds-manage-fork for an explicitly approved fork lifecycle change."
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,14 @@
+schema_version: 1
+
+owner:
+  id: "owner:opennetwork"
+  installation: "installation:github-opennetwork"
+  provider_login: "NDDev-OpenNetwork"
+
+defaults:
+  policy_profile: "organization-default"
+  rollout_ring: "standard"
+
+classification:
+  fork_portfolio: "portfolio:forks"
+  source_portfolio: "portfolio:organization-projects"

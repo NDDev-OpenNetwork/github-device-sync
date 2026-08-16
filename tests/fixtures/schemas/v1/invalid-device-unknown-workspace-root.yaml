@@ -1,0 +1,17 @@
+schema_version: 1
+device:
+  id: "device_01JEXAMPZ00000000000000000"
+  name: "unknown-workspace-root"
+  os: "macos"
+  architecture: "arm64"
+workspace_roots:
+  known: "${HOME}/Developer/known"
+materialization:
+  default_mode: "absent"
+  include:
+    - selector: "portfolio:personal-projects"
+      workspace_root: "missing"
+      mode: "active"
+harnesses: []
+state:
+  path: "${XDG_STATE_HOME}/github-device-sync"

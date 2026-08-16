@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "compiled_policy": {
+    "repository_id": "repo_01JEXAMPZ0000000000000000C",
+    "bundle_version": "0.1.0-dev",
+    "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "sources": [
+    {
+      "id": "repository-default",
+      "tier": "base",
+      "priority": 100,
+      "distribution": "public",
+      "path": "policies/base/repository-default.yaml",
+      "digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    }
+  ],
+  "effective": {
+    "security": {
+      "external_write_requires_approval": true
+    }
+  },
+  "provenance": {}
+}

@@ -1,0 +1,6 @@
+interface:
+  display_name: "GDS Rollout Policy"
+  short_description: "Roll out a verified bundle through bounded waves"
+  default_prompt: "Use $gds-rollout-policy to plan a canary-first bundle rollout."
+policy:
+  allow_implicit_invocation: false

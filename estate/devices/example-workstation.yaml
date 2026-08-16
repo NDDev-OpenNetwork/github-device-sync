@@ -1,0 +1,39 @@
+schema_version: 1
+
+# One device. A device declares where repositories are materialized on it and
+# which agent harnesses it runs -- not what the estate contains, which is the
+# estate's own business.
+device:
+  id: "device_01JEXAMPZ00000000000000000"
+  name: "example-workstation"
+  os: "linux"
+  architecture: "x86_64"
+  class:
+    profile: "desktop"
+    gui: "enabled"
+    docker_mode: "none"
+    execution_policy: "source-lsp-only"
+
+workspace_roots:
+  organization: "${HOME}/Developer/organization"
+  personal: "${HOME}/Developer/personal"
+  forks: "${HOME}/Developer/forks"
+
+materialization:
+  default_mode: "absent"
+  include:
+    - selector: "portfolio:organization-projects"
+      workspace_root: "organization"
+      mode: "active"
+    - selector: "portfolio:personal-projects"
+      workspace_root: "personal"
+      mode: "active"
+    - selector: "portfolio:forks"
+      workspace_root: "forks"
+      mode: "active"
+
+harnesses:
+  - "claude-code"
+
+state:
+  path: "${XDG_STATE_HOME}/github-device-sync"

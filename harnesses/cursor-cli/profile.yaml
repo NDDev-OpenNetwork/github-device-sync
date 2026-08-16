@@ -1,0 +1,40 @@
+schema_version: 1
+
+harness_profile:
+  id: "cursor-cli"
+  product: "cursor-cli"
+  status: "provisional"
+  aliases: []
+  capability_version: "2026-07-11"
+  verified_at: "2026-07-11"
+  official_sources:
+    - "https://docs.cursor.com/en/cli/using"
+    - "https://docs.cursor.com/en/cli/overview"
+    - "https://cursor.com/changelog/2-4"
+    - "https://cursor.com/changelog/2-5"
+  detection:
+    command_candidates:
+      - "cursor-agent"
+    version_arguments:
+      - "--version"
+  instructions:
+    native_agents: true
+    nested_chain: "workspace-root-only"
+    imports: false
+  skills:
+    standard: "agent-skills"
+    native_paths:
+      - ".cursor/skills"
+    symlinks: false
+    explicit_only:
+      mechanism: "profile-exclusion"
+  projection:
+    instruction_strategy: "native-agents"
+    skill_strategy: "generated-copy"
+  hooks:
+    supported: true
+    lifecycle:
+      - "stop"
+  runtime_tests:
+    required: false
+    last_result: "delegated"

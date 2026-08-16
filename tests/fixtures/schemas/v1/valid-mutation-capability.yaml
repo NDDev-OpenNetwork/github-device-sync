@@ -1,0 +1,32 @@
+schema_version: 1
+mutation:
+  id: "mutation:github-personal"
+  installation: "installation:github-personal"
+  provider: "github"
+scope:
+  management_modes: ["managed"]
+  lifecycles: ["active", "archived"]
+operations:
+  - "content"
+  - "pull-request"
+  - "repository-settings"
+permissions:
+  repository_selection: "selected"
+  repository:
+    administration: "write"
+    contents: "write"
+    custom_properties: "write"
+    metadata: "read"
+    pull_requests: "write"
+    workflows: "write"
+  organization: {}
+gates:
+  auto_merge: "forbidden"
+  delete: "separate-approval"
+  force: "forbidden"
+  permissions: "forbidden"
+  ruleset_bypass: "forbidden"
+  visibility: "separate-approval"
+credentials:
+  strategy: "github-app-installation-token"
+  secret_ref: "secret:gds/github-mutation-app/personal"

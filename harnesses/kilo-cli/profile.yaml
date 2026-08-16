@@ -1,0 +1,34 @@
+schema_version: 1
+
+harness_profile:
+  id: "kilo-cli"
+  product: "kilo-cli"
+  status: "provisional"
+  aliases: []
+  capability_version: "2026-07-26"
+  verified_at: "2026-07-26"
+  official_sources:
+    - "https://kilo.ai/docs/code-with-ai/platforms/cli"
+    - "https://github.com/Kilo-Org/kilocode"
+  detection:
+    command_candidates: ["kilo"]
+    version_arguments: ["--version"]
+  instructions:
+    native_agents: false
+    nested_chain: "none"
+    imports: false
+  skills:
+    standard: "none"
+    native_paths: []
+    symlinks: false
+    explicit_only:
+      mechanism: "not-proven"
+  projection:
+    instruction_strategy: "not-proven"
+    skill_strategy: "not-proven"
+  hooks:
+    supported: false
+    lifecycle: []
+  runtime_tests:
+    required: false
+    last_result: "delegated"

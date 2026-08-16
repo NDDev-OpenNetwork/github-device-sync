@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "bundle_version": "1.0.0",
+  "release_sequence": 1,
+  "channel": "latest",
+  "source_commit": "0123456789abcdef0123456789abcdef01234567",
+  "source_ref": "refs/tags/gds-v1.0.0",
+  "executable_files": 0,
+  "manifest_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "artifact_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "expected_attestation_identity_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+}

@@ -1,0 +1,493 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/policy.schema.json",
+  "title": "GDS policy source v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "policy", "apply"],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "tier", "priority", "distribution"],
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/kebabId"
+        },
+        "tier": {
+          "enum": [
+            "base",
+            "owner",
+            "portfolio",
+            "role",
+            "stack",
+            "lifecycle",
+            "repository"
+          ]
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "distribution": {
+          "enum": ["public", "internal", "private"]
+        }
+      }
+    },
+    "match": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "owner": {
+          "$ref": "common.schema.json#/$defs/referenceId"
+        },
+        "roles": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/repositoryRole"
+          }
+        },
+        "portfolios": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/referenceId"
+          }
+        },
+        "visibility_contract": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/visibility"
+          }
+        },
+        "lifecycle": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/lifecycle"
+          }
+        }
+      }
+    },
+    "apply": {
+      "$ref": "#/$defs/apply"
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "monotonic": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_.-]+$"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "gitSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "default_branch": {
+          "$ref": "common.schema.json#/$defs/branchName"
+        },
+        "integration": {
+          "enum": ["pull-request", "direct"]
+        },
+        "branch_cleanup": {
+          "enum": ["merged-only", "manual"]
+        }
+      }
+    },
+    "agentMutationSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "generated_agents": {
+          "type": "boolean"
+        },
+        "generated_projection_edit": {
+          "enum": ["forbidden", "warn"]
+        },
+        "profiles": {
+          "$ref": "common.schema.json#/$defs/kebabIdListMutation"
+        }
+      }
+    },
+    "agentEffectiveSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "generated_agents": {
+          "type": "boolean"
+        },
+        "generated_projection_edit": {
+          "enum": ["forbidden", "warn"]
+        },
+        "profiles": {
+          "$ref": "common.schema.json#/$defs/kebabIdSet"
+        }
+      }
+    },
+    "securitySettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "secrets_in_repository": {
+          "const": "forbidden"
+        },
+        "external_write_requires_approval": {
+          "type": "boolean"
+        },
+        "public_projection_scan": {
+          "enum": ["required", "optional"]
+        }
+      }
+    },
+    "contextSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "private_parent_persistence": {
+          "enum": ["forbidden", "ephemeral-only"]
+        }
+      }
+    },
+    "rolloutSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "enum": ["pull-request", "disabled"]
+        }
+      }
+    },
+    "releaseSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "compatibility_contract_required": {
+          "type": "boolean"
+        }
+      }
+    },
+    "managedBoolean": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["management", "value"],
+          "properties": {
+            "management": {"const": "managed"},
+            "value": {"type": "boolean"}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["management"],
+          "properties": {
+            "management": {"enum": ["observed", "ignored"]}
+          }
+        }
+      ]
+    },
+    "managedMergeTitle": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["management", "value"],
+          "properties": {
+            "management": {"const": "managed"},
+            "value": {"enum": ["PR_TITLE", "MERGE_MESSAGE"]}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["management"],
+          "properties": {"management": {"enum": ["observed", "ignored"]}}
+        }
+      ]
+    },
+    "managedMergeMessage": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["management", "value"],
+          "properties": {
+            "management": {"const": "managed"},
+            "value": {"enum": ["PR_TITLE", "PR_BODY", "BLANK"]}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["management"],
+          "properties": {"management": {"enum": ["observed", "ignored"]}}
+        }
+      ]
+    },
+    "managedSquashTitle": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["management", "value"],
+          "properties": {
+            "management": {"const": "managed"},
+            "value": {"enum": ["PR_TITLE", "COMMIT_OR_PR_TITLE"]}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["management"],
+          "properties": {"management": {"enum": ["observed", "ignored"]}}
+        }
+      ]
+    },
+    "managedSquashMessage": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["management", "value"],
+          "properties": {
+            "management": {"const": "managed"},
+            "value": {"enum": ["PR_BODY", "COMMIT_MESSAGES", "BLANK"]}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["management"],
+          "properties": {"management": {"enum": ["observed", "ignored"]}}
+        }
+      ]
+    },
+    "managedAllowedActions": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["management", "value"],
+          "properties": {
+            "management": {"const": "managed"},
+            "value": {"enum": ["all", "local_only", "selected"]}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["management"],
+          "properties": {"management": {"enum": ["observed", "ignored"]}}
+        }
+      ]
+    },
+    "managedWorkflowPermission": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["management", "value"],
+          "properties": {
+            "management": {"const": "managed"},
+            "value": {"enum": ["read", "write"]}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["management"],
+          "properties": {"management": {"enum": ["observed", "ignored"]}}
+        }
+      ]
+    },
+    "managedSelectedActions": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["management", "value"],
+          "properties": {
+            "management": {"const": "managed"},
+            "value": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["github_owned_allowed", "verified_allowed", "patterns_allowed"],
+              "properties": {
+                "github_owned_allowed": {"type": "boolean"},
+                "verified_allowed": {"type": "boolean"},
+                "patterns_allowed": {
+                  "type": "array",
+                  "maxItems": 100,
+                  "uniqueItems": true,
+                  "items": {"type": "string", "minLength": 1, "maxLength": 1024}
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["management"],
+          "properties": {"management": {"enum": ["observed", "ignored"]}}
+        }
+      ]
+    },
+    "githubSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "merge": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "allow_merge_commit": {"$ref": "#/$defs/managedBoolean"},
+            "allow_squash_merge": {"$ref": "#/$defs/managedBoolean"},
+            "allow_rebase_merge": {"$ref": "#/$defs/managedBoolean"},
+            "allow_auto_merge": {"$ref": "#/$defs/managedBoolean"},
+            "allow_update_branch": {"$ref": "#/$defs/managedBoolean"},
+            "delete_branch_on_merge": {"$ref": "#/$defs/managedBoolean"},
+            "merge_commit_title": {"$ref": "#/$defs/managedMergeTitle"},
+            "merge_commit_message": {"$ref": "#/$defs/managedMergeMessage"},
+            "squash_merge_commit_title": {"$ref": "#/$defs/managedSquashTitle"},
+            "squash_merge_commit_message": {"$ref": "#/$defs/managedSquashMessage"}
+          }
+        },
+        "actions": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {"$ref": "#/$defs/managedBoolean"},
+            "allowed_actions": {"$ref": "#/$defs/managedAllowedActions"},
+            "sha_pinning_required": {"$ref": "#/$defs/managedBoolean"},
+            "selected_actions": {"$ref": "#/$defs/managedSelectedActions"}
+          }
+        },
+        "workflow": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "default_workflow_permissions": {"$ref": "#/$defs/managedWorkflowPermission"},
+            "can_approve_pull_request_reviews": {"$ref": "#/$defs/managedBoolean"}
+          }
+        },
+        "releases": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "immutable": {"$ref": "#/$defs/managedBoolean"}
+          }
+        },
+        "security": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["management"],
+          "properties": {"management": {"enum": ["observed", "ignored"]}}
+        },
+        "rulesets": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["management"],
+          "properties": {"management": {"enum": ["observed", "ignored"]}}
+        }
+      }
+    },
+    "packageManagementSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "language_dependency_managers": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string" }
+        },
+        "forbidden_executables": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string" }
+        },
+        "npm_family_on_managed_path": { "const": "forbidden" },
+        "mutable_version_resolution": { "const": "forbidden" },
+        "remote_stream_to_shell": { "const": "forbidden" }
+      }
+    },
+    "apply": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "git": {
+          "$ref": "#/$defs/gitSettings"
+        },
+        "agent": {
+          "$ref": "#/$defs/agentMutationSettings"
+        },
+        "security": {
+          "$ref": "#/$defs/securitySettings"
+        },
+        "context": {
+          "$ref": "#/$defs/contextSettings"
+        },
+        "rollout": {
+          "$ref": "#/$defs/rolloutSettings"
+        },
+        "release": {
+          "$ref": "#/$defs/releaseSettings"
+        },
+        "github": {
+          "$ref": "#/$defs/githubSettings"
+        },
+        "package_management": {
+          "$ref": "#/$defs/packageManagementSettings"
+        }
+      },
+      "minProperties": 1
+    },
+    "effective": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "git": {
+          "$ref": "#/$defs/gitSettings"
+        },
+        "agent": {
+          "$ref": "#/$defs/agentEffectiveSettings"
+        },
+        "security": {
+          "$ref": "#/$defs/securitySettings"
+        },
+        "context": {
+          "$ref": "#/$defs/contextSettings"
+        },
+        "rollout": {
+          "$ref": "#/$defs/rolloutSettings"
+        },
+        "release": {
+          "$ref": "#/$defs/releaseSettings"
+        },
+        "github": {
+          "$ref": "#/$defs/githubSettings"
+        },
+        "package_management": {
+          "$ref": "#/$defs/packageManagementSettings"
+        }
+      },
+      "minProperties": 1
+    }
+  }
+}

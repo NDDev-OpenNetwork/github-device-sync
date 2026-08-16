@@ -1,0 +1,6 @@
+interface:
+  display_name: "GDS Handoff Work"
+  short_description: "Prepare unfinished work for safe handoff"
+  default_prompt: "Use $gds-handoff-work to plan an unfinished cross-device handoff."
+policy:
+  allow_implicit_invocation: false

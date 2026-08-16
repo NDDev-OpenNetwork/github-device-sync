@@ -1,0 +1,44 @@
+{
+  "name": "gds",
+  "interface": {
+    "displayName": "GDS"
+  },
+  "plugins": [
+    {
+      "name": "gds-core",
+      "source": {
+        "source": "local",
+        "path": "./plugins/gds-core"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "gds-estate-admin",
+      "source": {
+        "source": "local",
+        "path": "./plugins/gds-estate-admin"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "gds-module",
+      "source": {
+        "source": "local",
+        "path": "./plugins/gds-module"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

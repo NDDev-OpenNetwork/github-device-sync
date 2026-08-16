@@ -1,0 +1,36 @@
+schema_version: 1
+
+# A third device, and the only one that may run containers. Device class is not
+# decoration: it decides what an agent harness is allowed to do here, so a
+# build host and a laptop are described separately even when the estate they
+# see is identical.
+device:
+  id: "device_01JEXAMPZ00000000000000002"
+  name: "example-user-ubuntu-1"
+  os: "linux"
+  architecture: "x86_64"
+  class:
+    profile: "desktop-builds"
+    gui: "disabled"
+    docker_mode: "rootful"
+    execution_policy: "local-dev-with-builds"
+
+workspace_roots:
+  projects: "${HOME}/Developer/projects"
+  forks: "${HOME}/Developer/forks"
+
+materialization:
+  default_mode: "absent"
+  include:
+    - selector: "portfolio:organization-projects"
+      workspace_root: "projects"
+      mode: "active"
+    - selector: "portfolio:forks"
+      workspace_root: "forks"
+      mode: "active"
+
+harnesses:
+  - "claude-code"
+
+state:
+  path: "${XDG_STATE_HOME}/github-device-sync"

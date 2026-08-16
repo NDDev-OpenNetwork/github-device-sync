@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "profile": "module",
+  "status": "runtime-not-proven",
+  "tasks": [
+    {
+      "id": "gds-manage-module-output",
+      "skill": "gds-manage-module",
+      "prompt": "Plan an approved module relationship change across independent Git boundaries without applying it.",
+      "assertions": [
+        {
+          "id": "independent-git-boundaries",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate independent Git boundaries."
+        },
+        {
+          "id": "typed-relationship",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate typed relationship."
+        },
+        {
+          "id": "visibility-and-pin-policy",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate visibility and pin policy."
+        },
+        {
+          "id": "gitmodules-or-package-evidence-verified",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate gitmodules or package evidence verified."
+        }
+      ]
+    },
+    {
+      "id": "gds-release-module-output",
+      "skill": "gds-release-module",
+      "prompt": "Plan an approved module release from an exact source commit without publishing an artifact.",
+      "assertions": [
+        {
+          "id": "exact-source-commit",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate exact source commit."
+        },
+        {
+          "id": "compatibility-classified",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate compatibility classified."
+        },
+        {
+          "id": "declared-publication-mode-only",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate declared publication mode only."
+        },
+        {
+          "id": "immutable-release-provenance",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate immutable release provenance."
+        }
+      ]
+    },
+    {
+      "id": "gds-update-consumer-pins-output",
+      "skill": "gds-update-consumer-pins",
+      "prompt": "Plan selected consumer pin updates only for a finalized eligible module artifact without changing consumers.",
+      "assertions": [
+        {
+          "id": "finalized-eligible-module-artifact",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate finalized eligible module artifact."
+        },
+        {
+          "id": "typed-selected-consumers",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate typed selected consumers."
+        },
+        {
+          "id": "one-transaction-per-repository",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate one transaction per repository."
+        },
+        {
+          "id": "consumer-verification-after-pin-change",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate consumer verification after pin change."
+        }
+      ]
+    }
+  ]
+}

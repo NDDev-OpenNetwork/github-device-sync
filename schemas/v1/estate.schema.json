@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/estate.schema.json",
+  "title": "GDS estate configuration v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "estate",
+    "installations",
+    "mutation_capabilities",
+    "policy_order",
+    "rollout",
+    "state",
+    "discovery"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "estate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "default_bundle_channel"],
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/estateId"
+        },
+        "name": {
+          "$ref": "common.schema.json#/$defs/kebabId"
+        },
+        "default_bundle_channel": {
+          "enum": ["canary", "stable", "frozen"]
+        }
+      }
+    },
+    "installations": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "common.schema.json#/$defs/installationReference"
+      }
+    },
+    "mutation_capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "common.schema.json#/$defs/mutationCapabilityReference"
+      }
+    },
+    "policy_order": {
+      "const": [
+        "base",
+        "owner",
+        "portfolio",
+        "role",
+        "stack",
+        "lifecycle",
+        "repository"
+      ]
+    },
+    "rollout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "default_ring",
+        "mutation_mode",
+        "max_parallel_observation",
+        "max_parallel_git_network",
+        "max_parallel_mutation"
+      ],
+      "properties": {
+        "default_ring": {
+          "$ref": "common.schema.json#/$defs/rolloutRing"
+        },
+        "mutation_mode": {
+          "enum": ["pull-request", "disabled"]
+        },
+        "max_parallel_observation": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "max_parallel_git_network": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32
+        },
+        "max_parallel_mutation": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8
+        }
+      }
+    },
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["local_backend", "xdg_namespace"],
+      "properties": {
+        "local_backend": {
+          "enum": ["sqlite", "postgresql"]
+        },
+        "xdg_namespace": {
+          "$ref": "common.schema.json#/$defs/kebabId"
+        }
+      }
+    },
+    "discovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["discover_all_repositories", "default_management_mode"],
+      "properties": {
+        "discover_all_repositories": {
+          "type": "boolean"
+        },
+        "default_management_mode": {
+          "$ref": "common.schema.json#/$defs/managementMode"
+        }
+      }
+    }
+  }
+}

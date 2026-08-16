@@ -1,0 +1,684 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/repository.schema.json",
+  "title": "GDS repository anchor v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "repository",
+    "provider",
+    "classification",
+    "policy",
+    "git",
+    "agent",
+    "release"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "repository": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "roles",
+        "lifecycle"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/repositoryId"
+        },
+        "display_name": {
+          "$ref": "common.schema.json#/$defs/nonEmptyString"
+        },
+        "roles": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/repositoryRole"
+          }
+        },
+        "lifecycle": {
+          "$ref": "common.schema.json#/$defs/lifecycle"
+        }
+      }
+    },
+    "provider": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "installation",
+        "owner",
+        "name"
+      ],
+      "properties": {
+        "type": {
+          "const": "github"
+        },
+        "installation": {
+          "$ref": "common.schema.json#/$defs/installationReference"
+        },
+        "repository_id": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Optional. The provider's numeric repository id, which binds this anchor to one repository so a copied anchor is caught. Absent before the repository exists; validated whenever present."
+        },
+        "owner": {
+          "$ref": "common.schema.json#/$defs/githubOwner"
+        },
+        "name": {
+          "$ref": "common.schema.json#/$defs/repositoryName"
+        },
+        "aliases": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "owner",
+              "name"
+            ],
+            "properties": {
+              "owner": {
+                "$ref": "common.schema.json#/$defs/githubOwner"
+              },
+              "name": {
+                "$ref": "common.schema.json#/$defs/repositoryName"
+              }
+            }
+          }
+        }
+      }
+    },
+    "classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "portfolios",
+        "visibility_contract",
+        "data_classification"
+      ],
+      "properties": {
+        "portfolios": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/portfolioReference"
+          }
+        },
+        "visibility_contract": {
+          "$ref": "common.schema.json#/$defs/visibility"
+        },
+        "data_classification": {
+          "$ref": "common.schema.json#/$defs/dataClassification"
+        }
+      }
+    },
+    "product": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "purpose"
+      ],
+      "properties": {
+        "purpose": {
+          "type": "string",
+          "minLength": 16,
+          "maxLength": 400
+        },
+        "capabilities": {
+          "type": "array",
+          "uniqueItems": true,
+          "maxItems": 12,
+          "items": {
+            "type": "string",
+            "minLength": 4,
+            "maxLength": 160
+          }
+        },
+        "entrypoints": {
+          "type": "array",
+          "uniqueItems": true,
+          "maxItems": 16,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "change",
+              "path"
+            ],
+            "properties": {
+              "change": {
+                "type": "string",
+                "minLength": 4,
+                "maxLength": 120
+              },
+              "path": {
+                "$ref": "common.schema.json#/$defs/safeRelativePath"
+              }
+            }
+          }
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profiles",
+        "rollout_ring"
+      ],
+      "properties": {
+        "profiles": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/kebabId"
+          }
+        },
+        "rollout_ring": {
+          "$ref": "common.schema.json#/$defs/rolloutRing"
+        }
+      }
+    },
+    "git": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "default_branch",
+        "integration",
+        "branch_model",
+        "handoff_pr",
+        "cleanup"
+      ],
+      "properties": {
+        "default_branch": {
+          "$ref": "common.schema.json#/$defs/branchName"
+        },
+        "integration": {
+          "enum": [
+            "pull-request",
+            "direct"
+          ]
+        },
+        "branch_model": {
+          "enum": [
+            "task-branches",
+            "trunk-only"
+          ]
+        },
+        "handoff_pr": {
+          "enum": [
+            "never",
+            "preferred",
+            "required"
+          ]
+        },
+        "cleanup": {
+          "enum": [
+            "merged-only",
+            "manual"
+          ]
+        }
+      }
+    },
+    "ci": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "go_version",
+        "build_command",
+        "test_command",
+        "timeout_minutes"
+      ],
+      "properties": {
+        "profile": {
+          "const": "go"
+        },
+        "go_version": {
+          "type": "string",
+          "pattern": "^1\\.[0-9]{1,2}\\.[0-9]{1,2}$"
+        },
+        "build_command": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048,
+          "pattern": "^[^\\u0000\\r\\n]+$"
+        },
+        "test_command": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048,
+          "pattern": "^[^\\u0000\\r\\n]+$"
+        },
+        "timeout_minutes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 120
+        },
+        "workflow_ref": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/.github/workflows/[A-Za-z0-9_.-]+\\.yml@[0-9a-f]{40}$",
+          "description": "Optional. The reusable workflow this repository's CI delegates to, pinned by full commit SHA. Absent when the repository owns its workflow outright, which is the normal case for a standalone project."
+        },
+        "runner": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "commands": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "bootstrap": {
+              "$ref": "#/$defs/commandList"
+            },
+            "lint": {
+              "$ref": "#/$defs/commandList"
+            },
+            "typecheck": {
+              "$ref": "#/$defs/commandList"
+            },
+            "test": {
+              "$ref": "#/$defs/commandList"
+            },
+            "build": {
+              "$ref": "#/$defs/commandList"
+            },
+            "compatibility": {
+              "$ref": "#/$defs/commandList"
+            },
+            "package": {
+              "$ref": "#/$defs/commandList"
+            },
+            "fast": {
+              "$ref": "#/$defs/commandList"
+            },
+            "pr-required": {
+              "$ref": "#/$defs/commandList"
+            },
+            "full": {
+              "$ref": "#/$defs/commandList"
+            },
+            "release": {
+              "$ref": "#/$defs/commandList"
+            }
+          }
+        },
+        "required": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "lint",
+              "typecheck",
+              "test",
+              "build",
+              "compatibility",
+              "package",
+              "fast",
+              "pr-required",
+              "full",
+              "release"
+            ]
+          }
+        },
+        "required_contexts": {
+          "type": "array",
+          "uniqueItems": true,
+          "maxItems": 64,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "^[^\\u0000-\\u001f]+$"
+          }
+        }
+      }
+    },
+    "agent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "context_profile",
+        "generated_agents",
+        "serena"
+      ],
+      "properties": {
+        "context_profile": {
+          "$ref": "common.schema.json#/$defs/kebabId"
+        },
+        "generated_agents": {
+          "type": "boolean"
+        },
+        "serena": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled",
+            "provenance_required"
+          ],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "provenance_required": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "relationships": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/relationship"
+      }
+    },
+    "module": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract",
+        "consumption",
+        "compatibility",
+        "pin_policy",
+        "publication"
+      ],
+      "properties": {
+        "contract": {
+          "enum": [
+            "public",
+            "private",
+            "internal"
+          ]
+        },
+        "consumption": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/consumptionType"
+          }
+        },
+        "compatibility": {
+          "enum": [
+            "semver",
+            "commit-contract",
+            "none"
+          ]
+        },
+        "pin_policy": {
+          "enum": [
+            "default-branch-commit",
+            "version-tag",
+            "package-version"
+          ]
+        },
+        "publication": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "github_release"
+          ],
+          "properties": {
+            "registry": {
+              "enum": [
+                "npm",
+                "pypi",
+                "crates",
+                "none"
+              ]
+            },
+            "github_release": {
+              "enum": [
+                "required",
+                "optional",
+                "disabled"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "fork": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "upstream",
+        "policy",
+        "sync_branch",
+        "preserve_fork_commits",
+        "allow_force_sync"
+      ],
+      "properties": {
+        "upstream": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "provider",
+            "repository_id",
+            "owner",
+            "name"
+          ],
+          "properties": {
+            "provider": {
+              "const": "github"
+            },
+            "repository_id": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "owner": {
+              "$ref": "common.schema.json#/$defs/githubOwner"
+            },
+            "name": {
+              "$ref": "common.schema.json#/$defs/repositoryName"
+            }
+          }
+        },
+        "policy": {
+          "enum": [
+            "upstream-tracking",
+            "maintained-patch",
+            "detached",
+            "mirror",
+            "frozen",
+            "disposable"
+          ]
+        },
+        "sync_branch": {
+          "$ref": "common.schema.json#/$defs/branchName"
+        },
+        "preserve_fork_commits": {
+          "type": "boolean"
+        },
+        "allow_force_sync": {
+          "type": "boolean"
+        }
+      }
+    },
+    "release": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode"
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "none",
+            "bundle",
+            "package-version",
+            "version-tag",
+            "github-release"
+          ]
+        },
+        "tag_style": {
+          "enum": [
+            "v-semver",
+            "semver"
+          ]
+        },
+        "required_checks": {
+          "description": "Provider check-run contexts that must have one trusted exact-commit success before release. A different namespace from verification.required, which names local command lanes.",
+          "type": "array",
+          "uniqueItems": true,
+          "maxItems": 50,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "commandList": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "common.schema.json#/$defs/singleLineCommand"
+      }
+    },
+    "consumptionType": {
+      "description": "How consumers obtain this module. `git-submodule` means a consumer pins it as a gitlink. `runtime-service` means the module is executed from its own repository rather than vendored, which is also the module-side value for a GitHub reusable workflow consumed through `workflow-module-consumer`. A module consumed both ways declares both.",
+      "enum": [
+        "git-submodule",
+        "package",
+        "vendored-source",
+        "runtime-service"
+      ]
+    },
+    "relationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "target"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "portfolio-membership",
+            "git-submodule-consumer",
+            "package-consumer",
+            "workflow-module-consumer",
+            "fork-of",
+            "device-checkout",
+            "worktree",
+            "embedded-context-source"
+          ]
+        },
+        "target": {
+          "$ref": "common.schema.json#/$defs/referenceId"
+        },
+        "gitmodules_name": {
+          "$ref": "common.schema.json#/$defs/safeRelativePath"
+        },
+        "pin_management": {
+          "description": "How a git-submodule consumer advances its pin. Omitted or `gitlink-only` uses the generic GDS pin transaction. `consumer-transaction` blocks generic mutation because the consumer must update additional repository-owned evidence atomically.",
+          "enum": [
+            "gitlink-only",
+            "consumer-transaction"
+          ]
+        },
+        "materialization": {
+          "enum": [
+            "ephemeral",
+            "persistent",
+            "forbidden"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "git-submodule-consumer"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "gitmodules_name"
+            ]
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "pin_management"
+            ]
+          },
+          "then": {
+            "properties": {
+              "type": {
+                "const": "git-submodule-consumer"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "embedded-context-source"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "materialization"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "repository": {
+            "properties": {
+              "roles": {
+                "contains": {
+                  "const": "module"
+                }
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "module"
+        ]
+      }
+    }
+  ]
+}

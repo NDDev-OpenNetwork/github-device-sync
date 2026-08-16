@@ -1,0 +1,69 @@
+<!--
+GENERATED FILE - DO NOT EDIT DIRECTLY
+generator: gds
+bundle: 0.4.0-dev
+source-tree-digest: sha256:34d52b7f9f301e146a8633cc7bf4e7e05ff45a630bbf3183d1e1e695e4ce5730
+input-digest: sha256:6b11cff602b0301d23c950660ac8fbb482bfb9e728db2380a2e0f0ccb318e0c3
+output-digest: sha256:d62e4493e9f0b9b6b63c223327f595943f5c7c7e970e6ceb874ed7de8eb128da
+edit-source:
+  - .gds/repository.yaml
+  - policies/base/repository-default.yaml
+  - policies/repositories/github-device-sync.yaml
+  - policies/roles/control-plane.yaml
+  - templates/agents/repository.md.tmpl
+  - templates/github-actions/go.yml.tmpl
+  - templates/harnesses/claude.md.tmpl
+-->
+# Repository brief
+
+GDS is a control plane for a multi-owner GitHub estate: it holds the desired state of every repository, device and installation, compiles it into per-repository projections, and applies provider changes as approved, journaled, content-addressed transactions.
+
+## What it does
+
+- Compile canonical estate intent into deterministic per-repository projections
+- Resolve where a checkout sits in the estate and which policy governs it
+- Plan, approve, apply and verify GitHub changes as recoverable transactions
+- Build, attest and install immutable releases with offline verification
+- Render harness adapters for agent tooling
+
+## Where to change what
+
+- Desired policy for a repository, portfolio, role or owner — `policies`
+- Estate topology: devices, installations, owners, selectors — `estate`
+- What a generated projection says — `templates`
+- A typed contract or its validation — `schemas/v1`
+- Command surface and flags — `core/cli`
+- Use-case orchestration behind a command — `core/app`
+- GitHub reads, writes and their failure staging — `core/providers/github`
+- Plan, approval, lock and journal semantics — `core/operations`
+- Projection identity and rendering — `core/projections`
+
+## How to verify
+
+- Lint: `scripts/validate_shell.sh`
+- Lint: `scripts/validate_go_core.sh --quick`
+- Test: `go test ./...`
+- Test: `python3 -m pytest`
+- Build: `go build -trimpath ./core/cmd/gds`
+- Fast: `scripts/validate_go_core.sh --quick`
+- PR required: `go test ./...`
+- PR required: `python3 -m pip install --quiet --require-hashes -r requirements/test.txt`
+- PR required: `python3 -m pytest`
+
+## Working here
+
+- Generated files carry a `GENERATED FILE` header. Change the canonical input
+  named in `edit-source` and regenerate; editing the output detaches it from
+  `.gds/bundle.lock.yaml`.
+- One Git repository is one mutation boundary. Work that crosses repositories
+  starts with `gds context --json`; work inside this one does not need it.
+- Provider writes go through plan → approve → apply and are journaled.
+- Task-specific procedures live in `skills/canonical/<name>/SKILL.md`; the
+  profiles active here are `core, estate-admin`. Load one when the task
+  matches it.
+
+## Facts
+
+- Repository `repo_01JEXAMPZ0000000000000000A`, roles `control-plane`, bundle `0.4.0-dev`.
+- Canonical inputs: `.gds/repository.yaml`; compiled result: `.gds/compiled-policy.json`.
+- Visibility `public`, data `public`.

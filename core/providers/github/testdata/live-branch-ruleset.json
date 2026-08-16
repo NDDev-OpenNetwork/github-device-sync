@@ -1,0 +1,106 @@
+{
+  "id": 9,
+  "name": "Protect main (signed commits)",
+  "target": "branch",
+  "source_type": "Repository",
+  "source": "example/repository",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": {
+      "exclude": [],
+      "include": [
+        "~DEFAULT_BRANCH"
+      ]
+    }
+  },
+  "rules": [
+    {
+      "type": "deletion"
+    },
+    {
+      "type": "non_fast_forward"
+    },
+    {
+      "type": "required_signatures"
+    },
+    {
+      "type": "pull_request",
+      "parameters": {
+        "required_approving_review_count": 0,
+        "dismiss_stale_reviews_on_push": true,
+        "required_reviewers": [],
+        "require_code_owner_review": false,
+        "dismissal_restriction": {
+          "enabled": false,
+          "allowed_actors": []
+        },
+        "require_last_push_approval": false,
+        "required_review_thread_resolution": true,
+        "allowed_merge_methods": [
+          "merge"
+        ]
+      }
+    },
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": true,
+        "do_not_enforce_on_create": false,
+        "required_status_checks": [
+          {
+            "context": "GDS fast / go (1.26.5)"
+          },
+          {
+            "context": "GDS PR required / go (1.26.5)"
+          },
+          {
+            "context": "cross-platform smoke / smoke (ubuntu-latest)"
+          },
+          {
+            "context": "actionlint / actionlint"
+          },
+          {
+            "context": "gitleaks scan / Gitleaks secret scan"
+          },
+          {
+            "context": "OSV vulnerability scan / osv-scan"
+          },
+          {
+            "context": "Semgrep SAST / semgrep"
+          },
+          {
+            "context": "zizmor / zizmor (SARIF)"
+          },
+          {
+            "context": "Analyze (go)"
+          },
+          {
+            "context": "Analyze (python)"
+          },
+          {
+            "context": "CodeQL / CodeQL (actions)"
+          }
+        ]
+      }
+    }
+  ],
+  "node_id": "RRS_fixture",
+  "created_at": "2026-08-03T06:43:32.812+05:00",
+  "updated_at": "2026-08-10T03:20:11.048+05:00",
+  "bypass_actors": [
+    {
+      "actor_id": 5,
+      "actor_type": "RepositoryRole",
+      "bypass_mode": "always"
+    }
+  ],
+  "current_user_can_bypass": "always",
+  "_links": {
+    "self": {
+      "href": "https://api.github.com/repos/example/repository/rulesets/9"
+    },
+    "html": {
+      "href": "https://github.com/example/repository/rules/9"
+    }
+  }
+}

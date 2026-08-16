@@ -1,0 +1,44 @@
+schema_version: 1
+
+harness_profile:
+  id: "antigravity-cli"
+  product: "antigravity-cli"
+  status: "provisional"
+  aliases:
+    - "antigravity"
+  capability_version: "2026-07-11"
+  verified_at: "2026-07-11"
+  official_sources:
+    - "https://antigravity.google/docs/skills?app=antigravity-ide"
+    - "https://antigravity.google/docs/cli-reference"
+    - "https://antigravity.google/docs/cli-plugins"
+    - "https://antigravity.google/docs/gcli-migration"
+    - "https://www.antigravity.google/docs/hooks"
+  detection:
+    command_candidates:
+      - "agy"
+    version_arguments:
+      - "--version"
+  instructions:
+    native_agents: true
+    nested_chain: "workspace-root-only"
+    imports: false
+  skills:
+    standard: "agent-skills"
+    native_paths:
+      - ".agents/skills"
+    symlinks: false
+    explicit_only:
+      mechanism: "profile-exclusion"
+  projection:
+    instruction_strategy: "native-agents"
+    skill_strategy: "canonical-path"
+  hooks:
+    supported: true
+    lifecycle:
+      - "pre-tool-use"
+      - "post-tool-use"
+      - "stop"
+  runtime_tests:
+    required: false
+    last_result: "delegated"

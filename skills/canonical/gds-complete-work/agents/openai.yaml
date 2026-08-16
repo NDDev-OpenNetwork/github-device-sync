@@ -1,0 +1,6 @@
+interface:
+  display_name: "GDS Complete Work"
+  short_description: "Finish and integrate approved work safely"
+  default_prompt: "Use $gds-complete-work to finish approved work across all affected Git boundaries."
+policy:
+  allow_implicit_invocation: false

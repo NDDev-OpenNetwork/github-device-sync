@@ -1,0 +1,28 @@
+schema_version: 1
+
+device:
+  id: "device_0Q0MPJ4Z2ENZ97XWETRESKZGTH"
+  name: "example-ubuntu-server"
+  os: "linux"
+  architecture: "x86_64"
+  class:
+    profile: "server"
+    gui: "enabled"
+    docker_mode: "rootful"
+    execution_policy: "container-execution-only"
+
+workspace_roots:
+  personal: "${HOME}/Developer/personal"
+
+materialization:
+  default_mode: "absent"
+  include:
+    - selector: "portfolio:active-projects"
+      workspace_root: "personal"
+      mode: "active"
+
+harnesses:
+  - "codex"
+
+state:
+  path: "${XDG_STATE_HOME}/github-device-sync"

@@ -1,0 +1,14 @@
+schema_version: 1
+
+owner:
+  id: "owner:example-user"
+  installation: "installation:github-personal"
+  provider_login: "example-user"
+
+defaults:
+  policy_profile: "personal-default"
+  rollout_ring: "standard"
+
+classification:
+  fork_portfolio: "portfolio:forks"
+  source_portfolio: "portfolio:personal-projects"

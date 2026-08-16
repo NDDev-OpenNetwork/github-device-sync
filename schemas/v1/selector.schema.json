@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/selector.schema.json",
+  "title": "GDS repository selector v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "selector", "match", "assign"],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "selector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "priority"],
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/kebabId"
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        }
+      }
+    },
+    "match": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["owner"],
+      "properties": {
+        "owner": {
+          "type": "string",
+          "pattern": "^owner:[a-z0-9][a-z0-9._-]{0,127}$"
+        },
+        "fork": {
+          "type": "boolean"
+        },
+        "archived": {
+          "type": "boolean"
+        },
+        "visibility": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/visibility"
+          }
+        },
+        "name_prefixes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "pattern": "^[A-Za-z0-9._-]+$"
+          }
+        }
+      }
+    },
+    "assign": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "management_mode",
+        "portfolios",
+        "policy_profiles",
+        "rollout_ring"
+      ],
+      "properties": {
+        "management_mode": {
+          "$ref": "common.schema.json#/$defs/managementMode"
+        },
+        "portfolios": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/portfolioReference"
+          }
+        },
+        "policy_profiles": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/kebabId"
+          }
+        },
+        "rollout_ring": {
+          "$ref": "common.schema.json#/$defs/rolloutRing"
+        }
+      }
+    }
+  }
+}

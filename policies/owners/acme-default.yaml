@@ -1,0 +1,20 @@
+schema_version: 1
+
+# An owner-scoped tier. It exists to show what "scoped" means: the tier above it
+# applies to every organization, this one narrows to one owner and to public
+# repositories, and the compiler records which of the two decided each effective
+# value.
+policy:
+  id: "acme-default"
+  tier: "owner"
+  priority: 110
+  distribution: "public"
+
+match:
+  owner: "owner:acme"
+  visibility_contract:
+    - "public"
+
+apply:
+  rollout:
+    mode: "pull-request"

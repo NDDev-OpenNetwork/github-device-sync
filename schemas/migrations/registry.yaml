@@ -1,0 +1,19 @@
+schema_version: 1
+
+migrations:
+  - id: "legacy-repository-to-v1"
+    object: "repository"
+    from: 0
+    to: 1
+    status: "planned"
+    reversible: true
+    implementation: "schemas/migrations/v0-to-v1/README.md"
+
+  - id: "legacy-device-to-v1"
+    object: "device"
+    from: 0
+    to: 1
+    status: "planned"
+    reversible: true
+    implementation: "schemas/migrations/v0-to-v1/README.md"
+

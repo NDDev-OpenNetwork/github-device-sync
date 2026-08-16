@@ -1,0 +1,26 @@
+schema_version: 1
+
+policy:
+  id: "github-device-sync"
+  tier: "repository"
+  priority: 100
+  distribution: "public"
+
+apply:
+  github:
+    merge:
+      allow_merge_commit:
+        management: "managed"
+        value: true
+      allow_squash_merge:
+        management: "managed"
+        value: false
+      allow_rebase_merge:
+        management: "managed"
+        value: false
+      squash_merge_commit_title:
+        management: "managed"
+        value: "COMMIT_OR_PR_TITLE"
+      squash_merge_commit_message:
+        management: "managed"
+        value: "COMMIT_MESSAGES"
