@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/trust-policy.schema.json",
+  "title": "GDS offline trust policy v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "policy_id", "identities"],
+  "properties": {
+    "schema_version": {"$ref": "common.schema.json#/$defs/schemaVersion"},
+    "policy_id": {"$ref": "common.schema.json#/$defs/kebabId"},
+    "harness_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["producer", "modules"],
+      "properties": {
+        "producer": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["repository", "ref", "commit"],
+          "properties": {
+            "repository": {"type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"},
+            "ref": {"type": "string", "pattern": "^refs/(heads|tags)/[^\\u0000\\r\\n]+$"},
+            "commit": {"$ref": "common.schema.json#/$defs/sourceCommit"}
+          }
+        },
+        "modules": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["claude-code", "codex", "grok-build", "opencode", "pi"],
+          "properties": {
+            "claude-code": {"$ref": "common.schema.json#/$defs/sourceCommit"},
+            "codex": {"$ref": "common.schema.json#/$defs/sourceCommit"},
+            "grok-build": {"$ref": "common.schema.json#/$defs/sourceCommit"},
+            "opencode": {"$ref": "common.schema.json#/$defs/sourceCommit"},
+            "pi": {"$ref": "common.schema.json#/$defs/sourceCommit"}
+          }
+        }
+      }
+    },
+    "identities": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["actor_id", "roles", "keys"],
+        "properties": {
+          "actor_id": {"type": "string", "pattern": "^[a-z][a-z0-9-]{0,31}:[A-Za-z0-9._@/-]{1,127}$"},
+          "roles": {
+            "type": "array", "minItems": 1, "maxItems": 32, "uniqueItems": true,
+            "items": {"$ref": "common.schema.json#/$defs/kebabId"}
+          },
+          "keys": {
+            "type": "array", "minItems": 1, "maxItems": 16,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["algorithm", "key_id", "public_key", "valid_from", "valid_until", "status"],
+              "properties": {
+                "algorithm": {"const": "ed25519"},
+                "key_id": {"$ref": "common.schema.json#/$defs/kebabId"},
+                "public_key": {"type": "string", "pattern": "^[A-Za-z0-9_-]{43}$"},
+                "valid_from": {"type": "string", "format": "date-time"},
+                "valid_until": {"type": "string", "format": "date-time"},
+                "status": {"enum": ["active", "retired", "revoked"]}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

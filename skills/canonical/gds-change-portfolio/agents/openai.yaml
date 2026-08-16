@@ -1,0 +1,6 @@
+interface:
+  display_name: "GDS Change Portfolio"
+  short_description: "Apply one change across a selected portfolio"
+  default_prompt: "Use $gds-change-portfolio to plan a bounded portfolio-wide change."
+policy:
+  allow_implicit_invocation: false

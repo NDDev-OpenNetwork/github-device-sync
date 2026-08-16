@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/plan-enablement.schema.json",
+  "title": "GDS local one-shot exact-plan enablement v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "enablement_id", "plan_id", "plan_digest", "approval_id",
+    "approval_digest", "device_id", "session_id", "created_at", "expires_at", "maximum_starts"
+  ],
+  "properties": {
+    "schema_version": {"$ref": "common.schema.json#/$defs/schemaVersion"},
+    "enablement_id": {"type": "string", "pattern": "^enablement_[0-7][0-9A-HJKMNP-TV-Z]{25}$"},
+    "plan_id": {"$ref": "common.schema.json#/$defs/planId"},
+    "plan_digest": {"$ref": "common.schema.json#/$defs/sha256Digest"},
+    "approval_id": {"type": "string", "pattern": "^approval_[0-7][0-9A-HJKMNP-TV-Z]{25}$"},
+    "approval_digest": {"$ref": "common.schema.json#/$defs/sha256Digest"},
+    "device_id": {"$ref": "common.schema.json#/$defs/deviceId"},
+    "session_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9._:-]+$"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": "string", "format": "date-time"},
+    "maximum_starts": {"const": 1},
+    "consumed_at": {"type": "string", "format": "date-time"},
+    "operation_id": {"$ref": "common.schema.json#/$defs/operationId"}
+  },
+  "allOf": [
+    {
+      "if": {"required": ["consumed_at"]},
+      "then": {"required": ["operation_id"]},
+      "else": {"not": {"required": ["operation_id"]}}
+    }
+  ]
+}

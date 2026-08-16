@@ -1,0 +1,26 @@
+schema_version: 1
+
+controller:
+  estate_root: "/private/github-device-sync"
+  github_runtime: "/private/gds/github-runtime.yaml"
+  state_path: "/private/gds/state.db"
+  listen: "127.0.0.1:8787"
+  webhook_path: "/github/webhook"
+  schedule:
+    full_reconcile_seconds: 3600
+    webhook_poll_milliseconds: 500
+    max_webhook_attempts: 5
+    webhook_processing_timeout_seconds: 3600
+    shutdown_timeout_seconds: 15
+  backup:
+    directory: "/private/gds/backups"
+    interval_seconds: 86400
+    retain: 14
+  retention:
+    terminal_webhook_days: 14
+    reconciliation_days: 400
+  audit:
+    directory: "/private/gds/audit"
+    signing_key_ref: "secret:gds/controller/audit-signing-key"
+    public_key: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    retain_days: 400

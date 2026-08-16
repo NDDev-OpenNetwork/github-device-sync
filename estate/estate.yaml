@@ -1,0 +1,50 @@
+schema_version: 1
+
+# An example estate. It is complete and valid, so `gds validate estate` and the
+# test suite run against it unchanged, and it describes nobody: every login here
+# belongs to GitHub's reserved `example-*` space rather than to a real account.
+#
+# Point the CLI at your own estate with `gds --cwd <path>` instead of editing
+# this one; keeping your estate outside this repository is what lets you take
+# updates without a merge every time.
+estate:
+  id: "estate_01JEXAMPZ00000000000000000"
+  name: "example-estate"
+  default_bundle_channel: "stable"
+
+installations:
+  - "installation:github-personal"
+  - "installation:github-organization"
+  - "installation:github-example-media"
+  - "installation:github-guild"
+  - "installation:github-opennetwork"
+
+mutation_capabilities:
+  - "mutation:github-organization"
+  - "mutation:github-personal"
+  - "mutation:github-example-media"
+  - "mutation:github-opennetwork"
+
+policy_order:
+  - "base"
+  - "owner"
+  - "portfolio"
+  - "role"
+  - "stack"
+  - "lifecycle"
+  - "repository"
+
+rollout:
+  default_ring: "standard"
+  mutation_mode: "pull-request"
+  max_parallel_observation: 8
+  max_parallel_git_network: 4
+  max_parallel_mutation: 1
+
+state:
+  local_backend: "sqlite"
+  xdg_namespace: "github-device-sync"
+
+discovery:
+  discover_all_repositories: true
+  default_management_mode: "observe-only"

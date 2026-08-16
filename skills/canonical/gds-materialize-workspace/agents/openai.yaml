@@ -1,0 +1,6 @@
+interface:
+  display_name: "GDS Materialize Workspace"
+  short_description: "Materialize a selected repository workspace"
+  default_prompt: "Use $gds-materialize-workspace to plan selected local checkouts."
+policy:
+  allow_implicit_invocation: false

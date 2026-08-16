@@ -1,0 +1,38 @@
+schema_version: 1
+
+harness_profile:
+  id: "pi"
+  product: "pi"
+  status: "provisional"
+  aliases: []
+  capability_version: "2026-07-11"
+  verified_at: "2026-07-11"
+  official_sources:
+    - "https://pi.dev/docs/latest/usage"
+    - "https://pi.dev/docs/latest/skills"
+  detection:
+    command_candidates:
+      - "pi"
+    version_arguments:
+      - "--version"
+  instructions:
+    native_agents: true
+    nested_chain: "root-to-cwd"
+    imports: false
+  skills:
+    standard: "agent-skills"
+    native_paths:
+      - ".agents/skills"
+      - ".pi/skills"
+    symlinks: false
+    explicit_only:
+      mechanism: "disable-model-invocation"
+  projection:
+    instruction_strategy: "native-agents"
+    skill_strategy: "canonical-path"
+  hooks:
+    supported: false
+    lifecycle: []
+  runtime_tests:
+    required: false
+    last_result: "delegated"

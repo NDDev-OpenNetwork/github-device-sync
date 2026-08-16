@@ -1,0 +1,17 @@
+schema_version: 1
+
+selector:
+  id: "organization-forks"
+  priority: 200
+
+match:
+  owner: "owner:acme"
+  fork: true
+
+assign:
+  management_mode: "observe-only"
+  portfolios:
+    - "portfolio:forks"
+  policy_profiles:
+    - "fork-default"
+  rollout_ring: "standard"

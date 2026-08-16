@@ -1,0 +1,6 @@
+interface:
+  display_name: "GDS Bootstrap Device"
+  short_description: "Install a verified GDS device profile safely"
+  default_prompt: "Use $gds-bootstrap-device to plan an approved device bootstrap."
+policy:
+  allow_implicit_invocation: false

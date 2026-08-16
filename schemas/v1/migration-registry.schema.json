@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/migration-registry.schema.json",
+  "title": "GDS schema migration registry v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "migrations"],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "migrations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "object",
+          "from",
+          "to",
+          "status",
+          "reversible",
+          "implementation"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/kebabId"
+          },
+          "object": {
+            "enum": [
+              "estate",
+              "repository",
+              "policy",
+              "harness-profile",
+              "device",
+              "plan",
+              "operation-result"
+            ]
+          },
+          "from": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "to": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "status": {
+            "enum": ["planned", "implemented", "retired"]
+          },
+          "reversible": {
+            "type": "boolean"
+          },
+          "implementation": {
+            "type": "string",
+            "pattern": "^schemas/migrations/[A-Za-z0-9_-][A-Za-z0-9._-]*(?:/[A-Za-z0-9_-][A-Za-z0-9._-]*)*$"
+          }
+        }
+      }
+    }
+  }
+}

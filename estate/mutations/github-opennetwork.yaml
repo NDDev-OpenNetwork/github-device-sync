@@ -1,0 +1,49 @@
+schema_version: 1
+
+# A second capability, on a different installation. Two exist so the runtime
+# contract is testable: a mutation runtime must bind exactly the set the estate
+# declares, and one capability cannot show the difference between "exactly" and
+# "at least one".
+mutation:
+  id: "mutation:github-opennetwork"
+  installation: "installation:github-opennetwork"
+  provider: "github"
+
+scope:
+  management_modes:
+    - "managed"
+  lifecycles:
+    - "active"
+
+operations:
+  - "branch"
+  - "content"
+  - "pull-request"
+  - "repository-ruleset"
+  - "repository-settings"
+  - "repository-release"
+  - "workflow-caller"
+  - "repository-lifecycle"
+
+permissions:
+  repository_selection: "selected"
+  repository:
+    administration: "write"
+    contents: "write"
+    custom_properties: "write"
+    metadata: "read"
+    pull_requests: "write"
+    workflows: "write"
+  organization: {}
+
+gates:
+  auto_merge: "forbidden"
+  delete: "separate-approval"
+  force: "forbidden"
+  permissions: "forbidden"
+  ruleset_bypass: "forbidden"
+  visibility: "separate-approval"
+
+credentials:
+  strategy: "github-app-installation-token"
+  secret_ref: "secret:gds/github-mutation-app/opennetwork"

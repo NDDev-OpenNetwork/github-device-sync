@@ -1,0 +1,220 @@
+{
+  "schema_version": 1,
+  "profile": "core",
+  "status": "runtime-not-proven",
+  "tasks": [
+    {
+      "id": "gds-orient-output",
+      "skill": "gds-orient",
+      "prompt": "Explain the current verified GDS context, independent Git boundaries, evidence gaps, and safest next workflow.",
+      "assertions": [
+        {
+          "id": "no-mutation",
+          "method": "deterministic",
+          "evidence": [
+            "filesystem-diff",
+            "git-diff",
+            "tool-events"
+          ]
+        },
+        {
+          "id": "verified-repository-identity",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate verified repository identity."
+        },
+        {
+          "id": "independent-boundaries",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate independent boundaries."
+        },
+        {
+          "id": "not-proven-preserved",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate NOT_PROVEN preserved."
+        }
+      ]
+    },
+    {
+      "id": "gds-audit-repository-output",
+      "skill": "gds-audit-repository",
+      "prompt": "Produce a read-only audit of the current repository with evidence for every finding and no remediation writes.",
+      "assertions": [
+        {
+          "id": "no-mutation",
+          "method": "deterministic",
+          "evidence": [
+            "filesystem-diff",
+            "git-diff",
+            "tool-events"
+          ]
+        },
+        {
+          "id": "findings-before-remediation",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate findings before remediation."
+        },
+        {
+          "id": "evidence-per-claim",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate evidence per claim."
+        },
+        {
+          "id": "scope-is-one-repository",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate scope is one repository."
+        }
+      ]
+    },
+    {
+      "id": "gds-handoff-work-output",
+      "skill": "gds-handoff-work",
+      "prompt": "Plan an unfinished cross-device handoff without committing, pushing, merging, or cleaning the fixture.",
+      "assertions": [
+        {
+          "id": "explicit-invocation",
+          "method": "deterministic",
+          "evidence": [
+            "skill-read",
+            "tool-events"
+          ]
+        },
+        {
+          "id": "plan-before-write",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate plan before write."
+        },
+        {
+          "id": "no-automatic-untracked-staging",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate no automatic untracked staging."
+        },
+        {
+          "id": "no-merge-or-cleanup",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate no merge or cleanup."
+        }
+      ]
+    },
+    {
+      "id": "gds-complete-work-output",
+      "skill": "gds-complete-work",
+      "prompt": "Plan how to finish approved work across all affected Git boundaries without applying integration or cleanup steps.",
+      "assertions": [
+        {
+          "id": "explicit-invocation",
+          "method": "deterministic",
+          "evidence": [
+            "skill-read",
+            "tool-events"
+          ]
+        },
+        {
+          "id": "dependency-order",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate dependency order."
+        },
+        {
+          "id": "stale-state-rejection",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate stale-state rejection."
+        },
+        {
+          "id": "cleanup-only-with-reachability-proof",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate cleanup only with reachability proof."
+        }
+      ]
+    },
+    {
+      "id": "gds-maintain-agent-context-output",
+      "skill": "gds-maintain-agent-context",
+      "prompt": "Plan a refresh of affected generated agent context while preserving manual drift for review.",
+      "assertions": [
+        {
+          "id": "canonical-owner-changed-first",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The plan must identify the canonical owner and require changing it before regeneration; it must not claim an unperformed mutation."
+        },
+        {
+          "id": "manual-drift-preserved",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The plan must preserve manual drift for review instead of overwriting it."
+        },
+        {
+          "id": "visibility-check",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The plan must require a visibility/public-private validation and report it as NOT_PROVEN until actually executed."
+        },
+        {
+          "id": "byte-identical-regeneration",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The plan must require two byte-identical regeneration checks after apply and must not claim that unexecuted verification passed."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+interface:
+  display_name: "GDS Migrate Schema"
+  short_description: "Migrate a versioned GDS contract safely"
+  default_prompt: "Use $gds-migrate-schema to plan an explicit schema migration."
+policy:
+  allow_implicit_invocation: false

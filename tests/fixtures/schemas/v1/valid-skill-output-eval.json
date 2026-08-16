@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "profile": "core",
+  "status": "runtime-not-proven",
+  "tasks": [
+    {
+      "id": "gds-orient-output",
+      "skill": "gds-orient",
+      "prompt": "Explain the current verified GDS context without mutation.",
+      "assertions": [
+        {
+          "id": "no-mutation",
+          "method": "deterministic",
+          "evidence": ["filesystem-diff", "git-diff", "tool-events"]
+        }
+      ]
+    }
+  ]
+}

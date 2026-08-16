@@ -1,0 +1,494 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {"id":"valid-trust-policy","schema":"trust-policy","path":"valid-trust-policy.yaml","valid":true},
+    {"id":"invalid-trust-policy-secret-key","schema":"trust-policy","path":"invalid-trust-policy-secret-key.yaml","valid":false,"expected_code":"GDS_INSTANCE_INVALID"},
+    {"id":"valid-approval","schema":"approval","path":"valid-approval.json","valid":true},
+    {"id":"invalid-approval-signature","schema":"approval","path":"invalid-approval-signature.json","valid":false,"expected_code":"GDS_INSTANCE_INVALID"},
+    {"id":"valid-plan-enablement","schema":"plan-enablement","path":"valid-plan-enablement.json","valid":true},
+    {"id":"invalid-plan-enablement-partial-consume","schema":"plan-enablement","path":"invalid-plan-enablement-partial-consume.json","valid":false,"expected_code":"GDS_INSTANCE_INVALID"},
+    {"id":"valid-freshness-policy","schema":"freshness-policy","path":"valid-freshness-policy.yaml","valid":true},
+    {"id":"invalid-freshness-cached-mutation","schema":"freshness-policy","path":"invalid-freshness-cached-mutation.yaml","valid":false,"expected_code":"GDS_INSTANCE_INVALID"},
+    {"id":"valid-field-ownership","schema":"field-ownership","path":"valid-field-ownership.json","valid":true},
+    {"id":"invalid-field-ownership-drop-unknown","schema":"field-ownership","path":"invalid-field-ownership-drop-unknown.json","valid":false,"expected_code":"GDS_INSTANCE_INVALID"},
+    {
+      "id": "valid-assurance-report",
+      "schema": "assurance-report",
+      "path": "valid-assurance-report.json",
+      "valid": true
+    },
+    {
+      "id": "valid-audit-snapshot",
+      "schema": "audit-snapshot",
+      "path": "valid-audit-snapshot.json",
+      "valid": true
+    },
+    {
+      "id": "valid-repository",
+      "schema": "repository",
+      "path": "valid-repository.yaml",
+      "valid": true
+    },
+    {
+      "id": "valid-module-fork-repository",
+      "schema": "repository",
+      "path": "valid-module-fork-repository.yaml",
+      "valid": true
+    },
+    {
+      "id": "valid-compiled-policy",
+      "schema": "compiled-policy",
+      "path": "valid-compiled-policy.json",
+      "valid": true
+    },
+    {
+      "id": "valid-controller-runtime",
+      "schema": "controller-runtime",
+      "path": "valid-controller-runtime.yaml",
+      "valid": true
+    },
+    {
+      "id": "valid-bundle-lock",
+      "schema": "bundle-lock",
+      "path": "valid-bundle-lock.yaml",
+      "valid": true
+    },
+    {
+      "id": "valid-bundle-manifest",
+      "schema": "bundle-manifest",
+      "path": "valid-bundle-manifest.json",
+      "valid": true
+    },
+    {
+      "id": "valid-release-envelope",
+      "schema": "release-envelope",
+      "path": "valid-release-envelope.json",
+      "valid": true
+    },
+    {
+      "id": "valid-bundle-trust",
+      "schema": "bundle-trust",
+      "path": "valid-bundle-trust.yaml",
+      "valid": true
+    },
+    {
+      "id": "valid-release-installation",
+      "schema": "release-installation",
+      "path": "valid-release-installation.json",
+      "valid": true
+    },
+    {
+      "id": "valid-rollback-authorization",
+      "schema": "rollback-authorization",
+      "path": "valid-rollback-authorization.json",
+      "valid": true
+    },
+    {
+      "id": "valid-rollout",
+      "schema": "rollout",
+      "path": "valid-rollout.json",
+      "valid": true
+    },
+    {
+      "id": "valid-rollout-request",
+      "schema": "rollout-request",
+      "path": "valid-rollout-request.yaml",
+      "valid": true
+    },
+    {
+      "id": "valid-estate",
+      "schema": "estate",
+      "path": "valid-estate.yaml",
+      "valid": true
+    },
+    {
+      "id": "valid-estate-registration",
+      "schema": "estate-registration",
+      "path": "valid-estate-registration.json",
+      "valid": true
+    },
+    {
+      "id": "valid-runtime-dependencies",
+      "schema": "runtime-dependencies",
+      "path": "valid-runtime-dependencies.yaml",
+      "valid": true
+    },
+    {
+      "id": "invalid-runtime-dependencies-bad-sha",
+      "schema": "runtime-dependencies",
+      "path": "invalid-runtime-dependencies-bad-sha.yaml",
+      "valid": false,
+      "expected_code": "GDS_INSTANCE_INVALID"
+    },
+    {
+      "id": "valid-installation",
+      "schema": "installation",
+      "path": "valid-installation.yaml",
+      "valid": true
+    },
+    {
+      "id": "valid-mutation-capability",
+      "schema": "mutation-capability",
+      "path": "valid-mutation-capability.yaml",
+      "valid": true
+    },
+    {
+      "id": "invalid-mutation-capability-selection",
+      "schema": "mutation-capability",
+      "path": "invalid-mutation-capability-selection.yaml",
+      "valid": false,
+      "expected_code": "GDS_INSTANCE_INVALID"
+    },
+    {
+      "id": "invalid-installation-permission",
+      "schema": "installation",
+      "path": "invalid-installation-permission.yaml",
+      "valid": false,
+      "expected_code": "GDS_INSTANCE_INVALID"
+    },
+    {
+      "id": "valid-github-runtime",
+      "schema": "github-runtime",
+      "path": "valid-github-runtime.yaml",
+      "valid": true
+    },
+    {
+      "id": "valid-github-mutation-runtime",
+      "schema": "github-mutation-runtime",
+      "path": "valid-github-mutation-runtime.yaml",
+      "valid": true
+    },
+    {
+      "id": "valid-owner",
+      "schema": "owner",
+      "path": "valid-owner.yaml",
+      "valid": true
+    },
+    {
+      "id": "valid-selector",
+      "schema": "selector",
+      "path": "valid-selector.yaml",
+      "valid": true
+    },
+    {
+      "id": "valid-policy",
+      "schema": "policy",
+      "path": "valid-policy.yaml",
+      "valid": true
+    },
+    {
+      "id": "valid-policy-exception",
+      "schema": "policy-exception",
+      "path": "valid-policy-exception.yaml",
+      "valid": true
+    },
+    {
+      "id": "valid-harness-profile",
+      "schema": "harness-profile",
+      "path": "valid-harness-profile.yaml",
+      "valid": true
+    },
+    {
+      "id": "valid-harness-registry",
+      "schema": "harness-registry",
+      "path": "valid-harness-registry.yaml",
+      "valid": true
+    },
+    {
+      "id": "valid-module-harness-bridge",
+      "schema": "module-harness-bridge",
+      "path": "valid-module-harness-bridge.yaml",
+      "valid": true
+    },
+    {
+      "id": "valid-memory-metadata",
+      "schema": "memory-metadata",
+      "path": "valid-memory-metadata.yaml",
+      "valid": true
+    },
+    {
+      "id": "valid-harness-runtime-contract",
+      "schema": "harness-runtime-contract",
+      "path": "valid-harness-runtime-contract.yaml",
+      "valid": true
+    },
+    {
+      "id": "valid-harness-eval-run",
+      "schema": "harness-eval-run",
+      "path": "valid-harness-eval-run.json",
+      "valid": true
+    },
+    {
+      "id": "valid-harness-runtime-evidence",
+      "schema": "harness-runtime-evidence",
+      "path": "valid-harness-runtime-evidence.json",
+      "valid": true
+    },
+    {
+      "id": "valid-skill-registry",
+      "schema": "skill-registry",
+      "path": "valid-skill-registry.yaml",
+      "valid": true
+    },
+    {
+      "id": "valid-skill-trigger-eval",
+      "schema": "skill-trigger-eval",
+      "path": "valid-skill-trigger-eval.json",
+      "valid": true
+    },
+    {
+      "id": "valid-skill-output-eval",
+      "schema": "skill-output-eval",
+      "path": "valid-skill-output-eval.json",
+      "valid": true
+    },
+    {
+      "id": "valid-skill-enforcement-eval",
+      "schema": "skill-enforcement-eval",
+      "path": "valid-skill-enforcement-eval.json",
+      "valid": true
+    },
+    {
+      "id": "valid-device",
+      "schema": "device",
+      "path": "valid-device.yaml",
+      "valid": true
+    },
+    {
+      "id": "valid-source-register",
+      "schema": "source-register",
+      "path": "valid-source-register.yaml",
+      "valid": true
+    },
+    {
+      "id": "valid-plan",
+      "schema": "plan",
+      "path": "valid-plan.json",
+      "valid": true
+    },
+    {
+      "id": "valid-portfolio-plan",
+      "schema": "portfolio-plan",
+      "path": "valid-portfolio-plan.json",
+      "valid": true
+    },
+    {
+      "id": "valid-operation-result",
+      "schema": "operation-result",
+      "path": "valid-operation-result.json",
+      "valid": true
+    },
+    {
+      "id": "valid-migration-registry",
+      "schema": "migration-registry",
+      "path": "valid-migration-registry.yaml",
+      "valid": true
+    },
+    {
+      "id": "invalid-repository-unknown-property",
+      "schema": "repository",
+      "path": "invalid-repository-unknown-property.yaml",
+      "valid": false,
+      "expected_code": "GDS_INSTANCE_INVALID"
+    },
+    {
+      "id": "invalid-compiled-policy-provenance",
+      "schema": "compiled-policy",
+      "path": "invalid-compiled-policy-provenance.json",
+      "valid": false,
+      "expected_code": "GDS_INSTANCE_INVALID"
+    },
+    {
+      "id": "invalid-compiled-policy-missing-provenance",
+      "schema": "compiled-policy",
+      "path": "invalid-compiled-policy-missing-provenance.json",
+      "valid": false,
+      "expected_code": "GDS_COMPILED_POLICY_PROVENANCE_MISSING"
+    },
+    {
+      "id": "invalid-bundle-lock-release",
+      "schema": "bundle-lock",
+      "path": "invalid-bundle-lock-release.yaml",
+      "valid": false,
+      "expected_code": "GDS_INSTANCE_INVALID"
+    },
+    {
+      "id": "invalid-bundle-lock-output-digest",
+      "schema": "bundle-lock",
+      "path": "invalid-bundle-lock-output-digest.yaml",
+      "valid": false,
+      "expected_code": "GDS_BUNDLE_LOCK_OUTPUT_DIGEST_MISMATCH"
+    },
+    {
+      "id": "invalid-release-envelope-channel",
+      "schema": "release-envelope",
+      "path": "invalid-release-envelope-channel.json",
+      "valid": false,
+      "expected_code": "GDS_INSTANCE_INVALID"
+    },
+    {
+      "id": "invalid-rollout-target-digest",
+      "schema": "rollout",
+      "path": "invalid-rollout-target-digest.json",
+      "valid": false,
+      "expected_code": "GDS_ROLLOUT_TARGET_SET_MISMATCH"
+    },
+    {
+      "id": "invalid-rollout-request-ring",
+      "schema": "rollout-request",
+      "path": "invalid-rollout-request-ring.yaml",
+      "valid": false,
+      "expected_code": "GDS_INSTANCE_INVALID"
+    },
+    {
+      "id": "invalid-estate-policy-order",
+      "schema": "estate",
+      "path": "invalid-estate-policy-order.yaml",
+      "valid": false,
+      "expected_code": "GDS_INSTANCE_INVALID"
+    },
+    {
+      "id": "invalid-estate-registration-relative-root",
+      "schema": "estate-registration",
+      "path": "invalid-estate-registration-relative-root.json",
+      "valid": false,
+      "expected_code": "GDS_INSTANCE_INVALID"
+    },
+    {
+      "id": "invalid-policy-tier",
+      "schema": "policy",
+      "path": "invalid-policy-tier.yaml",
+      "valid": false,
+      "expected_code": "GDS_INSTANCE_INVALID"
+    },
+    {
+      "id": "invalid-policy-exception-path",
+      "schema": "policy-exception",
+      "path": "invalid-policy-exception-path.yaml",
+      "valid": false,
+      "expected_code": "GDS_INSTANCE_INVALID"
+    },
+    {
+      "id": "invalid-device-absolute-path",
+      "schema": "device",
+      "path": "invalid-device-absolute-path.yaml",
+      "valid": false,
+      "expected_code": "GDS_INSTANCE_INVALID"
+    },
+    {
+      "id": "invalid-device-duplicate-selector",
+      "schema": "device",
+      "path": "invalid-device-duplicate-selector.yaml",
+      "valid": false,
+      "expected_code": "GDS_DEVICE_SELECTOR_DUPLICATE"
+    },
+    {
+      "id": "invalid-device-unknown-workspace-root",
+      "schema": "device",
+      "path": "invalid-device-unknown-workspace-root.yaml",
+      "valid": false,
+      "expected_code": "GDS_DEVICE_WORKSPACE_ROOT_UNKNOWN"
+    },
+    {
+      "id": "invalid-device-reused-workspace-root",
+      "schema": "device",
+      "path": "invalid-device-reused-workspace-root.yaml",
+      "valid": false,
+      "expected_code": "GDS_DEVICE_WORKSPACE_ROOT_REUSED"
+    },
+    {
+      "id": "valid-device-class-desktop",
+      "schema": "device",
+      "path": "valid-device-class-desktop.yaml",
+      "valid": true
+    },
+    {
+      "id": "invalid-device-class-server-gui",
+      "schema": "device",
+      "path": "invalid-device-class-server-gui.yaml",
+      "valid": false,
+      "expected_code": "GDS_DEVICE_CLASS_SERVER_GUI"
+    },
+    {
+      "id": "invalid-source-register-duplicate-id",
+      "schema": "source-register",
+      "path": "invalid-source-register-duplicate-id.yaml",
+      "valid": false,
+      "expected_code": "GDS_SOURCE_REGISTER_DUPLICATE_ID"
+    },
+    {
+      "id": "invalid-plan-digest",
+      "schema": "plan",
+      "path": "invalid-plan-digest.json",
+      "valid": false,
+      "expected_code": "GDS_PLAN_DIGEST_MISMATCH"
+    },
+    {
+      "id": "invalid-operation-exit-mismatch",
+      "schema": "operation-result",
+      "path": "invalid-operation-exit-mismatch.json",
+      "valid": false,
+      "expected_code": "GDS_INSTANCE_INVALID"
+    },
+    {
+      "id": "invalid-migration-duplicate-id",
+      "schema": "migration-registry",
+      "path": "invalid-migration-duplicate-id.yaml",
+      "valid": false,
+      "expected_code": "GDS_MIGRATION_DUPLICATE_ID"
+    },
+    {
+      "id": "invalid-yaml-ambiguous-scalar",
+      "schema": "repository",
+      "path": "invalid-yaml-ambiguous-scalar.yaml",
+      "valid": false,
+      "expected_code": "GDS_YAML_AMBIGUOUS_SCALAR"
+    },
+    {
+      "id": "invalid-yaml-anchor",
+      "schema": "repository",
+      "path": "invalid-yaml-anchor.yaml",
+      "valid": false,
+      "expected_code": "GDS_YAML_ANCHOR_FORBIDDEN"
+    },
+    {
+      "id": "invalid-yaml-duplicate-key",
+      "schema": "repository",
+      "path": "invalid-yaml-duplicate-key.yaml",
+      "valid": false,
+      "expected_code": "GDS_YAML_DUPLICATE_KEY"
+    },
+    {
+      "id": "invalid-release-envelope-semver",
+      "schema": "release-envelope",
+      "path": "invalid-release-envelope-semver.json",
+      "valid": false,
+      "expected_code": "GDS_INSTANCE_INVALID"
+    },
+    {
+      "id": "valid-device-evidence",
+      "schema": "device-evidence",
+      "path": "valid-device-evidence.json",
+      "valid": true
+    },
+    {
+      "id": "valid-delegated-harness-evidence",
+      "schema": "delegated-harness-evidence",
+      "path": "valid-delegated-harness-evidence.json",
+      "valid": true
+    },
+    {
+      "id": "valid-harness-runtime-manifest",
+      "schema": "harness-runtime-manifest",
+      "path": "valid-harness-runtime-manifest.json",
+      "valid": true
+    },
+    {
+      "id": "invalid-bundle-manifest-oversized-file",
+      "schema": "bundle-manifest",
+      "path": "invalid-bundle-manifest-oversized-file.json",
+      "valid": false,
+      "expected_code": "GDS_INSTANCE_INVALID"
+    }
+  ]
+}

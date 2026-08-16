@@ -1,0 +1,6 @@
+interface:
+  display_name: "GDS Onboard Repository"
+  short_description: "Onboard one new repository into the estate end to end"
+  default_prompt: "Use $gds-onboard-repository to add a brand-new repository covering anchor, selector, device materialization, and projections."
+policy:
+  allow_implicit_invocation: false

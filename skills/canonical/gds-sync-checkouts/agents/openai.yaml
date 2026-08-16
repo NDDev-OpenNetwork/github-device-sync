@@ -1,0 +1,6 @@
+interface:
+  display_name: "GDS Sync Checkouts"
+  short_description: "Synchronize selected clean checkouts safely"
+  default_prompt: "Use $gds-sync-checkouts to plan safe local synchronization."
+policy:
+  allow_implicit_invocation: false

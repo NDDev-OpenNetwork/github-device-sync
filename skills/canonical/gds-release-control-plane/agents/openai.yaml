@@ -1,0 +1,6 @@
+interface:
+  display_name: "GDS Release Control Plane"
+  short_description: "Release a verified immutable GDS artifact"
+  default_prompt: "Use $gds-release-control-plane to plan an approved GDS release."
+policy:
+  allow_implicit_invocation: false

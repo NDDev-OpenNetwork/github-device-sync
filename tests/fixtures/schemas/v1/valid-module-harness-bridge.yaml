@@ -1,0 +1,13 @@
+schema_version: 1
+contract: "nddev-module-harness-bridge/v2"
+consumer:
+  repository_id: "repo_01JEXAMPZ0000000000000000M"
+relationship_scope: "git-submodule-consumer"
+evidence_owner:
+  repository: "example-org/example-harnesses"
+runtime_tests:
+  required: false
+mappings:
+  - module_id: "nddev-zcode-app"
+    harness_id: "zcode"
+    lifecycle: "active"

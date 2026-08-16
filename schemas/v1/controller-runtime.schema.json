@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/controller-runtime.schema.json",
+  "title": "GDS private controller runtime configuration v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "controller"],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "controller": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "estate_root",
+        "github_runtime",
+        "state_path",
+        "listen",
+        "webhook_path",
+        "schedule",
+        "backup",
+        "retention",
+        "audit"
+      ],
+      "properties": {
+        "estate_root": {
+          "$ref": "#/$defs/absolutePath"
+        },
+        "github_runtime": {
+          "$ref": "#/$defs/absolutePath"
+        },
+        "state_path": {
+          "$ref": "#/$defs/absolutePath"
+        },
+        "listen": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 128,
+          "pattern": "^[^\\u0000\\r\\n]+$"
+        },
+        "webhook_path": {
+          "const": "/github/webhook"
+        },
+        "schedule": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "full_reconcile_seconds",
+            "webhook_poll_milliseconds",
+            "max_webhook_attempts",
+            "webhook_processing_timeout_seconds",
+            "shutdown_timeout_seconds"
+          ],
+          "properties": {
+            "full_reconcile_seconds": {
+              "type": "integer",
+              "minimum": 60,
+              "maximum": 86400
+            },
+            "webhook_poll_milliseconds": {
+              "type": "integer",
+              "minimum": 100,
+              "maximum": 60000
+            },
+            "max_webhook_attempts": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20
+            },
+            "webhook_processing_timeout_seconds": {
+              "type": "integer",
+              "default": 3600,
+              "minimum": 60,
+              "maximum": 86400
+            },
+            "shutdown_timeout_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 120
+            }
+          }
+        },
+        "backup": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["directory", "interval_seconds", "retain"],
+          "properties": {
+            "directory": {
+              "$ref": "#/$defs/absolutePath"
+            },
+            "interval_seconds": {
+              "type": "integer",
+              "minimum": 300,
+              "maximum": 604800
+            },
+            "retain": {
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 90
+            }
+          }
+        },
+        "retention": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["terminal_webhook_days", "reconciliation_days"],
+          "properties": {
+            "terminal_webhook_days": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 90
+            },
+            "reconciliation_days": {
+              "type": "integer",
+              "minimum": 30,
+              "maximum": 3650
+            }
+          }
+        },
+        "audit": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["directory", "signing_key_ref", "public_key", "retain_days"],
+          "properties": {
+            "directory": {
+              "$ref": "#/$defs/absolutePath"
+            },
+            "signing_key_ref": {
+              "type": "string",
+              "pattern": "^secret:[A-Za-z0-9._/-]{1,240}$"
+            },
+            "public_key": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{43}$"
+            },
+            "retain_days": {
+              "type": "integer",
+              "minimum": 30,
+              "maximum": 3650
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "absolutePath": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 1024,
+      "pattern": "^/[^\\u0000\\r\\n]+$"
+    }
+  }
+}

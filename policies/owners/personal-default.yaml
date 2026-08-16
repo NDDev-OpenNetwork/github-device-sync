@@ -1,0 +1,11 @@
+schema_version: 1
+
+policy:
+  id: "personal-default"
+  tier: "owner"
+  priority: 100
+  distribution: "public"
+
+apply:
+  rollout:
+    mode: "pull-request"

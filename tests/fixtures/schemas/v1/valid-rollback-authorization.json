@@ -1,0 +1,9 @@
+{
+  "rollout_id": "rollout_01J00000000000000000000000",
+  "target_sequence": 7,
+  "target_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "scope_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "reason": "Restore the last verified release after a canary regression.",
+  "approval_ref": "approval:owner:rollback-7",
+  "expires_at": "2026-07-11T13:00:00Z"
+}

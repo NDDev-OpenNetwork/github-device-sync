@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/runtime-dependencies.schema.json",
+  "title": "GDS estate runtime dependencies v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "dependencies"],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "dependencies": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "repository_slug",
+          "url",
+          "consumption",
+          "consumer",
+          "pinned_sha",
+          "available_head",
+          "reconciliation"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/kebabId"
+          },
+          "repository_slug": {
+            "type": "string",
+            "maxLength": 140,
+            "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?/[A-Za-z0-9._-]+$"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "maxLength": 256,
+            "pattern": "^https://"
+          },
+          "consumption": {
+            "type": "string",
+            "enum": ["runtime-clone", "browser-backend"]
+          },
+          "consumer": {
+            "$ref": "common.schema.json#/$defs/kebabId"
+          },
+          "harness": {
+            "$ref": "common.schema.json#/$defs/kebabId"
+          },
+          "pinned_sha": {
+            "$ref": "common.schema.json#/$defs/gitOid"
+          },
+          "available_head": {
+            "$ref": "common.schema.json#/$defs/gitOid"
+          },
+          "version": {
+            "$ref": "common.schema.json#/$defs/semanticVersion"
+          },
+          "backend": {
+            "$ref": "common.schema.json#/$defs/kebabId"
+          },
+          "reconciliation": {
+            "type": "string",
+            "enum": ["current", "pending"]
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,6 @@
+interface:
+  display_name: "GDS Maintain Agent System"
+  short_description: "Update the canonical GDS agent system"
+  default_prompt: "Use $gds-maintain-agent-system to update canonical GDS agent-system sources."
+policy:
+  allow_implicit_invocation: false

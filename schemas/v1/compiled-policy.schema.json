@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/compiled-policy.schema.json",
+  "title": "GDS compiled policy v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "compiled_policy",
+    "sources",
+    "effective",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "compiled_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository_id", "bundle_version", "digest"],
+      "properties": {
+        "repository_id": {
+          "$ref": "common.schema.json#/$defs/repositoryId"
+        },
+        "bundle_version": {
+          "$ref": "#/$defs/version"
+        },
+        "digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/source"
+      }
+    },
+    "effective": {
+      "$ref": "policy.schema.json#/$defs/effective"
+    },
+    "provenance": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^/effective(?:/[a-z0-9_-]+)+$"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/provenance"
+      }
+    }
+  },
+  "$defs": {
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    },
+    "tier": {
+      "enum": [
+        "base",
+        "owner",
+        "portfolio",
+        "role",
+        "stack",
+        "lifecycle",
+        "repository"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "tier", "priority", "distribution", "path", "digest"],
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/kebabId"
+        },
+        "tier": {
+          "$ref": "#/$defs/tier"
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "distribution": {
+          "enum": ["public", "internal", "private"]
+        },
+        "path": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "tier", "priority", "file", "operation"],
+      "properties": {
+        "source": {
+          "$ref": "common.schema.json#/$defs/kebabId"
+        },
+        "tier": {
+          "$ref": "#/$defs/tier"
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "file": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "operation": {
+          "enum": ["set", "append", "exception"]
+        },
+        "exception_id": {
+          "type": "string",
+          "pattern": "^exc_[0-9A-HJKMNP-TV-Z]{26}$"
+        },
+        "approval_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "exception_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"operation": {"const": "exception"}},
+            "required": ["operation"]
+          },
+          "then": {
+            "required": [
+              "exception_id",
+              "approval_ref",
+              "expires_at",
+              "exception_digest"
+            ]
+          },
+          "else": {
+            "not": {
+              "anyOf": [
+                {"required": ["exception_id"]},
+                {"required": ["approval_ref"]},
+                {"required": ["expires_at"]},
+                {"required": ["exception_digest"]}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$"
+    }
+  }
+}

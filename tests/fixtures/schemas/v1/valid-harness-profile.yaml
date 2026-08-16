@@ -1,0 +1,40 @@
+schema_version: 1
+
+harness_profile:
+  id: "codex"
+  product: "codex"
+  status: "supported"
+  aliases: []
+  capability_version: "2026-07-11"
+  verified_at: "2026-07-11"
+  official_sources:
+    - "https://developers.openai.com/codex/skills"
+  detection:
+    command_candidates:
+      - "codex"
+    version_arguments:
+      - "--version"
+  instructions:
+    native_agents: true
+    nested_chain: "root-to-cwd"
+    imports: false
+    default_limit_bytes: 32768
+  skills:
+    standard: "agent-skills"
+    native_paths:
+      - ".agents/skills"
+    symlinks: true
+    explicit_only:
+      mechanism: "agents-openai-yaml"
+  projection:
+    instruction_strategy: "native-agents"
+    skill_strategy: "canonical-path"
+  hooks:
+    supported: true
+    lifecycle:
+      - "session-start"
+      - "pre-tool-use"
+      - "stop"
+  runtime_tests:
+    required: true
+    last_result: "pass"

@@ -1,0 +1,4 @@
+interface:
+  display_name: "GDS Audit Estate"
+  short_description: "Audit estate state without applying changes"
+  default_prompt: "Use $gds-audit-estate to produce a bounded read-only estate audit."

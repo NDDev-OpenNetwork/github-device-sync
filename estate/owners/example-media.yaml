@@ -1,0 +1,14 @@
+schema_version: 1
+
+owner:
+  id: "owner:media"
+  installation: "installation:github-example-media"
+  provider_login: "example-media"
+
+defaults:
+  policy_profile: "organization-default"
+  rollout_ring: "standard"
+
+classification:
+  fork_portfolio: "portfolio:forks"
+  source_portfolio: "portfolio:organization-projects"

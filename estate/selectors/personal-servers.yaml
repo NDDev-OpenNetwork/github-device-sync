@@ -1,0 +1,23 @@
+schema_version: 1
+
+# The same rule for the personal owner. Two selectors rather than one because a
+# selector matches exactly one owner, and the portfolio is what makes the two
+# converge on identical governance.
+selector:
+  id: "personal-servers"
+  priority: 200
+
+match:
+  owner: "owner:example-user"
+  fork: false
+  name_prefixes:
+    - "server-"
+
+assign:
+  management_mode: "observe-only"
+  portfolios:
+    - "portfolio:servers"
+  policy_profiles:
+    - "repository-default"
+    - "servers-default"
+  rollout_ring: "standard"

@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "profile": "core",
+  "runs_per_query": 3,
+  "skills": [
+    {
+      "name": "gds-orient",
+      "positive": [
+        {
+          "id": "fixture-positive-01",
+          "split": "train",
+          "query": "Fixture positive query number 1 validates the schema contract.",
+          "expected": "gds-orient",
+          "must_not_trigger": [
+            "gds-audit-repository"
+          ]
+        },
+        {
+          "id": "fixture-positive-02",
+          "split": "train",
+          "query": "Fixture positive query number 2 validates the schema contract.",
+          "expected": "gds-orient",
+          "must_not_trigger": [
+            "gds-audit-repository"
+          ]
+        },
+        {
+          "id": "fixture-positive-03",
+          "split": "train",
+          "query": "Fixture positive query number 3 validates the schema contract.",
+          "expected": "gds-orient",
+          "must_not_trigger": [
+            "gds-audit-repository"
+          ]
+        },
+        {
+          "id": "fixture-positive-04",
+          "split": "train",
+          "query": "Fixture positive query number 4 validates the schema contract.",
+          "expected": "gds-orient",
+          "must_not_trigger": [
+            "gds-audit-repository"
+          ]
+        },
+        {
+          "id": "fixture-positive-05",
+          "split": "train",
+          "query": "Fixture positive query number 5 validates the schema contract.",
+          "expected": "gds-orient",
+          "must_not_trigger": [
+            "gds-audit-repository"
+          ]
+        },
+        {
+          "id": "fixture-positive-06",
+          "split": "validation",
+          "query": "Fixture positive query number 6 validates the schema contract.",
+          "expected": "gds-orient",
+          "must_not_trigger": [
+            "gds-audit-repository"
+          ]
+        },
+        {
+          "id": "fixture-positive-07",
+          "split": "validation",
+          "query": "Fixture positive query number 7 validates the schema contract.",
+          "expected": "gds-orient",
+          "must_not_trigger": [
+            "gds-audit-repository"
+          ]
+        },
+        {
+          "id": "fixture-positive-08",
+          "split": "validation",
+          "query": "Fixture positive query number 8 validates the schema contract.",
+          "expected": "gds-orient",
+          "must_not_trigger": [
+            "gds-audit-repository"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "fixture-negative-01",
+          "split": "train",
+          "query": "Fixture negative query number 1 validates the schema contract.",
+          "must_not_trigger": [
+            "gds-orient"
+          ]
+        },
+        {
+          "id": "fixture-negative-02",
+          "split": "train",
+          "query": "Fixture negative query number 2 validates the schema contract.",
+          "must_not_trigger": [
+            "gds-orient"
+          ]
+        },
+        {
+          "id": "fixture-negative-03",
+          "split": "train",
+          "query": "Fixture negative query number 3 validates the schema contract.",
+          "must_not_trigger": [
+            "gds-orient"
+          ]
+        },
+        {
+          "id": "fixture-negative-04",
+          "split": "train",
+          "query": "Fixture negative query number 4 validates the schema contract.",
+          "must_not_trigger": [
+            "gds-orient"
+          ]
+        },
+        {
+          "id": "fixture-negative-05",
+          "split": "train",
+          "query": "Fixture negative query number 5 validates the schema contract.",
+          "must_not_trigger": [
+            "gds-orient"
+          ]
+        },
+        {
+          "id": "fixture-negative-06",
+          "split": "validation",
+          "query": "Fixture negative query number 6 validates the schema contract.",
+          "must_not_trigger": [
+            "gds-orient"
+          ]
+        },
+        {
+          "id": "fixture-negative-07",
+          "split": "validation",
+          "query": "Fixture negative query number 7 validates the schema contract.",
+          "must_not_trigger": [
+            "gds-orient"
+          ]
+        },
+        {
+          "id": "fixture-negative-08",
+          "split": "validation",
+          "query": "Fixture negative query number 8 validates the schema contract.",
+          "must_not_trigger": [
+            "gds-orient"
+          ]
+        }
+      ]
+    }
+  ]
+}
+

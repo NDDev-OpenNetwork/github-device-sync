@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/release-envelope.schema.json",
+  "title": "GDS detached release envelope v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "bundle_version",
+    "release_sequence",
+    "channel",
+    "source_commit",
+    "source_ref",
+    "executable_files",
+    "manifest_digest",
+    "artifact_digest",
+    "expected_attestation_identity_digest"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "bundle_version": {
+      "$ref": "common.schema.json#/$defs/semanticVersion"
+    },
+    "release_sequence": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "channel": {
+      "enum": ["canary", "stable", "frozen"]
+    },
+    "source_commit": {
+      "$ref": "common.schema.json#/$defs/sourceCommit"
+    },
+    "source_ref": {
+      "$ref": "common.schema.json#/$defs/sourceRef"
+    },
+    "executable_files": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "manifest_digest": {
+      "$ref": "common.schema.json#/$defs/sha256Digest"
+    },
+    "artifact_digest": {
+      "$ref": "common.schema.json#/$defs/sha256Digest"
+    },
+    "expected_attestation_identity_digest": {
+      "$ref": "common.schema.json#/$defs/sha256Digest"
+    }
+  }
+}

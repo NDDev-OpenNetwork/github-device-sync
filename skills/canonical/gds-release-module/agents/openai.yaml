@@ -1,0 +1,6 @@
+interface:
+  display_name: "GDS Release Module"
+  short_description: "Release a module under its declared policy"
+  default_prompt: "Use $gds-release-module to plan an approved module release."
+policy:
+  allow_implicit_invocation: false

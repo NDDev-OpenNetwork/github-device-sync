@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/field-ownership.schema.json",
+  "title": "GDS provider field-ownership adoption contract v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "resource_type", "resource_id", "observed_digest",
+    "identity_paths", "owned_paths", "external_paths", "unknown_field_policy", "adopted_at"
+  ],
+  "properties": {
+    "schema_version": {"$ref": "common.schema.json#/$defs/schemaVersion"},
+    "resource_type": {"const": "github-ruleset"},
+    "resource_id": {"type": "string", "pattern": "^[1-9][0-9]{0,19}$"},
+    "observed_digest": {"$ref": "common.schema.json#/$defs/sha256Digest"},
+    "identity_paths": {"$ref": "#/$defs/pathSet"},
+    "owned_paths": {"$ref": "#/$defs/pathSet"},
+    "external_paths": {"$ref": "#/$defs/pathSet"},
+    "unknown_field_policy": {"const": "preserve-or-refuse"},
+    "adopted_at": {"type": "string", "format": "date-time"}
+  },
+  "$defs": {
+    "pathSet": {
+      "type": "array", "minItems": 1, "maxItems": 128, "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^/(?:[A-Za-z0-9_~-]+)(?:/[A-Za-z0-9_~-]+)*$"}
+    }
+  }
+}

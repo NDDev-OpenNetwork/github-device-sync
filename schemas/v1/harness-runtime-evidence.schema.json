@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/harness-runtime-evidence.schema.json",
+  "title": "GDS native harness runtime evidence v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_version",
+    "harness",
+    "harness_version",
+    "model_label",
+    "execution_profile",
+    "tools",
+    "environment",
+    "judge",
+    "profile_digest",
+    "started_at",
+    "finished_at",
+    "cases",
+    "metrics",
+    "transcripts",
+    "result_digest"
+  ],
+  "properties": {
+    "schema_version": {"$ref": "common.schema.json#/$defs/schemaVersion"},
+    "contract_version": {"$ref": "common.schema.json#/$defs/semanticVersion"},
+    "harness": {"$ref": "common.schema.json#/$defs/kebabId"},
+    "harness_version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "^[^\\u0000\\r\\n]+$"
+    },
+    "model_label": {"$ref": "common.schema.json#/$defs/nonEmptyString"},
+    "execution_profile": {"$ref": "common.schema.json#/$defs/kebabId"},
+    "tools": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "common.schema.json#/$defs/kebabId"}
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["os", "architecture", "executable", "command"],
+      "properties": {
+        "os": {"$ref": "common.schema.json#/$defs/kebabId"},
+        "architecture": {"$ref": "common.schema.json#/$defs/kebabId"},
+        "executable": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^[^\\u0000\\r\\n]+$"
+        },
+        "command": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9._+-]+$"
+        }
+      }
+    },
+    "judge": {"$ref": "harness-eval-run.schema.json#/$defs/judge"},
+    "profile_digest": {"$ref": "common.schema.json#/$defs/sha256Digest"},
+    "started_at": {"type": "string", "format": "date-time"},
+    "finished_at": {"type": "string", "format": "date-time"},
+    "cases": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 7,
+      "items": {"$ref": "harness-eval-run.schema.json#/$defs/caseResult"}
+    },
+    "metrics": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {"$ref": "harness-eval-run.schema.json#/$defs/metric"}
+    },
+    "transcripts": {
+      "type": "array",
+      "minItems": 7,
+      "uniqueItems": true,
+      "items": {"$ref": "harness-eval-run.schema.json#/$defs/transcript"}
+    },
+    "result_digest": {"$ref": "common.schema.json#/$defs/sha256Digest"}
+  }
+}

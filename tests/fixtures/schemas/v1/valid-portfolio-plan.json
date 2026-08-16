@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "plan_id": "plan_01KX7BV07RHD6KRA4Z4J0KCHGV",
+  "created_at": "2026-07-11T05:00:00Z",
+  "portfolio": "portfolio:personal-projects",
+  "operation": "repository-change",
+  "intent": "Apply one bounded fixture change.",
+  "target_set_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "subplans": [
+    {
+      "repository_id": "repo_01JEXAMPZ0000000000000000C",
+      "path": "/fixture/repository",
+      "status": "blocked",
+      "finding_codes": ["GDS_FIXTURE_BLOCKED"],
+      "subplan_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    }
+  ],
+  "ready_count": 0,
+  "blocked_count": 1,
+  "plan_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+}

@@ -1,0 +1,8 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Go module checksum records are not credential material."
+paths = [
+  '''^go\.sum$''',
+]

@@ -1,0 +1,14 @@
+schema_version: 1
+device:
+  id: "device_01JEXAMPZ00000000000000003"
+  name: "example-linux"
+  os: "linux"
+  architecture: "x86_64"
+workspace_roots:
+  personal: "/home/example/projects"
+materialization:
+  default_mode: "absent"
+  include: []
+harnesses: ["codex"]
+state:
+  path: "${XDG_STATE_HOME}/github-device-sync"

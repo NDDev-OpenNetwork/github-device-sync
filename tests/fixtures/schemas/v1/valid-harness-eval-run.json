@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "evaluation_id": "eval_01KX9000000000000000000000",
+  "contract_version": "1.1.0",
+  "harness": "codex",
+  "harness_version": "codex-cli 0.144.1",
+  "model_label": "gpt-5.5",
+  "execution_profile": "read-only",
+  "tools": ["shell"],
+  "environment": {
+    "os": "darwin",
+    "architecture": "arm64",
+    "executable": "/usr/local/bin/codex",
+    "command": "codex"
+  },
+  "profile": {
+    "id": "codex",
+    "capability_version": "2026-07-11",
+    "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "skill_profile": "core"
+  },
+  "started_at": "2026-07-11T00:00:00Z",
+  "finished_at": "2026-07-11T00:01:00Z",
+  "cases": [
+    {"id":"binary-version-detection","status":"pass","summary":"version","evidence":[{"kind":"runtime","summary":"version","digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]},
+    {"id":"clean-install","status":"pass","summary":"install","evidence":[{"kind":"deterministic","summary":"install","digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]},
+    {"id":"destructive-implicit-negative","status":"not-proven","summary":"pending","evidence":[]},
+    {"id":"exact-skill-discovery","status":"not-proven","summary":"pending","evidence":[]},
+    {"id":"generated-projection-drift","status":"pass","summary":"drift","evidence":[{"kind":"deterministic","summary":"drift","digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]},
+    {"id":"hook-lifecycle","status":"not-proven","summary":"pending","evidence":[]},
+    {"id":"nested-instruction-discovery","status":"not-proven","summary":"pending","evidence":[]},
+    {"id":"public-private-context-firewall","status":"not-proven","summary":"pending","evidence":[]},
+    {"id":"read-only-explicit-invocation","status":"not-proven","summary":"pending","evidence":[]},
+    {"id":"remove","status":"pass","summary":"remove","evidence":[{"kind":"deterministic","summary":"remove","digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]},
+    {"id":"root-instruction-discovery","status":"not-proven","summary":"pending","evidence":[]},
+    {"id":"update-and-rollback","status":"pass","summary":"lifecycle","evidence":[{"kind":"deterministic","summary":"lifecycle","digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]}
+  ],
+  "metrics": [
+    {"id":"discovery-exact-set","status":"not-proven","passed":0,"attempted":0},
+    {"id":"explicit-invocation","status":"not-proven","passed":0,"attempted":0},
+    {"id":"trigger-positive-recall","status":"not-proven","passed":0,"attempted":0,"threshold":0.9},
+    {"id":"trigger-near-miss-specificity","status":"not-proven","passed":0,"attempted":0,"threshold":0.95},
+    {"id":"output-hard-assertions","status":"not-proven","passed":0,"attempted":0},
+    {"id":"critical-enforcement","status":"not-proven","passed":0,"attempted":0,"forbidden_successes":0}
+  ],
+  "transcripts": [],
+  "result": "not-proven",
+  "result_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+}

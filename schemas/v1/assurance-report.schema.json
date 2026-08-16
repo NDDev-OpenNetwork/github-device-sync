@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/assurance-report.schema.json",
+  "title": "GDS integrated assurance report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "assurance_id",
+    "started_at",
+    "finished_at",
+    "environment",
+    "source",
+    "scenario",
+    "bounds",
+    "checks",
+    "metrics",
+    "status",
+    "result_digest"
+  ],
+  "properties": {
+    "schema_version": {"$ref": "common.schema.json#/$defs/schemaVersion"},
+    "assurance_id": {
+      "type": "string",
+      "pattern": "^assurance_[0-7][0-9A-HJKMNP-TV-Z]{25}$"
+    },
+    "started_at": {"type": "string", "format": "date-time"},
+    "finished_at": {"type": "string", "format": "date-time"},
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["os", "architecture", "go_version", "cpu_count"],
+      "properties": {
+        "os": {"$ref": "common.schema.json#/$defs/kebabId"},
+        "architecture": {"$ref": "common.schema.json#/$defs/kebabId"},
+        "go_version": {"type": "string", "pattern": "^go1\\.[0-9]{1,2}\\.[0-9]{1,2}$"},
+        "cpu_count": {"type": "integer", "minimum": 1, "maximum": 4096}
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commit", "worktree_clean"],
+      "properties": {
+        "commit": {"$ref": "common.schema.json#/$defs/sourceCommit"},
+        "worktree_clean": {"type": "boolean"}
+      }
+    },
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repositories",
+        "installations",
+        "forks",
+        "shared_modules",
+        "module_consumers",
+        "webhook_deliveries",
+        "lifecycle_classes",
+        "access_states"
+      ],
+      "properties": {
+        "repositories": {"type": "integer", "minimum": 1, "maximum": 2000},
+        "installations": {"const": 5},
+        "forks": {"type": "integer", "minimum": 0, "maximum": 1000},
+        "shared_modules": {"type": "integer", "minimum": 1, "maximum": 100},
+        "module_consumers": {"type": "integer", "minimum": 1, "maximum": 2000},
+        "webhook_deliveries": {"type": "integer", "minimum": 1, "maximum": 10000},
+        "lifecycle_classes": {"type": "integer", "minimum": 4, "maximum": 6},
+        "access_states": {"type": "integer", "minimum": 5, "maximum": 5}
+      }
+    },
+    "bounds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reconciliation_concurrency",
+        "projection_concurrency",
+        "max_repositories",
+        "require_clean_worktree",
+        "external_network",
+        "external_mutations"
+      ],
+      "properties": {
+        "reconciliation_concurrency": {"type": "integer", "minimum": 1, "maximum": 16},
+        "projection_concurrency": {"type": "integer", "minimum": 1, "maximum": 16},
+        "max_repositories": {"type": "integer", "minimum": 1, "maximum": 2000},
+        "require_clean_worktree": {"type": "boolean"},
+        "external_network": {"const": false},
+        "external_mutations": {"const": false}
+      }
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 16,
+      "maxItems": 16,
+      "items": {"$ref": "#/$defs/check"}
+    },
+    "metrics": {
+      "type": "array",
+      "minItems": 13,
+      "maxItems": 13,
+      "items": {"$ref": "#/$defs/metric"}
+    },
+    "status": {"enum": ["pass", "fail"]},
+    "result_digest": {"$ref": "common.schema.json#/$defs/sha256Digest"}
+  },
+  "$defs": {
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "summary"],
+      "properties": {
+        "id": {
+          "enum": [
+            "context-resolution",
+            "repository-status",
+            "estate-compilation",
+            "fork-classification",
+            "mixed-lifecycles",
+            "shared-module-relationships",
+            "projection-generation",
+            "portfolio-planning",
+            "rollout-planning",
+            "webhook-load",
+            "reconciliation-persistence",
+            "worker-restart",
+            "mixed-access-states",
+            "installation-outage-isolation",
+            "kill-switch-contract",
+            "bounded-resource-contract"
+          ]
+        },
+        "status": {"enum": ["pass", "fail"]},
+        "summary": {"$ref": "common.schema.json#/$defs/nonEmptyString"}
+      }
+    },
+    "metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "unit", "comparison", "observed", "limit", "passed"],
+      "properties": {
+        "id": {
+          "enum": [
+            "context-p95-ms",
+            "repository-status-p95-ms",
+            "inventory-compile-ms",
+            "reconciliation-ms",
+            "projection-generation-ms",
+            "webhook-throughput-per-second",
+            "queue-max-lag-ms",
+            "restart-recovery-ms",
+            "rollout-plan-ms",
+            "portfolio-plan-ms",
+            "peak-heap-bytes",
+            "state-db-bytes",
+            "api-read-calls-per-full-reconciliation"
+          ]
+        },
+        "unit": {"enum": ["milliseconds", "bytes", "count", "operations-per-second"]},
+        "comparison": {"enum": ["at-most", "at-least"]},
+        "observed": {"type": "number", "minimum": 0},
+        "limit": {"type": "number", "exclusiveMinimum": 0},
+        "passed": {"type": "boolean"}
+      }
+    }
+  }
+}

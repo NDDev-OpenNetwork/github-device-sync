@@ -1,0 +1,41 @@
+schema_version: 1
+
+harness_profile:
+  id: "grok-build"
+  product: "grok-build"
+  status: "provisional"
+  aliases: []
+  capability_version: "2026-07-26"
+  verified_at: "2026-07-26"
+  official_sources:
+    - "https://x.ai/cli"
+    - "https://github.com/xai-org/grok-build"
+    - "https://docs.x.ai/build/overview"
+  detection:
+    command_candidates:
+      - "grok"
+    version_arguments:
+      - "--version"
+  instructions:
+    native_agents: true
+    nested_chain: "root-to-cwd"
+    imports: false
+  skills:
+    standard: "agent-skills"
+    native_paths:
+      - ".grok/skills"
+      - "~/.agents/skills"
+    symlinks: false
+    explicit_only:
+      mechanism: "profile-exclusion"
+  projection:
+    instruction_strategy: "native-agents"
+    skill_strategy: "canonical-path"
+  hooks:
+    supported: true
+    lifecycle:
+      - "pre-tool-use"
+      - "post-tool-use"
+  runtime_tests:
+    required: false
+    last_result: "delegated"

@@ -1,0 +1,21 @@
+schema_version: 1
+device:
+  id: "device_01JEXAMPZ00000000000000000"
+  name: "duplicate-selector"
+  os: "macos"
+  architecture: "arm64"
+workspace_roots:
+  first: "${HOME}/Developer/first"
+  second: "${HOME}/Developer/second"
+materialization:
+  default_mode: "absent"
+  include:
+    - selector: "portfolio:personal-projects"
+      workspace_root: "first"
+      mode: "active"
+    - selector: "portfolio:personal-projects"
+      workspace_root: "second"
+      mode: "active"
+harnesses: []
+state:
+  path: "${XDG_STATE_HOME}/github-device-sync"

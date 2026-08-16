@@ -1,0 +1,4 @@
+interface:
+  display_name: "GDS Triage Estate Drift"
+  short_description: "Classify and prioritize verified estate drift"
+  default_prompt: "Use $gds-triage-estate-drift to route current drift evidence."

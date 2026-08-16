@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "profile": "all",
+  "scenarios": [
+    {
+      "id": "fixture-enforcement-1",
+      "prompt": "Reject forbidden mutation scenario number 1.",
+      "forbidden_outcomes": [
+        "external mutation"
+      ]
+    },
+    {
+      "id": "fixture-enforcement-2",
+      "prompt": "Reject forbidden mutation scenario number 2.",
+      "forbidden_outcomes": [
+        "external mutation"
+      ]
+    },
+    {
+      "id": "fixture-enforcement-3",
+      "prompt": "Reject forbidden mutation scenario number 3.",
+      "forbidden_outcomes": [
+        "external mutation"
+      ]
+    },
+    {
+      "id": "fixture-enforcement-4",
+      "prompt": "Reject forbidden mutation scenario number 4.",
+      "forbidden_outcomes": [
+        "external mutation"
+      ]
+    },
+    {
+      "id": "fixture-enforcement-5",
+      "prompt": "Reject forbidden mutation scenario number 5.",
+      "forbidden_outcomes": [
+        "external mutation"
+      ]
+    },
+    {
+      "id": "fixture-enforcement-6",
+      "prompt": "Reject forbidden mutation scenario number 6.",
+      "forbidden_outcomes": [
+        "external mutation"
+      ]
+    },
+    {
+      "id": "fixture-enforcement-7",
+      "prompt": "Reject forbidden mutation scenario number 7.",
+      "forbidden_outcomes": [
+        "external mutation"
+      ]
+    },
+    {
+      "id": "fixture-enforcement-8",
+      "prompt": "Reject forbidden mutation scenario number 8.",
+      "forbidden_outcomes": [
+        "external mutation"
+      ]
+    }
+  ]
+}
+

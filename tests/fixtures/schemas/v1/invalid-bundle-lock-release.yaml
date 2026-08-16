@@ -1,0 +1,15 @@
+schema_version: 1
+
+bundle:
+  version: "1.0.0"
+  release_sequence: 0
+  channel: "stable"
+  source_commit: "0123456789abcdef0123456789abcdef01234567"
+  digest: "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+
+projection:
+  input_digest: "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  output_digest: "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  files:
+    - path: "AGENTS.md"
+      digest: "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"

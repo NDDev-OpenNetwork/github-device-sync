@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/skill-trigger-eval.schema.json",
+  "title": "GDS skill trigger evaluation corpus v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "profile", "runs_per_query", "skills"],
+  "properties": {
+    "schema_version": {"$ref": "common.schema.json#/$defs/schemaVersion"},
+    "profile": {"$ref": "common.schema.json#/$defs/kebabId"},
+    "runs_per_query": {"type": "integer", "minimum": 3, "maximum": 10},
+    "skills": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "positive", "negative"],
+        "properties": {
+          "name": {"$ref": "common.schema.json#/$defs/kebabId"},
+          "positive": {
+            "type": "array",
+            "minItems": 8,
+            "maxItems": 10,
+            "items": {"$ref": "#/$defs/positiveQuery"}
+          },
+          "negative": {
+            "type": "array",
+            "minItems": 8,
+            "maxItems": 10,
+            "items": {"$ref": "#/$defs/negativeQuery"}
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "queryBase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "split", "query", "must_not_trigger"],
+      "properties": {
+        "id": {"$ref": "common.schema.json#/$defs/kebabId"},
+        "split": {"enum": ["train", "validation"]},
+        "query": {"type": "string", "minLength": 8, "maxLength": 2048},
+        "expected": {"$ref": "common.schema.json#/$defs/kebabId"},
+        "must_not_trigger": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "common.schema.json#/$defs/kebabId"}
+        }
+      }
+    },
+    "positiveQuery": {
+      "allOf": [
+        {"$ref": "#/$defs/queryBase"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "split", "query", "expected", "must_not_trigger"],
+          "properties": {
+            "id": true,
+            "split": true,
+            "query": true,
+            "expected": {"$ref": "common.schema.json#/$defs/kebabId"},
+            "must_not_trigger": true
+          }
+        }
+      ]
+    },
+    "negativeQuery": {
+      "allOf": [
+        {"$ref": "#/$defs/queryBase"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "split", "query", "must_not_trigger"],
+          "properties": {
+            "id": true,
+            "split": true,
+            "query": true,
+            "must_not_trigger": true
+          }
+        }
+      ]
+    }
+  }
+}

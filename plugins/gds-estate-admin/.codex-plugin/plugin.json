@@ -1,0 +1,20 @@
+{
+  "name": "gds-estate-admin",
+  "version": "0.1.0",
+  "description": "Control-plane-only GDS estate audit, planning, lifecycle, recovery, maintenance, release, and rollout workflows.",
+  "author": {
+    "name": "example-user"
+  },
+  "repository": "https://github.com/NDDev-OpenNetwork/github-device-sync",
+  "license": "Proprietary",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "GDS Estate Admin",
+    "shortDescription": "Administer the GDS estate through explicit plans",
+    "longDescription": "Provides control-plane and portfolio GDS workflows. Mutating workflows are explicit-only and remain subject to deterministic plan, approval, apply, verify, and journal gates.",
+    "developerName": "example-user",
+    "category": "Developer Tools",
+    "capabilities": ["Read", "Write"],
+    "defaultPrompt": "Audit or plan the requested estate change without applying it unless explicitly approved."
+  }
+}

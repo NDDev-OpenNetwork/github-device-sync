@@ -1,0 +1,38 @@
+schema_version: 1
+
+estate:
+  id: "estate_01KX7BV07RHD6KRA4Z4J0KCHGS"
+  name: "example-estate"
+  default_bundle_channel: "stable"
+
+installations:
+  - "installation:github-personal"
+  - "installation:github-organization"
+
+mutation_capabilities:
+  - "mutation:github-personal"
+  - "mutation:github-organization"
+
+policy_order:
+  - "base"
+  - "owner"
+  - "portfolio"
+  - "role"
+  - "stack"
+  - "lifecycle"
+  - "repository"
+
+rollout:
+  default_ring: "standard"
+  mutation_mode: "pull-request"
+  max_parallel_observation: 12
+  max_parallel_git_network: 4
+  max_parallel_mutation: 1
+
+state:
+  local_backend: "sqlite"
+  xdg_namespace: "github-device-sync"
+
+discovery:
+  discover_all_repositories: true
+  default_management_mode: "observe-only"

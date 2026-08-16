@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/estate-registration.schema.json",
+  "title": "GDS device-local estate registration v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "device_id", "estate"],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "device_id": {
+      "$ref": "common.schema.json#/$defs/deviceId"
+    },
+    "estate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository_id", "root", "anchor_digest"],
+      "properties": {
+        "repository_id": {
+          "$ref": "common.schema.json#/$defs/repositoryId"
+        },
+        "root": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 4096,
+          "pattern": "^/[^\\u0000\\r\\n]+$"
+        },
+        "anchor_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        }
+      }
+    }
+  }
+}

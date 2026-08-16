@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/harness-registry.schema.json",
+  "title": "GDS harness capability registry v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "harnesses"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "harnesses": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "status",
+          "profile",
+          "verified_at",
+          "runtime_evidence",
+          "legacy_aliases"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/kebabId"
+          },
+          "status": {
+            "enum": [
+              "supported",
+              "provisional",
+              "plan-dependent",
+              "deprecated",
+              "blocked",
+              "unknown"
+            ]
+          },
+          "profile": {
+            "$ref": "common.schema.json#/$defs/safeRelativePath"
+          },
+          "verified_at": {
+            "type": "string",
+            "format": "date"
+          },
+          "runtime_evidence": {
+            "enum": [
+              "pass",
+              "fail",
+              "not-proven",
+              "delegated"
+            ]
+          },
+          "legacy_aliases": {
+            "$ref": "common.schema.json#/$defs/kebabIdSet"
+          }
+        }
+      }
+    }
+  }
+}

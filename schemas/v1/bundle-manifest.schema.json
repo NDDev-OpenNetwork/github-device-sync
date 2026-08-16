@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/bundle-manifest.schema.json",
+  "title": "GDS immutable bundle manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "bundle_version",
+    "release_sequence",
+    "channel",
+    "source_commit",
+    "source_ref",
+    "minimum_cli_version",
+    "content_set_digest",
+    "policy_digest",
+    "skill_set_digest",
+    "harness_profiles_digest",
+    "harness_evidence_provisional",
+    "files",
+    "supply_chain"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "bundle_version": {
+      "$ref": "common.schema.json#/$defs/semanticVersion"
+    },
+    "release_sequence": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "channel": {
+      "enum": ["canary", "stable", "frozen"]
+    },
+    "source_commit": {
+      "$ref": "common.schema.json#/$defs/sourceCommit"
+    },
+    "source_ref": {
+      "$ref": "common.schema.json#/$defs/sourceRef"
+    },
+    "minimum_cli_version": {
+      "$ref": "common.schema.json#/$defs/semanticVersion"
+    },
+    "content_set_digest": {
+      "$ref": "common.schema.json#/$defs/sha256Digest"
+    },
+    "policy_digest": {
+      "$ref": "common.schema.json#/$defs/sha256Digest"
+    },
+    "skill_set_digest": {
+      "$ref": "common.schema.json#/$defs/sha256Digest"
+    },
+    "harness_profiles_digest": {
+      "$ref": "common.schema.json#/$defs/sha256Digest"
+    },
+    "harness_evidence_manifest_digest": {
+      "$ref": "common.schema.json#/$defs/sha256Digest"
+    },
+    "harness_evidence_provisional": {"type": "boolean"},
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 10000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "digest", "size", "mode"],
+        "properties": {
+          "path": {
+            "$ref": "common.schema.json#/$defs/safeRelativePath"
+          },
+          "digest": {
+            "$ref": "common.schema.json#/$defs/sha256Digest"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 134217728
+          },
+          "mode": {
+            "enum": ["0644", "0755"]
+          }
+        }
+      }
+    },
+    "supply_chain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attestation_required", "sbom_required_for_executables"],
+      "properties": {
+        "attestation_required": {
+          "const": true
+        },
+        "sbom_required_for_executables": {
+          "const": true
+        }
+      }
+    }
+  },
+  "allOf": [{
+    "if": {"properties": {"channel": {"enum": ["stable", "frozen"]}}},
+    "then": {
+      "required": ["harness_evidence_manifest_digest"],
+      "properties": {"harness_evidence_provisional": {"const": false}}
+    },
+    "else": {
+      "if": {"properties": {"harness_evidence_provisional": {"const": false}}},
+      "then": {"required": ["harness_evidence_manifest_digest"]}
+    }
+  }]
+}

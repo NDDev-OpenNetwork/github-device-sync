@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/freshness-policy.schema.json",
+  "title": "GDS claim-specific freshness policy v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "claims"],
+  "properties": {
+    "schema_version": {"$ref": "common.schema.json#/$defs/schemaVersion"},
+    "claims": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mutation-precondition", "worktree-index", "local-context",
+        "provider-observation", "device-inventory", "harness-runtime",
+        "release-promotion", "vendor-fact"
+      ],
+      "properties": {
+        "mutation-precondition": {"$ref": "#/$defs/immediateClaim"},
+        "worktree-index": {"$ref": "#/$defs/cachedClaim"},
+        "local-context": {"$ref": "#/$defs/cachedClaim"},
+        "provider-observation": {"$ref": "#/$defs/cachedClaim"},
+        "device-inventory": {"$ref": "#/$defs/cachedClaim"},
+        "harness-runtime": {"$ref": "#/$defs/cachedClaim"},
+        "release-promotion": {"$ref": "#/$defs/cachedClaim"},
+        "vendor-fact": {"$ref": "#/$defs/cachedClaim"}
+      }
+    }
+  },
+  "$defs": {
+    "immediateClaim": {
+      "type": "object", "additionalProperties": false,
+      "required": ["mode"], "properties": {"mode": {"const": "immediate"}}
+    },
+    "cachedClaim": {
+      "type": "object", "additionalProperties": false,
+      "required": ["mode", "max_age_seconds"],
+      "properties": {
+        "mode": {"const": "cached"},
+        "max_age_seconds": {"type": "integer", "minimum": 1, "maximum": 2592000}
+      }
+    }
+  }
+}

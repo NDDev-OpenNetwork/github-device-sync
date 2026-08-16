@@ -1,0 +1,437 @@
+{
+  "schema_version": 1,
+  "profile": "device",
+  "runs_per_query": 3,
+  "skills": [
+    {
+      "name": "gds-bootstrap-device",
+      "positive": [
+        {
+          "id": "bootstrap-device-p01",
+          "split": "train",
+          "query": "Разверни pinned GDS bundle и выбранные harness projections на новом устройстве по reversible plan.",
+          "expected": "gds-bootstrap-device",
+          "must_not_trigger": [
+            "gds-materialize-workspace"
+          ]
+        },
+        {
+          "id": "bootstrap-device-p02",
+          "split": "train",
+          "query": "Bootstrap or verify GDS on a new macOS, Linux, server, or CI device with approved secret stores.",
+          "expected": "gds-bootstrap-device",
+          "must_not_trigger": [
+            "gds-materialize-workspace"
+          ]
+        },
+        {
+          "id": "bootstrap-device-p03",
+          "split": "train",
+          "query": "Нужно безопасно и с evidence: разверни pinned GDS bundle и выбранные harness projections на новом устройстве по reversible plan.",
+          "expected": "gds-bootstrap-device",
+          "must_not_trigger": [
+            "gds-materialize-workspace"
+          ]
+        },
+        {
+          "id": "bootstrap-device-p04",
+          "split": "train",
+          "query": "Please handle this exact GDS intent: bootstrap or verify GDS on a new macOS, Linux, server, or CI device with approved secret stores.",
+          "expected": "gds-bootstrap-device",
+          "must_not_trigger": [
+            "gds-materialize-workspace"
+          ]
+        },
+        {
+          "id": "bootstrap-device-p05",
+          "split": "train",
+          "query": "коротко: разверни pinned GDS bundle и выбранные harness projections на новом устройстве по reversible plan.",
+          "expected": "gds-bootstrap-device",
+          "must_not_trigger": [
+            "gds-materialize-workspace"
+          ]
+        },
+        {
+          "id": "bootstrap-device-p06",
+          "split": "validation",
+          "query": "In a real multi-device estate, bootstrap or verify GDS on a new macOS, Linux, server, or CI device with approved secret stores.",
+          "expected": "gds-bootstrap-device",
+          "must_not_trigger": [
+            "gds-materialize-workspace"
+          ]
+        },
+        {
+          "id": "bootstrap-device-p07",
+          "split": "validation",
+          "query": "Сначала определи scope и stop conditions, затем разверни pinned GDS bundle и выбранные harness projections на новом устройстве по reversible plan.",
+          "expected": "gds-bootstrap-device",
+          "must_not_trigger": [
+            "gds-materialize-workspace"
+          ]
+        },
+        {
+          "id": "bootstrap-device-p08",
+          "split": "validation",
+          "query": "Bootstrap or verify GDS on a new macOS, Linux, server, or CI device with approved secret stores. Preserve unrelated work and report every NOT_PROVEN check.",
+          "expected": "gds-bootstrap-device",
+          "must_not_trigger": [
+            "gds-materialize-workspace"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "bootstrap-device-n01",
+          "split": "train",
+          "query": "Склонируй весь estate и молча обнови глобальные инструменты.",
+          "must_not_trigger": [
+            "gds-bootstrap-device"
+          ]
+        },
+        {
+          "id": "bootstrap-device-n02",
+          "split": "train",
+          "query": "Clone every repository and silently change global tools.",
+          "must_not_trigger": [
+            "gds-bootstrap-device"
+          ]
+        },
+        {
+          "id": "bootstrap-device-n03",
+          "split": "train",
+          "query": "Это соседняя задача, не gds-bootstrap-device: склонируй весь estate и молча обнови глобальные инструменты.",
+          "must_not_trigger": [
+            "gds-bootstrap-device"
+          ]
+        },
+        {
+          "id": "bootstrap-device-n04",
+          "split": "train",
+          "query": "Do this adjacent workflow without invoking gds-bootstrap-device: clone every repository and silently change global tools.",
+          "must_not_trigger": [
+            "gds-bootstrap-device"
+          ]
+        },
+        {
+          "id": "bootstrap-device-n05",
+          "split": "train",
+          "query": "коротко: склонируй весь estate и молча обнови глобальные инструменты.",
+          "must_not_trigger": [
+            "gds-bootstrap-device"
+          ]
+        },
+        {
+          "id": "bootstrap-device-n06",
+          "split": "validation",
+          "query": "In the current repository only, clone every repository and silently change global tools.",
+          "must_not_trigger": [
+            "gds-bootstrap-device"
+          ]
+        },
+        {
+          "id": "bootstrap-device-n07",
+          "split": "validation",
+          "query": "Не запускай gds-bootstrap-device; склонируй весь estate и молча обнови глобальные инструменты.",
+          "must_not_trigger": [
+            "gds-bootstrap-device"
+          ]
+        },
+        {
+          "id": "bootstrap-device-n08",
+          "split": "validation",
+          "query": "Clone every repository and silently change global tools. Use the narrower applicable workflow instead.",
+          "must_not_trigger": [
+            "gds-bootstrap-device"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gds-materialize-workspace",
+      "positive": [
+        {
+          "id": "materialize-workspace-p01",
+          "split": "train",
+          "query": "Материализуй выбранный selector репозиториев на устройстве с bounded clone modes и resource limits.",
+          "expected": "gds-materialize-workspace",
+          "must_not_trigger": [
+            "gds-sync-checkouts"
+          ]
+        },
+        {
+          "id": "materialize-workspace-p02",
+          "split": "train",
+          "query": "Clone or materialize a selected repository workspace after resolving roots, modes, and submodules.",
+          "expected": "gds-materialize-workspace",
+          "must_not_trigger": [
+            "gds-sync-checkouts"
+          ]
+        },
+        {
+          "id": "materialize-workspace-p03",
+          "split": "train",
+          "query": "Нужно безопасно и с evidence: материализуй выбранный selector репозиториев на устройстве с bounded clone modes и resource limits.",
+          "expected": "gds-materialize-workspace",
+          "must_not_trigger": [
+            "gds-sync-checkouts"
+          ]
+        },
+        {
+          "id": "materialize-workspace-p04",
+          "split": "train",
+          "query": "Please handle this exact GDS intent: clone or materialize a selected repository workspace after resolving roots, modes, and submodules.",
+          "expected": "gds-materialize-workspace",
+          "must_not_trigger": [
+            "gds-sync-checkouts"
+          ]
+        },
+        {
+          "id": "materialize-workspace-p05",
+          "split": "train",
+          "query": "коротко: материализуй выбранный selector репозиториев на устройстве с bounded clone modes и resource limits.",
+          "expected": "gds-materialize-workspace",
+          "must_not_trigger": [
+            "gds-sync-checkouts"
+          ]
+        },
+        {
+          "id": "materialize-workspace-p06",
+          "split": "validation",
+          "query": "In a real multi-device estate, clone or materialize a selected repository workspace after resolving roots, modes, and submodules.",
+          "expected": "gds-materialize-workspace",
+          "must_not_trigger": [
+            "gds-sync-checkouts"
+          ]
+        },
+        {
+          "id": "materialize-workspace-p07",
+          "split": "validation",
+          "query": "Сначала определи scope и stop conditions, затем материализуй выбранный selector репозиториев на устройстве с bounded clone modes и resource limits.",
+          "expected": "gds-materialize-workspace",
+          "must_not_trigger": [
+            "gds-sync-checkouts"
+          ]
+        },
+        {
+          "id": "materialize-workspace-p08",
+          "split": "validation",
+          "query": "Clone or materialize a selected repository workspace after resolving roots, modes, and submodules. Preserve unrelated work and report every NOT_PROVEN check.",
+          "expected": "gds-materialize-workspace",
+          "must_not_trigger": [
+            "gds-sync-checkouts"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "materialize-workspace-n01",
+          "split": "train",
+          "query": "Синхронизируй уже существующие checkouts или скачай весь estate.",
+          "must_not_trigger": [
+            "gds-materialize-workspace"
+          ]
+        },
+        {
+          "id": "materialize-workspace-n02",
+          "split": "train",
+          "query": "Synchronize existing checkouts or clone the entire estate by default.",
+          "must_not_trigger": [
+            "gds-materialize-workspace"
+          ]
+        },
+        {
+          "id": "materialize-workspace-n03",
+          "split": "train",
+          "query": "Это соседняя задача, не gds-materialize-workspace: синхронизируй уже существующие checkouts или скачай весь estate.",
+          "must_not_trigger": [
+            "gds-materialize-workspace"
+          ]
+        },
+        {
+          "id": "materialize-workspace-n04",
+          "split": "train",
+          "query": "Do this adjacent workflow without invoking gds-materialize-workspace: synchronize existing checkouts or clone the entire estate by default.",
+          "must_not_trigger": [
+            "gds-materialize-workspace"
+          ]
+        },
+        {
+          "id": "materialize-workspace-n05",
+          "split": "train",
+          "query": "коротко: синхронизируй уже существующие checkouts или скачай весь estate.",
+          "must_not_trigger": [
+            "gds-materialize-workspace"
+          ]
+        },
+        {
+          "id": "materialize-workspace-n06",
+          "split": "validation",
+          "query": "In the current repository only, synchronize existing checkouts or clone the entire estate by default.",
+          "must_not_trigger": [
+            "gds-materialize-workspace"
+          ]
+        },
+        {
+          "id": "materialize-workspace-n07",
+          "split": "validation",
+          "query": "Не запускай gds-materialize-workspace; синхронизируй уже существующие checkouts или скачай весь estate.",
+          "must_not_trigger": [
+            "gds-materialize-workspace"
+          ]
+        },
+        {
+          "id": "materialize-workspace-n08",
+          "split": "validation",
+          "query": "Synchronize existing checkouts or clone the entire estate by default. Use the narrower applicable workflow instead.",
+          "must_not_trigger": [
+            "gds-materialize-workspace"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gds-sync-checkouts",
+      "positive": [
+        {
+          "id": "sync-checkouts-p01",
+          "split": "train",
+          "query": "Безопасно синхронизируй только выбранные чистые локальные checkouts по approved plan.",
+          "expected": "gds-sync-checkouts",
+          "must_not_trigger": [
+            "gds-bootstrap-device"
+          ]
+        },
+        {
+          "id": "sync-checkouts-p02",
+          "split": "train",
+          "query": "Apply safe synchronization to selected existing clean checkouts while skipping dirty or diverged boundaries.",
+          "expected": "gds-sync-checkouts",
+          "must_not_trigger": [
+            "gds-bootstrap-device"
+          ]
+        },
+        {
+          "id": "sync-checkouts-p03",
+          "split": "train",
+          "query": "Нужно безопасно и с evidence: безопасно синхронизируй только выбранные чистые локальные checkouts по approved plan.",
+          "expected": "gds-sync-checkouts",
+          "must_not_trigger": [
+            "gds-bootstrap-device"
+          ]
+        },
+        {
+          "id": "sync-checkouts-p04",
+          "split": "train",
+          "query": "Please handle this exact GDS intent: apply safe synchronization to selected existing clean checkouts while skipping dirty or diverged boundaries.",
+          "expected": "gds-sync-checkouts",
+          "must_not_trigger": [
+            "gds-bootstrap-device"
+          ]
+        },
+        {
+          "id": "sync-checkouts-p05",
+          "split": "train",
+          "query": "коротко: безопасно синхронизируй только выбранные чистые локальные checkouts по approved plan.",
+          "expected": "gds-sync-checkouts",
+          "must_not_trigger": [
+            "gds-bootstrap-device"
+          ]
+        },
+        {
+          "id": "sync-checkouts-p06",
+          "split": "validation",
+          "query": "In a real multi-device estate, apply safe synchronization to selected existing clean checkouts while skipping dirty or diverged boundaries.",
+          "expected": "gds-sync-checkouts",
+          "must_not_trigger": [
+            "gds-bootstrap-device"
+          ]
+        },
+        {
+          "id": "sync-checkouts-p07",
+          "split": "validation",
+          "query": "Сначала определи scope и stop conditions, затем безопасно синхронизируй только выбранные чистые локальные checkouts по approved plan.",
+          "expected": "gds-sync-checkouts",
+          "must_not_trigger": [
+            "gds-bootstrap-device"
+          ]
+        },
+        {
+          "id": "sync-checkouts-p08",
+          "split": "validation",
+          "query": "Apply safe synchronization to selected existing clean checkouts while skipping dirty or diverged boundaries. Preserve unrelated work and report every NOT_PROVEN check.",
+          "expected": "gds-sync-checkouts",
+          "must_not_trigger": [
+            "gds-bootstrap-device"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "sync-checkouts-n01",
+          "split": "train",
+          "query": "Сделай pull на session start, клонируй отсутствующие repo и очисти ветки.",
+          "must_not_trigger": [
+            "gds-sync-checkouts"
+          ]
+        },
+        {
+          "id": "sync-checkouts-n02",
+          "split": "train",
+          "query": "Pull at session start, clone missing repositories, rebase, force, or broadly clean.",
+          "must_not_trigger": [
+            "gds-sync-checkouts"
+          ]
+        },
+        {
+          "id": "sync-checkouts-n03",
+          "split": "train",
+          "query": "Это соседняя задача, не gds-sync-checkouts: сделай pull на session start, клонируй отсутствующие repo и очисти ветки.",
+          "must_not_trigger": [
+            "gds-sync-checkouts"
+          ]
+        },
+        {
+          "id": "sync-checkouts-n04",
+          "split": "train",
+          "query": "Do this adjacent workflow without invoking gds-sync-checkouts: pull at session start, clone missing repositories, rebase, force, or broadly clean.",
+          "must_not_trigger": [
+            "gds-sync-checkouts"
+          ]
+        },
+        {
+          "id": "sync-checkouts-n05",
+          "split": "train",
+          "query": "коротко: сделай pull на session start, клонируй отсутствующие repo и очисти ветки.",
+          "must_not_trigger": [
+            "gds-sync-checkouts"
+          ]
+        },
+        {
+          "id": "sync-checkouts-n06",
+          "split": "validation",
+          "query": "In the current repository only, pull at session start, clone missing repositories, rebase, force, or broadly clean.",
+          "must_not_trigger": [
+            "gds-sync-checkouts"
+          ]
+        },
+        {
+          "id": "sync-checkouts-n07",
+          "split": "validation",
+          "query": "Не запускай gds-sync-checkouts; сделай pull на session start, клонируй отсутствующие repo и очисти ветки.",
+          "must_not_trigger": [
+            "gds-sync-checkouts"
+          ]
+        },
+        {
+          "id": "sync-checkouts-n08",
+          "split": "validation",
+          "query": "Pull at session start, clone missing repositories, rebase, force, or broadly clean. Use the narrower applicable workflow instead.",
+          "must_not_trigger": [
+            "gds-sync-checkouts"
+          ]
+        }
+      ]
+    }
+  ]
+}
+

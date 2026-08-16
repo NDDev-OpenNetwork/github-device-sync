@@ -1,0 +1,4 @@
+interface:
+  display_name: "GDS Plan Estate Change"
+  short_description: "Plan a multi-repository change without applying it"
+  default_prompt: "Use $gds-plan-estate-change to build a side-effect-free estate plan."

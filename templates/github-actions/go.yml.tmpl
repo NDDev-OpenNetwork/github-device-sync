@@ -1,0 +1,53 @@
+name: gds-ci
+
+on:
+  pull_request:
+    branches:
+      - {{ yamlQuote .DefaultBranch }}
+  push:
+    branches:
+      - {{ yamlQuote .DefaultBranch }}
+
+permissions: {}
+
+concurrency:
+  group: gds-ci-{{ .GitHubWorkflowExpression }}-{{ .GitHubRefExpression }}
+  cancel-in-progress: true
+
+jobs:
+  fast:
+    name: GDS fast
+    permissions:
+      contents: read
+    uses: {{ .WorkflowRef }}
+    with:
+      fetch_depth: 0
+      # The fleet creates one virtual machine per job and destroys it after,
+      # so there is no warm cache for setup-go to own and nothing for a stale
+      # one to corrupt. Delegating cache ownership would instead add a
+      # dependency on the GitHub cache service, which the fleet contract does
+      # not promise and which this repository does not need: the golden image
+      # bakes the exact Go toolchain named below.
+      cache: false
+      runner: {{ yamlQuote .Runner }}
+      go_version: {{ yamlQuote .GoVersion }}
+      test_command: {{ yamlQuote .TestCommand }}
+      timeout_minutes: {{ .TimeoutMinutes }}
+  pr-required:
+    name: GDS PR required
+    # Serialized behind fast: both tiers run the integrated assurance scenario,
+    # which asserts wall-clock budgets, and running two of them side by side on
+    # one host measures contention rather than the code. It is also the right
+    # gate order — there is no value in the expensive tier once fast is red.
+    needs: fast
+    permissions:
+      contents: read
+    uses: {{ .WorkflowRef }}
+    with:
+      fetch_depth: 0
+      cache: false
+      runner: {{ yamlQuote .Runner }}
+      go_version: {{ yamlQuote .GoVersion }}
+      build_command: {{ yamlQuote .BuildCommand }}
+      test_command: {{ yamlQuote .PRRequiredCommand }}
+      timeout_minutes: {{ .TimeoutMinutes }}

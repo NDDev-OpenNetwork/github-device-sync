@@ -1,0 +1,19 @@
+{
+  "github": {
+    "repository_id": 123456789,
+    "owner": "example-user",
+    "name": "legacy-project"
+  },
+  "legacy_container": "example-user-monorepo",
+  "git": {
+    "default_branch": "main",
+    "submodules": [
+      {
+        "name": "public-auth-module",
+        "path": "modules/public-auth",
+        "url": "https://github.com/example-org/public-auth-module.git",
+        "target_gds_id": "repo_01JEXAMPZ0000000000000000F"
+      }
+    ]
+  }
+}

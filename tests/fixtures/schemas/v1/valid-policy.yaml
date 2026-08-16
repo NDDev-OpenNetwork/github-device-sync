@@ -1,0 +1,25 @@
+schema_version: 1
+
+policy:
+  id: "repository-default"
+  tier: "base"
+  priority: 100
+  distribution: "public"
+
+apply:
+  git:
+    default_branch: "main"
+    integration: "pull-request"
+    branch_cleanup: "merged-only"
+  agent:
+    generated_agents: true
+    generated_projection_edit: "forbidden"
+  security:
+    secrets_in_repository: "forbidden"
+    external_write_requires_approval: true
+  rollout:
+    mode: "pull-request"
+
+constraints:
+  monotonic:
+    - "security.external_write_requires_approval"

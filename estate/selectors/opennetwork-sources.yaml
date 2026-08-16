@@ -1,0 +1,18 @@
+schema_version: 1
+
+selector:
+  id: "opennetwork-sources"
+  priority: 100
+
+match:
+  owner: "owner:opennetwork"
+  fork: false
+
+assign:
+  management_mode: "observe-only"
+  portfolios:
+    - "portfolio:organization-projects"
+  policy_profiles:
+    - "repository-default"
+    - "organization-default"
+  rollout_ring: "standard"

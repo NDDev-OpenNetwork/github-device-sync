@@ -1,0 +1,31 @@
+schema_version: 1
+
+# The one real account in this example: the organization that publishes this
+# module. It is here so the shipped estate describes something that actually
+# exists, and so an installation with no managed repositories is represented --
+# observe-only is the honest default for an account you only read.
+installation:
+  id: "installation:github-opennetwork"
+  provider: "github"
+  account_type: "organization"
+  account_login: "NDDev-OpenNetwork"
+  app_installation_id_source: "secure-runtime"
+
+management:
+  discover_all_repositories: true
+  default_mode: "observe-only"
+
+permissions:
+  repository_selection: "all"
+  repository:
+    actions: "read"
+    administration: "read"
+    checks: "read"
+    contents: "read"
+    metadata: "read"
+    pull_requests: "read"
+  organization: {}
+
+credentials:
+  strategy: "github-app-installation-token"
+  secret_ref: "secret:gds/github-app/opennetwork"

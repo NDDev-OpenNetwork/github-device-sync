@@ -1,0 +1,294 @@
+{
+  "schema_version": 1,
+  "profile": "portfolio",
+  "runs_per_query": 3,
+  "skills": [
+    {
+      "name": "gds-triage-estate-drift",
+      "positive": [
+        {
+          "id": "triage-estate-drift-p01",
+          "split": "train",
+          "query": "Классифицируй и приоритизируй drift выбранного portfolio без применения remediation.",
+          "expected": "gds-triage-estate-drift",
+          "must_not_trigger": [
+            "gds-change-portfolio"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-p02",
+          "split": "train",
+          "query": "Triage verified portfolio drift, deduplicate findings, and route them to canonical owners without writes.",
+          "expected": "gds-triage-estate-drift",
+          "must_not_trigger": [
+            "gds-change-portfolio"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-p03",
+          "split": "train",
+          "query": "Нужно безопасно и с evidence: классифицируй и приоритизируй drift выбранного portfolio без применения remediation.",
+          "expected": "gds-triage-estate-drift",
+          "must_not_trigger": [
+            "gds-change-portfolio"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-p04",
+          "split": "train",
+          "query": "Please handle this exact GDS intent: triage verified portfolio drift, deduplicate findings, and route them to canonical owners without writes.",
+          "expected": "gds-triage-estate-drift",
+          "must_not_trigger": [
+            "gds-change-portfolio"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-p05",
+          "split": "train",
+          "query": "коротко: классифицируй и приоритизируй drift выбранного portfolio без применения remediation.",
+          "expected": "gds-triage-estate-drift",
+          "must_not_trigger": [
+            "gds-change-portfolio"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-p06",
+          "split": "validation",
+          "query": "In a real multi-device estate, triage verified portfolio drift, deduplicate findings, and route them to canonical owners without writes.",
+          "expected": "gds-triage-estate-drift",
+          "must_not_trigger": [
+            "gds-change-portfolio"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-p07",
+          "split": "validation",
+          "query": "Сначала определи scope и stop conditions, затем классифицируй и приоритизируй drift выбранного portfolio без применения remediation.",
+          "expected": "gds-triage-estate-drift",
+          "must_not_trigger": [
+            "gds-change-portfolio"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-p08",
+          "split": "validation",
+          "query": "Triage verified portfolio drift, deduplicate findings, and route them to canonical owners without writes. Preserve unrelated work and report every NOT_PROVEN check.",
+          "expected": "gds-triage-estate-drift",
+          "must_not_trigger": [
+            "gds-change-portfolio"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "triage-estate-drift-n01",
+          "split": "train",
+          "query": "Автоматически исправь весь portfolio drift одним массовым изменением.",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-n02",
+          "split": "train",
+          "query": "Auto-fix all portfolio drift as one unbounded mutation.",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-n03",
+          "split": "train",
+          "query": "Это соседняя задача, не gds-triage-estate-drift: автоматически исправь весь portfolio drift одним массовым изменением.",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-n04",
+          "split": "train",
+          "query": "Do this adjacent workflow without invoking gds-triage-estate-drift: auto-fix all portfolio drift as one unbounded mutation.",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-n05",
+          "split": "train",
+          "query": "коротко: автоматически исправь весь portfolio drift одним массовым изменением.",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-n06",
+          "split": "validation",
+          "query": "In the current repository only, auto-fix all portfolio drift as one unbounded mutation.",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-n07",
+          "split": "validation",
+          "query": "Не запускай gds-triage-estate-drift; автоматически исправь весь portfolio drift одним массовым изменением.",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "triage-estate-drift-n08",
+          "split": "validation",
+          "query": "Auto-fix all portfolio drift as one unbounded mutation. Use the narrower applicable workflow instead.",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gds-change-portfolio",
+      "positive": [
+        {
+          "id": "change-portfolio-p01",
+          "split": "train",
+          "query": "Примени одно логическое изменение к portfolio как независимые repository subplans через canary и waves.",
+          "expected": "gds-change-portfolio",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "change-portfolio-p02",
+          "split": "train",
+          "query": "Plan one portfolio-wide logical change as independent repository transactions with aggregate evidence.",
+          "expected": "gds-change-portfolio",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "change-portfolio-p03",
+          "split": "train",
+          "query": "Нужно безопасно и с evidence: примени одно логическое изменение к portfolio как независимые repository subplans через canary и waves.",
+          "expected": "gds-change-portfolio",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "change-portfolio-p04",
+          "split": "train",
+          "query": "Please handle this exact GDS intent: plan one portfolio-wide logical change as independent repository transactions with aggregate evidence.",
+          "expected": "gds-change-portfolio",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "change-portfolio-p05",
+          "split": "train",
+          "query": "коротко: примени одно логическое изменение к portfolio как независимые repository subplans через canary и waves.",
+          "expected": "gds-change-portfolio",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "change-portfolio-p06",
+          "split": "validation",
+          "query": "In a real multi-device estate, plan one portfolio-wide logical change as independent repository transactions with aggregate evidence.",
+          "expected": "gds-change-portfolio",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "change-portfolio-p07",
+          "split": "validation",
+          "query": "Сначала определи scope и stop conditions, затем примени одно логическое изменение к portfolio как независимые repository subplans через canary и waves.",
+          "expected": "gds-change-portfolio",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        },
+        {
+          "id": "change-portfolio-p08",
+          "split": "validation",
+          "query": "Plan one portfolio-wide logical change as independent repository transactions with aggregate evidence. Preserve unrelated work and report every NOT_PROVEN check.",
+          "expected": "gds-change-portfolio",
+          "must_not_trigger": [
+            "gds-triage-estate-drift"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "change-portfolio-n01",
+          "split": "train",
+          "query": "Измени только один repository или создай один общий Git commit для всего portfolio.",
+          "must_not_trigger": [
+            "gds-change-portfolio"
+          ]
+        },
+        {
+          "id": "change-portfolio-n02",
+          "split": "train",
+          "query": "Handle one repository or pretend the portfolio has a single Git transaction.",
+          "must_not_trigger": [
+            "gds-change-portfolio"
+          ]
+        },
+        {
+          "id": "change-portfolio-n03",
+          "split": "train",
+          "query": "Это соседняя задача, не gds-change-portfolio: измени только один repository или создай один общий Git commit для всего portfolio.",
+          "must_not_trigger": [
+            "gds-change-portfolio"
+          ]
+        },
+        {
+          "id": "change-portfolio-n04",
+          "split": "train",
+          "query": "Do this adjacent workflow without invoking gds-change-portfolio: handle one repository or pretend the portfolio has a single Git transaction.",
+          "must_not_trigger": [
+            "gds-change-portfolio"
+          ]
+        },
+        {
+          "id": "change-portfolio-n05",
+          "split": "train",
+          "query": "коротко: измени только один repository или создай один общий Git commit для всего portfolio.",
+          "must_not_trigger": [
+            "gds-change-portfolio"
+          ]
+        },
+        {
+          "id": "change-portfolio-n06",
+          "split": "validation",
+          "query": "In the current repository only, handle one repository or pretend the portfolio has a single Git transaction.",
+          "must_not_trigger": [
+            "gds-change-portfolio"
+          ]
+        },
+        {
+          "id": "change-portfolio-n07",
+          "split": "validation",
+          "query": "Не запускай gds-change-portfolio; измени только один repository или создай один общий Git commit для всего portfolio.",
+          "must_not_trigger": [
+            "gds-change-portfolio"
+          ]
+        },
+        {
+          "id": "change-portfolio-n08",
+          "split": "validation",
+          "query": "Handle one repository or pretend the portfolio has a single Git transaction. Use the narrower applicable workflow instead.",
+          "must_not_trigger": [
+            "gds-change-portfolio"
+          ]
+        }
+      ]
+    }
+  ]
+}
+

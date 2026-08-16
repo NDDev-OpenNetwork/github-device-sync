@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "assurance_id": "assurance_01KX9P398GJKR16VP56KZ3M8A8",
+  "started_at": "2026-07-11T00:00:00Z",
+  "finished_at": "2026-07-11T00:01:00Z",
+  "environment": {
+    "os": "macos",
+    "architecture": "arm64",
+    "go_version": "go1.26.5",
+    "cpu_count": 12
+  },
+  "source": {
+    "commit": "433c46b6923f7dc1efb96713b9ffc9330ca8ba58",
+    "worktree_clean": true
+  },
+  "scenario": {
+    "repositories": 2000,
+    "installations": 5,
+    "forks": 1000,
+    "shared_modules": 10,
+    "module_consumers": 100,
+    "webhook_deliveries": 2000,
+    "lifecycle_classes": 6,
+    "access_states": 5
+  },
+  "bounds": {
+    "reconciliation_concurrency": 8,
+    "projection_concurrency": 8,
+    "max_repositories": 2000,
+    "require_clean_worktree": true,
+    "external_network": false,
+    "external_mutations": false
+  },
+  "checks": [
+    {"id": "context-resolution", "status": "pass", "summary": "Context resolution passed."},
+    {"id": "repository-status", "status": "pass", "summary": "Repository status passed."},
+    {"id": "estate-compilation", "status": "pass", "summary": "Estate compilation passed."},
+    {"id": "fork-classification", "status": "pass", "summary": "Fork classification passed."},
+    {"id": "mixed-lifecycles", "status": "pass", "summary": "Lifecycle coverage passed."},
+    {"id": "shared-module-relationships", "status": "pass", "summary": "Module relationships passed."},
+    {"id": "projection-generation", "status": "pass", "summary": "Projection generation passed."},
+    {"id": "portfolio-planning", "status": "pass", "summary": "Portfolio planning passed."},
+    {"id": "rollout-planning", "status": "pass", "summary": "Rollout planning passed."},
+    {"id": "webhook-load", "status": "pass", "summary": "Webhook load passed."},
+    {"id": "reconciliation-persistence", "status": "pass", "summary": "Reconciliation persistence passed."},
+    {"id": "worker-restart", "status": "pass", "summary": "Worker restart passed."},
+    {"id": "mixed-access-states", "status": "pass", "summary": "Access-state coverage passed."},
+    {"id": "installation-outage-isolation", "status": "pass", "summary": "Installation isolation passed."},
+    {"id": "kill-switch-contract", "status": "pass", "summary": "Kill-switch contract passed."},
+    {"id": "bounded-resource-contract", "status": "pass", "summary": "Resource bounds passed."}
+  ],
+  "metrics": [
+    {"id": "context-p95-ms", "unit": "milliseconds", "comparison": "at-most", "observed": 1, "limit": 2000, "passed": true},
+    {"id": "repository-status-p95-ms", "unit": "milliseconds", "comparison": "at-most", "observed": 1, "limit": 2000, "passed": true},
+    {"id": "inventory-compile-ms", "unit": "milliseconds", "comparison": "at-most", "observed": 10, "limit": 5000, "passed": true},
+    {"id": "reconciliation-ms", "unit": "milliseconds", "comparison": "at-most", "observed": 10, "limit": 30000, "passed": true},
+    {"id": "projection-generation-ms", "unit": "milliseconds", "comparison": "at-most", "observed": 10, "limit": 60000, "passed": true},
+    {"id": "webhook-throughput-per-second", "unit": "operations-per-second", "comparison": "at-least", "observed": 100, "limit": 100, "passed": true},
+    {"id": "queue-max-lag-ms", "unit": "milliseconds", "comparison": "at-most", "observed": 10, "limit": 30000, "passed": true},
+    {"id": "restart-recovery-ms", "unit": "milliseconds", "comparison": "at-most", "observed": 10, "limit": 5000, "passed": true},
+    {"id": "rollout-plan-ms", "unit": "milliseconds", "comparison": "at-most", "observed": 10, "limit": 2000, "passed": true},
+    {"id": "portfolio-plan-ms", "unit": "milliseconds", "comparison": "at-most", "observed": 10, "limit": 5000, "passed": true},
+    {"id": "peak-heap-bytes", "unit": "bytes", "comparison": "at-most", "observed": 1000, "limit": 536870912, "passed": true},
+    {"id": "state-db-bytes", "unit": "bytes", "comparison": "at-most", "observed": 1000, "limit": 67108864, "passed": true},
+    {"id": "api-read-calls-per-full-reconciliation", "unit": "count", "comparison": "at-most", "observed": 5, "limit": 5, "passed": true}
+  ],
+  "status": "pass",
+  "result_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+}

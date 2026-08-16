@@ -1,0 +1,6 @@
+interface:
+  display_name: "GDS Reconcile Provider Change"
+  short_description: "Reconcile the estate after a provider-side repository change"
+  default_prompt: "Use $gds-reconcile-provider-change to reconcile the estate after a rename, transfer, archive, or owner-login case drift."
+policy:
+  allow_implicit_invocation: false

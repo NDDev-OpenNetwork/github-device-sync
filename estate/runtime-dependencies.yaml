@@ -1,0 +1,7 @@
+schema_version: 1
+
+# Runtime module dependencies this estate consumes but does not vendor. Each
+# entry names the commit a consumer actually consumes today, so drift between
+# the declaration and the consumer's own contract is a validation failure
+# rather than something someone has to notice.
+dependencies: []

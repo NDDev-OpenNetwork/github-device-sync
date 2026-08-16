@@ -1,0 +1,44 @@
+schema_version: 1
+
+harness_profile:
+  id: "qwen-code"
+  product: "qwen-code"
+  status: "provisional"
+  aliases: []
+  capability_version: "2026-07-26"
+  verified_at: "2026-07-26"
+  official_sources:
+    - "https://github.com/QwenLM/qwen-code"
+    - "https://qwenlm.github.io/qwen-code-docs/en/users/features/memory/"
+    - "https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/"
+    - "https://qwenlm.github.io/qwen-code-docs/en/users/features/hooks/"
+  detection:
+    command_candidates:
+      - "qwen"
+    version_arguments:
+      - "--version"
+  instructions:
+    native_agents: true
+    nested_chain: "root-to-cwd"
+    imports: true
+  skills:
+    standard: "agent-skills"
+    native_paths:
+      - ".qwen/skills"
+    symlinks: false
+    explicit_only:
+      mechanism: "disable-model-invocation"
+  projection:
+    instruction_strategy: "native-agents"
+    skill_strategy: "generated-copy"
+  hooks:
+    supported: true
+    lifecycle:
+      - "session-start"
+      - "user-prompt-submit"
+      - "pre-tool-use"
+      - "post-tool-use"
+      - "stop"
+  runtime_tests:
+    required: false
+    last_result: "delegated"

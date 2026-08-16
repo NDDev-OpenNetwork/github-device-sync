@@ -1,0 +1,6 @@
+interface:
+  display_name: "GDS Manage Module"
+  short_description: "Manage one typed module relationship safely"
+  default_prompt: "Use $gds-manage-module for an explicitly approved module relationship change."
+policy:
+  allow_implicit_invocation: false

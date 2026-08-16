@@ -1,0 +1,20 @@
+schema_version: 1
+device:
+  id: "device_01JEXAMPZ00000000000000000"
+  name: "reused-workspace-root"
+  os: "macos"
+  architecture: "arm64"
+workspace_roots:
+  shared: "${HOME}/Developer/shared"
+materialization:
+  default_mode: "absent"
+  include:
+    - selector: "portfolio:personal-projects"
+      workspace_root: "shared"
+      mode: "active"
+    - selector: "portfolio:personal-servers"
+      workspace_root: "shared"
+      mode: "active"
+harnesses: []
+state:
+  path: "${XDG_STATE_HOME}/github-device-sync"

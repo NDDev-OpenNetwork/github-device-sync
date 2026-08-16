@@ -1,0 +1,24 @@
+schema_version: 1
+namespace: "gds"
+budgets:
+  initial_metadata_chars: 8000
+  description_chars: 600
+  skill_lines: 300
+profiles:
+  - id: "core"
+    scope: "repository"
+    skills:
+      - "gds-orient"
+plugins:
+  - id: "gds-core"
+    profiles:
+      - "core"
+skills:
+  - name: "gds-orient"
+    path: "skills/canonical/gds-orient"
+    invocation: "implicit"
+    mutation: "none"
+    interface:
+      display_name: "GDS Orient"
+      short_description: "Resolve current GDS scope safely"
+      default_prompt: "Use $gds-orient to resolve the current context."

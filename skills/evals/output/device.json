@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "profile": "device",
+  "status": "runtime-not-proven",
+  "tasks": [
+    {
+      "id": "gds-bootstrap-device-output",
+      "skill": "gds-bootstrap-device",
+      "prompt": "Plan an approved device bootstrap from an empty device fixture without applying the plan.",
+      "assertions": [
+        {
+          "id": "exact-pinned-bundle",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate exact pinned bundle."
+        },
+        {
+          "id": "reversible-device-plan",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate reversible device plan."
+        },
+        {
+          "id": "secrets-remain-in-approved-store",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate secrets remain in approved store."
+        },
+        {
+          "id": "selected-harnesses-only",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate selected harnesses only."
+        }
+      ]
+    },
+    {
+      "id": "gds-materialize-workspace-output",
+      "skill": "gds-materialize-workspace",
+      "prompt": "Plan selected local checkouts for one device profile without cloning or altering existing checkouts.",
+      "assertions": [
+        {
+          "id": "selector-bounded-repository-set",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate selector-bounded repository set."
+        },
+        {
+          "id": "portable-workspace-roots",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate portable workspace roots."
+        },
+        {
+          "id": "bounded-clone-concurrency",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate bounded clone concurrency."
+        },
+        {
+          "id": "existing-unrelated-checkouts-preserved",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate existing unrelated checkouts preserved."
+        }
+      ]
+    },
+    {
+      "id": "gds-sync-checkouts-output",
+      "skill": "gds-sync-checkouts",
+      "prompt": "Plan safe synchronization for the selected clean checkouts without applying fetch integration, clone, rebase, force, or cleanup.",
+      "assertions": [
+        {
+          "id": "current-remote-evidence",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate current remote evidence."
+        },
+        {
+          "id": "dirty-and-diverged-boundaries-skipped",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate dirty and diverged boundaries skipped."
+        },
+        {
+          "id": "approved-fast-forward-actions-only",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate approved fast-forward actions only."
+        },
+        {
+          "id": "no-clone-rebase-force-or-cleanup",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate no clone rebase force or cleanup."
+        }
+      ]
+    }
+  ]
+}

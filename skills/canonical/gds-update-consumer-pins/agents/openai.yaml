@@ -1,0 +1,6 @@
+interface:
+  display_name: "GDS Update Consumer Pins"
+  short_description: "Update selected consumers to a verified module"
+  default_prompt: "Use $gds-update-consumer-pins to plan selected consumer updates."
+policy:
+  allow_implicit_invocation: false

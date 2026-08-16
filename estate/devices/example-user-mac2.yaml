@@ -1,0 +1,35 @@
+schema_version: 1
+
+# A second device, deliberately unlike the first. The estate is the same on both;
+# what differs is where this machine materializes repositories and what it is
+# allowed to run, which is exactly the part a device owns.
+device:
+  id: "device_01JEXAMPZ00000000000000001"
+  name: "example-user-mac2"
+  os: "macos"
+  architecture: "arm64"
+  class:
+    profile: "desktop"
+    gui: "enabled"
+    docker_mode: "none"
+    execution_policy: "source-lsp-only"
+
+workspace_roots:
+  projects: "${HOME}/Developer/example-user"
+  forks: "${HOME}/Developer/forks"
+
+materialization:
+  default_mode: "absent"
+  include:
+    - selector: "portfolio:personal-projects"
+      workspace_root: "projects"
+      mode: "active"
+    - selector: "portfolio:forks"
+      workspace_root: "forks"
+      mode: "active"
+
+harnesses:
+  - "claude-code"
+
+state:
+  path: "${XDG_STATE_HOME}/github-device-sync"

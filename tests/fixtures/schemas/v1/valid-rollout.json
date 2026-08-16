@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "rollout_id": "rollout_01J00000000000000000000000",
+  "created_at": "2026-07-11T00:00:00Z",
+  "bundle": {
+    "version": "1.0.0",
+    "release_sequence": 1,
+    "channel": "canary",
+    "artifact_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "manifest_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "target_set_digest": "sha256:4bb6ebf0c8849935f2aa9bebcce2126d5fa94686dedbf1325172661c1586083e",
+  "target_count": 1,
+  "waves": [
+    {
+      "id": "canary",
+      "ordinal": 0,
+      "repository_ids": ["repo_01J00000000000000000000001"],
+      "status": "pending"
+    }
+  ],
+  "gates": {
+    "max_failure_rate": 0.02,
+    "security_failure_tolerance": 0,
+    "required_check_failure_tolerance": 0
+  },
+  "mutation": {
+    "mode": "pull-request",
+    "auto_merge": false
+  },
+  "plan_digest": "sha256:bbdd3855b966acc7be39af14607b93637837d41fbf49843dc3f633b7df8c433d"
+}

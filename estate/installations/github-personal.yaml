@@ -1,0 +1,28 @@
+schema_version: 1
+
+# Read-only discovery over a personal account. Nothing here can write.
+installation:
+  id: "installation:github-personal"
+  provider: "github"
+  account_type: "user"
+  account_login: "example-user"
+  app_installation_id_source: "secure-runtime"
+
+management:
+  discover_all_repositories: true
+  default_mode: "observe-only"
+
+permissions:
+  repository_selection: "all"
+  repository:
+    actions: "read"
+    administration: "read"
+    checks: "read"
+    contents: "read"
+    metadata: "read"
+    pull_requests: "read"
+  organization: {}
+
+credentials:
+  strategy: "github-app-installation-token"
+  secret_ref: "secret:gds/github-app/personal"

@@ -1,0 +1,6 @@
+interface:
+  display_name: "GDS Manage Repository"
+  short_description: "Manage one repository lifecycle safely"
+  default_prompt: "Use $gds-manage-repository for an explicitly approved repository lifecycle change."
+policy:
+  allow_implicit_invocation: false

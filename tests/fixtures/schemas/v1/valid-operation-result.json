@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "command": "gds validate schemas",
+  "result": "succeeded",
+  "exit_class": "success",
+  "exit_code": 0,
+  "scope": { "repository_id": "repo_01JEXAMPZ0000000000000000C" },
+  "findings": [],
+  "mutation": { "attempted": false, "completed": false }
+}

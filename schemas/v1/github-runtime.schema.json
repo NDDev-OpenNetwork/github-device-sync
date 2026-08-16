@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/github-runtime.schema.json",
+  "title": "GDS device-local GitHub runtime configuration v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "github", "secret_store"],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "github": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["installations", "max_repositories"],
+      "properties": {
+        "installations": {
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 64,
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/installationReference"
+          },
+          "additionalProperties": {
+            "$ref": "common.schema.json#/$defs/runtimeInstallation"
+          }
+        },
+        "max_repositories": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2000
+        }
+      }
+    },
+    "secret_store": {
+      "$ref": "common.schema.json#/$defs/secretStore"
+    },
+    "webhook": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled"],
+          "properties": {
+            "enabled": {
+              "const": false
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "secret_ref"],
+          "properties": {
+            "enabled": {
+              "const": true
+            },
+            "secret_ref": {
+              "$ref": "common.schema.json#/$defs/secretReference"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

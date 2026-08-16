@@ -1,0 +1,222 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/harness-eval-run.schema.json",
+  "title": "GDS harness evaluation evidence v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "evaluation_id",
+    "contract_version",
+    "harness",
+    "harness_version",
+    "model_label",
+    "execution_profile",
+    "tools",
+    "environment",
+    "profile",
+    "started_at",
+    "finished_at",
+    "cases",
+    "metrics",
+    "transcripts",
+    "result",
+    "result_digest"
+  ],
+  "properties": {
+    "schema_version": {"$ref": "common.schema.json#/$defs/schemaVersion"},
+    "evaluation_id": {
+      "type": "string",
+      "pattern": "^eval_[0-7][0-9A-HJKMNP-TV-Z]{25}$"
+    },
+    "contract_version": {"$ref": "common.schema.json#/$defs/semanticVersion"},
+    "harness": {"$ref": "common.schema.json#/$defs/kebabId"},
+    "harness_version": {
+      "type": ["string", "null"],
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "model_label": {"$ref": "common.schema.json#/$defs/nonEmptyString"},
+    "execution_profile": {"$ref": "common.schema.json#/$defs/kebabId"},
+    "tools": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "common.schema.json#/$defs/kebabId"}
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["os", "architecture", "executable", "command"],
+      "properties": {
+        "os": {"$ref": "common.schema.json#/$defs/kebabId"},
+        "architecture": {"$ref": "common.schema.json#/$defs/kebabId"},
+        "executable": {"type": ["string", "null"], "maxLength": 4096},
+        "command": {"type": ["string", "null"], "maxLength": 128}
+      }
+    },
+    "judge": {"$ref": "#/$defs/judge"},
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "capability_version", "digest", "skill_profile"],
+      "properties": {
+        "id": {"$ref": "common.schema.json#/$defs/kebabId"},
+        "capability_version": {"type": "string", "format": "date"},
+        "digest": {"$ref": "common.schema.json#/$defs/sha256Digest"},
+        "skill_profile": {"$ref": "common.schema.json#/$defs/kebabId"}
+      }
+    },
+    "started_at": {"type": "string", "format": "date-time"},
+    "finished_at": {"type": "string", "format": "date-time"},
+    "cases": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "items": {"$ref": "#/$defs/caseResult"}
+    },
+    "metrics": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {"$ref": "#/$defs/metric"}
+    },
+    "transcripts": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/transcript"}
+    },
+    "result": {"enum": ["pass", "fail", "not-proven"]},
+    "result_digest": {"$ref": "common.schema.json#/$defs/sha256Digest"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"result": {"const": "pass"}}, "required": ["result"]},
+      "then": {"required": ["judge"]}
+    }
+  ],
+  "$defs": {
+    "judge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run_id",
+        "harness",
+        "harness_version",
+        "model_label",
+        "execution_profile",
+        "tools",
+        "prompt_digest"
+      ],
+      "properties": {
+        "run_id": {
+          "type": "string",
+          "pattern": "^judge_[0-7][0-9A-HJKMNP-TV-Z]{25}$"
+        },
+        "harness": {"$ref": "common.schema.json#/$defs/kebabId"},
+        "harness_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "^[^\\u0000\\r\\n]+$"
+        },
+        "model_label": {"$ref": "common.schema.json#/$defs/nonEmptyString"},
+        "execution_profile": {"$ref": "common.schema.json#/$defs/kebabId"},
+        "tools": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "common.schema.json#/$defs/kebabId"}
+        },
+        "prompt_digest": {"$ref": "common.schema.json#/$defs/sha256Digest"}
+      }
+    },
+    "caseResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "summary", "evidence"],
+      "properties": {
+        "id": {"$ref": "common.schema.json#/$defs/kebabId"},
+        "status": {"enum": ["pass", "fail", "not-proven"]},
+        "summary": {"$ref": "common.schema.json#/$defs/nonEmptyString"},
+        "evidence": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/evidence"}
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "pass"}}, "required": ["status"]},
+          "then": {"properties": {"evidence": {"minItems": 1}}}
+        }
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "summary", "digest"],
+      "properties": {
+        "kind": {"enum": ["deterministic", "runtime", "transcript", "assertion"]},
+        "summary": {"$ref": "common.schema.json#/$defs/nonEmptyString"},
+        "digest": {"$ref": "common.schema.json#/$defs/sha256Digest"},
+        "reference": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^[^\\u0000\\r\\n]+$"
+        }
+      }
+    },
+    "metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "passed", "attempted"],
+      "properties": {
+        "id": {
+          "enum": [
+            "discovery-exact-set",
+            "explicit-invocation",
+            "trigger-positive-recall",
+            "trigger-near-miss-specificity",
+            "output-hard-assertions",
+            "critical-enforcement"
+          ]
+        },
+        "status": {"enum": ["pass", "fail", "not-proven", "not-applicable"]},
+        "passed": {"type": "integer", "minimum": 0},
+        "attempted": {"type": "integer", "minimum": 0},
+        "rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "threshold": {"type": "number", "minimum": 0, "maximum": 1},
+        "forbidden_successes": {"type": "integer", "minimum": 0}
+      }
+    },
+    "transcript": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["case_id", "reference", "digest", "bytes"],
+      "properties": {
+        "case_id": {"$ref": "common.schema.json#/$defs/kebabId"},
+        "metric_id": {
+          "enum": [
+            "discovery-exact-set",
+            "explicit-invocation",
+            "trigger-positive-recall",
+            "trigger-near-miss-specificity",
+            "output-hard-assertions",
+            "critical-enforcement"
+          ]
+        },
+        "sample_id": {"$ref": "common.schema.json#/$defs/kebabId"},
+        "run_index": {"type": "integer", "minimum": 1},
+        "passed": {"type": "boolean"},
+        "mutation_attempted": {"type": "boolean"},
+        "mutation_completed": {"type": "boolean"},
+        "reference": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^[^\\u0000\\r\\n]+$"
+        },
+        "digest": {"$ref": "common.schema.json#/$defs/sha256Digest"},
+        "bytes": {"type": "integer", "minimum": 0, "maximum": 8388608}
+      }
+    }
+  }
+}

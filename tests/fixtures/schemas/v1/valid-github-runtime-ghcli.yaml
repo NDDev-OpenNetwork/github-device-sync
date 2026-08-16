@@ -1,0 +1,29 @@
+schema_version: 1
+
+github:
+  installations:
+    "installation:github-organization":
+      account_login: "example-org"
+      account_type: "organization"
+    "installation:github-personal":
+      account_login: "example-user"
+      account_type: "user"
+    "installation:github-example-media":
+      account_login: "example-media"
+      account_type: "organization"
+    "installation:github-guild":
+      account_login: "example-guild"
+      account_type: "organization"
+    "installation:github-opennetwork":
+      account_login: "NDDev-OpenNetwork"
+      account_type: "organization"
+  max_repositories: 2000
+
+secret_store:
+  provider: "gh-cli"
+  references:
+    "secret:gds/github-app/organization": "example-org"
+    "secret:gds/github-app/personal": "example-user"
+    "secret:gds/github-app/example-media": "example-media"
+    "secret:gds/github-app/guild": "example-guild"
+    "secret:gds/github-app/opennetwork": "NDDev-OpenNetwork"

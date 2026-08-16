@@ -1,0 +1,32 @@
+schema_version: 1
+repository: &repository
+  id: "repo_01JEXAMPZ0000000000000000C"
+  roles: ["project"]
+  lifecycle: "active"
+provider:
+  type: "github"
+  installation: "installation:github-personal"
+  repository_id: 123456789
+  owner: "example-user"
+  name: "example-project"
+classification:
+  portfolios: []
+  visibility_contract: "private"
+  data_classification: "private"
+policy:
+  profiles: ["repository-default"]
+  rollout_ring: "standard"
+git:
+  default_branch: "main"
+  integration: "pull-request"
+  branch_model: "task-branches"
+  handoff_pr: "preferred"
+  cleanup: "merged-only"
+agent:
+  context_profile: "project-default"
+  generated_agents: true
+  serena:
+    enabled: true
+    provenance_required: true
+release:
+  mode: "none"

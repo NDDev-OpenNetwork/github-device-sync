@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/github-mutation-runtime.schema.json",
+  "title": "GDS device-local GitHub mutation runtime configuration v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "github", "secret_store"],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "github": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capabilities", "max_repositories", "minimum_mutation_spacing_ms"],
+      "properties": {
+        "capabilities": {
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 64,
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/mutationCapabilityReference"
+          },
+          "additionalProperties": {
+            "$ref": "common.schema.json#/$defs/runtimeInstallation"
+          }
+        },
+        "max_repositories": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2000
+        },
+        "minimum_mutation_spacing_ms": {
+          "type": "integer",
+          "minimum": 1000,
+          "maximum": 60000
+        }
+      }
+    },
+    "secret_store": {
+      "$ref": "common.schema.json#/$defs/secretStore"
+    }
+  }
+}

@@ -1,0 +1,332 @@
+name: gds-release-bundle
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release SemVer without a v prefix"
+        required: true
+        type: string
+      channel:
+        description: "Immutable release channel"
+        required: true
+        default: canary
+        type: choice
+        options:
+          - canary
+          - stable
+          - frozen
+      minimum_cli_version:
+        description: "Minimum compatible GDS CLI SemVer"
+        required: true
+        type: string
+      harness_evidence_bundle_base64:
+        description: "Base64 tar.gz containing manifest.json and five isolated records (required for stable/frozen)"
+        required: false
+        type: string
+      harness_evidence_trust_policy_base64:
+        description: "Base64 public trust-policy/v1 JSON; digest must equal repository variable HARNESS_EVIDENCE_TRUST_POLICY_DIGEST"
+        required: false
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: gds-release
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: build immutable bundle (unprivileged)
+    # Privilege separation (RVR2-P1-001): all repository-controlled source,
+    # scripts, dependencies, and the release builder run here with contents:read
+    # only — no OIDC, no attestations, no release-write authority. The publish
+    # job downloads this job's artifact and verifies SHA256SUMS before any OIDC
+    # token is requested.
+    #
+    # persist-credentials is NOT set to false here: actions/checkout's persisted
+    # token is required for fetch-depth:0 on a private repository. This job has
+    # no write/OIDC permission, so the persisted token cannot be abused. (The
+    # prior attempt at this split failed because persist-credentials:false
+    # stripped the token the private-repo deep fetch needs — commit 6863c0f.)
+    # The estate's own fleet builds the estate's own releases. The consumer binds
+    # the attestation to this repository, this workflow path, this source commit
+    # and this ref against the estate's trusted root; the hosting provider adds
+    # nothing to that identity, and requiring a GitHub-hosted one rejected valid
+    # releases built here.
+    # This repository is public, so GitHub-hosted runners are unmetered and a
+    # fork's pull request cannot reach anything of ours. All three jobs must keep
+    # ONE provider between them: provenance describes the environment of the run
+    # that produced it, so a mixed chain attests an environment the build did not
+    # happen in (core/releasebuilder asserts this).
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    permissions:
+      contents: read
+    env:
+      GOTOOLCHAIN: go1.26.5
+      VERSION: ${{ inputs.version }}
+      RELEASE_SEQUENCE: ${{ github.run_number }}
+      CHANNEL: ${{ inputs.channel }}
+      MINIMUM_CLI_VERSION: ${{ inputs.minimum_cli_version }}
+      HARNESS_EVIDENCE_BUNDLE_BASE64: ${{ inputs.harness_evidence_bundle_base64 }}
+      HARNESS_EVIDENCE_TRUST_POLICY_BASE64: ${{ inputs.harness_evidence_trust_policy_base64 }}
+      HARNESS_EVIDENCE_TRUST_POLICY_DIGEST: ${{ vars.HARNESS_EVIDENCE_TRUST_POLICY_DIGEST }}
+
+    steps:
+      - name: Check out exact source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Install exact Go toolchain
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: "1.26.5"
+          cache: true
+
+      - name: Run release gates
+        shell: bash
+        run: scripts/validate_release.sh
+
+      - name: Materialize bounded signed harness evidence input
+        id: harness-evidence
+        shell: bash
+        env:
+          EVIDENCE_INPUT_ROOT: ${{ runner.temp }}/gds-harness-evidence
+        run: |
+          set -euo pipefail
+          if [ -z "$HARNESS_EVIDENCE_BUNDLE_BASE64" ] && [ -z "$HARNESS_EVIDENCE_TRUST_POLICY_BASE64" ]; then
+            [ "$CHANNEL" = canary ] || { echo "stable/frozen requires signed active-five harness evidence" >&2; exit 1; }
+            echo "arguments=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          [ -n "$HARNESS_EVIDENCE_BUNDLE_BASE64" ]
+          [ -n "$HARNESS_EVIDENCE_TRUST_POLICY_BASE64" ]
+          [ -n "$HARNESS_EVIDENCE_TRUST_POLICY_DIGEST" ]
+          install -d -m 0700 "$EVIDENCE_INPUT_ROOT"
+          printf '%s' "$HARNESS_EVIDENCE_BUNDLE_BASE64" | base64 --decode > "$EVIDENCE_INPUT_ROOT/evidence.tar.gz"
+          printf '%s' "$HARNESS_EVIDENCE_TRUST_POLICY_BASE64" | base64 --decode > "$EVIDENCE_INPUT_ROOT/trust.json"
+          test "sha256:$(sha256sum "$EVIDENCE_INPUT_ROOT/trust.json" | cut -d' ' -f1)" = "$HARNESS_EVIDENCE_TRUST_POLICY_DIGEST"
+          go run ./core/cmd/gds-release-builder \
+            --extract-harness-evidence-archive "$EVIDENCE_INPUT_ROOT/evidence.tar.gz" \
+            --extract-harness-evidence-destination "$EVIDENCE_INPUT_ROOT/records" \
+            > "$RUNNER_TEMP/gds-harness-evidence-materialization.json"
+          echo "arguments=--harness-evidence-directory $EVIDENCE_INPUT_ROOT/records --harness-evidence-trust-policy $EVIDENCE_INPUT_ROOT/trust.json" >> "$GITHUB_OUTPUT"
+
+      - name: Build and independently verify release unit
+        env:
+          RELEASE_OUTPUT_ROOT: ${{ runner.temp }}/gds-release-output
+          RELEASE_DIRECTORY: ${{ runner.temp }}/gds-release-output/release
+        shell: bash
+        run: |
+          set -euo pipefail
+          install -d -m 0700 "$RELEASE_OUTPUT_ROOT"
+          GO_BINARY="$(go env GOROOT)/bin/go"
+          test -x "$GO_BINARY"
+          go run ./core/cmd/gds-release-builder \
+            --root "$GITHUB_WORKSPACE" \
+            --output "$RELEASE_DIRECTORY" \
+            --version "$VERSION" \
+            --sequence "$RELEASE_SEQUENCE" \
+            --channel "$CHANNEL" \
+            --minimum-cli-version "$MINIMUM_CLI_VERSION" \
+            --source-ref "$GITHUB_REF" \
+            --go-binary "$GO_BINARY" \
+            ${{ steps.harness-evidence.outputs.arguments }} \
+            > "$RUNNER_TEMP/gds-release-result.json"
+          go run ./core/cmd/gds-release-builder \
+            --verify-directory "$RELEASE_DIRECTORY" \
+            > "$RUNNER_TEMP/gds-release-verification.json"
+          awk -v prefix="release/" \
+            '{ print $1 "  " prefix $2 }' \
+            "$RELEASE_DIRECTORY/SHA256SUMS" \
+            > "$RELEASE_OUTPUT_ROOT/attestation-subjects.sha256"
+          test "$(wc -l < "$RELEASE_OUTPUT_ROOT/attestation-subjects.sha256" | tr -d ' ')" = "5"
+
+      - name: Stage build evidence alongside release directory
+        env:
+          BUILD_META_DIRECTORY: ${{ runner.temp }}/gds-release-output/build-meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          install -d -m 0700 "$BUILD_META_DIRECTORY"
+          cp -- "$RUNNER_TEMP/gds-release-result.json" "$BUILD_META_DIRECTORY/build-result.json"
+          cp -- "$RUNNER_TEMP/gds-release-verification.json" "$BUILD_META_DIRECTORY/verification-result.json"
+
+      - name: Upload immutable release artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: gds-release-${{ inputs.version }}-${{ github.sha }}
+          # Upload one owned staging root. Supplying unrelated absolute and
+          # workspace-relative paths makes upload-artifact preserve their
+          # runner-wide common ancestor, so download-artifact reconstructs
+          # `_temp/gds-release-output/release` instead of the contracted
+          # `release/` directory beneath its destination.
+          path: ${{ runner.temp }}/gds-release-output
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
+
+  attest:
+    name: attest immutable bundle
+    needs: build
+    # This privileged job holds OIDC and attestation authority, but no release-
+    # write authority. Publication is a separate job with no OIDC permission.
+    # It never checks out candidate source and never executes candidate code.
+    # It downloads the build artifact, verifies SHA256SUMS with runner-owned
+    # tools, and only then requests OIDC tokens for attestation. All semantic
+    # release validation and candidate execution belongs to the unprivileged
+    # build job above; this job treats its output as inert data.
+    # OIDC signing runs on the fleet with the rest of the chain. Splitting it
+    # across providers would make the provenance describe an environment the
+    # build did not happen in, which is worse than either provider alone.
+    # Interim; see the org-rollout note on the build job. Must equal the other
+    # two: the contract test compares these lines verbatim.
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - name: Download immutable release artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: gds-release-${{ inputs.version }}-${{ github.sha }}
+          path: ${{ runner.temp }}/gds-release-output
+          merge-multiple: true
+
+      - name: Verify release artifact digest manifest
+        # Fail the privileged job before requesting any OIDC token if the
+        # artifact's contents were tampered with in transit or on the runner.
+        # download-artifact with merge-multiple flattens the artifact contents
+        # directly into path:, recreating release/, build-meta/, and
+        # attestation-subjects.sha256 under $RELEASE_OUTPUT_ROOT.
+        shell: bash
+        env:
+          RELEASE_DIRECTORY: ${{ runner.temp }}/gds-release-output/release
+        run: |
+          set -euo pipefail
+          cd -- "$RELEASE_DIRECTORY"
+          test -f SHA256SUMS
+          sha256sum -c -- SHA256SUMS
+
+      - name: Attest release file provenance
+        id: provenance
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4.2.1
+        with:
+          subject-checksums: ${{ runner.temp }}/gds-release-output/attestation-subjects.sha256
+
+      - name: Attest executable bundle SBOM
+        id: sbom
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4.2.1
+        with:
+          subject-path: ${{ runner.temp }}/gds-release-output/release/gds-bundle-v${{ inputs.version }}.tar.gz
+          sbom-path: ${{ runner.temp }}/gds-release-output/release/sbom.spdx.json
+
+      - name: Materialize offline verification evidence
+        shell: bash
+        env:
+          RELEASE_OUTPUT_ROOT: ${{ runner.temp }}/gds-release-output
+          EVIDENCE_DIRECTORY: ${{ runner.temp }}/gds-release-output/release-evidence
+          PROVENANCE_BUNDLE: ${{ steps.provenance.outputs.bundle-path }}
+          SBOM_BUNDLE: ${{ steps.sbom.outputs.bundle-path }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -- "$EVIDENCE_DIRECTORY"
+          test -f "$PROVENANCE_BUNDLE"
+          test -f "$SBOM_BUNDLE"
+          cp -- "$PROVENANCE_BUNDLE" "$EVIDENCE_DIRECTORY/provenance.sigstore.json"
+          cp -- "$SBOM_BUNDLE" "$EVIDENCE_DIRECTORY/sbom.sigstore.json"
+          gh attestation trusted-root > "$EVIDENCE_DIRECTORY/trusted-root.jsonl"
+          test -s "$EVIDENCE_DIRECTORY/provenance.sigstore.json"
+          test -s "$EVIDENCE_DIRECTORY/sbom.sigstore.json"
+          test -s "$EVIDENCE_DIRECTORY/trusted-root.jsonl"
+          # Parse every JSON value with a runner-owned tool. Semantic trust
+          # policy verification remains the release consumer's responsibility;
+          # running the candidate verifier in this privileged job would cross
+          # the release privilege boundary.
+          jq --exit-status 'objects' "$EVIDENCE_DIRECTORY/trusted-root.jsonl" >/dev/null
+          cp -- "$RELEASE_OUTPUT_ROOT/build-meta/build-result.json" "$EVIDENCE_DIRECTORY/build-result.json"
+          cp -- "$RELEASE_OUTPUT_ROOT/build-meta/verification-result.json" "$EVIDENCE_DIRECTORY/verification-result.json"
+
+      - name: Upload immutable offline evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: gds-release-evidence-${{ inputs.version }}-${{ github.sha }}
+          path: ${{ runner.temp }}/gds-release-output/release-evidence
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
+
+  publish:
+    name: publish immutable bundle
+    needs: attest
+    # This job can create the GitHub Release but cannot request an OIDC token or
+    # create attestations. It consumes only inert artifacts produced by the
+    # preceding jobs and never checks out or executes candidate source.
+    # Interim; see the org-rollout note on the build job. Must equal the other
+    # two: the contract test compares these lines verbatim.
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download immutable release artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: gds-release-${{ inputs.version }}-${{ github.sha }}
+          path: ${{ runner.temp }}/gds-release-output
+          merge-multiple: true
+
+      - name: Download immutable offline evidence
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: gds-release-evidence-${{ inputs.version }}-${{ github.sha }}
+          path: ${{ runner.temp }}/gds-release-output/release-evidence
+          merge-multiple: true
+
+      - name: Verify release artifact digest manifest
+        shell: bash
+        env:
+          RELEASE_DIRECTORY: ${{ runner.temp }}/gds-release-output/release
+          EVIDENCE_DIRECTORY: ${{ runner.temp }}/gds-release-output/release-evidence
+        run: |
+          set -euo pipefail
+          cd -- "$RELEASE_DIRECTORY"
+          test -f SHA256SUMS
+          sha256sum -c -- SHA256SUMS
+          test -s "$EVIDENCE_DIRECTORY/provenance.sigstore.json"
+          test -s "$EVIDENCE_DIRECTORY/sbom.sigstore.json"
+          test -s "$EVIDENCE_DIRECTORY/trusted-root.jsonl"
+
+      # Publish a durable GitHub Release only for a tag-dispatched run (the
+      # stable/frozen channels require an exact gds-v<version> tag; canary
+      # dispatches on a branch and keeps its bundle as the workflow artifact
+      # above). Attaches the governance-verified release assets AND the offline
+      # verification evidence: the workflow artifact expires, so evidence kept
+      # only there would leave a published release unverifiable offline.
+      - name: Publish GitHub Release
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_DIRECTORY: ${{ runner.temp }}/gds-release-output/release
+          EVIDENCE_DIRECTORY: ${{ runner.temp }}/gds-release-output/release-evidence
+          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_CHANNEL: ${{ inputs.channel }}
+        run: |
+          set -euo pipefail
+          latest_flags=()
+          [ "$RELEASE_CHANNEL" = "stable" ] && latest_flags=(--latest)
+          gh release create "$RELEASE_TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "GDS $RELEASE_TAG" \
+            --verify-tag \
+            "${latest_flags[@]}" \
+            --notes "Immutable GDS ${RELEASE_CHANNEL} bundle for ${RELEASE_TAG}. Multi-platform binaries + SPDX SBOM + SHA256SUMS, with keyless SLSA build provenance and SBOM attestations. Online: gh attestation verify <asset> -R ${GITHUB_REPOSITORY}. Offline: verify <asset> against provenance.sigstore.json and sbom.sigstore.json using trusted-root.jsonl, all attached here." \
+            "$RELEASE_DIRECTORY"/* \
+            "$EVIDENCE_DIRECTORY"/*

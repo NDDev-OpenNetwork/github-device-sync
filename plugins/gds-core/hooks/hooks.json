@@ -1,0 +1,42 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$PLUGIN_ROOT/hooks/gds_hook.py\" session-start",
+            "timeout": 5,
+            "statusMessage": "Resolving GDS context"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$PLUGIN_ROOT/hooks/gds_hook.py\" pre-tool-use",
+            "timeout": 3,
+            "statusMessage": "Checking GDS command guardrails"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$PLUGIN_ROOT/hooks/gds_hook.py\" stop",
+            "timeout": 10,
+            "statusMessage": "Checking GDS repository contract"
+          }
+        ]
+      }
+    ]
+  }
+}

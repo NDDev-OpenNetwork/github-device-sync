@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "bundle_version": "1.0.0",
+  "release_sequence": 1,
+  "channel": "canary",
+  "source_commit": "0123456789abcdef0123456789abcdef01234567",
+  "source_ref": "refs/tags/gds-v1.0.0",
+  "minimum_cli_version": "1.0.0",
+  "content_set_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "policy_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "skill_set_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "harness_profiles_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "harness_evidence_provisional": true,
+  "files": [
+    {
+      "path": "bin/linux/amd64/gds",
+      "digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "size": 134217729,
+      "mode": "0755"
+    }
+  ],
+  "supply_chain": {
+    "attestation_required": true,
+    "sbom_required_for_executables": true
+  }
+}

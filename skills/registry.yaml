@@ -1,0 +1,293 @@
+schema_version: 1
+namespace: "gds"
+
+budgets:
+  initial_metadata_chars: 8000
+  description_chars: 600
+  skill_lines: 300
+
+profiles:
+  - id: "core"
+    scope: "repository"
+    skills:
+      - "gds-orient"
+      - "gds-audit-repository"
+      - "gds-handoff-work"
+      - "gds-complete-work"
+      - "gds-maintain-agent-context"
+
+  - id: "estate-admin"
+    scope: "control-plane"
+    skills:
+      - "gds-audit-estate"
+      - "gds-plan-estate-change"
+      - "gds-triage-estate-drift"
+      - "gds-rollout-policy"
+      - "gds-manage-repository"
+      - "gds-onboard-repository"
+      - "gds-reconcile-provider-change"
+      - "gds-manage-fork"
+      - "gds-manage-harness"
+      - "gds-migrate-schema"
+      - "gds-recover-operation"
+      - "gds-maintain-agent-system"
+      - "gds-release-control-plane"
+
+  - id: "module"
+    scope: "module"
+    skills:
+      - "gds-manage-module"
+      - "gds-release-module"
+      - "gds-update-consumer-pins"
+
+  - id: "device"
+    scope: "device"
+    skills:
+      - "gds-bootstrap-device"
+      - "gds-materialize-workspace"
+      - "gds-sync-checkouts"
+
+  - id: "portfolio"
+    scope: "portfolio"
+    skills:
+      - "gds-triage-estate-drift"
+      - "gds-change-portfolio"
+
+plugins:
+  - id: "gds-core"
+    profiles:
+      - "core"
+      - "device"
+
+  - id: "gds-estate-admin"
+    profiles:
+      - "estate-admin"
+      - "portfolio"
+
+  - id: "gds-module"
+    profiles:
+      - "module"
+
+skills:
+  - name: "gds-orient"
+    path: "skills/canonical/gds-orient"
+    invocation: "implicit"
+    mutation: "none"
+    interface:
+      display_name: "GDS Orient"
+      short_description: "Resolve current GDS scope and boundaries"
+      default_prompt: "Use $gds-orient to explain the current verified GDS context."
+
+  - name: "gds-audit-repository"
+    path: "skills/canonical/gds-audit-repository"
+    invocation: "implicit"
+    mutation: "none"
+    interface:
+      display_name: "GDS Audit Repository"
+      short_description: "Audit one repository without making changes"
+      default_prompt: "Use $gds-audit-repository to produce a read-only repository audit."
+
+  - name: "gds-handoff-work"
+    path: "skills/canonical/gds-handoff-work"
+    invocation: "explicit-only"
+    mutation: "external"
+    interface:
+      display_name: "GDS Handoff Work"
+      short_description: "Prepare unfinished work for safe handoff"
+      default_prompt: "Use $gds-handoff-work to plan an unfinished cross-device handoff."
+
+  - name: "gds-complete-work"
+    path: "skills/canonical/gds-complete-work"
+    invocation: "explicit-only"
+    mutation: "external"
+    interface:
+      display_name: "GDS Complete Work"
+      short_description: "Finish and integrate approved work safely"
+      default_prompt: "Use $gds-complete-work to finish approved work across all affected Git boundaries."
+
+  - name: "gds-maintain-agent-context"
+    path: "skills/canonical/gds-maintain-agent-context"
+    invocation: "implicit"
+    mutation: "local"
+    interface:
+      display_name: "GDS Maintain Agent Context"
+      short_description: "Refresh agent context from verified facts"
+      default_prompt: "Use $gds-maintain-agent-context to refresh affected generated context."
+
+  - name: "gds-audit-estate"
+    path: "skills/canonical/gds-audit-estate"
+    invocation: "implicit"
+    mutation: "none"
+    interface:
+      display_name: "GDS Audit Estate"
+      short_description: "Audit estate state without applying changes"
+      default_prompt: "Use $gds-audit-estate to produce a bounded read-only estate audit."
+
+  - name: "gds-plan-estate-change"
+    path: "skills/canonical/gds-plan-estate-change"
+    invocation: "implicit"
+    mutation: "none"
+    interface:
+      display_name: "GDS Plan Estate Change"
+      short_description: "Plan a multi-repository change without applying it"
+      default_prompt: "Use $gds-plan-estate-change to build a side-effect-free estate plan."
+
+  - name: "gds-triage-estate-drift"
+    path: "skills/canonical/gds-triage-estate-drift"
+    invocation: "implicit"
+    mutation: "none"
+    interface:
+      display_name: "GDS Triage Estate Drift"
+      short_description: "Classify and prioritize verified estate drift"
+      default_prompt: "Use $gds-triage-estate-drift to route current drift evidence."
+
+  - name: "gds-rollout-policy"
+    path: "skills/canonical/gds-rollout-policy"
+    invocation: "explicit-only"
+    mutation: "external"
+    interface:
+      display_name: "GDS Rollout Policy"
+      short_description: "Roll out a verified bundle through bounded waves"
+      default_prompt: "Use $gds-rollout-policy to plan a canary-first bundle rollout."
+
+  - name: "gds-manage-repository"
+    path: "skills/canonical/gds-manage-repository"
+    invocation: "explicit-only"
+    mutation: "external"
+    interface:
+      display_name: "GDS Manage Repository"
+      short_description: "Manage one repository lifecycle safely"
+      default_prompt: "Use $gds-manage-repository for an explicitly approved repository lifecycle change."
+
+  - name: "gds-manage-fork"
+    path: "skills/canonical/gds-manage-fork"
+    invocation: "explicit-only"
+    mutation: "external"
+    interface:
+      display_name: "GDS Manage Fork"
+      short_description: "Manage a fork without losing maintained commits"
+      default_prompt: "Use $gds-manage-fork for an explicitly approved fork lifecycle change."
+
+  - name: "gds-manage-harness"
+    path: "skills/canonical/gds-manage-harness"
+    invocation: "explicit-only"
+    mutation: "local"
+    interface:
+      display_name: "GDS Manage Harness"
+      short_description: "Update one harness adapter from current evidence"
+      default_prompt: "Use $gds-manage-harness to change one approved harness adapter."
+
+  - name: "gds-migrate-schema"
+    path: "skills/canonical/gds-migrate-schema"
+    invocation: "explicit-only"
+    mutation: "local"
+    interface:
+      display_name: "GDS Migrate Schema"
+      short_description: "Migrate a versioned GDS contract safely"
+      default_prompt: "Use $gds-migrate-schema to plan an explicit schema migration."
+
+  - name: "gds-recover-operation"
+    path: "skills/canonical/gds-recover-operation"
+    invocation: "explicit-only"
+    mutation: "external"
+    interface:
+      display_name: "GDS Recover Operation"
+      short_description: "Recover one journaled interrupted operation"
+      default_prompt: "Use $gds-recover-operation to inspect and recover one operation."
+
+  - name: "gds-maintain-agent-system"
+    path: "skills/canonical/gds-maintain-agent-system"
+    invocation: "explicit-only"
+    mutation: "local"
+    interface:
+      display_name: "GDS Maintain Agent System"
+      short_description: "Update the canonical GDS agent system"
+      default_prompt: "Use $gds-maintain-agent-system to update canonical GDS agent-system sources."
+
+  - name: "gds-release-control-plane"
+    path: "skills/canonical/gds-release-control-plane"
+    invocation: "explicit-only"
+    mutation: "external"
+    interface:
+      display_name: "GDS Release Control Plane"
+      short_description: "Release a verified immutable GDS artifact"
+      default_prompt: "Use $gds-release-control-plane to plan an approved GDS release."
+
+  - name: "gds-manage-module"
+    path: "skills/canonical/gds-manage-module"
+    invocation: "explicit-only"
+    mutation: "local"
+    interface:
+      display_name: "GDS Manage Module"
+      short_description: "Manage one typed module relationship safely"
+      default_prompt: "Use $gds-manage-module for an explicitly approved module relationship change."
+
+  - name: "gds-release-module"
+    path: "skills/canonical/gds-release-module"
+    invocation: "explicit-only"
+    mutation: "external"
+    interface:
+      display_name: "GDS Release Module"
+      short_description: "Release a module under its declared policy"
+      default_prompt: "Use $gds-release-module to plan an approved module release."
+
+  - name: "gds-update-consumer-pins"
+    path: "skills/canonical/gds-update-consumer-pins"
+    invocation: "explicit-only"
+    mutation: "external"
+    interface:
+      display_name: "GDS Update Consumer Pins"
+      short_description: "Update selected consumers to a verified module"
+      default_prompt: "Use $gds-update-consumer-pins to plan selected consumer updates."
+
+  - name: "gds-bootstrap-device"
+    path: "skills/canonical/gds-bootstrap-device"
+    invocation: "explicit-only"
+    mutation: "local"
+    interface:
+      display_name: "GDS Bootstrap Device"
+      short_description: "Install a verified GDS device profile safely"
+      default_prompt: "Use $gds-bootstrap-device to plan an approved device bootstrap."
+
+  - name: "gds-materialize-workspace"
+    path: "skills/canonical/gds-materialize-workspace"
+    invocation: "explicit-only"
+    mutation: "local"
+    interface:
+      display_name: "GDS Materialize Workspace"
+      short_description: "Materialize a selected repository workspace"
+      default_prompt: "Use $gds-materialize-workspace to plan selected local checkouts."
+
+  - name: "gds-sync-checkouts"
+    path: "skills/canonical/gds-sync-checkouts"
+    invocation: "explicit-only"
+    mutation: "local"
+    interface:
+      display_name: "GDS Sync Checkouts"
+      short_description: "Synchronize selected clean checkouts safely"
+      default_prompt: "Use $gds-sync-checkouts to plan safe local synchronization."
+
+  - name: "gds-change-portfolio"
+    path: "skills/canonical/gds-change-portfolio"
+    invocation: "explicit-only"
+    mutation: "external"
+    interface:
+      display_name: "GDS Change Portfolio"
+      short_description: "Apply one change across a selected portfolio"
+      default_prompt: "Use $gds-change-portfolio to plan a bounded portfolio-wide change."
+  - name: "gds-onboard-repository"
+    path: "skills/canonical/gds-onboard-repository"
+    invocation: "explicit-only"
+    mutation: "external"
+    interface:
+      display_name: "GDS Onboard Repository"
+      short_description: "Onboard one new repository into the estate end to end"
+      default_prompt: "Use $gds-onboard-repository to add a brand-new repository covering anchor, selector, device materialization, and projections."
+  - name: "gds-reconcile-provider-change"
+    path: "skills/canonical/gds-reconcile-provider-change"
+    invocation: "explicit-only"
+    mutation: "external"
+    interface:
+      display_name: "GDS Reconcile Provider Change"
+      short_description: "Reconcile the estate after a provider-side repository change"
+      default_prompt: "Use $gds-reconcile-provider-change to reconcile the estate after a rename, transfer, archive, or owner-login case drift."

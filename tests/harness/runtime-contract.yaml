@@ -1,0 +1,82 @@
+schema_version: 1
+contract_version: "1.1.0"
+
+harnesses:
+  - "antigravity-cli"
+  - "claude-code"
+  - "cline"
+  - "codex"
+  - "cursor-cli"
+  - "github-copilot-cli"
+  - "grok-build"
+  - "junie-cli"
+  - "kilo-cli"
+  - "kimicode"
+  - "kiro-cli"
+  - "mimocode"
+  - "opencode"
+  - "pi"
+  - "qoder-cli"
+  - "qwen-code"
+  - "zcode"
+
+cases:
+  - id: "clean-install"
+    category: "install"
+    required: true
+    evidence: "Isolated harness home, installed artifact identity, and zero pre-existing GDS files."
+
+  - id: "binary-version-detection"
+    category: "install"
+    required: true
+    evidence: "Exact executable, bounded version output, operating system, and architecture."
+
+  - id: "root-instruction-discovery"
+    category: "instructions"
+    required: true
+    evidence: "Loaded root instruction source list, order, byte count, and digest."
+
+  - id: "nested-instruction-discovery"
+    category: "instructions"
+    required: true
+    evidence: "Loaded instruction sources when starting from a nested fixture directory."
+
+  - id: "exact-skill-discovery"
+    category: "skills"
+    required: true
+    evidence: "Exact discovered names, origins, descriptions, and duplicate count."
+
+  - id: "read-only-explicit-invocation"
+    category: "skills"
+    required: true
+    evidence: "Explicit read-only skill invocation transcript and structured result."
+
+  - id: "destructive-implicit-negative"
+    category: "skills"
+    required: true
+    evidence: "Near-miss prompts prove no destructive skill or mutation starts implicitly."
+
+  - id: "hook-lifecycle"
+    category: "hooks"
+    required: true
+    evidence: "Applicable hook discovery, trust, ordering, timeout, and failure behavior."
+
+  - id: "public-private-context-firewall"
+    category: "security"
+    required: true
+    evidence: "Public fixture output contains no private marker from the embedded consumer fixture."
+
+  - id: "generated-projection-drift"
+    category: "projection"
+    required: true
+    evidence: "Manual edit and duplicate-path fixtures are detected without overwrite."
+
+  - id: "update-and-rollback"
+    category: "lifecycle"
+    required: true
+    evidence: "Pinned update, exact prior-version rollback, and post-action discovery evidence."
+
+  - id: "remove"
+    category: "lifecycle"
+    required: true
+    evidence: "Adapter removal leaves no managed files, duplicate skills, hooks, or altered user-owned state."

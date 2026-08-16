@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "snapshot_id": "audit_01KX7BV07RHD6KRA4Z4J0KCHGR",
+  "estate_id": "estate_01KX7PNHB7DFRJ36HK7G12E6PF",
+  "reconciliation_id": "reconciliation_01KX7BV07RHD6KRA4Z4J0KCHGS",
+  "created_at": "2026-07-11T00:00:00Z",
+  "payload_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "payload": {
+    "reconciliation_id": "reconciliation_01KX7BV07RHD6KRA4Z4J0KCHGS",
+    "result": {}
+  },
+  "signature": {
+    "algorithm": "ed25519",
+    "public_key": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+  }
+}

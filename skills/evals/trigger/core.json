@@ -1,0 +1,562 @@
+{
+  "schema_version": 1,
+  "profile": "core",
+  "runs_per_query": 3,
+  "skills": [
+    {
+      "name": "gds-orient",
+      "positive": [
+        {
+          "id": "orient-p01",
+          "split": "train",
+          "query": "Где я сейчас нахожусь в GDS и какие границы репозиториев действуют?",
+          "expected": "gds-orient",
+          "must_not_trigger": ["gds-audit-repository"]
+        },
+        {
+          "id": "orient-p02",
+          "split": "train",
+          "query": "Объясни текущий scope, role и standalone или embedded mode, ничего не меняй.",
+          "expected": "gds-orient",
+          "must_not_trigger": ["gds-handoff-work"]
+        },
+        {
+          "id": "orient-p03",
+          "split": "train",
+          "query": "Which GDS skill profile applies from this nested directory?",
+          "expected": "gds-orient",
+          "must_not_trigger": ["gds-maintain-agent-context"]
+        },
+        {
+          "id": "orient-p04",
+          "split": "train",
+          "query": "I opened a module directly; tell me which Git boundaries and parent context are active.",
+          "expected": "gds-orient",
+          "must_not_trigger": ["gds-complete-work"]
+        },
+        {
+          "id": "orient-p05",
+          "split": "train",
+          "query": "что тут за repo id, роли и policy digest?",
+          "expected": "gds-orient",
+          "must_not_trigger": ["gds-audit-repository"]
+        },
+        {
+          "id": "orient-p06",
+          "split": "validation",
+          "query": "Before we touch anything, map my current cwd to the verified GDS context.",
+          "expected": "gds-orient",
+          "must_not_trigger": ["gds-audit-repository"]
+        },
+        {
+          "id": "orient-p07",
+          "split": "validation",
+          "query": "Я зашёл с worktree внутри submodule — что агент должен видеть и где отдельные mutation boundaries?",
+          "expected": "gds-orient",
+          "must_not_trigger": ["gds-handoff-work"]
+        },
+        {
+          "id": "orient-p08",
+          "split": "validation",
+          "query": "orient me in this estate without fetching or updating anything",
+          "expected": "gds-orient",
+          "must_not_trigger": ["gds-complete-work"]
+        }
+      ],
+      "negative": [
+        {
+          "id": "orient-n01",
+          "split": "train",
+          "query": "Проверь весь репозиторий на drift и дай отчёт.",
+          "must_not_trigger": ["gds-orient"]
+        },
+        {
+          "id": "orient-n02",
+          "split": "train",
+          "query": "Сохрани незавершённую ветку на другом устройстве.",
+          "must_not_trigger": ["gds-orient"]
+        },
+        {
+          "id": "orient-n03",
+          "split": "train",
+          "query": "Finish this task, merge it, push it, and clean the worktree.",
+          "must_not_trigger": ["gds-orient"]
+        },
+        {
+          "id": "orient-n04",
+          "split": "train",
+          "query": "Обнови AGENTS после того как команды проекта изменились.",
+          "must_not_trigger": ["gds-orient"]
+        },
+        {
+          "id": "orient-n05",
+          "split": "train",
+          "query": "Почему упал этот unit test?",
+          "must_not_trigger": ["gds-orient"]
+        },
+        {
+          "id": "orient-n06",
+          "split": "validation",
+          "query": "Audit repository policy and projection drift.",
+          "must_not_trigger": ["gds-orient"]
+        },
+        {
+          "id": "orient-n07",
+          "split": "validation",
+          "query": "commit and push my unfinished changes",
+          "must_not_trigger": ["gds-orient"]
+        },
+        {
+          "id": "orient-n08",
+          "split": "validation",
+          "query": "Исправь баг в parser и запусти тесты.",
+          "must_not_trigger": ["gds-orient"]
+        }
+      ]
+    },
+    {
+      "name": "gds-audit-repository",
+      "positive": [
+        {
+          "id": "audit-p01",
+          "split": "train",
+          "query": "Проведи read-only аудит этого репозитория по GDS и перечисли проблемы.",
+          "expected": "gds-audit-repository",
+          "must_not_trigger": ["gds-maintain-agent-context"]
+        },
+        {
+          "id": "audit-p02",
+          "split": "train",
+          "query": "Check this repository for manifest, policy, projection, and Git-state drift without fixing it.",
+          "expected": "gds-audit-repository",
+          "must_not_trigger": ["gds-complete-work"]
+        },
+        {
+          "id": "audit-p03",
+          "split": "train",
+          "query": "Найди подтверждённые проблемы и NOT_PROVEN в одном текущем repo.",
+          "expected": "gds-audit-repository",
+          "must_not_trigger": ["gds-orient"]
+        },
+        {
+          "id": "audit-p04",
+          "split": "train",
+          "query": "Give me an evidence-backed GDS compliance report for this Git boundary only.",
+          "expected": "gds-audit-repository",
+          "must_not_trigger": ["gds-complete-work"]
+        },
+        {
+          "id": "audit-p05",
+          "split": "train",
+          "query": "Проверь не редактировались ли generated projections вручную.",
+          "expected": "gds-audit-repository",
+          "must_not_trigger": ["gds-maintain-agent-context"]
+        },
+        {
+          "id": "audit-p06",
+          "split": "validation",
+          "query": "Does this repository have stale bundle, skill, or context evidence? Report only.",
+          "expected": "gds-audit-repository",
+          "must_not_trigger": ["gds-orient"]
+        },
+        {
+          "id": "audit-p07",
+          "split": "validation",
+          "query": "сделай health check текущего проекта, но ничего не меняй и не синхронизируй",
+          "expected": "gds-audit-repository",
+          "must_not_trigger": ["gds-handoff-work"]
+        },
+        {
+          "id": "audit-p08",
+          "split": "validation",
+          "query": "Review this one repo for unsafe GDS configuration and show the evidence.",
+          "expected": "gds-audit-repository",
+          "must_not_trigger": ["gds-complete-work"]
+        }
+      ],
+      "negative": [
+        {
+          "id": "audit-n01",
+          "split": "train",
+          "query": "Объясни только где я нахожусь в иерархии.",
+          "must_not_trigger": ["gds-audit-repository"]
+        },
+        {
+          "id": "audit-n02",
+          "split": "train",
+          "query": "Исправь все найденные проблемы и перепиши файлы.",
+          "must_not_trigger": ["gds-audit-repository"]
+        },
+        {
+          "id": "audit-n03",
+          "split": "train",
+          "query": "Audit the entire estate across every installation.",
+          "must_not_trigger": ["gds-audit-repository"]
+        },
+        {
+          "id": "audit-n04",
+          "split": "train",
+          "query": "Сохрани WIP ветку и открой draft PR.",
+          "must_not_trigger": ["gds-audit-repository"]
+        },
+        {
+          "id": "audit-n05",
+          "split": "train",
+          "query": "Finish implementation and merge the PR.",
+          "must_not_trigger": ["gds-audit-repository"]
+        },
+        {
+          "id": "audit-n06",
+          "split": "validation",
+          "query": "Обнови generated AGENTS из новых verified facts.",
+          "must_not_trigger": ["gds-audit-repository"]
+        },
+        {
+          "id": "audit-n07",
+          "split": "validation",
+          "query": "Review this function for algorithmic complexity.",
+          "must_not_trigger": ["gds-audit-repository"]
+        },
+        {
+          "id": "audit-n08",
+          "split": "validation",
+          "query": "sync all clean checkouts on this device",
+          "must_not_trigger": ["gds-audit-repository"]
+        }
+      ]
+    },
+    {
+      "name": "gds-handoff-work",
+      "positive": [
+        {
+          "id": "handoff-p01",
+          "split": "train",
+          "query": "Я продолжаю завтра на другом Mac — подготовь безопасный handoff незавершённой ветки.",
+          "expected": "gds-handoff-work",
+          "must_not_trigger": ["gds-complete-work"]
+        },
+        {
+          "id": "handoff-p02",
+          "split": "train",
+          "query": "Checkpoint and push this unfinished task so another device can continue it.",
+          "expected": "gds-handoff-work",
+          "must_not_trigger": ["gds-complete-work"]
+        },
+        {
+          "id": "handoff-p03",
+          "split": "train",
+          "query": "Сохрани WIP как проверенный commit и draft PR, но не мержи.",
+          "expected": "gds-handoff-work",
+          "must_not_trigger": ["gds-complete-work"]
+        },
+        {
+          "id": "handoff-p04",
+          "split": "train",
+          "query": "Prepare a cross-session handoff and leave the branch and worktree intact.",
+          "expected": "gds-handoff-work",
+          "must_not_trigger": ["gds-maintain-agent-context"]
+        },
+        {
+          "id": "handoff-p05",
+          "split": "train",
+          "query": "перехожу на сервер, опубликуй только незавершённую task branch для продолжения",
+          "expected": "gds-handoff-work",
+          "must_not_trigger": ["gds-complete-work"]
+        },
+        {
+          "id": "handoff-p06",
+          "split": "validation",
+          "query": "I need this partial implementation visible remotely without integrating it.",
+          "expected": "gds-handoff-work",
+          "must_not_trigger": ["gds-complete-work"]
+        },
+        {
+          "id": "handoff-p07",
+          "split": "validation",
+          "query": "сделай checkpoint текущих approved файлов для продолжения в новой сессии",
+          "expected": "gds-handoff-work",
+          "must_not_trigger": ["gds-complete-work"]
+        },
+        {
+          "id": "handoff-p08",
+          "split": "validation",
+          "query": "Create or update the policy-required draft PR for my unfinished work only.",
+          "expected": "gds-handoff-work",
+          "must_not_trigger": ["gds-complete-work"]
+        }
+      ],
+      "negative": [
+        {
+          "id": "handoff-n01",
+          "split": "train",
+          "query": "Полностью закончи задачу, смержи и очисти ветки.",
+          "must_not_trigger": ["gds-handoff-work"]
+        },
+        {
+          "id": "handoff-n02",
+          "split": "train",
+          "query": "Покажи статус ветки, ничего не коммить.",
+          "must_not_trigger": ["gds-handoff-work"]
+        },
+        {
+          "id": "handoff-n03",
+          "split": "train",
+          "query": "Synchronize main with origin using the safe policy.",
+          "must_not_trigger": ["gds-handoff-work"]
+        },
+        {
+          "id": "handoff-n04",
+          "split": "train",
+          "query": "stash these changes locally",
+          "must_not_trigger": ["gds-handoff-work"]
+        },
+        {
+          "id": "handoff-n05",
+          "split": "train",
+          "query": "Обнови документацию агента после изменения команд.",
+          "must_not_trigger": ["gds-handoff-work"]
+        },
+        {
+          "id": "handoff-n06",
+          "split": "validation",
+          "query": "Audit whether this branch is safe to hand off, report only.",
+          "must_not_trigger": ["gds-handoff-work"]
+        },
+        {
+          "id": "handoff-n07",
+          "split": "validation",
+          "query": "merge the ready pull request and delete its branch",
+          "must_not_trigger": ["gds-handoff-work"]
+        },
+        {
+          "id": "handoff-n08",
+          "split": "validation",
+          "query": "Исправь failing test в этой ветке.",
+          "must_not_trigger": ["gds-handoff-work"]
+        }
+      ]
+    },
+    {
+      "name": "gds-complete-work",
+      "positive": [
+        {
+          "id": "complete-p01",
+          "split": "train",
+          "query": "Доделай всё полностью, проверь, смержи, запушь и безопасно очисти завершённые ветки.",
+          "expected": "gds-complete-work",
+          "must_not_trigger": ["gds-handoff-work"]
+        },
+        {
+          "id": "complete-p02",
+          "split": "train",
+          "query": "Finish this task across every affected repository and return everything to final state.",
+          "expected": "gds-complete-work",
+          "must_not_trigger": ["gds-handoff-work"]
+        },
+        {
+          "id": "complete-p03",
+          "split": "train",
+          "query": "Полностью заверши module change, обнови consumer pin и интегрируй оба repo.",
+          "expected": "gds-complete-work",
+          "must_not_trigger": ["gds-handoff-work"]
+        },
+        {
+          "id": "complete-p04",
+          "split": "train",
+          "query": "Complete, publish, integrate, and remove only proven-safe completed worktrees.",
+          "expected": "gds-complete-work",
+          "must_not_trigger": ["gds-handoff-work"]
+        },
+        {
+          "id": "complete-p05",
+          "split": "train",
+          "query": "приведи текущую задачу к полной чистоте в main по всем затронутым границам",
+          "expected": "gds-complete-work",
+          "must_not_trigger": ["gds-handoff-work"]
+        },
+        {
+          "id": "complete-p06",
+          "split": "validation",
+          "query": "The implementation is ready; finish checks, integration, publication, and safe cleanup.",
+          "expected": "gds-complete-work",
+          "must_not_trigger": ["gds-handoff-work"]
+        },
+        {
+          "id": "complete-p07",
+          "split": "validation",
+          "query": "закрой задачу целиком включая зависимости, PR и cleanup",
+          "expected": "gds-complete-work",
+          "must_not_trigger": ["gds-handoff-work"]
+        },
+        {
+          "id": "complete-p08",
+          "split": "validation",
+          "query": "Bring all affected Git boundaries to verified final state, preserving unrelated work.",
+          "expected": "gds-complete-work",
+          "must_not_trigger": ["gds-handoff-work"]
+        }
+      ],
+      "negative": [
+        {
+          "id": "complete-n01",
+          "split": "train",
+          "query": "Сохрани незавершённую работу для другого устройства, не мержи.",
+          "must_not_trigger": ["gds-complete-work"]
+        },
+        {
+          "id": "complete-n02",
+          "split": "train",
+          "query": "Continue implementing the feature; it is not ready yet.",
+          "must_not_trigger": ["gds-complete-work"]
+        },
+        {
+          "id": "complete-n03",
+          "split": "train",
+          "query": "Покажи статус и ничего не меняй.",
+          "must_not_trigger": ["gds-complete-work"]
+        },
+        {
+          "id": "complete-n04",
+          "split": "train",
+          "query": "Run the unit tests for my current patch.",
+          "must_not_trigger": ["gds-complete-work"]
+        },
+        {
+          "id": "complete-n05",
+          "split": "train",
+          "query": "Обнови AGENTS и memories, но не коммить.",
+          "must_not_trigger": ["gds-complete-work"]
+        },
+        {
+          "id": "complete-n06",
+          "split": "validation",
+          "query": "Audit whether completion is possible and report blockers only.",
+          "must_not_trigger": ["gds-complete-work"]
+        },
+        {
+          "id": "complete-n07",
+          "split": "validation",
+          "query": "push a WIP checkpoint to a draft PR",
+          "must_not_trigger": ["gds-complete-work"]
+        },
+        {
+          "id": "complete-n08",
+          "split": "validation",
+          "query": "Синхронизируй чистый checkout с remote main.",
+          "must_not_trigger": ["gds-complete-work"]
+        }
+      ]
+    },
+    {
+      "name": "gds-maintain-agent-context",
+      "positive": [
+        {
+          "id": "context-p01",
+          "split": "train",
+          "query": "Команды проекта изменились — обнови только производный agent context из verified facts.",
+          "expected": "gds-maintain-agent-context",
+          "must_not_trigger": ["gds-audit-repository"]
+        },
+        {
+          "id": "context-p02",
+          "split": "train",
+          "query": "Regenerate affected AGENTS and harness projections after this verified policy change.",
+          "expected": "gds-maintain-agent-context",
+          "must_not_trigger": ["gds-complete-work"]
+        },
+        {
+          "id": "context-p03",
+          "split": "train",
+          "query": "Синхронизируй provenance-bearing Serena memory после изменения архитектурного source.",
+          "expected": "gds-maintain-agent-context",
+          "must_not_trigger": ["gds-audit-repository"]
+        },
+        {
+          "id": "context-p04",
+          "split": "train",
+          "query": "The generated context is stale; refresh it from canonical repository facts.",
+          "expected": "gds-maintain-agent-context",
+          "must_not_trigger": ["gds-orient"]
+        },
+        {
+          "id": "context-p05",
+          "split": "train",
+          "query": "обнови agent docs после подтверждённого изменения build и test commands",
+          "expected": "gds-maintain-agent-context",
+          "must_not_trigger": ["gds-audit-repository"]
+        },
+        {
+          "id": "context-p06",
+          "split": "validation",
+          "query": "Check and regenerate only the context outputs affected by the manifest change.",
+          "expected": "gds-maintain-agent-context",
+          "must_not_trigger": ["gds-complete-work"]
+        },
+        {
+          "id": "context-p07",
+          "split": "validation",
+          "query": "После рефакторинга boundary обнови derived memory и projection без второго source of truth.",
+          "expected": "gds-maintain-agent-context",
+          "must_not_trigger": ["gds-orient"]
+        },
+        {
+          "id": "context-p08",
+          "split": "validation",
+          "query": "Refresh the agent-facing repository contract and prove reproducible output.",
+          "expected": "gds-maintain-agent-context",
+          "must_not_trigger": ["gds-audit-repository"]
+        }
+      ],
+      "negative": [
+        {
+          "id": "context-n01",
+          "split": "train",
+          "query": "Придумай новую архитектуру проекта без проверки кода.",
+          "must_not_trigger": ["gds-maintain-agent-context"]
+        },
+        {
+          "id": "context-n02",
+          "split": "train",
+          "query": "Audit whether AGENTS is stale, but do not modify it.",
+          "must_not_trigger": ["gds-maintain-agent-context"]
+        },
+        {
+          "id": "context-n03",
+          "split": "train",
+          "query": "Release and roll out a new global GDS policy bundle.",
+          "must_not_trigger": ["gds-maintain-agent-context"]
+        },
+        {
+          "id": "context-n04",
+          "split": "train",
+          "query": "Исправь feature implementation в src.",
+          "must_not_trigger": ["gds-maintain-agent-context"]
+        },
+        {
+          "id": "context-n05",
+          "split": "train",
+          "query": "Сохрани WIP ветку для другого Mac.",
+          "must_not_trigger": ["gds-maintain-agent-context"]
+        },
+        {
+          "id": "context-n06",
+          "split": "validation",
+          "query": "Explain which context currently applies; no regeneration.",
+          "must_not_trigger": ["gds-maintain-agent-context"]
+        },
+        {
+          "id": "context-n07",
+          "split": "validation",
+          "query": "Полностью закончи и смержи задачу.",
+          "must_not_trigger": ["gds-maintain-agent-context"]
+        },
+        {
+          "id": "context-n08",
+          "split": "validation",
+          "query": "Rewrite the docs based on my guess, no need to inspect sources.",
+          "must_not_trigger": ["gds-maintain-agent-context"]
+        }
+      ]
+    }
+  ]
+}

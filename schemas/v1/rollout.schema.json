@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/rollout.schema.json",
+  "title": "GDS immutable bundle rollout plan v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "rollout_id",
+    "created_at",
+    "bundle",
+    "target_set_digest",
+    "target_count",
+    "waves",
+    "gates",
+    "mutation",
+    "plan_digest"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "rollout_id": {
+      "$ref": "common.schema.json#/$defs/rolloutId"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "bundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "release_sequence", "channel", "artifact_digest", "manifest_digest"],
+      "properties": {
+        "version": {
+          "$ref": "common.schema.json#/$defs/semanticVersion"
+        },
+        "release_sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "channel": {
+          "enum": ["canary", "stable", "frozen"]
+        },
+        "artifact_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        },
+        "manifest_digest": {
+          "$ref": "common.schema.json#/$defs/sha256Digest"
+        }
+      }
+    },
+    "target_set_digest": {
+      "$ref": "common.schema.json#/$defs/sha256Digest"
+    },
+    "target_count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2000
+    },
+    "waves": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "ordinal", "repository_ids", "status"],
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/kebabId"
+          },
+          "ordinal": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "repository_ids": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "common.schema.json#/$defs/repositoryId"
+            }
+          },
+          "status": {
+            "const": "pending"
+          }
+        }
+      }
+    },
+    "gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_failure_rate", "security_failure_tolerance", "required_check_failure_tolerance"],
+      "properties": {
+        "max_failure_rate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "security_failure_tolerance": {
+          "const": 0
+        },
+        "required_check_failure_tolerance": {
+          "const": 0
+        }
+      }
+    },
+    "mutation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "auto_merge"],
+      "properties": {
+        "mode": {
+          "const": "pull-request"
+        },
+        "auto_merge": {
+          "const": false
+        }
+      }
+    },
+    "plan_digest": {
+      "$ref": "common.schema.json#/$defs/sha256Digest"
+    }
+  }
+}

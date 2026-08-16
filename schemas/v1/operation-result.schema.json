@@ -1,0 +1,408 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NDDev-OpenNetwork/github-device-sync/schemas/v1/operation-result.schema.json",
+  "title": "GDS operation result envelope v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "command",
+    "result",
+    "exit_class",
+    "exit_code",
+    "scope",
+    "findings",
+    "mutation"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "command": {
+      "$ref": "common.schema.json#/$defs/nonEmptyString"
+    },
+    "result": {
+      "enum": ["succeeded", "failed", "blocked", "partial", "not-proven"]
+    },
+    "exit_class": {
+      "enum": [
+        "success",
+        "validation",
+        "not-proven",
+        "input",
+        "stale",
+        "approval",
+        "authorization",
+        "conflict",
+        "policy",
+        "partial",
+        "provider-transient",
+        "security",
+        "unsupported",
+        "internal"
+      ]
+    },
+    "exit_code": {
+      "enum": [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+    },
+    "operation_id": {
+      "$ref": "common.schema.json#/$defs/operationId"
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "repository_id": {
+          "$ref": "common.schema.json#/$defs/repositoryId"
+        },
+        "estate_id": {
+          "$ref": "common.schema.json#/$defs/estateId"
+        },
+        "installation_id": {
+          "$ref": "common.schema.json#/$defs/installationReference"
+        },
+        "plan_id": {
+          "$ref": "common.schema.json#/$defs/planId"
+        },
+        "harness": {
+          "$ref": "common.schema.json#/$defs/kebabId"
+        },
+        "evaluation_id": {
+          "type": "string",
+          "pattern": "^eval_[0-7][0-9A-HJKMNP-TV-Z]{25}$"
+        },
+        "repositories": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/repositoryId"
+          }
+        }
+      }
+    },
+    "data": {
+      "type": "object",
+      "maxProperties": 128
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/finding"
+      }
+    },
+    "mutation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attempted", "completed"],
+      "properties": {
+        "attempted": {
+          "type": "boolean"
+        },
+        "completed": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "severity", "message"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^GDS_[A-Z0-9_]+$"
+        },
+        "severity": {
+          "enum": ["critical", "high", "medium", "low", "info"]
+        },
+        "message": {
+          "$ref": "common.schema.json#/$defs/nonEmptyString"
+        },
+        "evidence": {
+          "type": "object",
+          "maxProperties": 64
+        },
+        "remediation": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "$ref": "common.schema.json#/$defs/singleLineCommand"
+            }
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "result": {
+            "const": "succeeded"
+          }
+        },
+        "required": ["result"]
+      },
+      "then": {
+        "properties": {
+          "exit_class": {
+            "const": "success"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "mutation": {
+            "properties": {
+              "completed": {
+                "const": true
+              }
+            },
+            "required": ["completed"]
+          }
+        },
+        "required": ["mutation"]
+      },
+      "then": {
+        "properties": {
+          "mutation": {
+            "properties": {
+              "attempted": {
+                "const": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "exit_class": {
+            "const": "success"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "exit_code": {
+            "const": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "exit_class": {
+            "const": "validation"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "exit_code": {
+            "const": 2
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "exit_class": {
+            "const": "not-proven"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "exit_code": {
+            "const": 3
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "exit_class": {
+            "const": "input"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "exit_code": {
+            "const": 4
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "exit_class": {
+            "const": "stale"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "exit_code": {
+            "const": 5
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "exit_class": {
+            "const": "approval"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "exit_code": {
+            "const": 6
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "exit_class": {
+            "const": "authorization"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "exit_code": {
+            "const": 7
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "exit_class": {
+            "const": "conflict"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "exit_code": {
+            "const": 8
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "exit_class": {
+            "const": "policy"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "exit_code": {
+            "const": 9
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "exit_class": {
+            "const": "partial"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "exit_code": {
+            "const": 10
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "exit_class": {
+            "const": "provider-transient"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "exit_code": {
+            "const": 11
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "exit_class": {
+            "const": "security"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "exit_code": {
+            "const": 12
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "exit_class": {
+            "const": "unsupported"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "exit_code": {
+            "const": 13
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "exit_class": {
+            "const": "internal"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "exit_code": {
+            "const": 14
+          }
+        }
+      }
+    }
+  ]
+}

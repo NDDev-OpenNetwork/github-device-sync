@@ -1,0 +1,41 @@
+schema_version: 1
+
+trust_domain: "gds-release"
+
+source:
+  owner: "NDDev-OpenNetwork"
+  repository: "github-device-sync"
+  allowed_workflows:
+    - ".github/workflows/release-bundle.yml"
+  allowed_refs:
+    - "refs/heads/main"
+    - "refs/tags/gds-v*"
+
+release:
+  minimum_release_sequence: 1
+  allowed_channels:
+    - "canary"
+    - "stable"
+    - "frozen"
+
+verification:
+  attestation: "required"
+  sbom_for_executables: "required"
+  offline_material: "required"
+  trusted_root_digest: "sha256:65ca537f6ed8a47fd0e560c421baa1f6c1efb8b25fc200d8c5c02c0e92eb2b9c"
+  verifier:
+    name: "github-cli"
+    version: "2.97.0"
+    executables:
+      - os: "darwin"
+        arch: "amd64"
+        digest: "sha256:4b577e0896583c40900ccf61b6de46ce1d3a92ed7f799b97c06d8938b44db764"
+      - os: "darwin"
+        arch: "arm64"
+        digest: "sha256:0d17dddf96bcc1dc50f3420a064d593d64016b0be16286a6c26121f2a5cb8316"
+      - os: "linux"
+        arch: "amd64"
+        digest: "sha256:141507c337e8b202ad398550c3b73d72f5af92e86f71665214538a81efd4c409"
+      - os: "linux"
+        arch: "arm64"
+        digest: "sha256:ccbb0f14178faefac1cb0f336a853071fa63a1d0df23ef5ab7a304fe3859e082"

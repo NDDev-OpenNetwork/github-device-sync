@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "trust_domain": "gds-release",
+  "release_key": "0000000007--1.2.3--aaaaaaaaaaaaaaaa",
+  "bundle_version": "1.2.3",
+  "release_sequence": 7,
+  "channel": "stable",
+  "artifact_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "manifest_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "attestation_identity_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "source_commit": "0123456789abcdef0123456789abcdef01234567",
+  "source_ref": "refs/tags/gds-v1.2.3",
+  "target_os": "linux",
+  "target_arch": "amd64",
+  "candidate_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+}

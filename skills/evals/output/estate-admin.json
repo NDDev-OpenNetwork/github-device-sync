@@ -1,0 +1,566 @@
+{
+  "schema_version": 1,
+  "profile": "estate-admin",
+  "status": "runtime-not-proven",
+  "tasks": [
+    {
+      "id": "gds-audit-estate-output",
+      "skill": "gds-audit-estate",
+      "prompt": "Produce a bounded read-only estate audit from the current fixture evidence and preserve every NOT_PROVEN result.",
+      "assertions": [
+        {
+          "id": "no-mutation",
+          "method": "deterministic",
+          "evidence": [
+            "filesystem-diff",
+            "git-diff",
+            "tool-events"
+          ]
+        },
+        {
+          "id": "bounded-target-set",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate bounded target set."
+        },
+        {
+          "id": "evidence-per-aggregate-finding",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate evidence per aggregate finding."
+        },
+        {
+          "id": "repository-failures-remain-isolated",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate repository failures remain isolated."
+        }
+      ]
+    },
+    {
+      "id": "gds-plan-estate-change-output",
+      "skill": "gds-plan-estate-change",
+      "prompt": "Build a side-effect-free estate change plan with typed targets, dependencies, approvals, waves, and compensation.",
+      "assertions": [
+        {
+          "id": "no-mutation",
+          "method": "deterministic",
+          "evidence": [
+            "filesystem-diff",
+            "git-diff",
+            "tool-events"
+          ]
+        },
+        {
+          "id": "typed-target-and-dependency-graph",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate typed target and dependency graph."
+        },
+        {
+          "id": "approval-classes-and-waves",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate approval classes and waves."
+        },
+        {
+          "id": "rollback-or-compensation-defined",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate rollback or compensation defined."
+        }
+      ]
+    },
+    {
+      "id": "gds-triage-estate-drift-output",
+      "skill": "gds-triage-estate-drift",
+      "prompt": "Classify and route current estate drift evidence without applying remediation or hiding exceptions.",
+      "assertions": [
+        {
+          "id": "no-mutation",
+          "method": "deterministic",
+          "evidence": [
+            "filesystem-diff",
+            "git-diff",
+            "tool-events"
+          ]
+        },
+        {
+          "id": "drift-deduplicated-by-canonical-key",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate drift deduplicated by canonical key."
+        },
+        {
+          "id": "severity-and-owner-assigned",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate severity and owner assigned."
+        },
+        {
+          "id": "exceptions-remain-explicit-and-expiring",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate exceptions remain explicit and expiring."
+        }
+      ]
+    },
+    {
+      "id": "gds-rollout-policy-output",
+      "skill": "gds-rollout-policy",
+      "prompt": "Plan a canary-first immutable bundle rollout with failure pause and exact rollback evidence.",
+      "assertions": [
+        {
+          "id": "exact-immutable-bundle-identity",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate exact immutable bundle identity."
+        },
+        {
+          "id": "canary-before-general-waves",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate canary before general waves."
+        },
+        {
+          "id": "failure-pauses-advancement",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate failure pauses advancement."
+        },
+        {
+          "id": "adoption-and-rollback-evidence",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate adoption and rollback evidence."
+        }
+      ]
+    },
+    {
+      "id": "gds-manage-repository-output",
+      "skill": "gds-manage-repository",
+      "prompt": "Plan an approved repository lifecycle change while preserving stable identity and separating provider from local actions.",
+      "assertions": [
+        {
+          "id": "stable-gds-identity-preserved",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate stable GDS identity preserved."
+        },
+        {
+          "id": "provider-and-local-mutations-planned-separately",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate provider and local mutations planned separately."
+        },
+        {
+          "id": "delete-remains-separate",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate delete remains separate."
+        },
+        {
+          "id": "post-transition-relationships-verified",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate post-transition relationships verified."
+        }
+      ]
+    },
+    {
+      "id": "gds-manage-fork-output",
+      "skill": "gds-manage-fork",
+      "prompt": "Plan an approved fork lifecycle change while preserving fork-specific commits and disabling force by default.",
+      "assertions": [
+        {
+          "id": "upstream-identity-verified",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate upstream identity verified."
+        },
+        {
+          "id": "fork-specific-commits-preserved",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate fork-specific commits preserved."
+        },
+        {
+          "id": "force-disabled-by-default",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate force disabled by default."
+        },
+        {
+          "id": "exact-old-oid-and-recovery-ref-for-force-path",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate exact old OID and recovery ref for force path."
+        }
+      ]
+    },
+    {
+      "id": "gds-manage-harness-output",
+      "skill": "gds-manage-harness",
+      "prompt": "Plan one approved harness adapter change from current official evidence without changing user-global configuration.",
+      "assertions": [
+        {
+          "id": "official-source-reverified",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate official source reverified."
+        },
+        {
+          "id": "one-capability-profile-changed",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate one capability profile changed."
+        },
+        {
+          "id": "runtime-contract-remains-provisional-until-evidence",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate runtime contract remains provisional until evidence."
+        },
+        {
+          "id": "user-global-configuration-requires-explicit-apply",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate user-global configuration requires explicit apply."
+        }
+      ]
+    },
+    {
+      "id": "gds-migrate-schema-output",
+      "skill": "gds-migrate-schema",
+      "prompt": "Plan an explicit schema migration with fixtures, backup, rollback, and no direct data mutation.",
+      "assertions": [
+        {
+          "id": "versioned-migration-identity",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate versioned migration identity."
+        },
+        {
+          "id": "fixture-and-canary-rehearsal",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate fixture and canary rehearsal."
+        },
+        {
+          "id": "backup-and-reversible-path",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate backup and reversible path."
+        },
+        {
+          "id": "unknown-fields-fail-closed",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate unknown fields fail closed."
+        }
+      ]
+    },
+    {
+      "id": "gds-recover-operation-output",
+      "skill": "gds-recover-operation",
+      "prompt": "Inspect one interrupted operation and produce a recovery plan without resuming, aborting, or compensating it.",
+      "assertions": [
+        {
+          "id": "journal-identity-required",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate journal identity required."
+        },
+        {
+          "id": "current-state-re-observed",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate current state re-observed."
+        },
+        {
+          "id": "partial-completion-remains-visible",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate partial completion remains visible."
+        },
+        {
+          "id": "compensation-is-a-separate-approved-step",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate compensation is a separate approved step."
+        }
+      ]
+    },
+    {
+      "id": "gds-maintain-agent-system-output",
+      "skill": "gds-maintain-agent-system",
+      "prompt": "Plan an update to canonical GDS agent-system sources and the required behavioral gates without releasing it.",
+      "assertions": [
+        {
+          "id": "canonical-owner-changed-only",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate canonical owner changed only."
+        },
+        {
+          "id": "source-register-and-capability-profiles-updated",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate source register and capability profiles updated."
+        },
+        {
+          "id": "static-and-behavioral-gates",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate static and behavioral gates."
+        },
+        {
+          "id": "immutable-canary-release-plan",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate immutable canary release plan."
+        }
+      ]
+    },
+    {
+      "id": "gds-release-control-plane-output",
+      "skill": "gds-release-control-plane",
+      "prompt": "Plan an approved GDS control-plane release with reproducibility, provenance, SBOM, and rollout gates.",
+      "assertions": [
+        {
+          "id": "reproducible-artifact",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate reproducible artifact."
+        },
+        {
+          "id": "monotonic-release-sequence",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate monotonic release sequence."
+        },
+        {
+          "id": "digest-provenance-and-sbom-policy",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate digest provenance and SBOM policy."
+        },
+        {
+          "id": "no-rollout-or-publication-without-exact-approval",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate no rollout or publication without exact approval."
+        }
+      ]
+    },
+    {
+      "id": "gds-onboard-repository-output",
+      "skill": "gds-onboard-repository",
+      "prompt": "Onboard one brand-new repository into the GDS estate end to end: anchor, selector classification, device materialization, and projection regeneration.",
+      "assertions": [
+        {
+          "id": "stable-identity-minted",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate a stable repo_ ID minted into a new .gds/repository.yaml."
+        },
+        {
+          "id": "selector-classification-unambiguous",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate the repository classifies under exactly one highest-priority selector with no conflict."
+        },
+        {
+          "id": "device-materialization-planned",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate per-device materialization entries bound to the selector portfolio."
+        },
+        {
+          "id": "projections-regenerated",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate AGENTS.md, compiled-policy.json, and bundle.lock.yaml regenerated and digest-consistent."
+        }
+      ]
+    },
+    {
+      "id": "gds-reconcile-provider-change-output",
+      "skill": "gds-reconcile-provider-change",
+      "prompt": "Reconcile the estate after a provider-side repository rename: re-snapshot inventory, update anchor provider fields preserving stable ID, re-resolve selectors, regenerate projections.",
+      "assertions": [
+        {
+          "id": "provider-strings-canonical",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate device inventory and anchor provider strings carry canonical owner/login case."
+        },
+        {
+          "id": "stable-identity-preserved",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate the stable repo_ ID preserved across the provider locator change."
+        },
+        {
+          "id": "selector-reclassification-verified",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate selector classification re-resolves without GDS_ESTATE_SELECTOR_CONFLICT."
+        },
+        {
+          "id": "projections-regenerated",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate regenerated projections are digest-consistent."
+        }
+      ]
+    }
+  ]
+}
