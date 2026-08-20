@@ -40,7 +40,7 @@ func repositoryOnboardFixture(t *testing.T) (string, string, string) {
 
 func TestRepositoryOnboardRequiresApprovalAndVerifiesExactAnchor(t *testing.T) {
 	repository, candidate, statePath := repositoryOnboardFixture(t)
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	exitCode, planned, stderr := executeJSON(
 		t, "--json", "--cwd", repository, "repository", "onboard", "--plan",
 		"--anchor", candidate, "--state-path", statePath,
@@ -89,7 +89,7 @@ func TestRepositoryOnboardRequiresApprovalAndVerifiesExactAnchor(t *testing.T) {
 func TestRepositoryOnboardAllowsCleanUnpublishedTaskBranch(t *testing.T) {
 	repository, candidate, statePath := repositoryOnboardFixture(t)
 	runSessionGit(t, repository, "switch", "-qc", "task/gds-onboarding")
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	exitCode, planned, stderr := executeJSON(
 		t, "--json", "--cwd", repository, "repository", "onboard", "--plan",
 		"--anchor", candidate, "--state-path", statePath,
@@ -139,7 +139,7 @@ func TestRepositoryOnboardAcceptsCleanEmbeddedDetachedGitlink(t *testing.T) {
 		t.Fatal(err)
 	}
 	statePath := sessionStatePath(t)
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	exitCode, planned, stderr := executeJSON(
 		t, "--json", "--cwd", module, "repository", "onboard", "--plan",
 		"--anchor", candidate, "--state-path", statePath,
@@ -169,7 +169,7 @@ func TestRepositoryOnboardAcceptsCleanEmbeddedDetachedGitlink(t *testing.T) {
 
 func TestRepositoryOnboardRejectsDirtyOrAlreadyManagedCheckout(t *testing.T) {
 	repository, candidate, statePath := repositoryOnboardFixture(t)
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	if err := os.WriteFile(filepath.Join(repository, "dirty.txt"), []byte("preserve\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -231,7 +231,7 @@ func TestRepositoryRenameRequiresProviderEvidenceWithoutMutatingAnchor(t *testin
 	if err := os.WriteFile(targetAnchor, targetRaw, 0o600); err != nil {
 		t.Fatal(err)
 	}
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	// Isolate the runtime-config default: this case asserts the fail-closed
 	// "runtime not proven" path, which only holds when no GDS runtime config
 	// resolves. Without this the operator's real config is found and the CLI
@@ -270,7 +270,7 @@ func TestRepositoryDeleteRequiresArchivedCompleteIdentityAnalysisAndExactConfirm
 	runSessionGit(t, repository, "commit", "-qm", "archive repository")
 	head := runSessionGit(t, repository, "rev-parse", "HEAD")
 	runSessionGit(t, repository, "update-ref", "refs/remotes/origin/main", head)
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	// Isolate the runtime-config default: this case asserts the fail-closed
 	// "runtime not proven" path, which only holds when no GDS runtime config
 	// resolves. Without this the operator's real config is found and the CLI
@@ -327,7 +327,7 @@ func TestRepositoryDeleteRequiresArchivedCompleteIdentityAnalysisAndExactConfirm
 // happens when somebody calls apply directly.
 func TestRepositoryDeleteApplyRefusesAPlanThatDoesNotExist(t *testing.T) {
 	repository, _, statePath := repositoryOnboardFixture(t)
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 
 	exitCode, envelope, stderr := executeJSON(
@@ -348,7 +348,7 @@ func TestRepositoryDeleteApplyRefusesAPlanThatDoesNotExist(t *testing.T) {
 // an empty journal that happens to contain no objection.
 func TestRepositoryDeleteApplyRefusesAnUnreachableStateStore(t *testing.T) {
 	repository, _, _ := repositoryOnboardFixture(t)
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 
 	exitCode, envelope, stderr := executeJSON(
@@ -366,7 +366,7 @@ func TestRepositoryDeleteApplyRefusesAnUnreachableStateStore(t *testing.T) {
 // supply the retirement evidence that plan would have had to carry.
 func TestRepositoryDeleteApplyIsNotUnlockedByAnApprovalAlone(t *testing.T) {
 	repository, _, statePath := repositoryOnboardFixture(t)
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 	approval := filepath.Join(t.TempDir(), "approval.json")
 	if err := os.WriteFile(approval, []byte(`{"schema_version":1}`), 0o600); err != nil {
@@ -408,7 +408,7 @@ func TestRepositoryDeletePlanBlocksOnASecondaryWorktree(t *testing.T) {
 	runSessionGit(t, repository, "commit", "-qm", "archive repository")
 	head := runSessionGit(t, repository, "rev-parse", "HEAD")
 	runSessionGit(t, repository, "update-ref", "refs/remotes/origin/main", head)
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 
 	// The second worktree is what the plan must notice. It is clean and

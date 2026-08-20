@@ -7,9 +7,11 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
+	"io/fs"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -272,7 +274,77 @@ func appTestRepositoryRoot(t *testing.T) string {
 	if !ok {
 		t.Fatal("runtime.Caller failed")
 	}
-	return filepath.Clean(filepath.Join(filepath.Dir(current), "..", ".."))
+	root := filepath.Clean(filepath.Join(filepath.Dir(current), "..", ".."))
+	estateRoot := t.TempDir()
+	for _, directory := range []string{"estate", "policies"} {
+		if err := copyAppTestTree(root, estateRoot, directory); err != nil {
+			t.Fatal(err)
+		}
+	}
+	raw, err := os.ReadFile(filepath.Join(root, ".gds", "repository.yaml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	text := string(raw)
+	text = strings.Replace(text,
+		"  roles:\n    - \"project\"\n    - \"module\"\n",
+		"  roles:\n    - \"control-plane\"\n", 1)
+	text = strings.Replace(text, "    - \"public-module\"\n", "    - \"control-plane\"\n", 1)
+	text = strings.Replace(text, "  context_profile: \"project-default\"\n", "  context_profile: \"control-plane\"\n", 1)
+	start := strings.Index(text, "\nmodule:\n")
+	end := strings.Index(text, "\nrelease:\n")
+	if start < 0 || end <= start {
+		t.Fatal("public engine anchor has no removable module section")
+	}
+	text = text[:start] + text[end:]
+	anchorPath := filepath.Join(estateRoot, ".gds", "repository.yaml")
+	if err := os.MkdirAll(filepath.Dir(anchorPath), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(anchorPath, []byte(text), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	for _, arguments := range [][]string{
+		{"init", "--quiet"},
+		{"config", "user.name", "GDS app test"},
+		{"config", "user.email", "app-test@example.invalid"},
+		{"add", "--all"},
+		{"commit", "--quiet", "-m", "test: external estate fixture"},
+	} {
+		command := exec.Command("git", arguments...)
+		command.Dir = estateRoot
+		command.Env = append(os.Environ(), "GIT_CONFIG_NOSYSTEM=1", "GIT_CONFIG_GLOBAL="+os.DevNull)
+		if output, err := command.CombinedOutput(); err != nil {
+			t.Fatalf("git %v: %v: %s", arguments, err, output)
+		}
+	}
+	t.Setenv("GDS_ESTATE_ROOT", estateRoot)
+	return root
+}
+
+func copyAppTestTree(sourceRoot string, targetRoot string, relative string) error {
+	source := filepath.Join(sourceRoot, relative)
+	return filepath.WalkDir(source, func(path string, entry fs.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		relativePath, err := filepath.Rel(sourceRoot, path)
+		if err != nil {
+			return err
+		}
+		target := filepath.Join(targetRoot, relativePath)
+		if entry.IsDir() {
+			return os.MkdirAll(target, 0o755)
+		}
+		if !entry.Type().IsRegular() {
+			return fmt.Errorf("test estate source is not a regular file: %s", path)
+		}
+		content, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		return os.WriteFile(target, content, 0o644)
+	})
 }
 
 func appHasFinding(envelope domain.Envelope, code string) bool {

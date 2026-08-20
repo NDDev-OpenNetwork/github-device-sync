@@ -292,7 +292,7 @@ func (services *Services) GenerateRepository(
 	path string,
 	check bool,
 ) domain.Envelope {
-	root, anchor, findings := services.policyInputs(ctx, path)
+	root, anchor, findings := services.projectionPolicyInputs(ctx, path)
 	if len(findings) != 0 {
 		return domain.NewEnvelope(
 			"gds generate repository", classifyFindings(findings), nil, findings...,
@@ -320,14 +320,15 @@ func (services *Services) GenerateRepository(
 	// source content, so an uncommitted canonical source no longer blocks
 	// generation. That refusal was the whole reason a source edit and its
 	// regenerated projection could not be one commit.
+	sourceLayout := projections.ResolveDevelopmentSourceLayout(root)
 	sourceOID, err := services.Git.CommittedSourceOID(
-		ctx, root, projections.DevelopmentBundleSourcePaths(),
+		ctx, root, sourceLayout.Paths,
 	)
 	if err != nil {
 		sourceOID = ""
 	}
 	sourceTreeDigest, err := services.Git.SourceTreeDigest(
-		ctx, root, projections.DevelopmentBundleSourcePaths(),
+		ctx, root, sourceLayout.Paths,
 	)
 	if err != nil {
 		return envelopeForError("gds generate repository", path, err)
@@ -381,6 +382,32 @@ func (services *Services) policyInputs(
 		}}
 	}
 	return root, anchor, nil
+}
+
+// projectionPolicyInputs permits a public module to render only its own local
+// projections from policy sources shipped in that same public tree. It does
+// not make the module an estate authority: every provider, workspace and
+// cross-repository operation continues to use policyInputs and therefore
+// requires a verified external control-plane. The compiler independently
+// rejects any private-distribution policy selected for a public target.
+func (services *Services) projectionPolicyInputs(
+	ctx context.Context,
+	path string,
+) (string, domain.RepositoryAnchor, []domain.Finding) {
+	root, anchor, findings := services.policyInputs(ctx, path)
+	if root != "" || len(findings) == 0 {
+		return root, anchor, findings
+	}
+	if len(findings) != 1 || findings[0].Code != "GDS_POLICY_ESTATE_NOT_PROVEN" ||
+		anchor.Classification.VisibilityContract != "public" ||
+		!hasRole(anchor.Repository.Roles, "module") {
+		return root, anchor, findings
+	}
+	info, err := services.Git.RepositoryInfo(ctx, path)
+	if err != nil {
+		return "", anchor, []domain.Finding{dependencyFinding(path, err)}
+	}
+	return info.WorktreeRoot, anchor, nil
 }
 
 func (services *Services) ResolveContext(ctx context.Context, path string) domain.Envelope {

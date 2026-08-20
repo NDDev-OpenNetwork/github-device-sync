@@ -3,8 +3,8 @@ GENERATED FILE - DO NOT EDIT DIRECTLY
 generator: gds
 bundle: 0.4.0-dev
 source-tree-digest: sha256:0000000000000000000000000000000000000000000000000000000000000001
-input-digest: sha256:3f416e5e6e74aaf957433f16019395a63db3ca4ccab7404fcd74c2ed778e4a40
-output-digest: sha256:5b65d5e1cb64f992e99e166a488206fac54b4b4e345cdfe795195290d5bd230d
+input-digest: sha256:3e9e73dccf4e3f5cf078d310b59a5c9157707afe33430290a0fc41b38df28781
+output-digest: sha256:c034627a923a5b8b93034977cfefc2a8cd1480652933c7ac901c165b32f3dfbe
 edit-source:
   - .gds/repository.yaml
   - policies/base/repository-default.yaml
@@ -28,8 +28,8 @@ GDS is the public engine for a multi-owner GitHub estate. It loads an external e
 
 ## Where to change what
 
-- Desired policy for a repository, portfolio, role or owner — `policies`
-- Estate topology: devices, installations, owners, selectors — `estate`
+- Generic public policy defaults and synthetic examples — `policies`
+- Complete synthetic example estate — `estate`
 - What a generated projection says — `templates`
 - A typed contract or its validation — `schemas/v1`
 - Command surface and flags — `core/cli`

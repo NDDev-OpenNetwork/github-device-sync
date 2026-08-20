@@ -20,6 +20,10 @@ func TestCompileControlPlanePolicyDeterministically(t *testing.T) {
 	if len(findings) != 0 {
 		t.Fatalf("anchor findings = %#v", findings)
 	}
+	anchor.Repository.Roles = []string{"control-plane"}
+	anchor.Policy.Profiles = []string{"repository-default", "control-plane", "github-device-sync"}
+	anchor.Agent.ContextProfile = "control-plane"
+	anchor.Module = nil
 	policyCompiler := New(schemas)
 	first := policyCompiler.CompileDirectory(root, anchor, DevelopmentBundleVersion)
 	second := policyCompiler.CompileDirectory(root, anchor, DevelopmentBundleVersion)

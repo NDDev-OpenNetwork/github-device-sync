@@ -24,7 +24,7 @@ func prepareHandoffFixture(t *testing.T, policy string) (sessionFixtureState, st
 	}
 	runSessionGit(t, fixture.client, "add", "unrelated.txt")
 	statePath := sessionStatePath(t)
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	exitCode, envelope, stderr := executeJSON(
 		t, "--json", "--cwd", fixture.client, "session", "start", "--refresh", "origin",
 		"--state-path", statePath,

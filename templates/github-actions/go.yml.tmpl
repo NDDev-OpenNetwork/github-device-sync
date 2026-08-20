@@ -22,13 +22,13 @@ jobs:
     uses: {{ .WorkflowRef }}
     with:
       fetch_depth: 0
-      # The fleet creates one virtual machine per job and destroys it after,
-      # so there is no warm cache for setup-go to own and nothing for a stale
-      # one to corrupt. Delegating cache ownership would instead add a
-      # dependency on the GitHub cache service, which the fleet contract does
-      # not promise and which this repository does not need: the golden image
-      # bakes the exact Go toolchain named below.
+{{ if .CacheEnabled }}      # Public hosted CI uses GitHub's service cache; the pinned reusable
+      # workflow owns cache keys and invalidation, so no runner-local state is trusted.
+      cache: true
+{{ else }}      # Ephemeral self-hosted workers do not rely on cross-job local state. A
+      # class may enable a remote cache only through its explicit fleet contract.
       cache: false
+{{ end }}
       runner: {{ yamlQuote .Runner }}
       go_version: {{ yamlQuote .GoVersion }}
       test_command: {{ yamlQuote .TestCommand }}
@@ -45,7 +45,7 @@ jobs:
     uses: {{ .WorkflowRef }}
     with:
       fetch_depth: 0
-      cache: false
+      cache: {{ if .CacheEnabled }}true{{ else }}false{{ end }}
       runner: {{ yamlQuote .Runner }}
       go_version: {{ yamlQuote .GoVersion }}
       build_command: {{ yamlQuote .BuildCommand }}

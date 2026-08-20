@@ -37,6 +37,8 @@ func validateGoWorkflowCaller(content []byte, anchor domain.RepositoryAnchor) er
 	text := string(content)
 	fullHistoryCount := strings.Count(text, "fetch_depth: 0")
 	cacheDisabledCount := strings.Count(text, "cache: false")
+	cacheEnabledCount := strings.Count(text, "cache: true")
+	hostedRunner := strings.HasSuffix(anchor.CI.Runner, "-latest")
 	for _, forbidden := range []string{
 		"pull_request_target:", "secrets: inherit", "permissions: write-all",
 		"@main", "@master", "@v1", "@latest",
@@ -48,14 +50,16 @@ func validateGoWorkflowCaller(content []byte, anchor domain.RepositoryAnchor) er
 	if bytes.Count(content, []byte("uses:")) != 2 || len(fullWorkflowSHA.FindAll(content, -1)) != 2 ||
 		strings.Count(text, "uses: "+anchor.CI.WorkflowRef) != 2 ||
 		fullHistoryCount != 2 ||
-		cacheDisabledCount != 2 ||
+		(hostedRunner && (cacheEnabledCount != 2 || cacheDisabledCount != 0)) ||
+		(!hostedRunner && (cacheDisabledCount != 2 || cacheEnabledCount != 0)) ||
 		!strings.Contains(text, "permissions: {}") ||
 		!strings.Contains(text, "contents: read") ||
 		!strings.Contains(text, "name: gds-ci") {
 		return fmt.Errorf(
-			"workflow caller does not match the closed reusable-workflow contract: uses=%d pinned=%d expected=%d full_history=%d cache_disabled=%d",
+			"workflow caller does not match the closed reusable-workflow contract: uses=%d pinned=%d expected=%d full_history=%d cache_disabled=%d cache_enabled=%d",
 			bytes.Count(content, []byte("uses:")), len(fullWorkflowSHA.FindAll(content, -1)),
-			strings.Count(text, "uses: "+anchor.CI.WorkflowRef), fullHistoryCount, cacheDisabledCount,
+			strings.Count(text, "uses: "+anchor.CI.WorkflowRef), fullHistoryCount,
+			cacheDisabledCount, cacheEnabledCount,
 		)
 	}
 	return nil

@@ -56,7 +56,7 @@ func TestModuleAddMaterializesExactTypedRelationship(t *testing.T) {
 		t.Fatal(err)
 	}
 	statePath := sessionStatePath(t)
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	exitCode, planned, stderr := executeJSON(
 		t, "--json", "--cwd", consumer.client, "module", "add", "--plan",
 		"--module-anchor", candidatePath, "--name", "module",
@@ -167,7 +167,7 @@ func TestModuleUpdatePinRequiresPublishedModuleAndStagesOnlyGitlink(t *testing.T
 	}
 
 	statePath := sessionStatePath(t)
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	exitCode, planned, stderr := executeJSON(
 		t, "--json", "--cwd", consumer.client, "module", "update-pin", "--plan",
 		"--module", module.client, "--name", "module",
@@ -225,7 +225,7 @@ func TestModuleReleasePublishesOneImmutableVersionTag(t *testing.T) {
 	runSessionGit(t, module.client, "push", "-q", "origin", "main")
 	targetOID := runSessionGit(t, module.client, "rev-parse", "HEAD")
 	statePath := sessionStatePath(t)
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	exitCode, planned, stderr := executeJSON(
 		t, "--json", "--cwd", module.client, "module", "release", "--plan",
 		"--version", "1.2.3", "--state-path", statePath,
@@ -282,7 +282,7 @@ func TestModuleReleaseGitHubReleaseApplyRequiresPrivateRuntimes(t *testing.T) {
 	if err := os.WriteFile(assetPath, []byte("artifact"), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	// Isolate device-local operator configuration so this test proves the same
 	// fail-closed boundary on developer machines and clean CI runners.
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
@@ -339,7 +339,7 @@ func TestModuleReleasePlansGitHubReleaseWithPinPolicyIndependent(t *testing.T) {
 	if err := os.WriteFile(assetPath, []byte("artifact"), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	services, runtimePath := moduleReleaseReadServices(t)
 	exitCode, envelope, stderr := executeJSONWithServices(
 		t, services, "--json", "--cwd", module.client, "module", "release", "--plan",

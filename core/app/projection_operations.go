@@ -245,7 +245,7 @@ func (services *Services) projectionOperationContext(
 	ctx context.Context,
 	path string,
 ) (projectionContext, []domain.Finding) {
-	root, anchor, findings := services.policyInputs(ctx, path)
+	root, anchor, findings := services.projectionPolicyInputs(ctx, path)
 	if len(findings) != 0 {
 		return projectionContext{}, findings
 	}
@@ -271,14 +271,15 @@ func (services *Services) projectionOperationContext(
 	// Trace metadata only; see the equivalent note in services.go. An
 	// uncommitted canonical source must not block generation, because that
 	// refusal is what forced the follow-up re-pin commit.
+	sourceLayout := projections.ResolveDevelopmentSourceLayout(root)
 	sourceOID, err := services.Git.CommittedSourceOID(
-		ctx, root, projections.DevelopmentBundleSourcePaths(),
+		ctx, root, sourceLayout.Paths,
 	)
 	if err != nil {
 		sourceOID = ""
 	}
 	sourceTreeDigest, err := services.Git.SourceTreeDigest(
-		ctx, root, projections.DevelopmentBundleSourcePaths(),
+		ctx, root, sourceLayout.Paths,
 	)
 	if err != nil {
 		return projectionContext{}, []domain.Finding{dependencyFinding(path, err)}

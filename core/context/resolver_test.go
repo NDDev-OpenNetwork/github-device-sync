@@ -22,23 +22,20 @@ import (
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/validation"
 )
 
-func TestResolveControlPlaneContext(t *testing.T) {
+func TestResolvePublicEngineLocallyWithoutClaimingEstateAuthority(t *testing.T) {
 	t.Parallel()
 	resolver := newTestResolver(t)
 	outcome := resolver.Resolve(context.Background(), repositoryRoot(t))
 	if outcome.Context.Repository.ID != "repo_01M0EZ7TB3KNXNSP78Z8M64WXG" {
 		t.Fatalf("repository id = %q", outcome.Context.Repository.ID)
 	}
-	if !outcome.Context.Estate.Registered {
-		t.Fatal("control-plane repository should self-register as estate root")
+	if outcome.Context.Estate.Registered {
+		t.Fatal("public engine must not self-register as the private estate")
 	}
 	if outcome.Class != domain.ExitSuccess || !outcome.Context.Policy.BundleLockPresent {
 		t.Fatalf("class = %q, policy = %#v", outcome.Class, outcome.Context.Policy)
 	}
-	if outcome.Context.Policy.Provenance != "verified" {
-		t.Fatalf("policy provenance = %q", outcome.Context.Policy.Provenance)
-	}
-	if len(outcome.Findings) != 0 {
+	if outcome.Context.Policy.Provenance != "verified" || len(outcome.Findings) != 0 {
 		t.Fatalf("findings = %#v", outcome.Findings)
 	}
 }
@@ -56,7 +53,7 @@ func TestResolveOutsideGitRepository(t *testing.T) {
 }
 
 func TestResolveAppliedPolicyRejectsTamperedLockedProjection(t *testing.T) {
-	sourceRoot := repositoryRoot(t)
+	sourceRoot := projectionGoldenRoot(t)
 	root := t.TempDir()
 	for _, relative := range []string{
 		".gds/bundle.lock.yaml",
@@ -103,7 +100,7 @@ func TestResolveAppliedPolicyRejectsTamperedLockedProjection(t *testing.T) {
 func TestCanonicalPolicyProverRejectsCommittedSelfConsistentReplacement(t *testing.T) {
 	sourceRoot := repositoryRoot(t)
 	targetRoot := t.TempDir()
-	copyContextFixture(t, sourceRoot, targetRoot)
+	copyContextFixture(t, projectionGoldenRoot(t), targetRoot)
 	runContextGit(t, targetRoot, "init", "--quiet")
 	runContextGit(t, targetRoot, "config", "user.name", "GDS context test")
 	runContextGit(t, targetRoot, "config", "user.email", "context@example.invalid")
@@ -115,6 +112,11 @@ func TestCanonicalPolicyProverRejectsCommittedSelfConsistentReplacement(t *testi
 	if len(anchorFindings) != 0 {
 		t.Fatal(anchorFindings)
 	}
+	anchorValue.Repository.Roles = []string{"control-plane"}
+	anchorValue.Policy.Profiles = []string{"repository-default", "control-plane", "github-device-sync"}
+	anchorValue.Agent.ContextProfile = "control-plane"
+	anchorValue.Agent.GeneratedAgents = true
+	anchorValue.Module = nil
 	resolved := Context{Repository: RepositoryContext{ID: anchorValue.Repository.ID}}
 	findings := []domain.Finding{}
 	document := resolveAppliedPolicy(resolver, &resolved, &findings, targetRoot)
@@ -211,7 +213,7 @@ func TestCanonicalPolicyProverFailsClosedWithoutReleaseEvidence(t *testing.T) {
 }
 
 func TestResolveEstateUsesDeviceLocalRegistration(t *testing.T) {
-	root := repositoryRoot(t)
+	root := writeTestControlPlaneAnchor(t)
 	configHome := t.TempDir()
 	schemas, err := validation.NewSchemaSet()
 	if err != nil {
@@ -261,7 +263,7 @@ func TestResolveEstateUsesDeviceLocalRegistration(t *testing.T) {
 }
 
 func TestResolveEstateRejectsRegistrationAnchorDrift(t *testing.T) {
-	root := repositoryRoot(t)
+	root := writeTestControlPlaneAnchor(t)
 	configHome := t.TempDir()
 	schemas, err := validation.NewSchemaSet()
 	if err != nil {
@@ -342,7 +344,11 @@ func copyContextFixture(t *testing.T, sourceRoot string, targetRoot string) {
 		".github/workflows/gds-ci.yml",
 		"AGENTS.md",
 	} {
-		content, err := os.ReadFile(filepath.Join(sourceRoot, filepath.FromSlash(relative)))
+		contentRoot := sourceRoot
+		if relative == ".gds/repository.yaml" {
+			contentRoot = repositoryRoot(t)
+		}
+		content, err := os.ReadFile(filepath.Join(contentRoot, filepath.FromSlash(relative)))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -354,6 +360,41 @@ func copyContextFixture(t *testing.T, sourceRoot string, targetRoot string) {
 			t.Fatal(err)
 		}
 	}
+}
+
+func projectionGoldenRoot(t *testing.T) string {
+	t.Helper()
+	return filepath.Join(repositoryRoot(t), "tests", "golden", "projections", "control-plane")
+}
+
+func writeTestControlPlaneAnchor(t *testing.T) string {
+	t.Helper()
+	root := t.TempDir()
+	raw, err := os.ReadFile(filepath.Join(repositoryRoot(t), ".gds", "repository.yaml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	text := string(raw)
+	text = strings.Replace(text,
+		"  roles:\n    - \"project\"\n    - \"module\"\n",
+		"  roles:\n    - \"control-plane\"\n", 1)
+	text = strings.Replace(text, "    - \"public-module\"\n", "    - \"control-plane\"\n", 1)
+	text = strings.Replace(text, "  context_profile: \"project-default\"\n", "  context_profile: \"control-plane\"\n", 1)
+	text = strings.Replace(text, "  generated_agents: false\n", "  generated_agents: true\n", 1)
+	start := strings.Index(text, "\nmodule:\n")
+	end := strings.Index(text, "\nrelease:\n")
+	if start < 0 || end <= start {
+		t.Fatal("public engine anchor has no removable module section")
+	}
+	text = text[:start] + text[end:]
+	path := filepath.Join(root, ".gds", "repository.yaml")
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, []byte(text), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	return root
 }
 
 func runContextGit(t *testing.T, root string, arguments ...string) {

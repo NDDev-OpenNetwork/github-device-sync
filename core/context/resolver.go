@@ -236,8 +236,14 @@ func (resolver *Resolver) Resolve(ctx context.Context, path string) Outcome {
 	document := resolveAppliedPolicy(resolver, &result, &findings, info.WorktreeRoot)
 	if document != nil && repositoryAnchor != nil && result.Policy.Digest != "" &&
 		len(findings) == policyFindingCount {
+		policySourceRoot := result.Estate.Root
+		if policySourceRoot == "" &&
+			repositoryAnchor.Classification.VisibilityContract == "public" &&
+			hasRole(repositoryAnchor.Repository.Roles, "module") {
+			policySourceRoot = info.WorktreeRoot
+		}
 		provenanceFindings := resolver.prover.Verify(
-			ctx, info.WorktreeRoot, result.Estate.Root, *repositoryAnchor, *document,
+			ctx, info.WorktreeRoot, policySourceRoot, *repositoryAnchor, *document,
 		)
 		findings = append(findings, provenanceFindings...)
 		if len(provenanceFindings) == 0 {
@@ -484,6 +490,10 @@ func resolveEstate(resolver *Resolver, result *Context, findings *[]domain.Findi
 		return
 	}
 	if _, err := os.Lstat(registrationPath); errors.Is(err, os.ErrNotExist) {
+		if result.Repository.VisibilityContract == "public" &&
+			hasRole(result.Repository.Roles, "module") {
+			return
+		}
 		*findings = append(*findings, domain.Finding{
 			Code:     "GDS_CONTEXT_ESTATE_NOT_REGISTERED",
 			Severity: domain.SeverityMedium,

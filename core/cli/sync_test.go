@@ -13,7 +13,7 @@ func prepareSyncFixture(t *testing.T) (sessionFixtureState, string, string) {
 	fixture := sessionFixture(t)
 	fixture.pushSecond(t)
 	statePath := sessionStatePath(t)
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	exitCode, envelope, stderr := executeJSON(
 		t, "--json", "--cwd", fixture.client, "session", "start", "--refresh", "origin",
 		"--state-path", statePath,

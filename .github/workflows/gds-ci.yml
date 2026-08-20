@@ -1,14 +1,14 @@
 # GENERATED FILE - DO NOT EDIT DIRECTLY
 # generator: gds
 # bundle: 0.4.0-dev
-# source-tree-digest: sha256:e6c3dab78cef49948ffeadd5c94271e6844424531f652ce366dc0a9c2f5f2b3e
-# input-digest: sha256:c51495582a0accdbd10c58ff852e62f60ac12c83d736d5587db1a340b863d905
-# output-digest: sha256:f6f173457cc65a195b469109188c6de024ca0ea212327c2d725a165fa64fb67f
+# source-tree-digest: sha256:f3e4de54024903d9ff898fa6bf57033d6e2121f3b08c78a3d0df1832669c0166
+# input-digest: sha256:49365771382358f161cd0582b50706516e38fef4b29fdec1109e5b0f11983baa
+# output-digest: sha256:91855b4f5ca00df3f237b7e8aeadf27b680e86e890d9ee49b2683f5c96eca68f
 # edit-source:
 #   - .gds/repository.yaml
 #   - policies/base/repository-default.yaml
 #   - policies/repositories/github-device-sync.yaml
-#   - policies/roles/control-plane.yaml
+#   - policies/roles/public-module.yaml
 #   - templates/agents/repository.md.tmpl
 #   - templates/github-actions/go.yml.tmpl
 #   - templates/harnesses/claude.md.tmpl
@@ -36,13 +36,10 @@ jobs:
     uses: NDDev-OpenNetwork/ci-workflows/.github/workflows/go-ci.yml@da43707a70644e98a1fb5f79e46ac643b4829550
     with:
       fetch_depth: 0
-      # The fleet creates one virtual machine per job and destroys it after,
-      # so there is no warm cache for setup-go to own and nothing for a stale
-      # one to corrupt. Delegating cache ownership would instead add a
-      # dependency on the GitHub cache service, which the fleet contract does
-      # not promise and which this repository does not need: the golden image
-      # bakes the exact Go toolchain named below.
-      cache: false
+      # Public hosted CI uses GitHub's service cache; the pinned reusable
+      # workflow owns cache keys and invalidation, so no runner-local state is trusted.
+      cache: true
+
       runner: "ubuntu-latest"
       go_version: "1.26.5"
       test_command: "go test ./..."
@@ -59,7 +56,7 @@ jobs:
     uses: NDDev-OpenNetwork/ci-workflows/.github/workflows/go-ci.yml@da43707a70644e98a1fb5f79e46ac643b4829550
     with:
       fetch_depth: 0
-      cache: false
+      cache: true
       runner: "ubuntu-latest"
       go_version: "1.26.5"
       build_command: "go build -trimpath ./core/cmd/gds"
