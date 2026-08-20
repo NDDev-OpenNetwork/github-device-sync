@@ -9,7 +9,8 @@ repository:
   id: "repo_01M0EZ7TB3KNXNSP78Z8M64WXG"
   display_name: "github-device-sync"
   roles:
-    - "control-plane"
+    - "project"
+    - "module"
   lifecycle: "active"
 
 provider:
@@ -21,7 +22,7 @@ provider:
 
 classification:
   portfolios:
-    - "portfolio:organization-projects"
+    - "portfolio:opennetwork-projects"
   visibility_contract: "public"
   data_classification: "public"
 
@@ -37,9 +38,9 @@ product:
     - "Build, attest and install immutable releases with offline verification"
     - "Render harness adapters for agent tooling"
   entrypoints:
-    - change: "Desired policy for a repository, portfolio, role or owner"
+    - change: "Generic public policy defaults and synthetic examples"
       path: "policies"
-    - change: "Estate topology: devices, installations, owners, selectors"
+    - change: "Complete synthetic example estate"
       path: "estate"
     - change: "What a generated projection says"
       path: "templates"
@@ -59,7 +60,7 @@ product:
 policy:
   profiles:
     - "repository-default"
-    - "control-plane"
+    - "public-module"
     - "github-device-sync"
   rollout_ring: "standard"
 
@@ -107,13 +108,24 @@ verification:
     - "GDS PR required / go (1.26.5)"
 
 agent:
-  context_profile: "control-plane"
+  context_profile: "project-default"
   generated_agents: true
   serena:
     enabled: false
     provenance_required: false
 
 relationships: []
+
+module:
+  contract: "public"
+  consumption:
+    - "git-submodule"
+    - "package"
+  compatibility: "commit-contract"
+  pin_policy: "default-branch-commit"
+  publication:
+    registry: "none"
+    github_release: "optional"
 
 release:
   mode: "bundle"
