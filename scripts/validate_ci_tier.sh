@@ -21,6 +21,10 @@ run_python_contracts() {
 
 run_python_tests() {
   local python=${GDS_TEST_PYTHON:-python3}
+  if [ -z "${GDS_TEST_PYTHON:-}" ] && [ -x .venv/bin/python ] &&
+    .venv/bin/python -c 'import pytest' 2>/dev/null; then
+    python=.venv/bin/python
+  fi
   "$python" -m pytest
 }
 
