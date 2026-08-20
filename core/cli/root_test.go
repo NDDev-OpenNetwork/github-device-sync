@@ -142,7 +142,7 @@ func TestCompilePolicyJSON(t *testing.T) {
 		t.Fatalf("data = %#v", envelope.Data)
 	}
 	metadata, ok := data["compiled_policy"].(map[string]any)
-	if !ok || metadata["repository_id"] != "repo_01JEXAMPZ0000000000000000A" {
+	if !ok || metadata["repository_id"] != "repo_01M0EZ7TB3KNXNSP78Z8M64WXG" {
 		t.Fatalf("compiled policy = %#v", data)
 	}
 	assertEnvelopeSchema(t, envelope)
@@ -583,13 +583,13 @@ func TestRecoverOperationRequiresDeadOwnerExactPlanApprovalAndVerify(t *testing.
 			Operation: "fixture-operation",
 			Actor:     operations.Actor{Type: "agent-session", SessionID: "interrupted-session"},
 			Preconditions: []operations.Precondition{{
-				RepositoryID:   "repo_01JEXAMPZ0000000000000000A",
+				RepositoryID:   "repo_01M0EZ7TB3KNXNSP78Z8M64WXG",
 				HeadOID:        "0123456789abcdef0123456789abcdef01234567",
 				ManifestDigest: "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 				PolicyDigest:   "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
 			}},
 			Steps: []operations.Step{{
-				StepID: "fixture-step", RepositoryID: "repo_01JEXAMPZ0000000000000000A",
+				StepID: "fixture-step", RepositoryID: "repo_01M0EZ7TB3KNXNSP78Z8M64WXG",
 				Action: "fixture-action", RequiresApproval: true,
 				Compensation: operations.Compensation{Mode: "manual"},
 			}},
@@ -627,13 +627,13 @@ func TestRecoverOperationRequiresDeadOwnerExactPlanApprovalAndVerify(t *testing.
 		StartedAt: now.Add(-10 * time.Minute),
 	}, []state.StepRecord{{
 		OperationID: originalOperationID, StepID: "fixture-step",
-		RepositoryID: "repo_01JEXAMPZ0000000000000000A", Action: "fixture-action",
+		RepositoryID: "repo_01M0EZ7TB3KNXNSP78Z8M64WXG", Action: "fixture-action",
 		IdempotencyKey: idempotencyKey, Sequence: 0, Status: "pending",
 	}}); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := store.AcquireLock(ctx, state.Lock{
-		Scope: "repository", ScopeID: "repo_01JEXAMPZ0000000000000000A",
+		Scope: "repository", ScopeID: "repo_01M0EZ7TB3KNXNSP78Z8M64WXG",
 		LockID: "lock_01KX7BV07RHD6KRA4Z4J0KCHGY", OperationID: originalOperationID,
 		DeviceID: "device_01JEXAMPZ00000000000000000", SessionID: "interrupted-session", PID: 2147483647,
 		AcquiredAt: now.Add(-10 * time.Minute), LeaseExpiresAt: now.Add(-5 * time.Minute),

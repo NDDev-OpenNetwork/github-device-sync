@@ -26,7 +26,7 @@ func TestResolveControlPlaneContext(t *testing.T) {
 	t.Parallel()
 	resolver := newTestResolver(t)
 	outcome := resolver.Resolve(context.Background(), repositoryRoot(t))
-	if outcome.Context.Repository.ID != "repo_01JEXAMPZ0000000000000000A" {
+	if outcome.Context.Repository.ID != "repo_01M0EZ7TB3KNXNSP78Z8M64WXG" {
 		t.Fatalf("repository id = %q", outcome.Context.Repository.ID)
 	}
 	if !outcome.Context.Estate.Registered {
@@ -83,7 +83,7 @@ func TestResolveAppliedPolicyRejectsTamperedLockedProjection(t *testing.T) {
 		t.Fatal(err)
 	}
 	resolver := &Resolver{schemas: schemas}
-	resolved := Context{Repository: RepositoryContext{ID: "repo_01JEXAMPZ0000000000000000A"}}
+	resolved := Context{Repository: RepositoryContext{ID: "repo_01M0EZ7TB3KNXNSP78Z8M64WXG"}}
 	findings := []domain.Finding{}
 	resolveAppliedPolicy(resolver, &resolved, &findings, root)
 	if len(findings) != 0 || resolved.Policy.Digest == "" {
@@ -92,7 +92,7 @@ func TestResolveAppliedPolicyRejectsTamperedLockedProjection(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(root, "AGENTS.md"), []byte("tampered\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	resolved = Context{Repository: RepositoryContext{ID: "repo_01JEXAMPZ0000000000000000A"}}
+	resolved = Context{Repository: RepositoryContext{ID: "repo_01M0EZ7TB3KNXNSP78Z8M64WXG"}}
 	findings = nil
 	resolveAppliedPolicy(resolver, &resolved, &findings, root)
 	if !hasFinding(findings, "GDS_CONTEXT_PROJECTION_DIGEST_MISMATCH") {
@@ -223,7 +223,7 @@ func TestResolveEstateUsesDeviceLocalRegistration(t *testing.T) {
 	}
 	candidate, findings := estateregistry.NewCandidate(
 		"device_01JEXAMPZ00000000000000000",
-		"repo_01JEXAMPZ0000000000000000A",
+		"repo_01M0EZ7TB3KNXNSP78Z8M64WXG",
 		root,
 		anchorEvidence.File.ContentDigest,
 		schemas,
@@ -269,7 +269,7 @@ func TestResolveEstateRejectsRegistrationAnchorDrift(t *testing.T) {
 	}
 	candidate, findings := estateregistry.NewCandidate(
 		"device_01JEXAMPZ00000000000000000",
-		"repo_01JEXAMPZ0000000000000000A",
+		"repo_01M0EZ7TB3KNXNSP78Z8M64WXG",
 		root,
 		"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 		schemas,
