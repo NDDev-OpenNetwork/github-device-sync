@@ -87,10 +87,10 @@ verification:
   commands:
     lint:
       - "scripts/validate_shell.sh"
-      - "scripts/validate_go_core.sh --quick"
+      - "go vet ./..."
     test:
       - "go test ./..."
-      - "python3 -m pytest"
+      - "scripts/validate_python.sh"
     build:
       - "go build -trimpath ./core/cmd/gds"
     fast:

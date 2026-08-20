@@ -3,8 +3,8 @@ GENERATED FILE - DO NOT EDIT DIRECTLY
 generator: gds
 bundle: 0.4.0-dev
 source-tree-digest: sha256:0000000000000000000000000000000000000000000000000000000000000001
-input-digest: sha256:3e9e73dccf4e3f5cf078d310b59a5c9157707afe33430290a0fc41b38df28781
-output-digest: sha256:c034627a923a5b8b93034977cfefc2a8cd1480652933c7ac901c165b32f3dfbe
+input-digest: sha256:950802e1bea8f50bc14a420f483ba53669b9bd3a589d45490c85fa8996ee5d5a
+output-digest: sha256:198abbde694dcaccaf8126a8cc7d645830e1400a36604ca8864e4de4e69e8d18
 edit-source:
   - .gds/repository.yaml
   - policies/base/repository-default.yaml
@@ -41,9 +41,9 @@ GDS is the public engine for a multi-owner GitHub estate. It loads an external e
 ## How to verify
 
 - Lint: `scripts/validate_shell.sh`
-- Lint: `scripts/validate_go_core.sh --quick`
+- Lint: `go vet ./...`
 - Test: `go test ./...`
-- Test: `python3 -m pytest`
+- Test: `scripts/validate_python.sh`
 - Build: `go build -trimpath ./core/cmd/gds`
 - Fast: `scripts/validate_go_core.sh --quick`
 - PR required: `go test ./...`

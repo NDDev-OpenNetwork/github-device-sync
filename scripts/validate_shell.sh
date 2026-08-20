@@ -49,6 +49,7 @@ SCRIPTS=(
   "scripts/validate_assurance.sh"
   "scripts/validate_ci_tier.sh"
   "scripts/validate_go_core.sh"
+  "scripts/validate_python.sh"
   "scripts/validate_release.sh"
   "scripts/validate_shell.sh"
 )
