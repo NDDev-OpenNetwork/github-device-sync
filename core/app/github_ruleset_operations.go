@@ -84,7 +84,7 @@ func (services *Services) PlanGitHubRuleset(
 	}
 	// Apply compares the stored expectation against the visible form of what it
 	// re-observes, so the plan must record exactly that form.
-	observed := githubruleset.VisibleState(current.observed)
+	expected := rulesetPlanExpected(current)
 	plan, err := operations.NewPlan(planID, now, now.Add(projectionPlanLifetime), operations.PlanInput{
 		Operation: githubRulesetOperation,
 		Actor:     operations.Actor{Type: "agent-session", SessionID: options.SessionID},
@@ -112,7 +112,7 @@ func (services *Services) PlanGitHubRuleset(
 					ProviderRepositoryID: current.providerRepositoryID,
 					Owner:                options.Owner, Name: options.Repository,
 				},
-				Expected: &observed,
+				Expected: expected,
 				Desired:  current.desired,
 			}),
 		}},
@@ -133,6 +133,14 @@ func (services *Services) PlanGitHubRuleset(
 	result := domain.Success(command, data)
 	result.Scope["repository_id"] = current.governance.observation.RepositoryID
 	return result
+}
+
+func rulesetPlanExpected(current githubRulesetOperationContext) *githubprovider.RepositoryRulesetState {
+	if !current.exists {
+		return nil
+	}
+	observed := githubruleset.VisibleState(current.observed)
+	return &observed
 }
 
 // ApplyGitHubRuleset applies one approved ruleset plan through the bound
@@ -272,6 +280,7 @@ type githubRulesetOperationContext struct {
 	observed             githubprovider.RepositoryRulesetState
 	visible              githubprovider.RepositoryRulesetState
 	desired              githubprovider.RepositoryRuleset
+	exists               bool
 	inSync               bool
 	providerRepositoryID int64
 	mutationCapabilityID string
@@ -353,13 +362,12 @@ func (services *Services) githubRulesetContext(
 		}
 	}
 	if rulesetID == 0 {
-		failure := domain.NewEnvelope(command, domain.ExitNotProven, nil, domain.Finding{
-			Code: "GDS_GITHUB_RULESET_NOT_ADOPTED", Severity: domain.SeverityHigh,
-			Message: fmt.Sprintf(
-				"No repository ruleset named %q exists; adopt it before reconciling.", desired.Name,
-			),
-		})
-		return githubRulesetOperationContext{}, &failure
+		return githubRulesetOperationContext{
+			governance: governanceContext, privileged: privileged,
+			desired: desired, exists: false, inSync: false,
+			providerRepositoryID: providerRepositoryID,
+			mutationCapabilityID: capability.Mutation.ID,
+		}, nil
 	}
 	observed, _, err := privileged.GetRepositoryRuleset(ctx, rulesetID)
 	if err != nil {
@@ -371,6 +379,7 @@ func (services *Services) githubRulesetContext(
 	return githubRulesetOperationContext{
 		governance: governanceContext, privileged: privileged,
 		observed: observed, visible: visible, desired: desired,
+		exists:               true,
 		inSync:               rulesetOwnedStateMatches(observed, desired),
 		providerRepositoryID: providerRepositoryID,
 		mutationCapabilityID: capability.Mutation.ID,

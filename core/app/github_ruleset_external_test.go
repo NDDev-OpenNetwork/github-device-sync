@@ -83,6 +83,18 @@ func TestDesiredRulesetCarriesDeclaredExternalContexts(t *testing.T) {
 	}
 }
 
+func TestMissingRulesetPlansCreationWithoutInventingObservedIdentity(t *testing.T) {
+	t.Parallel()
+	if expected := rulesetPlanExpected(githubRulesetOperationContext{exists: false}); expected != nil {
+		t.Fatalf("missing ruleset produced observed precondition: %#v", expected)
+	}
+	observed := githubprovider.RepositoryRulesetState{ID: 9, Name: "Protect main", SourceType: "Repository", Source: "example/repository"}
+	expected := rulesetPlanExpected(githubRulesetOperationContext{exists: true, observed: observed})
+	if expected == nil || expected.ID != 9 {
+		t.Fatalf("existing ruleset lost observed identity: %#v", expected)
+	}
+}
+
 func TestDesiredRulesetIsUnchangedWithoutADeclaration(t *testing.T) {
 	root := t.TempDir()
 	writeRuleset(t, root, []string{"CI / build"}, "")
