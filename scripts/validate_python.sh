@@ -11,6 +11,7 @@ PYTHON_ENV=$(mktemp -d "${TMPDIR:-/tmp}/gds-python.XXXXXX")
 cleanup() {
   rm -rf -- "$PYTHON_ENV"
   [ -n "$UV_HOME" ] && rm -rf -- "$UV_HOME"
+  return 0
 }
 trap cleanup EXIT INT TERM
 
