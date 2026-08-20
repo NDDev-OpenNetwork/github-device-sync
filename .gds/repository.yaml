@@ -6,7 +6,7 @@ schema_version: 1
 # live beside it and was removed, because regenerating it after every source
 # commit cost more than it ever caught.
 repository:
-  id: "repo_01JEXAMPZ0000000000000000A"
+  id: "repo_01M0EZ7TB3KNXNSP78Z8M64WXG"
   display_name: "github-device-sync"
   roles:
     - "control-plane"
@@ -14,9 +14,9 @@ repository:
 
 provider:
   type: "github"
-  installation: "installation:github-organization"
-  repository_id: 1000000001
-  owner: "example-org"
+  installation: "installation:github-opennetwork"
+  repository_id: 1335994527
+  owner: "NDDev-OpenNetwork"
   name: "github-device-sync"
 
 classification:
@@ -27,10 +27,9 @@ classification:
 
 product:
   purpose: >-
-    GDS is a control plane for a multi-owner GitHub estate: it holds the desired
-    state of every repository, device and installation, compiles it into
-    per-repository projections, and applies provider changes as approved,
-    journaled, content-addressed transactions.
+    GDS is the public engine for a multi-owner GitHub estate. It loads an
+    external estate root, compiles deterministic projections and executes
+    journaled, content-addressed provider transactions.
   capabilities:
     - "Compile canonical estate intent into deterministic per-repository projections"
     - "Resolve where a checkout sits in the estate and which policy governs it"
