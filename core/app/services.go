@@ -395,12 +395,14 @@ func (services *Services) projectionPolicyInputs(
 	path string,
 ) (string, domain.RepositoryAnchor, []domain.Finding) {
 	root, anchor, findings := services.policyInputs(ctx, path)
-	if root != "" || len(findings) == 0 {
+	if !isPublicModuleProjection(anchor) {
 		return root, anchor, findings
 	}
-	if len(findings) != 1 || findings[0].Code != "GDS_POLICY_ESTATE_NOT_PROVEN" ||
-		anchor.Classification.VisibilityContract != "public" ||
-		!hasRole(anchor.Repository.Roles, "module") {
+	// A registered private estate may be available and is authoritative for
+	// cross-repository/provider operations, but it must not become the source
+	// boundary for this public module's own generated files.
+	if len(findings) != 0 && (len(findings) != 1 ||
+		findings[0].Code != "GDS_POLICY_ESTATE_NOT_PROVEN") {
 		return root, anchor, findings
 	}
 	info, err := services.Git.RepositoryInfo(ctx, path)
@@ -408,6 +410,11 @@ func (services *Services) projectionPolicyInputs(
 		return "", anchor, []domain.Finding{dependencyFinding(path, err)}
 	}
 	return info.WorktreeRoot, anchor, nil
+}
+
+func isPublicModuleProjection(anchor domain.RepositoryAnchor) bool {
+	return anchor.Classification.VisibilityContract == "public" &&
+		hasRole(anchor.Repository.Roles, "module")
 }
 
 func (services *Services) ResolveContext(ctx context.Context, path string) domain.Envelope {
