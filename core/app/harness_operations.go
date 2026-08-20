@@ -12,6 +12,7 @@ import (
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/harness"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/identity"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/operations"
+	"github.com/NDDev-OpenNetwork/github-device-sync/core/projections"
 )
 
 const harnessPlanLifetime = 15 * time.Minute
@@ -321,7 +322,8 @@ func (services *Services) harnessOperationContext(
 	if err != nil {
 		return harnessOperationContext{}, []domain.Finding{dependencyFinding(options.TargetRoot, err)}
 	}
-	adapter, adapterFindings := harness.NewAdapter(root, options.HarnessID, services.Schemas)
+	engineRoot := projections.ResolveDevelopmentSourceLayout(root).EngineRoot
+	adapter, adapterFindings := harness.NewAdapter(engineRoot, options.HarnessID, services.Schemas)
 	if len(adapterFindings) != 0 {
 		return harnessOperationContext{}, adapterFindings
 	}
@@ -355,24 +357,24 @@ func (services *Services) harnessOperationContext(
 	if len(findings) != 0 {
 		return harnessOperationContext{}, findings
 	}
-	if _, err := services.Git.CommittedSourceOID(ctx, root, []string{
+	if _, err := services.Git.CommittedSourceOID(ctx, engineRoot, []string{
 		"harnesses", "skills", "core/harness", "core/skills",
 		"schemas/v1/harness-profile.schema.json", "schemas/v1/skill-registry.schema.json",
 		"schemas/v1/plan.schema.json",
 	}); err != nil {
-		return harnessOperationContext{}, []domain.Finding{dependencyFinding(root, err)}
+		return harnessOperationContext{}, []domain.Finding{dependencyFinding(engineRoot, err)}
 	}
-	info, err := services.Git.RepositoryInfo(ctx, root)
+	info, err := services.Git.RepositoryInfo(ctx, path)
 	if err != nil {
-		return harnessOperationContext{}, []domain.Finding{dependencyFinding(root, err)}
+		return harnessOperationContext{}, []domain.Finding{dependencyFinding(path, err)}
 	}
 	headOID, err := services.Git.HeadOID(ctx, info.WorktreeRoot)
 	if err != nil {
 		return harnessOperationContext{}, []domain.Finding{dependencyFinding(root, err)}
 	}
-	manifestDigest, err := fileDigest(filepath.Join(root, ".gds", "repository.yaml"))
+	manifestDigest, err := fileDigest(filepath.Join(info.WorktreeRoot, ".gds", "repository.yaml"))
 	if err != nil {
-		return harnessOperationContext{}, []domain.Finding{dependencyFinding(root, err)}
+		return harnessOperationContext{}, []domain.Finding{dependencyFinding(path, err)}
 	}
 	action := harness.MaterializeAdapterAction
 	switch operation {
@@ -384,7 +386,7 @@ func (services *Services) harnessOperationContext(
 		action = harness.RemoveAdapterAction
 	}
 	return harnessOperationContext{
-		root: root, repositoryID: anchor.Repository.ID, targetRoot: absoluteTarget,
+		root: engineRoot, repositoryID: anchor.Repository.ID, targetRoot: absoluteTarget,
 		candidate: adapterPlan.Candidate(), previous: adapterPlan.PreviousCandidate(),
 		adapterPlan: adapterPlan, action: action,
 		observation: operations.Observation{

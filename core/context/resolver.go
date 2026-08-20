@@ -237,8 +237,7 @@ func (resolver *Resolver) Resolve(ctx context.Context, path string) Outcome {
 	if document != nil && repositoryAnchor != nil && result.Policy.Digest != "" &&
 		len(findings) == policyFindingCount {
 		policySourceRoot := result.Estate.Root
-		if policySourceRoot == "" &&
-			repositoryAnchor.Classification.VisibilityContract == "public" &&
+		if repositoryAnchor.Classification.VisibilityContract == "public" &&
 			hasRole(repositoryAnchor.Repository.Roles, "module") {
 			policySourceRoot = info.WorktreeRoot
 		}

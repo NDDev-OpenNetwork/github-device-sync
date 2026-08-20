@@ -103,6 +103,7 @@ func TestValidateAllHarnessProfilesDelegatesRuntimeProof(t *testing.T) {
 }
 
 func TestContextReportsAppliedBundle(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 	root := repositoryRoot(t)
 	exitCode, envelope, stderr := executeJSON(t,
 		"--json", "--cwd", root, "context",
@@ -133,6 +134,7 @@ func TestContextReportsAppliedBundle(t *testing.T) {
 }
 
 func TestCompilePolicyJSON(t *testing.T) {
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	root := repositoryRoot(t)
 	exitCode, envelope, stderr := executeJSON(
 		t, "--json", "--cwd", root, "compile", "policy",
@@ -168,7 +170,7 @@ func TestGenerateRepositoryReturnsCandidateWithoutMutation(t *testing.T) {
 		t.Fatalf("candidate = %#v", data)
 	}
 	files, ok := candidate["files"].([]any)
-	if !ok || len(files) != 5 {
+	if !ok || len(files) != 3 {
 		t.Fatalf("candidate files = %#v", candidate["files"])
 	}
 	if envelope.Mutation.Attempted || envelope.Mutation.Completed {
@@ -216,6 +218,7 @@ func TestGenerateRepositoryUsesTrustedEstateBundleProvenance(t *testing.T) {
 }
 
 func TestStatusDoesNotChangeGitIndex(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 	root := repositoryRoot(t)
 	indexPath := repositoryGitIndexPath(t, root)
 	before, err := os.ReadFile(indexPath)
@@ -569,6 +572,7 @@ func TestOperationInspectVerifiesDurableJournalReadOnly(t *testing.T) {
 }
 
 func TestRecoverOperationRequiresDeadOwnerExactPlanApprovalAndVerify(t *testing.T) {
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	repository := repositoryRoot(t)
 	stateRoot := filepath.Join(t.TempDir(), "state")
 	if err := os.MkdirAll(stateRoot, 0o700); err != nil {
@@ -950,6 +954,22 @@ func testEstateRoot(t *testing.T) string {
 			t.Fatal(err)
 		}
 	}
+	engineRoot := filepath.Join(estateRoot, "modules", "github-device-sync")
+	for _, directory := range []string{
+		"harnesses", "plugins", "schemas", "skills", "templates", "core/harness", "core/skills",
+	} {
+		if err := copyCLITestTree(sourceRoot, engineRoot, directory); err != nil {
+			t.Fatal(err)
+		}
+	}
+	engineAnchor := filepath.Join(engineRoot, ".gds", "repository.yaml")
+	if err := os.MkdirAll(filepath.Dir(engineAnchor), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := copyCLITestFile(filepath.Join(sourceRoot, ".gds", "repository.yaml"), engineAnchor); err != nil {
+		t.Fatal(err)
+	}
+	commitCLITestRepository(t, engineRoot, "test: public engine fixture")
 	raw, err := os.ReadFile(filepath.Join(sourceRoot, ".gds", "repository.yaml"))
 	if err != nil {
 		t.Fatal(err)
@@ -973,21 +993,34 @@ func testEstateRoot(t *testing.T) string {
 	if err := os.WriteFile(anchorPath, []byte(text), 0o644); err != nil {
 		t.Fatal(err)
 	}
+	commitCLITestRepository(t, estateRoot, "test: external estate fixture")
+	return estateRoot
+}
+
+func commitCLITestRepository(t *testing.T, root string, message string) {
+	t.Helper()
 	for _, arguments := range [][]string{
 		{"init", "--quiet"},
 		{"config", "user.name", "GDS CLI test"},
 		{"config", "user.email", "cli-test@example.invalid"},
 		{"add", "--all"},
-		{"commit", "--quiet", "-m", "test: external estate fixture"},
+		{"commit", "--quiet", "-m", message},
 	} {
 		command := exec.Command("git", arguments...)
-		command.Dir = estateRoot
+		command.Dir = root
 		command.Env = append(os.Environ(), "GIT_CONFIG_NOSYSTEM=1", "GIT_CONFIG_GLOBAL="+os.DevNull)
 		if output, err := command.CombinedOutput(); err != nil {
 			t.Fatalf("git %v: %v: %s", arguments, err, output)
 		}
 	}
-	return estateRoot
+}
+
+func copyCLITestFile(source string, target string) error {
+	content, err := os.ReadFile(source)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(target, content, 0o644)
 }
 
 func copyCLITestTree(sourceRoot string, targetRoot string, relative string) error {
