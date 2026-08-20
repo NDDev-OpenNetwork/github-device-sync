@@ -20,12 +20,11 @@ run_python_contracts() {
 }
 
 run_python_tests() {
-  local python=${GDS_TEST_PYTHON:-python3}
-  if [ -z "${GDS_TEST_PYTHON:-}" ] && [ -x .venv/bin/python ] &&
-    .venv/bin/python -c 'import pytest' 2>/dev/null; then
-    python=.venv/bin/python
+  if [ -n "${GDS_TEST_PYTHON:-}" ]; then
+    "$GDS_TEST_PYTHON" -m pytest
+  else
+    scripts/validate_python.sh
   fi
-  "$python" -m pytest
 }
 
 case "$TIER" in
