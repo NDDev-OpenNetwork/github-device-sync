@@ -13,7 +13,7 @@ func TestHarnessLifecycleRequiresApprovalAndPreservesUnmanagedState(t *testing.T
 	target := t.TempDir()
 	prior := t.TempDir()
 	statePath := sessionStatePath(t)
-	t.Setenv("GDS_ESTATE_ROOT", root)
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	if err := os.WriteFile(filepath.Join(target, "user-owned.txt"), []byte("preserve\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}

@@ -54,6 +54,23 @@ var developmentBundleSourcePaths = []string{
 	"templates",
 }
 
+var externalEstateSourcePaths = []string{
+	".gds/repository.yaml",
+	"contracts/modules.lock.yaml",
+	"estate/exceptions",
+	"estate/owners",
+	"modules/github-device-sync",
+	"policies",
+}
+
+const externalEngineModulePath = "modules/github-device-sync"
+
+type DevelopmentSourceLayout struct {
+	EngineRoot string
+	Paths      []string
+	External   bool
+}
+
 type Generator struct {
 	schemas   *validation.Set
 	templates map[string][]byte
@@ -81,6 +98,7 @@ type templateData struct {
 	TimeoutMinutes           int
 	WorkflowRef              string
 	Runner                   string
+	CacheEnabled             bool
 	GitHubWorkflowExpression string
 	GitHubRefExpression      string
 }
@@ -110,6 +128,28 @@ func New(schemas *validation.Set) (*Generator, error) {
 // contract cannot be mutated process-locally.
 func DevelopmentBundleSourcePaths() []string {
 	return append([]string(nil), developmentBundleSourcePaths...)
+}
+
+// ResolveDevelopmentSourceLayout separates the public engine source from a
+// private estate when the estate pins GDS as a submodule. The superproject
+// source identity binds the exact engine gitlink plus every policy compiler
+// input; embedded-template verification then proves that the executing binary
+// matches that pinned engine checkout. Standalone example estates retain the
+// original single-repository source boundary.
+func ResolveDevelopmentSourceLayout(estateRoot string) DevelopmentSourceLayout {
+	engineRoot := filepath.Join(estateRoot, filepath.FromSlash(externalEngineModulePath))
+	info, err := os.Lstat(engineRoot)
+	if err == nil && info.IsDir() && info.Mode()&os.ModeSymlink == 0 {
+		return DevelopmentSourceLayout{
+			EngineRoot: engineRoot,
+			Paths:      append([]string(nil), externalEstateSourcePaths...),
+			External:   true,
+		}
+	}
+	return DevelopmentSourceLayout{
+		EngineRoot: estateRoot,
+		Paths:      DevelopmentBundleSourcePaths(),
+	}
 }
 
 // VerifyEmbeddedSources checks template compatibility only: it proves that the
@@ -595,6 +635,7 @@ func projectionTemplateData(
 		TimeoutMinutes:           ciInt(anchor.CI, func(value *domain.CIPolicy) int { return value.TimeoutMinutes }),
 		WorkflowRef:              ciString(anchor.CI, func(value *domain.CIPolicy) string { return value.WorkflowRef }),
 		Runner:                   ciRunner(anchor.CI),
+		CacheEnabled:             strings.HasSuffix(ciRunner(anchor.CI), "-latest"),
 		GitHubWorkflowExpression: "${{ github.workflow }}",
 		GitHubRefExpression:      "${{ github.ref }}",
 	}

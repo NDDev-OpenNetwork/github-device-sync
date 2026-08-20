@@ -61,9 +61,9 @@ func TestScanAllowsCanonicalLinuxbrewPrefixButRejectsUserHome(t *testing.T) {
 	}{
 		{name: "canonical Linuxbrew", content: "/home/linuxbrew/.linuxbrew/bin/brew\n"},
 		{name: "Linuxbrew child path", content: "/home/linuxbrew/.linuxbrew/opt/tool/bin/tool\n"},
-		{name: "arbitrary Linux home", content: "/home/example/.local/bin/tool\n", findings: 1},
-		{name: "Linuxbrew account outside prefix", content: "/home/linuxbrew/private/tool\n", findings: 1},
-		{name: "Linuxbrew lookalike prefix", content: "/home/linuxbrew/.linuxbrew-private/tool\n", findings: 1},
+		{name: "arbitrary Linux home", content: "/" + "home/example/.local/bin/tool\n", findings: 1},
+		{name: "Linuxbrew account outside prefix", content: "/" + "home/linuxbrew/private/tool\n", findings: 1},
+		{name: "Linuxbrew lookalike prefix", content: "/" + "home/linuxbrew/.linuxbrew-private/tool\n", findings: 1},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

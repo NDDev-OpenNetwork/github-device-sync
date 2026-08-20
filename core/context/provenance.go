@@ -62,7 +62,8 @@ func (prover *CanonicalPolicyProver) Verify(
 			nil,
 		)}
 	}
-	if err := prover.projector.VerifyEmbeddedSources(estateRoot); err != nil {
+	sourceLayout := projections.ResolveDevelopmentSourceLayout(estateRoot)
+	if err := prover.projector.VerifyEmbeddedSources(sourceLayout.EngineRoot); err != nil {
 		return []domain.Finding{policyProvenanceFinding(
 			"GDS_CONTEXT_POLICY_EMBEDDED_TEMPLATE_MISMATCH",
 			"The generator's embedded projection templates differ from the claimed canonical source.",
@@ -100,7 +101,7 @@ func (prover *CanonicalPolicyProver) Verify(
 	// lock does not need it, and requiring it there would reintroduce the very
 	// dependency this contract removes.
 	sourceOID, sourceOIDErr := prover.git.CommittedSourceOID(
-		ctx, estateRoot, projections.DevelopmentBundleSourcePaths(),
+		ctx, estateRoot, sourceLayout.Paths,
 	)
 	if sourceOIDErr != nil && document.Bundle.SourceTreeDigest == "" {
 		return []domain.Finding{policyProvenanceFinding(
@@ -111,7 +112,7 @@ func (prover *CanonicalPolicyProver) Verify(
 		)}
 	}
 	sourceTreeDigest, err := prover.git.SourceTreeDigest(
-		ctx, estateRoot, projections.DevelopmentBundleSourcePaths(),
+		ctx, estateRoot, sourceLayout.Paths,
 	)
 	if err != nil {
 		return []domain.Finding{policyProvenanceFinding(

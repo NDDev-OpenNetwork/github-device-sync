@@ -117,7 +117,7 @@ func sessionStatePath(t *testing.T) string {
 func TestSessionStartSeparatesCachedObservationFromExplicitRefresh(t *testing.T) {
 	fixture := sessionFixture(t)
 	fixture.pushSecond(t)
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	statePath := sessionStatePath(t)
 
 	exitCode, cached, stderr := executeJSON(
@@ -175,7 +175,7 @@ func TestSessionStartSeparatesCachedObservationFromExplicitRefresh(t *testing.T)
 func TestSessionStartReportsForcedUpdateAndBlocksSync(t *testing.T) {
 	fixture := sessionFixture(t)
 	fixture.pushSecond(t)
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	statePath := sessionStatePath(t)
 	_, _, _ = executeJSON(
 		t, "--json", "--cwd", fixture.client, "session", "start", "--refresh", "origin", "--state-path", statePath,
@@ -227,7 +227,7 @@ func TestSessionStartReportsForcedUpdateAndBlocksSync(t *testing.T) {
 func TestSessionStartDoesNotFetchWithoutDurableState(t *testing.T) {
 	fixture := sessionFixture(t)
 	fixture.pushSecond(t)
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	missingState := filepath.Join(t.TempDir(), "missing", "state.db")
 	exitCode, envelope, stderr := executeJSON(
 		t, "--json", "--cwd", fixture.client, "session", "start", "--refresh", "origin",

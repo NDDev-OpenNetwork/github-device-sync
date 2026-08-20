@@ -24,7 +24,7 @@ func prepareCompleteFixture(
 	runSessionGit(t, fixture.client, "push", "-qu", "origin", "task/complete")
 	taskOID := runSessionGit(t, fixture.client, "rev-parse", "HEAD")
 	statePath := sessionStatePath(t)
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	exitCode, envelope, stderr := executeJSON(
 		t, "--json", "--cwd", fixture.client, "session", "start", "--refresh", "origin",
 		"--state-path", statePath,
@@ -184,7 +184,7 @@ func TestCompleteFinalizesModuleBeforeConsumerAndLeavesFinalGitlink(t *testing.T
 	consumerTaskOID := runSessionGit(t, consumer.client, "rev-parse", "HEAD")
 
 	statePath := sessionStatePath(t)
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	for _, root := range []string{module.client, consumer.client} {
 		exitCode, refreshed, stderr := executeJSON(
 			t, "--json", "--cwd", root, "session", "start", "--refresh", "origin",

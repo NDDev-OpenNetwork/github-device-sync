@@ -14,7 +14,7 @@ func TestPortfolioPlanIsolatesDirtyRepository(t *testing.T) {
 	blockedID := "repo_01JEXAMPZ0000000000000000E"
 	portfolioRepositoryFixture(t, root, "ready", readyID, 223456789, false)
 	portfolioRepositoryFixture(t, root, "blocked", blockedID, 323456789, true)
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 
 	exitCode, envelope, stderr := executeJSON(
 		t, "--json", "portfolio", "plan",
