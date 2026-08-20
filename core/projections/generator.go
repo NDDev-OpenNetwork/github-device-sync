@@ -580,14 +580,14 @@ func projectionTemplateData(
 		PrivateParentPersistence: effectiveString(
 			policy.Effective, "context", "private_parent_persistence",
 		),
-		VisibilityContract:       anchor.Classification.VisibilityContract,
-		DataClassification:       anchor.Classification.DataClassification,
-		SkillProfiles:            strings.Join(effectiveProfiles(policy.Effective), ", "),
-		Commands:                 verificationCommands(anchor.Verification.Commands),
-		DefaultBranch:            anchor.Git.DefaultBranch,
-		GoVersion:                ciString(anchor.CI, func(value *domain.CIPolicy) string { return value.GoVersion }),
-		BuildCommand:             ciString(anchor.CI, func(value *domain.CIPolicy) string { return value.BuildCommand }),
-		TestCommand:              ciString(anchor.CI, func(value *domain.CIPolicy) string { return value.TestCommand }),
+		VisibilityContract: anchor.Classification.VisibilityContract,
+		DataClassification: anchor.Classification.DataClassification,
+		SkillProfiles:      strings.Join(effectiveProfiles(policy.Effective), ", "),
+		Commands:           verificationCommands(anchor.Verification.Commands),
+		DefaultBranch:      anchor.Git.DefaultBranch,
+		GoVersion:          ciString(anchor.CI, func(value *domain.CIPolicy) string { return value.GoVersion }),
+		BuildCommand:       ciString(anchor.CI, func(value *domain.CIPolicy) string { return value.BuildCommand }),
+		TestCommand:        ciString(anchor.CI, func(value *domain.CIPolicy) string { return value.TestCommand }),
 		// The pull-request tier runs what the anchor declares, not a fixed
 		// script name. A repository that does not ship a tier runner still
 		// has to be able to state its own gate.

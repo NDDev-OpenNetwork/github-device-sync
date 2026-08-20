@@ -72,8 +72,8 @@ func TestGitHubInventoryAndReconciliationUseLiveReadOnlyRuntime(t *testing.T) {
 	})
 	summaryData, ok := summary.Data.(EstateSummaryReport)
 	if summary.ExitClass != domain.ExitSuccess || !ok || summaryData.Repositories != 5 ||
-		summaryData.ManagementModes["observe-only"] != 4 ||
-		summaryData.ManagementModes["managed"] != 1 ||
+		summaryData.ManagementModes["observe-only"] != 3 ||
+		summaryData.ManagementModes["managed"] != 2 ||
 		summaryData.IdentityStates["unassigned"] != 5 ||
 		summaryData.DriftByClass["identity"] != 5 {
 		t.Fatalf("summary=%#v", summary)

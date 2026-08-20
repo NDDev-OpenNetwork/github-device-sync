@@ -97,7 +97,7 @@ esac
 
     device = ROOT / "estate" / "devices" / "example-user-ubuntu-1.yaml"
     device_id = "device_01JEXAMPZ00000000000000002"
-    repository_id = "repo_01JEXAMPZ0000000000000000A"
+    repository_id = "repo_01M0EZ7TB3KNXNSP78Z8M64WXG"
     root = str(ROOT.resolve())
     anchor = "sha256:" + hashlib.sha256(
         (ROOT / ".gds" / "repository.yaml").read_bytes()

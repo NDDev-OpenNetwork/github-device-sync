@@ -98,22 +98,22 @@ func appProjectionOperationServer(t *testing.T) *httptest.Server {
 				strings.TrimPrefix(request.URL.Path, "/app/installations/"), "/access_tokens",
 			)
 			_, _ = fmt.Fprintf(writer, `{"token":"ghs_%s","expires_at":"2099-01-01T00:00:00Z","permissions":{"actions":"read","administration":"read","checks":"read","contents":"read","metadata":"read","pull_requests":"read"},"repository_selection":"all"}`, providerID)
-		case request.URL.Path == "/repos/example-org/github-device-sync":
+		case request.URL.Path == "/repos/NDDev-OpenNetwork/github-device-sync":
 			_, _ = writer.Write([]byte(`{
-  "id": 1000000001,
+  "id": 1335994527,
   "node_id": "R_gds",
   "name": "github-device-sync",
-  "full_name": "example-org/github-device-sync",
+  "full_name": "NDDev-OpenNetwork/github-device-sync",
   "private": false,
   "visibility": "public",
   "fork": false,
   "archived": false,
   "disabled": false,
   "default_branch": "main",
-  "html_url": "https://github.com/example-org/github-device-sync",
-  "owner": {"login": "example-org"}
+  "html_url": "https://github.com/NDDev-OpenNetwork/github-device-sync",
+  "owner": {"login": "NDDev-OpenNetwork"}
 }`))
-		case request.URL.Path == "/repos/example-org/github-device-sync/git/ref/heads/main":
+		case request.URL.Path == "/repos/NDDev-OpenNetwork/github-device-sync/git/ref/heads/main":
 			_, _ = fmt.Fprintf(writer, `{"ref":"refs/heads/main","object":{"sha":%q}}`, baseSHA)
 		case strings.Contains(request.URL.Path, "/git/ref/heads/gds/projection-"):
 			http.NotFound(writer, request)
