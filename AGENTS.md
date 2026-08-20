@@ -2,9 +2,9 @@
 GENERATED FILE - DO NOT EDIT DIRECTLY
 generator: gds
 bundle: 0.4.0-dev
-source-tree-digest: sha256:34d52b7f9f301e146a8633cc7bf4e7e05ff45a630bbf3183d1e1e695e4ce5730
-input-digest: sha256:6b11cff602b0301d23c950660ac8fbb482bfb9e728db2380a2e0f0ccb318e0c3
-output-digest: sha256:d62e4493e9f0b9b6b63c223327f595943f5c7c7e970e6ceb874ed7de8eb128da
+source-tree-digest: sha256:90e2790cf48b49a1fde3c63b9a35929348cd9928f2900eb6cc496d10031aa7eb
+input-digest: sha256:8c34a761d8b22704eadb81b8ff5130fe4bf819a32535fab20b4058c312dc19fe
+output-digest: sha256:5b65d5e1cb64f992e99e166a488206fac54b4b4e345cdfe795195290d5bd230d
 edit-source:
   - .gds/repository.yaml
   - policies/base/repository-default.yaml
@@ -16,7 +16,7 @@ edit-source:
 -->
 # Repository brief
 
-GDS is a control plane for a multi-owner GitHub estate: it holds the desired state of every repository, device and installation, compiles it into per-repository projections, and applies provider changes as approved, journaled, content-addressed transactions.
+GDS is the public engine for a multi-owner GitHub estate. It loads an external estate root, compiles deterministic projections and executes journaled, content-addressed provider transactions.
 
 ## What it does
 
@@ -64,6 +64,6 @@ GDS is a control plane for a multi-owner GitHub estate: it holds the desired sta
 
 ## Facts
 
-- Repository `repo_01JEXAMPZ0000000000000000A`, roles `control-plane`, bundle `0.4.0-dev`.
+- Repository `repo_01M0EZ7TB3KNXNSP78Z8M64WXG`, roles `control-plane`, bundle `0.4.0-dev`.
 - Canonical inputs: `.gds/repository.yaml`; compiled result: `.gds/compiled-policy.json`.
 - Visibility `public`, data `public`.
