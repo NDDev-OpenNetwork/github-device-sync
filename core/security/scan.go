@@ -54,6 +54,18 @@ var absoluteUserPath = regexp.MustCompile(
 		regexp.QuoteMeta("/"+"home/") + `[^/\s]+)(?:/|\b)`,
 )
 
+var portableSystemHomePrefixes = [][]byte{
+	[]byte("/home/linuxbrew/.linuxbrew/"),
+}
+
+func containsDeviceSpecificHomePath(content []byte) bool {
+	scanContent := bytes.Clone(content)
+	for _, prefix := range portableSystemHomePrefixes {
+		scanContent = bytes.ReplaceAll(scanContent, prefix, []byte("${SYSTEM_PREFIX}"))
+	}
+	return absoluteUserPath.Match(scanContent)
+}
+
 type Report struct {
 	TrackedFiles  int `json:"tracked_files"`
 	ScannedFiles  int `json:"scanned_files"`
@@ -86,7 +98,7 @@ func Scan(root string, tracked []gitprovider.TrackedPath) (Report, []domain.Find
 		portable := isPortablePath(entry.Path)
 		if portable {
 			report.PortableFiles++
-			if absoluteUserPath.Match(content) {
+			if containsDeviceSpecificHomePath(content) {
 				findings = append(findings, securityFinding(
 					"GDS_PORTABLE_ABSOLUTE_PATH", entry.Path,
 					"Portable source contains a device-specific home path.", "absolute-user-path",

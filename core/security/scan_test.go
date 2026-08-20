@@ -52,3 +52,32 @@ func TestScanAllowsPortableVariablesAndPrivateDocumentationPaths(t *testing.T) {
 		t.Fatalf("findings = %#v", findings)
 	}
 }
+
+func TestScanAllowsCanonicalLinuxbrewPrefixButRejectsUserHome(t *testing.T) {
+	tests := []struct {
+		name     string
+		content  string
+		findings int
+	}{
+		{name: "canonical Linuxbrew", content: "/home/linuxbrew/.linuxbrew/bin/brew\n"},
+		{name: "Linuxbrew child path", content: "/home/linuxbrew/.linuxbrew/opt/tool/bin/tool\n"},
+		{name: "arbitrary Linux home", content: "/home/example/.local/bin/tool\n", findings: 1},
+		{name: "Linuxbrew account outside prefix", content: "/home/linuxbrew/private/tool\n", findings: 1},
+		{name: "Linuxbrew lookalike prefix", content: "/home/linuxbrew/.linuxbrew-private/tool\n", findings: 1},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			root := t.TempDir()
+			if err := os.MkdirAll(filepath.Join(root, "templates"), 0o755); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(filepath.Join(root, "templates", "path.txt"), []byte(test.content), 0o644); err != nil {
+				t.Fatal(err)
+			}
+			_, findings := Scan(root, []gitprovider.TrackedPath{{Mode: "100644", Path: "templates/path.txt"}})
+			if len(findings) != test.findings {
+				t.Fatalf("findings = %#v, want %d", findings, test.findings)
+			}
+		})
+	}
+}
