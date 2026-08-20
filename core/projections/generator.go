@@ -56,7 +56,7 @@ var developmentBundleSourcePaths = []string{
 
 var externalEstateSourcePaths = []string{
 	".gds/repository.yaml",
-	"contracts/modules.lock.yaml",
+	".gitmodules",
 	"estate/exceptions",
 	"estate/owners",
 	"modules/github-device-sync",

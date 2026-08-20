@@ -294,7 +294,7 @@ func TestDevelopmentSourceLayoutSeparatesPinnedEngineFromPrivateEstate(t *testin
 		t.Fatalf("layout = %#v", layout)
 	}
 	want := []string{
-		".gds/repository.yaml", "contracts/modules.lock.yaml", "estate/exceptions",
+		".gds/repository.yaml", ".gitmodules", "estate/exceptions",
 		"estate/owners", "modules/github-device-sync", "policies",
 	}
 	if !reflect.DeepEqual(layout.Paths, want) {
