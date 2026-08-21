@@ -1,0 +1,4 @@
+interface:
+  display_name: "Drakkars Triage Run"
+  short_description: "Explain a slow, queued, or failed CI run"
+  default_prompt: "Use $gds-drakkars-triage-run to trace one CI run from queue to completion."

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Drakkars Rollout Consumer"
+  short_description: "Roll out fleet changes without losing jobs"
+  default_prompt: "Use $gds-drakkars-rollout-consumer for a canary-first consumer rollout."
+policy:
+  allow_implicit_invocation: false
