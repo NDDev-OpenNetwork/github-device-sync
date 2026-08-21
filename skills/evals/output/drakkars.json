@@ -1,0 +1,376 @@
+{
+  "schema_version": 1,
+  "profile": "drakkars",
+  "status": "runtime-not-proven",
+  "tasks": [
+    {
+      "id": "gds-drakkars-orient-output",
+      "skill": "gds-drakkars-orient",
+      "prompt": "Resolve the current CI and fleet context, authority boundaries, visibility constraints, evidence gaps, and safest next skill.",
+      "assertions": [
+        {
+          "id": "verified-context",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate verified context with current authoritative evidence."
+        },
+        {
+          "id": "public-private-boundary",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate public private boundary with current authoritative evidence."
+        },
+        {
+          "id": "no-mutation",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate no mutation with current authoritative evidence."
+        }
+      ]
+    },
+    {
+      "id": "gds-drakkars-audit-fleet-output",
+      "skill": "gds-drakkars-audit-fleet",
+      "prompt": "Audit fleet health, capacity, queue latency, compatibility, and telemetry without changing runtime or provider state.",
+      "assertions": [
+        {
+          "id": "correlated-evidence",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate correlated evidence with current authoritative evidence."
+        },
+        {
+          "id": "latency-decomposition",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate latency decomposition with current authoritative evidence."
+        },
+        {
+          "id": "private-data-contained",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate private data contained with current authoritative evidence."
+        },
+        {
+          "id": "no-mutation",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate no mutation with current authoritative evidence."
+        }
+      ]
+    },
+    {
+      "id": "gds-drakkars-triage-run-output",
+      "skill": "gds-drakkars-triage-run",
+      "prompt": "Trace one slow or failed CI run through GitHub, admission, provider, runner, and teardown without rerunning it.",
+      "assertions": [
+        {
+          "id": "causal-timeline",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate causal timeline with current authoritative evidence."
+        },
+        {
+          "id": "first-abnormal-stage",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate first abnormal stage with current authoritative evidence."
+        },
+        {
+          "id": "no-rerun-or-cancel",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate no rerun or cancel with current authoritative evidence."
+        }
+      ]
+    },
+    {
+      "id": "gds-drakkars-audit-workflow-output",
+      "skill": "gds-drakkars-audit-workflow",
+      "prompt": "Audit one repository workflow set for complete coverage, safety, runner policy, and critical-path parallelism.",
+      "assertions": [
+        {
+          "id": "coverage-map",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate coverage map with current authoritative evidence."
+        },
+        {
+          "id": "critical-path",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate critical path with current authoritative evidence."
+        },
+        {
+          "id": "runner-visibility-policy",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate runner visibility policy with current authoritative evidence."
+        },
+        {
+          "id": "no-mutation",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate no mutation with current authoritative evidence."
+        }
+      ]
+    },
+    {
+      "id": "gds-drakkars-optimize-workflow-output",
+      "skill": "gds-drakkars-optimize-workflow",
+      "prompt": "Implement an approved workflow optimization while preserving checks, security, observability, and unrelated work.",
+      "assertions": [
+        {
+          "id": "coverage-preserved",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate coverage preserved with current authoritative evidence."
+        },
+        {
+          "id": "validation-evidence",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate validation evidence with current authoritative evidence."
+        },
+        {
+          "id": "latency-hypothesis",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate latency hypothesis with current authoritative evidence."
+        },
+        {
+          "id": "explicit-invocation",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate explicit invocation with current authoritative evidence."
+        }
+      ]
+    },
+    {
+      "id": "gds-drakkars-onboard-project-output",
+      "skill": "gds-drakkars-onboard-project",
+      "prompt": "Plan and execute an approved one-repository CI onboarding with technology inventory, canary, evidence, and rollback.",
+      "assertions": [
+        {
+          "id": "technology-inventory",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate technology inventory with current authoritative evidence."
+        },
+        {
+          "id": "visibility-runner-map",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate visibility runner map with current authoritative evidence."
+        },
+        {
+          "id": "canary-before-promotion",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate canary before promotion with current authoritative evidence."
+        },
+        {
+          "id": "rollback-evidence",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate rollback evidence with current authoritative evidence."
+        }
+      ]
+    },
+    {
+      "id": "gds-drakkars-rollout-consumer-output",
+      "skill": "gds-drakkars-rollout-consumer",
+      "prompt": "Perform an approved canary-first consumer rollout with coexistence, drain proof, exact pins, and no job cancellation.",
+      "assertions": [
+        {
+          "id": "exact-identities",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate exact identities with current authoritative evidence."
+        },
+        {
+          "id": "coexistence-and-canary",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate coexistence and canary with current authoritative evidence."
+        },
+        {
+          "id": "zero-active-drain",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate zero active drain with current authoritative evidence."
+        },
+        {
+          "id": "no-job-cancellation",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate no job cancellation with current authoritative evidence."
+        }
+      ]
+    },
+    {
+      "id": "gds-ci-workflows-design-output",
+      "skill": "gds-ci-workflows-design",
+      "prompt": "Design complete portable reusable CI with a minimal DAG, technology setup, security, telemetry, and acceptance fixtures.",
+      "assertions": [
+        {
+          "id": "coverage-matrix",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate coverage matrix with current authoritative evidence."
+        },
+        {
+          "id": "portable-interface",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate portable interface with current authoritative evidence."
+        },
+        {
+          "id": "minimal-dag",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate minimal dag with current authoritative evidence."
+        },
+        {
+          "id": "telemetry-contract",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate telemetry contract with current authoritative evidence."
+        }
+      ]
+    },
+    {
+      "id": "gds-ci-performance-verify-output",
+      "skill": "gds-ci-performance-verify",
+      "prompt": "Compare matched before and after CI cohorts using end-to-end latency, reliability, and evidence limitations.",
+      "assertions": [
+        {
+          "id": "matched-cohorts",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate matched cohorts with current authoritative evidence."
+        },
+        {
+          "id": "stage-decomposition",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate stage decomposition with current authoritative evidence."
+        },
+        {
+          "id": "reliability-impact",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate reliability impact with current authoritative evidence."
+        },
+        {
+          "id": "not-proven-discipline",
+          "method": "model-judge",
+          "evidence": [
+            "final-output",
+            "tool-events"
+          ],
+          "rubric": "The result must demonstrate not proven discipline with current authoritative evidence."
+        }
+      ]
+    }
+  ]
+}

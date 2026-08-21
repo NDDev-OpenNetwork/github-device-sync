@@ -1,0 +1,4 @@
+interface:
+  display_name: "Drakkars Audit Fleet"
+  short_description: "Audit fleet health, capacity, and compatibility"
+  default_prompt: "Use $gds-drakkars-audit-fleet for a read-only evidence-backed fleet audit."

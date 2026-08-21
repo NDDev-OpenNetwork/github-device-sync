@@ -1,0 +1,6 @@
+interface:
+  display_name: "Drakkars Optimize Workflow"
+  short_description: "Optimize CI latency without reducing coverage"
+  default_prompt: "Use $gds-drakkars-optimize-workflow to implement an approved workflow optimization."
+policy:
+  allow_implicit_invocation: false

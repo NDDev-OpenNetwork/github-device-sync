@@ -1,0 +1,4 @@
+interface:
+  display_name: "CI Workflows Design"
+  short_description: "Design complete reusable CI behavior"
+  default_prompt: "Use $gds-ci-workflows-design to design complete reusable CI for a project."
