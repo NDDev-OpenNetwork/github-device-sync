@@ -405,6 +405,18 @@ func rulesetOwnedStateMatches(
 		if !present {
 			return false
 		}
+		if wanted.Type == "pull_request" {
+			if actual.RequiredApprovingReviewCount != wanted.RequiredApprovingReviewCount ||
+				actual.DismissStaleReviewsOnPush != wanted.DismissStaleReviewsOnPush ||
+				actual.RequireCodeOwnerReview != wanted.RequireCodeOwnerReview ||
+				actual.RequiredReviewThreadResolution != wanted.RequiredReviewThreadResolution ||
+				actual.RequireLastPushApproval != wanted.RequireLastPushApproval ||
+				actual.RequireExtraApprovalForUnattributedChanges != wanted.RequireExtraApprovalForUnattributedChanges ||
+				!sameStringSet(actual.AllowedMergeMethods, wanted.AllowedMergeMethods) {
+				return false
+			}
+			continue
+		}
 		if wanted.Type != "required_status_checks" {
 			continue
 		}
@@ -416,6 +428,23 @@ func rulesetOwnedStateMatches(
 			if _, ok := observedContexts[check.Context]; !ok {
 				return false
 			}
+		}
+	}
+	return true
+}
+
+func sameStringSet(left, right []string) bool {
+	if len(left) != len(right) {
+		return false
+	}
+	counts := make(map[string]int, len(left))
+	for _, value := range left {
+		counts[value]++
+	}
+	for _, value := range right {
+		counts[value]--
+		if counts[value] < 0 {
+			return false
 		}
 	}
 	return true
