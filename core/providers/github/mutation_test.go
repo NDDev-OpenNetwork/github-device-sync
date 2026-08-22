@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -268,14 +269,22 @@ func TestRepositoryRulesetUpdatePreservesExternallyManagedPayload(t *testing.T) 
 		"bypass_actors":[{"actor_id":7,"actor_type":"Team","bypass_mode":"always"}],
 		"conditions":{"ref_name":{"include":["~DEFAULT_BRANCH"],"exclude":["refs/heads/vendor/**"]}},
 		"rules":[
-			{"type":"pull_request","parameters":{"required_approving_review_count":2,"require_last_push_approval":true,"allowed_merge_methods":["squash"]}},
+			{"type":"pull_request","parameters":{"required_approving_review_count":2,"require_last_push_approval":true,"allowed_merge_methods":["squash"],"required_reviewers":[],"dismissal_restriction":{"enabled":false,"allowed_actors":[]}}},
 			{"type":"provider_future_rule","parameters":{"opaque":{"keep":true}}},
 			{"type":"required_status_checks","parameters":{"required_status_checks":[{"context":"old"}],"strict_required_status_checks_policy":false,"do_not_enforce_on_create":true}}
 		]}`)}
-	desired := RepositoryRuleset{ID: 9, Name: "gds-main", Target: "branch", Enforcement: "active", Rules: []RulesetRule{{
-		Type: "required_status_checks", RequiredStatusChecks: []RequiredStatusCheck{{Context: "generated / required"}},
-		StrictRequiredStatusChecksPolicy: true,
-	}}}
+	desired := RepositoryRuleset{ID: 9, Name: "gds-main", Target: "branch", Enforcement: "active", Rules: []RulesetRule{
+		{
+			Type: "pull_request", DismissStaleReviewsOnPush: true,
+			RequiredReviewThreadResolution:             true,
+			RequireExtraApprovalForUnattributedChanges: false,
+			AllowedMergeMethods:                        []string{"merge"},
+		},
+		{
+			Type: "required_status_checks", RequiredStatusChecks: []RequiredStatusCheck{{Context: "generated / required"}},
+			StrictRequiredStatusChecksPolicy: true,
+		},
+	}}
 	if _, _, err := repository.UpsertDefaultBranchRuleset(context.Background(), desired, &current); err != nil {
 		t.Fatal(err)
 	}
@@ -290,6 +299,12 @@ func TestRepositoryRulesetUpdatePreservesExternallyManagedPayload(t *testing.T) 
 		rules[1].(map[string]any)["type"] != "provider_future_rule" ||
 		rules[2].(map[string]any)["type"] != "required_status_checks" {
 		t.Fatalf("rule order/external rules changed: %#v", rules)
+	}
+	pullParameters := rules[0].(map[string]any)["parameters"].(map[string]any)
+	if pullParameters["require_extra_approval_for_unattributed_changes"] != false ||
+		!reflect.DeepEqual(pullParameters["allowed_merge_methods"], []any{"merge"}) ||
+		pullParameters["required_reviewers"] == nil || pullParameters["dismissal_restriction"] == nil {
+		t.Fatalf("pull-request owned/external merge is not lossless: %#v", pullParameters)
 	}
 }
 
