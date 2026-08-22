@@ -292,6 +292,18 @@ func normalizeDesired(value githubprovider.RepositoryRuleset) (githubprovider.Re
 				len(rule.RequiredStatusChecks) != 0 {
 				return githubprovider.RepositoryRuleset{}, errors.New("GitHub pull-request rule is invalid")
 			}
+			if len(rule.AllowedMergeMethods) == 0 {
+				rule.AllowedMergeMethods = []string{"merge", "rebase", "squash"}
+			}
+			methods := append([]string(nil), rule.AllowedMergeMethods...)
+			sort.Strings(methods)
+			for methodIndex, method := range methods {
+				if (method != "merge" && method != "rebase" && method != "squash") ||
+					(methodIndex > 0 && methods[methodIndex-1] == method) {
+					return githubprovider.RepositoryRuleset{}, errors.New("GitHub pull-request merge methods are invalid")
+				}
+			}
+			rule.AllowedMergeMethods = methods
 		case "required_status_checks":
 			if len(rule.RequiredStatusChecks) == 0 || len(rule.RequiredStatusChecks) > 50 ||
 				rule.RequiredApprovingReviewCount != 0 {
@@ -451,7 +463,7 @@ func ownedStateEqual(current githubprovider.RepositoryRulesetState, desired gith
 	if desired.Enforcement == "" && current.Enforcement != "active" {
 		return false
 	}
-	return reflect.DeepEqual(requiredChecks(current.Rules), requiredChecks(desired.Rules))
+	return reflect.DeepEqual(ownedRules(current.Rules), ownedRules(desired.Rules))
 }
 
 func applyOwnedState(current githubprovider.RepositoryRulesetState, desired githubprovider.RepositoryRuleset) githubprovider.RepositoryRulesetState {
@@ -459,35 +471,60 @@ func applyOwnedState(current githubprovider.RepositoryRulesetState, desired gith
 	if current.Enforcement == "" {
 		current.Enforcement = "active"
 	}
-	owned := requiredChecks(desired.Rules)
-	result := make([]githubprovider.RulesetRule, 0, len(current.Rules)+1)
-	replaced := false
+	owned := ownedRulesByType(desired.Rules)
+	result := make([]githubprovider.RulesetRule, 0, len(current.Rules)+len(owned))
 	for _, rule := range current.Rules {
-		if rule.Type == "required_status_checks" {
-			if owned != nil {
-				result = append(result, *owned)
+		if rule.Type == "required_status_checks" || rule.Type == "pull_request" {
+			if replacement, exists := owned[rule.Type]; exists {
+				result = append(result, replacement)
 			}
-			replaced = true
+			delete(owned, rule.Type)
 			continue
 		}
 		result = append(result, rule)
 	}
-	if owned != nil && !replaced {
-		result = append(result, *owned)
+	for _, typeName := range []string{"pull_request", "required_status_checks"} {
+		if replacement, exists := owned[typeName]; exists {
+			result = append(result, replacement)
+		}
 	}
 	sort.Slice(result, func(i, j int) bool { return result[i].Type < result[j].Type })
 	current.Rules = result
 	return current
 }
 
-func requiredChecks(rules []githubprovider.RulesetRule) *githubprovider.RulesetRule {
-	for _, rule := range rules {
-		if rule.Type == "required_status_checks" {
-			copy := rule
-			return &copy
+func ownedRules(rules []githubprovider.RulesetRule) []githubprovider.RulesetRule {
+	byType := ownedRulesByType(rules)
+	result := make([]githubprovider.RulesetRule, 0, len(byType))
+	for _, typeName := range []string{"pull_request", "required_status_checks"} {
+		if rule, exists := byType[typeName]; exists {
+			result = append(result, rule)
 		}
 	}
-	return nil
+	return result
+}
+
+func ownedRulesByType(rules []githubprovider.RulesetRule) map[string]githubprovider.RulesetRule {
+	result := map[string]githubprovider.RulesetRule{}
+	for _, rule := range rules {
+		if rule.Type == "required_status_checks" || rule.Type == "pull_request" {
+			copy := rule
+			copy.ExternalParameters = nil
+			copy.OpaqueParameters = nil
+			copy.AllowedMergeMethods = append([]string(nil), copy.AllowedMergeMethods...)
+			sort.Strings(copy.AllowedMergeMethods)
+			result[copy.Type] = copy
+		}
+	}
+	return result
+}
+
+func requiredChecks(rules []githubprovider.RulesetRule) *githubprovider.RulesetRule {
+	rule, exists := ownedRulesByType(rules)["required_status_checks"]
+	if !exists {
+		return nil
+	}
+	return &rule
 }
 
 func stateEvidence(
