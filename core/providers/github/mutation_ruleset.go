@@ -189,6 +189,11 @@ func replaceOwnedRules(payload map[string]any, desired []RulesetRule) error {
 		typeName, _ := rule["type"].(string)
 		if typeName == "required_status_checks" || typeName == "pull_request" {
 			if replacement, exists := owned[typeName]; exists {
+				if typeName == "pull_request" {
+					if err := preserveExternalPullParameters(rule, replacement); err != nil {
+						return err
+					}
+				}
 				result = append(result, replacement)
 				delete(owned, typeName)
 			} else {
@@ -204,6 +209,36 @@ func replaceOwnedRules(payload map[string]any, desired []RulesetRule) error {
 		}
 	}
 	payload["rules"] = result
+	return nil
+}
+
+func preserveExternalPullParameters(observed, desired map[string]any) error {
+	observedParameters, ok := observed["parameters"].(map[string]any)
+	if !ok {
+		return rulesetStageFieldFailure(
+			RulesetStageExternalFieldMerge, "preserved-pull-parameters-not-an-object", "rules/pull_request",
+		)
+	}
+	desiredParameters, ok := desired["parameters"].(map[string]any)
+	if !ok {
+		return rulesetStageFieldFailure(
+			RulesetStageExternalFieldMerge, "desired-pull-parameters-not-an-object", "rules/pull_request",
+		)
+	}
+	owned := map[string]bool{
+		"required_approving_review_count":                 true,
+		"dismiss_stale_reviews_on_push":                   true,
+		"require_code_owner_review":                       true,
+		"required_review_thread_resolution":               true,
+		"require_last_push_approval":                      true,
+		"require_extra_approval_for_unattributed_changes": true,
+		"allowed_merge_methods":                           true,
+	}
+	for key, value := range observedParameters {
+		if !owned[key] {
+			desiredParameters[key] = value
+		}
+	}
 	return nil
 }
 

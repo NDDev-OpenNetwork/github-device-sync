@@ -476,6 +476,9 @@ func applyOwnedState(current githubprovider.RepositoryRulesetState, desired gith
 	for _, rule := range current.Rules {
 		if rule.Type == "required_status_checks" || rule.Type == "pull_request" {
 			if replacement, exists := owned[rule.Type]; exists {
+				if rule.Type == "pull_request" {
+					replacement.ExternalParameters = append(json.RawMessage(nil), rule.ExternalParameters...)
+				}
 				result = append(result, replacement)
 			}
 			delete(owned, rule.Type)

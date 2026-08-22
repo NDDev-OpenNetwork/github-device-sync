@@ -233,3 +233,20 @@ func TestVisibleStateCanonicalizesPreservedRawParameters(t *testing.T) {
 		t.Fatalf("unparseable external parameters were altered: %s", got)
 	}
 }
+
+func TestApplyOwnedStatePreservesPullRequestExternalParameters(t *testing.T) {
+	external := json.RawMessage(`{"required_reviewers":[],"dismissal_restriction":{"enabled":false}}`)
+	current := githubprovider.RepositoryRulesetState{Enforcement: "active", Rules: []githubprovider.RulesetRule{{
+		Type: "pull_request", RequireExtraApprovalForUnattributedChanges: true,
+		AllowedMergeMethods: []string{"merge", "squash", "rebase"}, ExternalParameters: external,
+	}}}
+	desired := githubprovider.RepositoryRuleset{Enforcement: "active", Rules: []githubprovider.RulesetRule{{
+		Type: "pull_request", AllowedMergeMethods: []string{"merge"},
+	}}}
+	updated := applyOwnedState(current, desired)
+	if len(updated.Rules) != 1 || updated.Rules[0].RequireExtraApprovalForUnattributedChanges ||
+		!reflect.DeepEqual(updated.Rules[0].AllowedMergeMethods, []string{"merge"}) ||
+		!reflect.DeepEqual(updated.Rules[0].ExternalParameters, external) {
+		t.Fatalf("owned pull update lost external parameters or desired controls: %#v", updated.Rules)
+	}
+}
