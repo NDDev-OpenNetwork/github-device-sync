@@ -1,7 +1,6 @@
 ---
 name: gds-manage-module
 description: Use this skill only when the owner explicitly asks to add, replace, reclassify, or remove a module relationship for a project. Validate independent Git boundaries, typed relationships, .gitmodules or package metadata, visibility, and pin policy. Do not use it for ordinary code changes inside an existing module.
-disable-model-invocation: true
 ---
 
 # Contract

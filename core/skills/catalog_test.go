@@ -45,7 +45,7 @@ func TestCurrentCanonicalCatalogValid(t *testing.T) {
 	}
 }
 
-func TestExplicitOnlySkillRequiresPortableInvocationGuard(t *testing.T) {
+func TestExplicitOnlySkillRequiresCodexInvocationPolicy(t *testing.T) {
 	root := t.TempDir()
 	skillRoot := filepath.Join(root, "skills", "canonical", "gds-fixture")
 	if err := os.MkdirAll(skillRoot, 0o755); err != nil {
@@ -79,21 +79,38 @@ fixture
 	if err := os.WriteFile(filepath.Join(skillRoot, "SKILL.md"), []byte(body), 0o644); err != nil {
 		t.Fatal(err)
 	}
+	if err := os.MkdirAll(filepath.Join(skillRoot, "agents"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	sidecar := `interface:
+  display_name: Fixture
+  short_description: Fixture validation skill
+  default_prompt: Use $gds-fixture for this fixture.
+policy:
+  allow_implicit_invocation: true
+`
+	if err := os.WriteFile(filepath.Join(skillRoot, "agents", "openai.yaml"), []byte(sidecar), 0o644); err != nil {
+		t.Fatal(err)
+	}
 	definition := Definition{
 		Name: "gds-fixture", Path: "skills/canonical/gds-fixture",
 		Invocation: "explicit-only", Mutation: "external",
+		Interface: Interface{
+			DisplayName: "Fixture", ShortDescription: "Fixture validation skill",
+			DefaultPrompt: "Use $gds-fixture for this fixture.",
+		},
 	}
 	findings := validateSkill(
 		root, Budgets{DescriptionChars: 600, SkillLines: 300}, &definition,
 	)
 	found := false
 	for _, finding := range findings {
-		if finding.Code == "GDS_SKILL_PORTABLE_EXPLICIT_ONLY_MISSING" {
+		if finding.Code == "GDS_SKILL_EXPLICIT_ONLY_PROJECTION_MISSING" {
 			found = true
 		}
 	}
 	if !found {
-		t.Fatalf("missing portable guard finding: %s", strings.TrimSpace(body))
+		t.Fatalf("missing Codex invocation-policy finding: %s", strings.TrimSpace(body))
 	}
 }
 

@@ -1,7 +1,6 @@
 ---
 name: gds-release-module
 description: Use this skill only when the owner explicitly asks to release a module according to its declared pin and publication policy. Classify compatibility, verify the exact commit, publish required tag, package, or GitHub Release, and preserve provenance. Do not use it for module implementation or consumer pin updates alone.
-disable-model-invocation: true
 ---
 
 # Contract

@@ -1,7 +1,6 @@
 ---
 name: gds-recover-operation
 description: Use this skill only when the owner explicitly asks to inspect and resume, abort, or compensate an interrupted GDS operation or stale lock. Reconstruct state from the durable journal and current evidence before any action. Do not use it to conceal partial completion or perform a generic rollback.
-disable-model-invocation: true
 ---
 
 # Contract

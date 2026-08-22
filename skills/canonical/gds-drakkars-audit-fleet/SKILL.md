@@ -29,8 +29,14 @@ Explain fleet health and bottlenecks from correlated, time-bounded evidence.
 2. Establish the audit window and inventory expected pools, capacity, priority, and technologies.
 3. Correlate GitHub queue/start/end events with scheduler, provider, host, runner, and telemetry records using stable run, job, intent, and instance identifiers.
 4. Measure end-to-end latency, queue time, provisioning, setup, execution, teardown, utilization, failure, retry, and orphan rates by pool and priority.
+   Under contention, verify that one repository uses no more than 75 percent
+   of slot, measured CPU, and measured memory capacity; without a competing
+   repository, verify that it may use the full fleet.
 5. Check support for every detected toolchain and package manager; classify unsupported-tool failures separately from project defects.
-6. Check log completeness, redaction, retention, clock alignment, and missing correlation fields.
+6. Check log completeness, redaction, retention, clock alignment, and missing
+   correlation fields. Distinguish the bounded pre-reconciliation account-only
+   window from intent records that remain unbound after authoritative queued
+   and already-running reconciliation.
 7. Separate confirmed faults, saturation, waste, and `NOT_PROVEN` gaps.
 
 ## Safety

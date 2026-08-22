@@ -1,7 +1,6 @@
 ---
 name: gds-sync-checkouts
 description: Use this skill only when the owner explicitly asks to apply safe synchronization to selected existing local checkouts. Refresh remote evidence, skip dirty or diverged boundaries, and apply only approved fast-forward or policy-defined actions. Do not use it at session start or to clone, rebase, force, merge, or clean broadly.
-disable-model-invocation: true
 ---
 
 # Contract

@@ -1,7 +1,6 @@
 ---
 name: gds-manage-repository
 description: Use this skill only when the owner explicitly asks to create, onboard, rename, transfer, archive, rehome, or otherwise change the lifecycle of a Git repository under GDS. Preserve stable identity and plan every provider and local mutation. Do not use it for source-code work or repository deletion hidden as removal.
-disable-model-invocation: true
 ---
 
 # Contract

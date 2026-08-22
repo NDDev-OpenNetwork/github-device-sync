@@ -1,7 +1,6 @@
 ---
 name: gds-update-consumer-pins
 description: Use this skill only when the owner explicitly asks to update verified consumers to a finalized module commit, version tag, or package version. Discover typed consumers, plan independent repository changes, verify each consumer, and roll out safely. Do not use it to release the module or mass-update without a selector.
-disable-model-invocation: true
 ---
 
 # Contract

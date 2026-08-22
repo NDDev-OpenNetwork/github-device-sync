@@ -3,6 +3,21 @@
 All notable changes are documented here. The project follows Semantic
 Versioning.
 
+## [Unreleased]
+
+### Changed
+
+- CI and Drakkars skills now qualify changes only with naturally occurring
+  project jobs. They forbid synthetic, benchmark, soak, canary, manual rerun,
+  empty-commit and cancellation traffic created solely for rollout evidence.
+- Fleet audit guidance now verifies the contended 75-percent per-repository
+  envelope, uncontended full-fleet use, private-free runner routing, and both
+  queued and already-running repository correlation.
+- Explicit-only skills now use the native `agents/openai.yaml` invocation
+  policy as their canonical Codex control. The catalog no longer requires the
+  unsupported legacy `disable-model-invocation` SKILL frontmatter key; portable
+  adapters continue to derive invocation behavior from the typed registry.
+
 ## [0.1.1] - 2026-08-16
 
 First release of `github-device-sync` (GDS) as an open-source control plane

@@ -27,6 +27,8 @@ Verify performance with comparable evidence rather than isolated job duration.
 
 1. Define the user-visible interval, normally PR-ready to all required checks and deployment complete.
 2. Select before/after cohorts matched by repository, workflow, event, change size, cache state, platform, and priority.
+   Use only naturally occurring project runs; never create synthetic,
+   benchmark, soak, canary, rerun, or empty-commit traffic to fill a cohort.
 3. Decompose median, p90, and p95 latency into queue, provision, setup, execute, upload/deploy, and teardown stages.
 4. Compare throughput, utilization, success, retry, infrastructure-failure, flaky-failure, and missing-telemetry rates.
 5. Identify critical-path changes and resource contention; keep priority classes separate.
@@ -38,7 +40,8 @@ Return cohort definition, metric table, confidence limits or evidence limits, re
 
 ## Stop conditions
 
-Stop before rerunning work, changing configuration, or claiming causality from unmatched evidence.
+Stop before dispatching or rerunning work, changing configuration, or claiming
+causality from unmatched evidence.
 
 ## Verification
 

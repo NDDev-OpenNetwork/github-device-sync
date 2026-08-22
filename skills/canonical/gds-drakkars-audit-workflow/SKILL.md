@@ -27,8 +27,13 @@ Audit one project's CI/CD behavior without reducing verification scope or mutati
 
 1. Inventory workflows, triggers, required checks, reusable calls, matrices, environments, artifacts, caches, and deployment gates.
 2. Map project languages, package managers, generated assets, security obligations, builds, tests, and release paths to actual jobs.
-3. Verify public Linux jobs use GitHub-hosted resources and private Linux jobs use the declared private fleet; keep macOS and Windows hosted unless private capacity is explicitly declared.
-4. Build the dependency graph and critical path. Find accidental serialization, duplicated setup, oversized matrices, unsafe cache keys, and missing cancellation semantics.
+3. Verify public Linux jobs use GitHub-hosted resources and private Linux jobs
+   use the declared private fleet, including private repositories in free
+   organizations; keep macOS and Windows hosted unless private capacity is
+   explicitly declared.
+4. Build the dependency graph and critical path. Find accidental serialization,
+   duplicated setup and security placements, oversized matrices, unsafe cache
+   keys, and concurrency groups that can discard queued or running evidence.
 5. Verify least-privilege permissions, pinning, secret isolation, fork safety, timeouts, concurrency, retry ownership, logs, telemetry, and artifact retention.
 6. Report missing coverage separately from speed opportunities.
 

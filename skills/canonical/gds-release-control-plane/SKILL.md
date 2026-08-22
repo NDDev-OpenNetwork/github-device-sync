@@ -1,7 +1,6 @@
 ---
 name: gds-release-control-plane
 description: Use this skill only when the owner explicitly asks to release a verified GDS CLI, plugin, or immutable bundle. Enforce reproducible build, monotonic release sequence, checksums, provenance, SBOM policy, and exact artifact identity. Do not use it to develop features or roll out the release to repositories.
-disable-model-invocation: true
 ---
 
 # Contract
