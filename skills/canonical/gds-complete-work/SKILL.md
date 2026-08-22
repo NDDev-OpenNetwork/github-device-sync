@@ -1,7 +1,6 @@
 ---
 name: gds-complete-work
 description: "Use this skill only when the owner explicitly asks to finish the current work completely across every affected Git repository: implement, verify, integrate, publish, update dependency pins, and remove only proven-safe completed branches or worktrees. Do not use it for status, routine sync, or unfinished handoff."
-disable-model-invocation: true
 ---
 
 # Contract

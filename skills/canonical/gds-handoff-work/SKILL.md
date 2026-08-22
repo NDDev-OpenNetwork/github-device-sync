@@ -1,7 +1,6 @@
 ---
 name: gds-handoff-work
 description: Use this skill only when the owner wants to preserve unfinished work for another device or session. Plan an exact checkpoint commit, push the task branch, and create or update a draft pull request when policy requires it. Do not use it to merge, complete, synchronize main, or clean branches and worktrees.
-disable-model-invocation: true
 ---
 
 # Contract

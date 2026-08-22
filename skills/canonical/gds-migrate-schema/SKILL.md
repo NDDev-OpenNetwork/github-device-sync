@@ -1,7 +1,6 @@
 ---
 name: gds-migrate-schema
 description: Use this skill only when the owner explicitly asks to migrate GDS manifests, state, policies, plans, or projections between schema versions. Rehearse a reversible migration on fixtures and canaries before approved apply. Do not use it for ordinary data edits or cosmetic format changes.
-disable-model-invocation: true
 ---
 
 # Contract

@@ -1,7 +1,6 @@
 ---
 name: gds-bootstrap-device
 description: Use this skill only when the owner explicitly asks to install or verify GDS, its pinned bundle, and selected harness projections on a new macOS, Linux, server, or CI device. Build an exact reversible plan and keep secrets in approved stores. Do not use it to clone every estate repository or change global tools silently.
-disable-model-invocation: true
 ---
 
 # Contract
