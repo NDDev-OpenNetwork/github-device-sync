@@ -14,13 +14,16 @@ type RequiredStatusCheck struct {
 }
 
 type RulesetRule struct {
-	Type                             string                `json:"type"`
-	RequiredApprovingReviewCount     int                   `json:"required_approving_review_count,omitempty"`
-	DismissStaleReviewsOnPush        bool                  `json:"dismiss_stale_reviews_on_push,omitempty"`
-	RequireCodeOwnerReview           bool                  `json:"require_code_owner_review,omitempty"`
-	RequiredReviewThreadResolution   bool                  `json:"required_review_thread_resolution,omitempty"`
-	RequiredStatusChecks             []RequiredStatusCheck `json:"required_status_checks,omitempty"`
-	StrictRequiredStatusChecksPolicy bool                  `json:"strict_required_status_checks_policy,omitempty"`
+	Type                                       string                `json:"type"`
+	RequiredApprovingReviewCount               int                   `json:"required_approving_review_count,omitempty"`
+	DismissStaleReviewsOnPush                  bool                  `json:"dismiss_stale_reviews_on_push,omitempty"`
+	RequireCodeOwnerReview                     bool                  `json:"require_code_owner_review,omitempty"`
+	RequiredReviewThreadResolution             bool                  `json:"required_review_thread_resolution,omitempty"`
+	RequireLastPushApproval                    bool                  `json:"require_last_push_approval,omitempty"`
+	RequireExtraApprovalForUnattributedChanges bool                  `json:"require_extra_approval_for_unattributed_changes,omitempty"`
+	AllowedMergeMethods                        []string              `json:"allowed_merge_methods,omitempty"`
+	RequiredStatusChecks                       []RequiredStatusCheck `json:"required_status_checks,omitempty"`
+	StrictRequiredStatusChecksPolicy           bool                  `json:"strict_required_status_checks_policy,omitempty"`
 	// OpaqueParameters preserves externally managed or provider-new rule
 	// parameters. GDS never synthesizes this field for rules it owns.
 	OpaqueParameters json.RawMessage `json:"opaque_parameters,omitempty"`
@@ -88,7 +91,7 @@ func (mutator *RepositoryMutator) UpsertDefaultBranchRuleset(
 		if payload["enforcement"] == "" {
 			payload["enforcement"] = "active"
 		}
-		if err := replaceOwnedRulesetChecks(payload, ruleset.Rules); err != nil {
+		if err := replaceOwnedRules(payload, ruleset.Rules); err != nil {
 			return RulesetSummary{}, MutationMeta{}, err
 		}
 	} else {
@@ -159,24 +162,23 @@ func (mutator *RepositoryMutator) UpsertDefaultBranchRuleset(
 	}, meta, nil
 }
 
-func replaceOwnedRulesetChecks(payload map[string]any, desired []RulesetRule) error {
+func replaceOwnedRules(payload map[string]any, desired []RulesetRule) error {
 	rawRules, ok := payload["rules"].([]any)
 	if !ok {
 		return rulesetStageFieldFailure(
 			RulesetStageExternalFieldMerge, "preserved-rules-not-a-list", "rules",
 		)
 	}
-	var owned map[string]any
+	owned := map[string]map[string]any{}
 	for _, rule := range desired {
-		if rule.Type == "required_status_checks" {
-			owned = rulesetRulePayload(rule)
+		if rule.Type == "required_status_checks" || rule.Type == "pull_request" {
+			owned[rule.Type] = rulesetRulePayload(rule)
 		}
 	}
 	// Do not add to a provider-controlled length when computing allocation
 	// capacity. append grows the bounded decoded slice safely if the owned rule
 	// was not present in the observation.
 	result := make([]any, 0, len(rawRules))
-	replaced := false
 	for _, value := range rawRules {
 		rule, ok := value.(map[string]any)
 		if !ok {
@@ -184,17 +186,22 @@ func replaceOwnedRulesetChecks(payload map[string]any, desired []RulesetRule) er
 				RulesetStageExternalFieldMerge, "preserved-rule-not-an-object", "rules[]",
 			)
 		}
-		if rule["type"] == "required_status_checks" {
-			if owned != nil {
-				result = append(result, owned)
+		typeName, _ := rule["type"].(string)
+		if typeName == "required_status_checks" || typeName == "pull_request" {
+			if replacement, exists := owned[typeName]; exists {
+				result = append(result, replacement)
+				delete(owned, typeName)
+			} else {
+				result = append(result, rule)
 			}
-			replaced = true
 			continue
 		}
 		result = append(result, rule)
 	}
-	if owned != nil && !replaced {
-		result = append(result, owned)
+	for _, typeName := range []string{"pull_request", "required_status_checks"} {
+		if replacement, exists := owned[typeName]; exists {
+			result = append(result, replacement)
+		}
 	}
 	payload["rules"] = result
 	return nil
@@ -275,11 +282,13 @@ func rulesetRulePayload(rule RulesetRule) map[string]any {
 	switch rule.Type {
 	case "pull_request":
 		payload["parameters"] = map[string]any{
-			"required_approving_review_count":   rule.RequiredApprovingReviewCount,
-			"dismiss_stale_reviews_on_push":     rule.DismissStaleReviewsOnPush,
-			"require_code_owner_review":         rule.RequireCodeOwnerReview,
-			"required_review_thread_resolution": rule.RequiredReviewThreadResolution,
-			"require_last_push_approval":        false,
+			"required_approving_review_count":                 rule.RequiredApprovingReviewCount,
+			"dismiss_stale_reviews_on_push":                   rule.DismissStaleReviewsOnPush,
+			"require_code_owner_review":                       rule.RequireCodeOwnerReview,
+			"required_review_thread_resolution":               rule.RequiredReviewThreadResolution,
+			"require_last_push_approval":                      rule.RequireLastPushApproval,
+			"require_extra_approval_for_unattributed_changes": rule.RequireExtraApprovalForUnattributedChanges,
+			"allowed_merge_methods":                           rule.AllowedMergeMethods,
 		}
 	case "required_status_checks":
 		payload["parameters"] = map[string]any{

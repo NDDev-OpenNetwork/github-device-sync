@@ -55,7 +55,9 @@ func TestCurrentLiveRulesetShapeIsObservable(t *testing.T) {
 	}
 	// Owned fields stay typed and exact.
 	if pullRequest.RequiredApprovingReviewCount != 0 || !pullRequest.DismissStaleReviewsOnPush ||
-		pullRequest.RequireCodeOwnerReview || !pullRequest.RequiredReviewThreadResolution {
+		pullRequest.RequireCodeOwnerReview || !pullRequest.RequiredReviewThreadResolution ||
+		pullRequest.RequireLastPushApproval || pullRequest.RequireExtraApprovalForUnattributedChanges ||
+		!reflect.DeepEqual(pullRequest.AllowedMergeMethods, []string{"merge"}) {
 		t.Fatalf("owned pull_request fields were not typed exactly: %#v", pullRequest)
 	}
 	// Externally managed fields are preserved rather than rejected or dropped.
@@ -63,13 +65,49 @@ func TestCurrentLiveRulesetShapeIsObservable(t *testing.T) {
 	if err := json.Unmarshal(pullRequest.ExternalParameters, &external); err != nil {
 		t.Fatalf("external pull_request parameters were not preserved: %v", err)
 	}
-	for _, key := range []string{"required_reviewers", "dismissal_restriction", "allowed_merge_methods"} {
+	for _, key := range []string{"required_reviewers", "dismissal_restriction"} {
 		if _, present := external[key]; !present {
 			t.Errorf("external pull_request parameter %q was dropped", key)
 		}
 	}
 	if _, leaked := external["required_approving_review_count"]; leaked {
 		t.Error("an owned field was also recorded as external")
+	}
+	for _, key := range []string{"require_last_push_approval", "require_extra_approval_for_unattributed_changes", "allowed_merge_methods"} {
+		if _, leaked := external[key]; leaked {
+			t.Errorf("owned pull_request parameter %q was also recorded as external", key)
+		}
+	}
+}
+
+func TestPullRequestOwnedParametersRoundTripExactly(t *testing.T) {
+	rule, err := normalizeRulesetRule("pull_request", json.RawMessage(`{
+		"required_approving_review_count":0,
+		"dismiss_stale_reviews_on_push":true,
+		"require_code_owner_review":false,
+		"required_review_thread_resolution":true,
+		"require_last_push_approval":false,
+		"require_extra_approval_for_unattributed_changes":true,
+		"allowed_merge_methods":["merge"],
+		"required_reviewers":[]
+	}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !rule.RequireExtraApprovalForUnattributedChanges ||
+		!reflect.DeepEqual(rule.AllowedMergeMethods, []string{"merge"}) {
+		t.Fatalf("owned pull-request parameters were not decoded: %#v", rule)
+	}
+	payload := rulesetRulePayload(RulesetRule{
+		Type: "pull_request", DismissStaleReviewsOnPush: true,
+		RequiredReviewThreadResolution:             true,
+		RequireExtraApprovalForUnattributedChanges: false,
+		AllowedMergeMethods:                        []string{"merge"},
+	})
+	parameters := payload["parameters"].(map[string]any)
+	if parameters["require_extra_approval_for_unattributed_changes"] != false ||
+		!reflect.DeepEqual(parameters["allowed_merge_methods"], []string{"merge"}) {
+		t.Fatalf("owned pull-request parameters were not encoded: %#v", parameters)
 	}
 }
 

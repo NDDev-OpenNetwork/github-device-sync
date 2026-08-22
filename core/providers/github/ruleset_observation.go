@@ -238,18 +238,21 @@ func normalizeRulesetRule(ruleType string, parameters json.RawMessage) (RulesetR
 		}
 	case "pull_request":
 		var value struct {
-			RequiredApprovingReviewCount   int  `json:"required_approving_review_count"`
-			DismissStaleReviewsOnPush      bool `json:"dismiss_stale_reviews_on_push"`
-			RequireCodeOwnerReview         bool `json:"require_code_owner_review"`
-			RequiredReviewThreadResolution bool `json:"required_review_thread_resolution"`
-			RequireLastPushApproval        bool `json:"require_last_push_approval"`
+			RequiredApprovingReviewCount               int      `json:"required_approving_review_count"`
+			DismissStaleReviewsOnPush                  bool     `json:"dismiss_stale_reviews_on_push"`
+			RequireCodeOwnerReview                     bool     `json:"require_code_owner_review"`
+			RequiredReviewThreadResolution             bool     `json:"required_review_thread_resolution"`
+			RequireLastPushApproval                    bool     `json:"require_last_push_approval"`
+			RequireExtraApprovalForUnattributedChanges bool     `json:"require_extra_approval_for_unattributed_changes"`
+			AllowedMergeMethods                        []string `json:"allowed_merge_methods"`
 		}
 		external, err := decodeOwnedRuleParameters(parameters, &value, []string{
 			"required_approving_review_count", "dismiss_stale_reviews_on_push",
 			"require_code_owner_review", "required_review_thread_resolution",
 			"require_last_push_approval",
+			"require_extra_approval_for_unattributed_changes", "allowed_merge_methods",
 		})
-		if err != nil || value.RequireLastPushApproval {
+		if err != nil {
 			return RulesetRule{}, fmt.Errorf("GitHub pull-request ruleset parameters are unsupported")
 		}
 		rule.ExternalParameters = external
@@ -257,6 +260,9 @@ func normalizeRulesetRule(ruleType string, parameters json.RawMessage) (RulesetR
 		rule.DismissStaleReviewsOnPush = value.DismissStaleReviewsOnPush
 		rule.RequireCodeOwnerReview = value.RequireCodeOwnerReview
 		rule.RequiredReviewThreadResolution = value.RequiredReviewThreadResolution
+		rule.RequireLastPushApproval = value.RequireLastPushApproval
+		rule.RequireExtraApprovalForUnattributedChanges = value.RequireExtraApprovalForUnattributedChanges
+		rule.AllowedMergeMethods = append([]string(nil), value.AllowedMergeMethods...)
 	case "required_status_checks":
 		var value struct {
 			RequiredStatusChecks             []RequiredStatusCheck `json:"required_status_checks"`
