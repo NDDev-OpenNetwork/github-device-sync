@@ -250,3 +250,21 @@ func TestApplyOwnedStatePreservesPullRequestExternalParameters(t *testing.T) {
 		t.Fatalf("owned pull update lost external parameters or desired controls: %#v", updated.Rules)
 	}
 }
+
+func TestRulesetSemanticPostconditionIgnoresOnlyWritableSerialization(t *testing.T) {
+	left := githubprovider.RepositoryRulesetState{
+		ID: 9, Name: "Protect main", Target: "branch", Enforcement: "active",
+		WritablePayload: json.RawMessage(`{"before":true}`), WritableDigest: "sha256:before",
+		Rules: []githubprovider.RulesetRule{{Type: "required_signatures"}},
+	}
+	right := left
+	right.WritablePayload = json.RawMessage(`{"after":true}`)
+	right.WritableDigest = "sha256:after"
+	if !reflect.DeepEqual(rulesetSemanticState(left), rulesetSemanticState(right)) {
+		t.Fatal("provider serialization artifacts still decide semantic postcondition")
+	}
+	right.Rules = []githubprovider.RulesetRule{{Type: "deletion"}}
+	if reflect.DeepEqual(rulesetSemanticState(left), rulesetSemanticState(right)) {
+		t.Fatal("semantic ruleset drift was hidden with serialization evidence")
+	}
+}
