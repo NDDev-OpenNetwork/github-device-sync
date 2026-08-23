@@ -56,9 +56,11 @@ remains the recovery authority and the outbox retains the event.
    separately; destinations are externally managed secret-bearing state.
 5. Export the resulting dashboard and alerts from OpenObserve and store their
    digests in the deployment evidence, not in this repository.
-6. Emit one non-secret test event, verify ingestion and queries, then simulate
-   an unavailable endpoint. The local operation must still finalize and the
-   SQLite telemetry summary must show pending/retry/drop evidence.
+6. Use the next normal GDS operation to verify ingestion and queries. Retain
+   pending/retry/drop evidence when a real endpoint outage occurs and prove the
+   local operation still finalized. Do not emit a synthetic event, manufacture
+   an outage, rerun an operation or block normal work merely to close this
+   evidence gap; until natural evidence exists, report it as `NOT_PROVEN`.
 
 Re-export and re-verify after any OpenObserve upgrade. A target older than the
 minimum version, a changed query, a missing panel/alert, or an exporter that can
