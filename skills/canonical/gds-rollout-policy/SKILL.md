@@ -1,7 +1,6 @@
 ---
 name: gds-rollout-policy
 description: Use this skill only when the owner explicitly asks to roll out an immutable GDS bundle or policy version across managed repositories. Plan canaries and bounded waves, apply approved repository changes, pause on failures, and verify adoption. Do not use it to edit canonical policy or publish a bundle.
-disable-model-invocation: true
 ---
 
 # Contract

@@ -1503,6 +1503,15 @@
         "dismiss_stale_reviews_on_push": {"type": "boolean"},
         "require_code_owner_review": {"type": "boolean"},
         "required_review_thread_resolution": {"type": "boolean"},
+        "require_last_push_approval": {"type": "boolean"},
+        "require_extra_approval_for_unattributed_changes": {"type": "boolean"},
+        "allowed_merge_methods": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {"enum": ["merge", "rebase", "squash"]}
+        },
         "required_status_checks": {
           "type": "array",
           "minItems": 1,

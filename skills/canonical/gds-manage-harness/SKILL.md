@@ -1,7 +1,6 @@
 ---
 name: gds-manage-harness
 description: Use this skill only when the owner explicitly asks to add, update, verify, migrate, or retire an agent harness adapter in GDS. Research current official behavior, update one capability profile and generated projections, and prove runtime discovery. Do not use it to change a user's global harness configuration silently.
-disable-model-invocation: true
 ---
 
 # Contract

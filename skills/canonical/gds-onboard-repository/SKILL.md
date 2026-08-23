@@ -1,7 +1,6 @@
 ---
 name: gds-onboard-repository
 description: Use this skill only when the owner explicitly asks to add a brand-new repository to the GDS estate end to end. Walk the full onboarding sequence from provider creation through anchor, selector classification, device materialization, and projection regeneration. Do not use it for lifecycle changes to an existing repository; use gds-manage-repository instead.
-disable-model-invocation: true
 ---
 
 # Contract

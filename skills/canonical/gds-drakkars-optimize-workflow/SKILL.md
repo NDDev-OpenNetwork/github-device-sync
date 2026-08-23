@@ -1,7 +1,6 @@
 ---
 name: gds-drakkars-optimize-workflow
 description: Use this skill only when the owner explicitly asks to change a project's GitHub Actions for lower end-to-end latency while preserving or increasing coverage, stability, logs, and telemetry. Implement within one repository, verify locally, and prepare measured rollout evidence. Do not use it for fleet infrastructure changes or job cancellation.
-disable-model-invocation: true
 ---
 
 # Contract

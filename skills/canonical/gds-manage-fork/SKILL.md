@@ -1,7 +1,6 @@
 ---
 name: gds-manage-fork
 description: Use this skill only when the owner explicitly asks to create, inspect, synchronize, rehome, detach, freeze, archive, or otherwise change a fork lifecycle. Preserve fork-specific commits and upstream identity; force is never the default. Do not use it for ordinary source repositories or generic branch synchronization.
-disable-model-invocation: true
 ---
 
 # Contract

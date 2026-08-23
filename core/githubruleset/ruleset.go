@@ -157,7 +157,7 @@ func (handler *Handler) Apply(ctx context.Context, step operations.Step) (operat
 	if exists {
 		expectedAfter = applyOwnedState(before, parameters.Desired)
 	}
-	exact := reflect.DeepEqual(after, expectedAfter)
+	exact := reflect.DeepEqual(rulesetSemanticState(after), rulesetSemanticState(expectedAfter))
 	if !exists {
 		exact = createdStateEqual(after, expectedAfter)
 	}
@@ -171,6 +171,15 @@ func (handler *Handler) Apply(ctx context.Context, step operations.Step) (operat
 		return operations.ApplyEvidence{Before: beforeEvidence}, err
 	}
 	return operations.ApplyEvidence{Before: beforeEvidence, After: afterEvidence}, nil
+}
+
+func rulesetSemanticState(value githubprovider.RepositoryRulesetState) githubprovider.RepositoryRulesetState {
+	// The provider rewrites the full writable payload on every successful PUT,
+	// so its fresh digest cannot equal the pre-write CAS evidence. Compare every
+	// semantic field here, then record the complete new read-back for Verify.
+	value.WritablePayload = nil
+	value.WritableDigest = ""
+	return value
 }
 
 func createdStateEqual(observed, expected githubprovider.RepositoryRulesetState) bool {
@@ -476,6 +485,9 @@ func applyOwnedState(current githubprovider.RepositoryRulesetState, desired gith
 	for _, rule := range current.Rules {
 		if rule.Type == "required_status_checks" || rule.Type == "pull_request" {
 			if replacement, exists := owned[rule.Type]; exists {
+				if rule.Type == "pull_request" {
+					replacement.ExternalParameters = append(json.RawMessage(nil), rule.ExternalParameters...)
+				}
 				result = append(result, replacement)
 			}
 			delete(owned, rule.Type)
