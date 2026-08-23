@@ -30,6 +30,10 @@ Verify performance with comparable evidence rather than isolated job duration.
    Use only naturally occurring project runs; never create synthetic,
    benchmark, soak, canary, rerun, or empty-commit traffic to fill a cohort.
 3. Decompose median, p90, and p95 latency into queue, provision, setup, execute, upload/deploy, and teardown stages.
+   Use `queue.assigned`/`queue.running` spans for queue lifecycle and
+   `provider.create_instance`/`provider.delete_instance` for provisioning and
+   teardown. Join by `runner_name`; retain `queue_job_uuid`, workflow run and
+   `incus_member` so member pressure is not attributed to the services host.
 4. Compare throughput, utilization, success, retry, infrastructure-failure, flaky-failure, and missing-telemetry rates.
 5. Identify critical-path changes and resource contention; keep priority classes separate.
 6. Reject conclusions with insufficient samples or incomparable cohorts and label them `NOT_PROVEN`.
