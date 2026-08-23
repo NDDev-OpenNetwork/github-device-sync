@@ -6,31 +6,31 @@ schema_version: 1
 # live beside it and was removed, because regenerating it after every source
 # commit cost more than it ever caught.
 repository:
-  id: "repo_01JEXAMPZ0000000000000000A"
+  id: "repo_01M0EZ7TB3KNXNSP78Z8M64WXG"
   display_name: "github-device-sync"
   roles:
-    - "control-plane"
+    - "project"
+    - "module"
   lifecycle: "active"
 
 provider:
   type: "github"
-  installation: "installation:github-organization"
-  repository_id: 1000000001
-  owner: "example-org"
+  installation: "installation:github-opennetwork"
+  repository_id: 1335994527
+  owner: "NDDev-OpenNetwork"
   name: "github-device-sync"
 
 classification:
   portfolios:
-    - "portfolio:organization-projects"
+    - "portfolio:opennetwork-projects"
   visibility_contract: "public"
   data_classification: "public"
 
 product:
   purpose: >-
-    GDS is a control plane for a multi-owner GitHub estate: it holds the desired
-    state of every repository, device and installation, compiles it into
-    per-repository projections, and applies provider changes as approved,
-    journaled, content-addressed transactions.
+    GDS is the public engine for a multi-owner GitHub estate. It loads an
+    external estate root, compiles deterministic projections and executes
+    journaled, content-addressed provider transactions.
   capabilities:
     - "Compile canonical estate intent into deterministic per-repository projections"
     - "Resolve where a checkout sits in the estate and which policy governs it"
@@ -38,9 +38,9 @@ product:
     - "Build, attest and install immutable releases with offline verification"
     - "Render harness adapters for agent tooling"
   entrypoints:
-    - change: "Desired policy for a repository, portfolio, role or owner"
+    - change: "Generic public policy defaults and synthetic examples"
       path: "policies"
-    - change: "Estate topology: devices, installations, owners, selectors"
+    - change: "Complete synthetic example estate"
       path: "estate"
     - change: "What a generated projection says"
       path: "templates"
@@ -60,7 +60,7 @@ product:
 policy:
   profiles:
     - "repository-default"
-    - "control-plane"
+    - "public-module"
     - "github-device-sync"
   rollout_ring: "standard"
 
@@ -77,7 +77,7 @@ ci:
   build_command: "go build -trimpath ./core/cmd/gds"
   test_command: "go test ./..."
   timeout_minutes: 30
-  workflow_ref: "NDDev-OpenNetwork/ci-workflows/.github/workflows/go-ci.yml@da43707a70644e98a1fb5f79e46ac643b4829550"
+  workflow_ref: "NDDev-OpenNetwork/ci-workflows/.github/workflows/go-ci.yml@18e2a7b0962783404f285e7acddbccb1e409e87f"
   # A public repository, so GitHub-hosted runners are unmetered and a fork's
   # pull request cannot reach anything of ours. Self-hosted hardware here would
   # turn a fork PR into remote code execution on it.
@@ -87,10 +87,10 @@ verification:
   commands:
     lint:
       - "scripts/validate_shell.sh"
-      - "scripts/validate_go_core.sh --quick"
+      - "go vet ./..."
     test:
       - "go test ./..."
-      - "python3 -m pytest"
+      - "scripts/validate_python.sh"
     build:
       - "go build -trimpath ./core/cmd/gds"
     fast:
@@ -108,13 +108,24 @@ verification:
     - "GDS PR required / go (1.26.5)"
 
 agent:
-  context_profile: "control-plane"
-  generated_agents: true
+  context_profile: "project-default"
+  generated_agents: false
   serena:
     enabled: false
     provenance_required: false
 
 relationships: []
+
+module:
+  contract: "public"
+  consumption:
+    - "git-submodule"
+    - "package"
+  compatibility: "commit-contract"
+  pin_policy: "default-branch-commit"
+  publication:
+    registry: "none"
+    github_release: "optional"
 
 release:
   mode: "bundle"

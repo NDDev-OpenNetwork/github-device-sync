@@ -75,9 +75,8 @@ type Interface struct {
 }
 
 type frontmatter struct {
-	Name                   string `json:"name"`
-	Description            string `json:"description"`
-	DisableModelInvocation *bool  `json:"disable-model-invocation,omitempty"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 type openAIProjection struct {
@@ -312,22 +311,6 @@ func validateSkill(root string, budgets Budgets, definition *Definition) []domai
 		findings = append(findings, simpleFinding(
 			"GDS_SKILL_NAME_MISMATCH", "SKILL.md name does not match its registry and directory.",
 			map[string]any{"path": skillPath, "expected": definition.Name, "observed": metadata.Name},
-		))
-	}
-	if definition.Invocation == "explicit-only" &&
-		(metadata.DisableModelInvocation == nil || !*metadata.DisableModelInvocation) {
-		findings = append(findings, simpleFinding(
-			"GDS_SKILL_PORTABLE_EXPLICIT_ONLY_MISSING",
-			"Explicit-only canonical skills must disable model invocation for compatible harnesses.",
-			map[string]any{"name": definition.Name, "path": skillPath},
-		))
-	}
-	if definition.Invocation != "explicit-only" && metadata.DisableModelInvocation != nil &&
-		*metadata.DisableModelInvocation {
-		findings = append(findings, simpleFinding(
-			"GDS_SKILL_PORTABLE_INVOCATION_DRIFT",
-			"Implicit-capable skill unexpectedly disables model invocation.",
-			map[string]any{"name": definition.Name, "path": skillPath},
 		))
 	}
 	if len(metadata.Description) > budgets.DescriptionChars {

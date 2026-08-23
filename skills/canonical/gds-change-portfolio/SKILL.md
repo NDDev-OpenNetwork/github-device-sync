@@ -1,7 +1,6 @@
 ---
 name: gds-change-portfolio
 description: Use this skill only when the owner explicitly asks to apply one logical change across repositories selected by a GDS portfolio. Create independent repository subplans, canaries, bounded waves, and an aggregate journal. Do not use it for one repository or pretend the portfolio has one Git transaction.
-disable-model-invocation: true
 ---
 
 # Contract

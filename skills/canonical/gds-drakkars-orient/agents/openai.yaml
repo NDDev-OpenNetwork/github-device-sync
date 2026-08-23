@@ -1,0 +1,4 @@
+interface:
+  display_name: "Drakkars Orient"
+  short_description: "Resolve CI fleet authority and safe workflow"
+  default_prompt: "Use $gds-drakkars-orient to resolve the verified CI and fleet context."

@@ -28,7 +28,7 @@ func TestForkSyncFastForwardsWithoutForceAndVerifiesExactRefs(t *testing.T) {
 	runSessionGit(t, writer, "commit", "-qm", "upstream")
 	target := runSessionGit(t, writer, "rev-parse", "HEAD")
 	runSessionGit(t, writer, "push", "-q", "origin", "main")
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	statePath := sessionStatePath(t)
 	exitCode, planned, stderr := executeJSON(
 		t, "--json", "--cwd", checkout, "fork", "sync", "--plan",
@@ -108,7 +108,7 @@ release:
 	if err := os.WriteFile(targetAnchor, targetRaw, 0o600); err != nil {
 		t.Fatal(err)
 	}
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	exitCode, planned, stderr := executeJSON(
 		t, "--json", "--cwd", repository, "fork", "detach", "--plan",
 		"--anchor", targetAnchor, "--state-path", statePath,

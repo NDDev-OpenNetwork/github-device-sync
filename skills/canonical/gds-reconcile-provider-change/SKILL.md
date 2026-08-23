@@ -1,7 +1,6 @@
 ---
 name: gds-reconcile-provider-change
 description: Use this skill only when the owner explicitly asks to reconcile the estate after a provider-side change to a repository, such as an owner-login case drift, a rename, a transfer, or an archive. Re-snapshot observed inventory, fix provider strings and anchors, re-resolve selectors, and regenerate projections. Do not use it to classify drift without fixing it; use gds-triage-estate-drift for read-only triage.
-disable-model-invocation: true
 ---
 
 # Contract

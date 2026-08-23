@@ -248,11 +248,11 @@ func repositoryProcessorFixture(
 	processor, err := NewRepositoryProcessor(
 		store, desired, runtimeConfig,
 		map[string]RepositoryReader{
-			"installation:github-personal":     personal,
-			"installation:github-organization": &repositoryReaderResult{},
+			"installation:github-personal":      personal,
+			"installation:github-organization":  &repositoryReaderResult{},
 			"installation:github-example-media": &repositoryReaderResult{},
-			"installation:github-guild":        &repositoryReaderResult{},
-			"installation:github-opennetwork":  &repositoryReaderResult{},
+			"installation:github-guild":         &repositoryReaderResult{},
+			"installation:github-opennetwork":   &repositoryReaderResult{},
 		},
 		full,
 	)

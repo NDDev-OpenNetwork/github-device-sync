@@ -28,8 +28,8 @@ func PlanAdoption(state githubprovider.RepositoryRulesetState, observedAt time.T
 		return AdoptionPlan{}, errors.New("ruleset adoption requires a fresh full privileged observation")
 	}
 	plan := AdoptionPlan{SchemaVersion: 1, RulesetID: state.ID, ObservedAt: observedAt.UTC(), ObservedDigest: state.WritableDigest,
-		OwnedPaths:    []string{"/enforcement", "/rules/required_status_checks"},
-		ExternalPaths: []string{"/bypass_actors", "/conditions", "/rules/pull_request", "/rules/*"},
+		OwnedPaths:    []string{"/enforcement", "/rules/pull_request", "/rules/required_status_checks"},
+		ExternalPaths: []string{"/bypass_actors", "/conditions", "/rules/*"},
 		UnknownPolicy: "preserve-or-refuse", Status: "observation-only"}
 	digest, err := canonicaljson.Digest(plan)
 	if err != nil {

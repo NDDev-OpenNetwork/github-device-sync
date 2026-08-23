@@ -20,7 +20,7 @@ func TestWorkspacePlanAndMaterializationUseExactDevicePlacement(t *testing.T) {
 	if err := os.MkdirAll(workspaceRoot, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	anchorPath := filepath.Join(fixture.client, ".gds", "repository.yaml")
 	devicePath := filepath.Join(repositoryRoot(t), "estate", "devices", "example-user-mac2.yaml")
 	exitCode, placement, stderr := executeJSON(
@@ -137,7 +137,7 @@ func TestWorkspaceAuditReportsPlacedStandaloneCheckout(t *testing.T) {
 	if err := os.Rename(fixture.client, target); err != nil {
 		t.Fatal(err)
 	}
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	devicePath := filepath.Join(repositoryRoot(t), "estate", "devices", "example-user-mac2.yaml")
 	exitCode, envelope, stderr := executeJSON(
 		t, "--json", "workspace", "audit", "--root", workspaceRoot,
@@ -163,7 +163,7 @@ func TestWorkspaceRegisterEstateUsesPlanApplyVerify(t *testing.T) {
 	t.Setenv("XDG_CONFIG_HOME", configHome)
 	statePath := sessionStatePath(t)
 	root := filepath.Join(t.TempDir(), "control-plane")
-	clone := exec.Command("git", "clone", "--quiet", "--no-local", repositoryRoot(t), root)
+	clone := exec.Command("git", "clone", "--quiet", "--no-local", testEstateRoot(t), root)
 	if output, err := clone.CombinedOutput(); err != nil {
 		t.Fatalf("clone control-plane fixture: %v: %s", err, output)
 	}

@@ -14,6 +14,7 @@ import (
 )
 
 func TestRunProducesValidatedBoundedEvidence(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 	root := assuranceRepositoryRoot(t)
 	stateParent := t.TempDir()
 	if err := os.Chmod(stateParent, 0o700); err != nil {
@@ -131,6 +132,7 @@ func TestCalibrationRequiresTenComparableCleanReports(t *testing.T) {
 }
 
 func TestValidateRejectsDigestAndBudgetTampering(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 	root := assuranceRepositoryRoot(t)
 	stateParent := t.TempDir()
 	if err := os.Chmod(stateParent, 0o700); err != nil {

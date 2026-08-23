@@ -48,11 +48,11 @@ func TestReconcileAllCompilesFiveInstallationsAndTwoThousandRepositories(t *test
 	result := (Reconciler{
 		Config: config, Concurrency: 2,
 		Readers: map[string]InstallationReader{
-			"installation:github-personal":     readerResult{inventory: personal},
-			"installation:github-organization": readerResult{inventory: organization},
+			"installation:github-personal":      readerResult{inventory: personal},
+			"installation:github-organization":  readerResult{inventory: organization},
 			"installation:github-example-media": readerResult{inventory: exampleMedia},
-			"installation:github-guild":        readerResult{inventory: guild},
-			"installation:github-opennetwork":  readerResult{inventory: openNetwork},
+			"installation:github-guild":         readerResult{inventory: guild},
+			"installation:github-opennetwork":   readerResult{inventory: openNetwork},
 		},
 	}).ReconcileAll(context.Background())
 	if len(result.Findings) != 0 || len(result.Inventory.Repositories) != 2000 ||

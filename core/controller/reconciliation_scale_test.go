@@ -80,11 +80,11 @@ func TestReconciliationScalePersistsTwoThousandRepositoriesAndRecoversAfterOutag
 	run, err := (ReconciliationRunner{
 		Store: store, Config: desired,
 		Readers: map[string]reconciler.InstallationReader{
-			"installation:github-personal":     personal,
-			"installation:github-organization": organization,
+			"installation:github-personal":      personal,
+			"installation:github-organization":  organization,
 			"installation:github-example-media": exampleMedia,
-			"installation:github-guild":        guild,
-			"installation:github-opennetwork":  openNetwork,
+			"installation:github-guild":         guild,
+			"installation:github-opennetwork":   openNetwork,
 		},
 		Concurrency: 2, MaxRepositories: 2000,
 		Now: func() time.Time { return firstObserved }, Audit: reconciliationAudit{},
@@ -146,11 +146,11 @@ func TestReconciliationScalePersistsTwoThousandRepositoriesAndRecoversAfterOutag
 	run, err = (ReconciliationRunner{
 		Store: store, Config: desired,
 		Readers: map[string]reconciler.InstallationReader{
-			"installation:github-personal":     personal,
-			"installation:github-organization": organization,
+			"installation:github-personal":      personal,
+			"installation:github-organization":  organization,
 			"installation:github-example-media": exampleMedia,
-			"installation:github-guild":        guild,
-			"installation:github-opennetwork":  openNetwork,
+			"installation:github-guild":         guild,
+			"installation:github-opennetwork":   openNetwork,
 		},
 		Concurrency: 2, MaxRepositories: 2000,
 		Now: func() time.Time { return secondObserved }, Audit: reconciliationAudit{},

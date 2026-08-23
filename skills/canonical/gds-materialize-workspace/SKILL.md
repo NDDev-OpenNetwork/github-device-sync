@@ -1,7 +1,6 @@
 ---
 name: gds-materialize-workspace
 description: Use this skill only when the owner explicitly asks to clone or materialize a selected repository set on a device. Resolve selectors, local roots, clone modes, submodules, and resource limits before applying. Do not use it to clone the whole estate by default or synchronize existing checkouts.
-disable-model-invocation: true
 ---
 
 # Contract

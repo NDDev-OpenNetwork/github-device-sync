@@ -2,8 +2,8 @@
 # generator: gds
 # bundle: 0.4.0-dev
 # source-tree-digest: sha256:0000000000000000000000000000000000000000000000000000000000000001
-# input-digest: sha256:f0c36457a882b62dbf434cb9441229f73021aea0e0091df609f1bdcab8718442
-# output-digest: sha256:f6f173457cc65a195b469109188c6de024ca0ea212327c2d725a165fa64fb67f
+# input-digest: sha256:6316bc3d6a8329f5d3fde6a8a65662951ed5dd2d1d0e289ad1fbc854b12a5347
+# output-digest: sha256:8f61a9ffd6949238099d4523a037d57199eb575f187cc8ac52baa4b5b832e79f
 # edit-source:
 #   - .gds/repository.yaml
 #   - policies/base/repository-default.yaml
@@ -33,16 +33,13 @@ jobs:
     name: GDS fast
     permissions:
       contents: read
-    uses: NDDev-OpenNetwork/ci-workflows/.github/workflows/go-ci.yml@da43707a70644e98a1fb5f79e46ac643b4829550
+    uses: NDDev-OpenNetwork/ci-workflows/.github/workflows/go-ci.yml@18e2a7b0962783404f285e7acddbccb1e409e87f
     with:
       fetch_depth: 0
-      # The fleet creates one virtual machine per job and destroys it after,
-      # so there is no warm cache for setup-go to own and nothing for a stale
-      # one to corrupt. Delegating cache ownership would instead add a
-      # dependency on the GitHub cache service, which the fleet contract does
-      # not promise and which this repository does not need: the golden image
-      # bakes the exact Go toolchain named below.
-      cache: false
+      # Public hosted CI uses GitHub's service cache; the pinned reusable
+      # workflow owns cache keys and invalidation, so no runner-local state is trusted.
+      cache: true
+
       runner: "ubuntu-latest"
       go_version: "1.26.5"
       test_command: "go test ./..."
@@ -56,10 +53,10 @@ jobs:
     needs: fast
     permissions:
       contents: read
-    uses: NDDev-OpenNetwork/ci-workflows/.github/workflows/go-ci.yml@da43707a70644e98a1fb5f79e46ac643b4829550
+    uses: NDDev-OpenNetwork/ci-workflows/.github/workflows/go-ci.yml@18e2a7b0962783404f285e7acddbccb1e409e87f
     with:
       fetch_depth: 0
-      cache: false
+      cache: true
       runner: "ubuntu-latest"
       go_version: "1.26.5"
       build_command: "go build -trimpath ./core/cmd/gds"

@@ -515,7 +515,8 @@ func (services *Services) recoveryOperationContext(
 		})
 	}
 	return recoveryContext{
-		root: root, repositoryID: anchor.Repository.ID, snapshot: snapshot, plan: plan,
+		root: repositoryInfo.WorktreeRoot, repositoryID: anchor.Repository.ID,
+		snapshot: snapshot, plan: plan,
 		observation: operations.Observation{
 			RepositoryID: anchor.Repository.ID, HeadOID: headOID,
 			WorktreeFingerprint: snapshot.Digest, ManifestDigest: manifestDigest,

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"reflect"
 	"runtime"
 	"strings"
 	"testing"
@@ -80,7 +81,7 @@ func TestGenerateRepositoryProjectionDeterministically(t *testing.T) {
 	if !bytes.Contains(workflow.Content, []byte("uses: "+anchor.CI.WorkflowRef)) ||
 		anchor.CI.Runner == "" ||
 		bytes.Count(workflow.Content, []byte("fetch_depth: 0")) != 2 ||
-		bytes.Count(workflow.Content, []byte("cache: false")) != 2 ||
+		bytes.Count(workflow.Content, []byte("cache: true")) != 2 ||
 		bytes.Count(workflow.Content, []byte("runner: \""+anchor.CI.Runner+"\"")) != 2 ||
 		bytes.Contains(workflow.Content, []byte("pull_request_target")) ||
 		bytes.Contains(workflow.Content, []byte("secrets: inherit")) {
@@ -282,6 +283,36 @@ func TestGeneratorRejectsStaleEmbeddedTemplateAgainstNewerSourceCheckout(t *test
 	}
 }
 
+func TestDevelopmentSourceLayoutSeparatesPinnedEngineFromPrivateEstate(t *testing.T) {
+	estateRoot := t.TempDir()
+	engineRoot := filepath.Join(estateRoot, "modules", "github-device-sync")
+	if err := os.MkdirAll(engineRoot, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	layout := ResolveDevelopmentSourceLayout(estateRoot)
+	if !layout.External || layout.EngineRoot != engineRoot {
+		t.Fatalf("layout = %#v", layout)
+	}
+	want := []string{
+		".gds/repository.yaml", ".gitmodules", "estate/exceptions",
+		"estate/owners", "modules/github-device-sync", "policies",
+	}
+	if !reflect.DeepEqual(layout.Paths, want) {
+		t.Fatalf("paths = %#v, want %#v", layout.Paths, want)
+	}
+}
+
+func TestDevelopmentSourceLayoutKeepsStandaloneEngineBoundary(t *testing.T) {
+	root := t.TempDir()
+	layout := ResolveDevelopmentSourceLayout(root)
+	if layout.External || layout.EngineRoot != root {
+		t.Fatalf("layout = %#v", layout)
+	}
+	if !reflect.DeepEqual(layout.Paths, DevelopmentBundleSourcePaths()) {
+		t.Fatalf("paths = %#v", layout.Paths)
+	}
+}
+
 func TestGeneratedAgentsFalsePreservesRepositoryOwnedInstructions(t *testing.T) {
 	generator, anchor, policy, bundle := controlPlaneInputs(t)
 	anchor.Agent.GeneratedAgents = false
@@ -336,7 +367,7 @@ func TestGoWorkflowValidatorRejectsUnsafeContractChanges(t *testing.T) {
 		{"permissions: {}", "permissions: write-all"},
 		{"pull_request:", "pull_request_target:"},
 		{"fetch_depth: 0", "fetch_depth: 1"},
-		{"cache: false", "cache: true"},
+		{"cache: true", "cache: false"},
 	} {
 		content := bytes.Replace(workflow.Content, []byte(mutation.old), []byte(mutation.new), 1)
 		if err := validateGoWorkflowCaller(content, anchor); err == nil {
@@ -373,6 +404,11 @@ func controlPlaneInputs(
 	if len(findings) != 0 {
 		t.Fatalf("anchor findings = %#v", findings)
 	}
+	anchor.Repository.Roles = []string{"control-plane"}
+	anchor.Policy.Profiles = []string{"repository-default", "control-plane", "github-device-sync"}
+	anchor.Agent.ContextProfile = "control-plane"
+	anchor.Agent.GeneratedAgents = true
+	anchor.Module = nil
 	compiled := compiler.New(schemas).CompileDirectory(
 		root, anchor, compiler.DevelopmentBundleVersion,
 	)

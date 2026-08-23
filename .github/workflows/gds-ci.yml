@@ -1,14 +1,14 @@
 # GENERATED FILE - DO NOT EDIT DIRECTLY
 # generator: gds
 # bundle: 0.4.0-dev
-# source-tree-digest: sha256:34d52b7f9f301e146a8633cc7bf4e7e05ff45a630bbf3183d1e1e695e4ce5730
-# input-digest: sha256:6b11cff602b0301d23c950660ac8fbb482bfb9e728db2380a2e0f0ccb318e0c3
-# output-digest: sha256:f6f173457cc65a195b469109188c6de024ca0ea212327c2d725a165fa64fb67f
+# source-tree-digest: sha256:19faa612aeb7afbcd594c3b3e8ef1bec59f5639e73f1ecb8e63c7756d126144c
+# input-digest: sha256:6c591644a111349d49e3b5d25e1418a14a74b0ca98891c75a8b39b9408f0d441
+# output-digest: sha256:8f61a9ffd6949238099d4523a037d57199eb575f187cc8ac52baa4b5b832e79f
 # edit-source:
 #   - .gds/repository.yaml
 #   - policies/base/repository-default.yaml
 #   - policies/repositories/github-device-sync.yaml
-#   - policies/roles/control-plane.yaml
+#   - policies/roles/public-module.yaml
 #   - templates/agents/repository.md.tmpl
 #   - templates/github-actions/go.yml.tmpl
 #   - templates/harnesses/claude.md.tmpl
@@ -33,16 +33,13 @@ jobs:
     name: GDS fast
     permissions:
       contents: read
-    uses: NDDev-OpenNetwork/ci-workflows/.github/workflows/go-ci.yml@da43707a70644e98a1fb5f79e46ac643b4829550
+    uses: NDDev-OpenNetwork/ci-workflows/.github/workflows/go-ci.yml@18e2a7b0962783404f285e7acddbccb1e409e87f
     with:
       fetch_depth: 0
-      # The fleet creates one virtual machine per job and destroys it after,
-      # so there is no warm cache for setup-go to own and nothing for a stale
-      # one to corrupt. Delegating cache ownership would instead add a
-      # dependency on the GitHub cache service, which the fleet contract does
-      # not promise and which this repository does not need: the golden image
-      # bakes the exact Go toolchain named below.
-      cache: false
+      # Public hosted CI uses GitHub's service cache; the pinned reusable
+      # workflow owns cache keys and invalidation, so no runner-local state is trusted.
+      cache: true
+
       runner: "ubuntu-latest"
       go_version: "1.26.5"
       test_command: "go test ./..."
@@ -56,10 +53,10 @@ jobs:
     needs: fast
     permissions:
       contents: read
-    uses: NDDev-OpenNetwork/ci-workflows/.github/workflows/go-ci.yml@da43707a70644e98a1fb5f79e46ac643b4829550
+    uses: NDDev-OpenNetwork/ci-workflows/.github/workflows/go-ci.yml@18e2a7b0962783404f285e7acddbccb1e409e87f
     with:
       fetch_depth: 0
-      cache: false
+      cache: true
       runner: "ubuntu-latest"
       go_version: "1.26.5"
       build_command: "go build -trimpath ./core/cmd/gds"

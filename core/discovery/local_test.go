@@ -57,7 +57,7 @@ func TestDiscoverCurrentRepositoryAnchor(t *testing.T) {
 	if len(result.Boundaries) == 0 {
 		t.Fatal("no boundaries found")
 	}
-	if result.Boundaries[0].RepositoryID != "repo_01JEXAMPZ0000000000000000A" {
+	if result.Boundaries[0].RepositoryID != "repo_01M0EZ7TB3KNXNSP78Z8M64WXG" {
 		t.Fatalf("boundary = %#v", result.Boundaries[0])
 	}
 }

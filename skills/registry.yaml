@@ -53,6 +53,19 @@ profiles:
       - "gds-triage-estate-drift"
       - "gds-change-portfolio"
 
+  - id: "drakkars"
+    scope: "control-plane"
+    skills:
+      - "gds-drakkars-orient"
+      - "gds-drakkars-audit-fleet"
+      - "gds-drakkars-triage-run"
+      - "gds-drakkars-audit-workflow"
+      - "gds-drakkars-optimize-workflow"
+      - "gds-drakkars-onboard-project"
+      - "gds-drakkars-rollout-consumer"
+      - "gds-ci-workflows-design"
+      - "gds-ci-performance-verify"
+
 plugins:
   - id: "gds-core"
     profiles:
@@ -67,6 +80,11 @@ plugins:
   - id: "gds-module"
     profiles:
       - "module"
+
+  - id: "gds-drakkars"
+    profiles:
+      - "core"
+      - "drakkars"
 
 skills:
   - name: "gds-orient"
@@ -291,3 +309,84 @@ skills:
       display_name: "GDS Reconcile Provider Change"
       short_description: "Reconcile the estate after a provider-side repository change"
       default_prompt: "Use $gds-reconcile-provider-change to reconcile the estate after a rename, transfer, archive, or owner-login case drift."
+
+  - name: "gds-drakkars-orient"
+    path: "skills/canonical/gds-drakkars-orient"
+    invocation: "implicit"
+    mutation: "none"
+    interface:
+      display_name: "Drakkars Orient"
+      short_description: "Resolve CI fleet authority and safe workflow"
+      default_prompt: "Use $gds-drakkars-orient to resolve the verified CI and fleet context."
+
+  - name: "gds-drakkars-audit-fleet"
+    path: "skills/canonical/gds-drakkars-audit-fleet"
+    invocation: "implicit"
+    mutation: "none"
+    interface:
+      display_name: "Drakkars Audit Fleet"
+      short_description: "Audit fleet health, capacity, and compatibility"
+      default_prompt: "Use $gds-drakkars-audit-fleet for a read-only evidence-backed fleet audit."
+
+  - name: "gds-drakkars-triage-run"
+    path: "skills/canonical/gds-drakkars-triage-run"
+    invocation: "implicit"
+    mutation: "none"
+    interface:
+      display_name: "Drakkars Triage Run"
+      short_description: "Explain a slow, queued, or failed CI run"
+      default_prompt: "Use $gds-drakkars-triage-run to trace one CI run from queue to completion."
+
+  - name: "gds-drakkars-audit-workflow"
+    path: "skills/canonical/gds-drakkars-audit-workflow"
+    invocation: "implicit"
+    mutation: "none"
+    interface:
+      display_name: "Drakkars Audit Workflow"
+      short_description: "Audit CI coverage, safety, and parallelism"
+      default_prompt: "Use $gds-drakkars-audit-workflow for a read-only workflow audit."
+
+  - name: "gds-drakkars-optimize-workflow"
+    path: "skills/canonical/gds-drakkars-optimize-workflow"
+    invocation: "explicit-only"
+    mutation: "local"
+    interface:
+      display_name: "Drakkars Optimize Workflow"
+      short_description: "Optimize CI latency without reducing coverage"
+      default_prompt: "Use $gds-drakkars-optimize-workflow to implement an approved workflow optimization."
+
+  - name: "gds-drakkars-onboard-project"
+    path: "skills/canonical/gds-drakkars-onboard-project"
+    invocation: "explicit-only"
+    mutation: "external"
+    interface:
+      display_name: "Drakkars Onboard Project"
+      short_description: "Connect one project to its correct CI runners"
+      default_prompt: "Use $gds-drakkars-onboard-project to onboard one approved project to Drakkars."
+
+  - name: "gds-drakkars-rollout-consumer"
+    path: "skills/canonical/gds-drakkars-rollout-consumer"
+    invocation: "explicit-only"
+    mutation: "external"
+    interface:
+      display_name: "Drakkars Rollout Consumer"
+      short_description: "Roll out fleet changes without losing jobs"
+      default_prompt: "Use $gds-drakkars-rollout-consumer for a canary-first consumer rollout."
+
+  - name: "gds-ci-workflows-design"
+    path: "skills/canonical/gds-ci-workflows-design"
+    invocation: "implicit"
+    mutation: "none"
+    interface:
+      display_name: "CI Workflows Design"
+      short_description: "Design complete reusable CI behavior"
+      default_prompt: "Use $gds-ci-workflows-design to design complete reusable CI for a project."
+
+  - name: "gds-ci-performance-verify"
+    path: "skills/canonical/gds-ci-performance-verify"
+    invocation: "implicit"
+    mutation: "none"
+    interface:
+      display_name: "CI Performance Verify"
+      short_description: "Verify CI speed with comparable evidence"
+      default_prompt: "Use $gds-ci-performance-verify to compare CI latency and reliability evidence."

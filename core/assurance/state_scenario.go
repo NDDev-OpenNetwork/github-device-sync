@@ -66,11 +66,11 @@ func exerciseDurableState(
 	first, err := (controller.ReconciliationRunner{
 		Store: store, Config: config,
 		Readers: map[string]reconciler.InstallationReader{
-			"installation:github-personal":     personal,
-			"installation:github-organization": organization,
+			"installation:github-personal":      personal,
+			"installation:github-organization":  organization,
 			"installation:github-example-media": exampleMedia,
-			"installation:github-guild":        guild,
-			"installation:github-opennetwork":  openNetwork,
+			"installation:github-guild":         guild,
+			"installation:github-opennetwork":   openNetwork,
 		},
 		Concurrency:     options.ReconciliationConcurrency,
 		MaxRepositories: options.RepositoryCount,
@@ -194,11 +194,11 @@ func exerciseDurableState(
 	second, err := (controller.ReconciliationRunner{
 		Store: store, Config: config,
 		Readers: map[string]reconciler.InstallationReader{
-			"installation:github-personal":     personal,
-			"installation:github-organization": organization,
+			"installation:github-personal":      personal,
+			"installation:github-organization":  organization,
 			"installation:github-example-media": exampleMedia,
-			"installation:github-guild":        guild,
-			"installation:github-opennetwork":  openNetwork,
+			"installation:github-guild":         guild,
+			"installation:github-opennetwork":   openNetwork,
 		},
 		Concurrency:     options.ReconciliationConcurrency,
 		MaxRepositories: options.RepositoryCount,

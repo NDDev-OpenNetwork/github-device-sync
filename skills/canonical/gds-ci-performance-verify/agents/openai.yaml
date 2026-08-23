@@ -1,0 +1,4 @@
+interface:
+  display_name: "CI Performance Verify"
+  short_description: "Verify CI speed with comparable evidence"
+  default_prompt: "Use $gds-ci-performance-verify to compare CI latency and reliability evidence."

@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "compiled_policy": {
-    "repository_id": "repo_01JEXAMPZ0000000000000000A",
+    "repository_id": "repo_01M0EZ7TB3KNXNSP78Z8M64WXG",
     "bundle_version": "0.4.0-dev",
-    "digest": "sha256:86b39e028f8fc5ea6da993db5ce82e2d5949f4457ba369d2908bb7ca311dce0c"
+    "digest": "sha256:ebc9b06d74fa698cd1d612c7be8fb017cd76c93ba5882270e7b415b160ba7f2d"
   },
   "sources": [
     {
@@ -15,12 +15,12 @@
       "digest": "sha256:538f486d49620c169cbbac77745ce2ecc21010ebd4a564017c79cefbb468ca1e"
     },
     {
-      "id": "control-plane",
+      "id": "public-module",
       "tier": "role",
       "priority": 100,
       "distribution": "public",
-      "path": "policies/roles/control-plane.yaml",
-      "digest": "sha256:3877e38179ed0666ec35c3345ac21ebacae3a493d340e00b92aa211b1522ac9e"
+      "path": "policies/roles/public-module.yaml",
+      "digest": "sha256:084f7b09dbfd85a386e47cf83ea0015154b6b01fa3cf85a68f04ef407b89ed4b"
     },
     {
       "id": "github-device-sync",
@@ -36,7 +36,7 @@
       "generated_projection_edit": "forbidden",
       "profiles": [
         "core",
-        "estate-admin"
+        "module"
       ]
     },
     "context": {
@@ -105,7 +105,8 @@
       },
       "releases": {
         "immutable": {
-          "management": "observed"
+          "management": "managed",
+          "value": true
         }
       },
       "rulesets": {
@@ -146,6 +147,9 @@
       "npm_family_on_managed_path": "forbidden",
       "remote_stream_to_shell": "forbidden"
     },
+    "release": {
+      "compatibility_contract_required": true
+    },
     "rollout": {
       "mode": "pull-request"
     },
@@ -171,10 +175,10 @@
       "operation": "append"
     },
     "/effective/agent/profiles/1": {
-      "source": "control-plane",
+      "source": "public-module",
       "tier": "role",
       "priority": 100,
-      "file": "policies/roles/control-plane.yaml",
+      "file": "policies/roles/public-module.yaml",
       "operation": "append"
     },
     "/effective/context/private_parent_persistence": {
@@ -367,10 +371,17 @@
       "operation": "set"
     },
     "/effective/github/releases/immutable/management": {
-      "source": "repository-default",
-      "tier": "base",
+      "source": "public-module",
+      "tier": "role",
       "priority": 100,
-      "file": "policies/base/repository-default.yaml",
+      "file": "policies/roles/public-module.yaml",
+      "operation": "set"
+    },
+    "/effective/github/releases/immutable/value": {
+      "source": "public-module",
+      "tier": "role",
+      "priority": 100,
+      "file": "policies/roles/public-module.yaml",
       "operation": "set"
     },
     "/effective/github/rulesets/management": {
@@ -520,11 +531,18 @@
       "file": "policies/base/repository-default.yaml",
       "operation": "set"
     },
-    "/effective/rollout/mode": {
-      "source": "control-plane",
+    "/effective/release/compatibility_contract_required": {
+      "source": "public-module",
       "tier": "role",
       "priority": 100,
-      "file": "policies/roles/control-plane.yaml",
+      "file": "policies/roles/public-module.yaml",
+      "operation": "set"
+    },
+    "/effective/rollout/mode": {
+      "source": "repository-default",
+      "tier": "base",
+      "priority": 100,
+      "file": "policies/base/repository-default.yaml",
       "operation": "set"
     },
     "/effective/security/external_write_requires_approval": {

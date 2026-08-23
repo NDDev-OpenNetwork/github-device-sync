@@ -83,6 +83,18 @@ func TestDesiredRulesetCarriesDeclaredExternalContexts(t *testing.T) {
 	}
 }
 
+func TestMissingRulesetPlansCreationWithoutInventingObservedIdentity(t *testing.T) {
+	t.Parallel()
+	if expected := rulesetPlanExpected(githubRulesetOperationContext{exists: false}); expected != nil {
+		t.Fatalf("missing ruleset produced observed precondition: %#v", expected)
+	}
+	observed := githubprovider.RepositoryRulesetState{ID: 9, Name: "Protect main", SourceType: "Repository", Source: "example/repository"}
+	expected := rulesetPlanExpected(githubRulesetOperationContext{exists: true, observed: observed})
+	if expected == nil || expected.ID != 9 {
+		t.Fatalf("existing ruleset lost observed identity: %#v", expected)
+	}
+}
+
 func TestDesiredRulesetIsUnchangedWithoutADeclaration(t *testing.T) {
 	root := t.TempDir()
 	writeRuleset(t, root, []string{"CI / build"}, "")
@@ -93,6 +105,33 @@ func TestDesiredRulesetIsUnchangedWithoutADeclaration(t *testing.T) {
 	}
 	if contexts := desiredContexts(t, ruleset); !slices.Equal(contexts, []string{"CI / build"}) {
 		t.Errorf("absent declaration must claim nothing, got %v", contexts)
+	}
+}
+
+func TestRulesetPlannerDetectsOwnedPullRequestDrift(t *testing.T) {
+	desired := githubprovider.RepositoryRuleset{Enforcement: "active", Rules: []githubprovider.RulesetRule{
+		{
+			Type: "pull_request", DismissStaleReviewsOnPush: true,
+			RequiredReviewThreadResolution:             true,
+			RequireExtraApprovalForUnattributedChanges: false,
+			AllowedMergeMethods:                        []string{"merge"},
+		},
+	}}
+	observed := githubprovider.RepositoryRulesetState{Enforcement: "active", Rules: []githubprovider.RulesetRule{
+		{
+			Type: "pull_request", DismissStaleReviewsOnPush: true,
+			RequiredReviewThreadResolution:             true,
+			RequireExtraApprovalForUnattributedChanges: true,
+			AllowedMergeMethods:                        []string{"merge", "squash", "rebase"},
+		},
+	}}
+	if rulesetOwnedStateMatches(observed, desired) {
+		t.Fatal("planner ignored owned pull-request merge-control drift")
+	}
+	observed.Rules[0].RequireExtraApprovalForUnattributedChanges = false
+	observed.Rules[0].AllowedMergeMethods = []string{"merge"}
+	if !rulesetOwnedStateMatches(observed, desired) {
+		t.Fatal("planner rejected matching owned pull-request merge controls")
 	}
 }
 

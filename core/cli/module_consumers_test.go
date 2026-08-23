@@ -18,7 +18,7 @@ func TestModuleConsumerPlanningIsolatesPackageProviderFailure(t *testing.T) {
 	if remoteHead := runSessionGit(t, moduleRemote, "rev-parse", "refs/heads/main"); remoteHead == oldOID {
 		t.Fatal("module target commit was not advanced")
 	}
-	t.Setenv("GDS_ESTATE_ROOT", repositoryRoot(t))
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
 	statePath := sessionStatePath(t)
 	exitCode, planned, stderr := executeJSON(
 		t, "--json", "module", "update-consumers", "--plan",

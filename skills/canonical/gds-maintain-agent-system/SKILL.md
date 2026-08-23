@@ -1,7 +1,6 @@
 ---
 name: gds-maintain-agent-system
 description: "Use this skill only when the owner explicitly asks to update the GDS agent operating system itself: current source facts, capability profiles, canonical AGENTS templates, skills, schemas, generators, hooks, or policies. Validate, release immutably, and prepare canary rollout. Do not use it for ordinary repository feature work."
-disable-model-invocation: true
 ---
 
 # Contract

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Drakkars Onboard Project"
+  short_description: "Connect one project to its correct CI runners"
+  default_prompt: "Use $gds-drakkars-onboard-project to onboard one approved project to Drakkars."
+policy:
+  allow_implicit_invocation: false

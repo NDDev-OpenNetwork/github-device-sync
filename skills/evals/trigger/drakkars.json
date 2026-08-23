@@ -1,0 +1,1294 @@
+{
+  "schema_version": 1,
+  "profile": "drakkars",
+  "runs_per_query": 3,
+  "skills": [
+    {
+      "name": "gds-drakkars-orient",
+      "positive": [
+        {
+          "id": "gds-drakkars-orient-p01",
+          "split": "train",
+          "query": "Explain where this CI runner behavior is owned and which Git boundary applies.",
+          "expected": "gds-drakkars-orient",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-orient-p02",
+          "split": "train",
+          "query": "Разреши текущий контекст Drakkars и границу public product versus private estate.",
+          "expected": "gds-drakkars-orient",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-orient-p03",
+          "split": "train",
+          "query": "Which runner policy applies to this repository without changing anything?",
+          "expected": "gds-drakkars-orient",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-orient-p04",
+          "split": "train",
+          "query": "Show the verified authority chain for this CI configuration.",
+          "expected": "gds-drakkars-orient",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-orient-p05",
+          "split": "train",
+          "query": "Где хранить переносимую логику CI, а где приватные сведения флота?",
+          "expected": "gds-drakkars-orient",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-orient-p06",
+          "split": "validation",
+          "query": "Orient me before I inspect this repository's runners.",
+          "expected": "gds-drakkars-orient",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-orient-p07",
+          "split": "validation",
+          "query": "Resolve visibility and active Drakkars skill profile for this checkout.",
+          "expected": "gds-drakkars-orient",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-orient-p08",
+          "split": "validation",
+          "query": "Map this nested module to its canonical CI and fleet owners.",
+          "expected": "gds-drakkars-orient",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "gds-drakkars-orient-n01",
+          "split": "train",
+          "query": "Audit all fleet capacity and telemetry for the last day.",
+          "must_not_trigger": [
+            "gds-drakkars-orient"
+          ]
+        },
+        {
+          "id": "gds-drakkars-orient-n02",
+          "split": "train",
+          "query": "Optimize this workflow and commit the changes.",
+          "must_not_trigger": [
+            "gds-drakkars-orient"
+          ]
+        },
+        {
+          "id": "gds-drakkars-orient-n03",
+          "split": "train",
+          "query": "Trace why run 123 failed.",
+          "must_not_trigger": [
+            "gds-drakkars-orient"
+          ]
+        },
+        {
+          "id": "gds-drakkars-orient-n04",
+          "split": "train",
+          "query": "Roll out the new runner label to every repository.",
+          "must_not_trigger": [
+            "gds-drakkars-orient"
+          ]
+        },
+        {
+          "id": "gds-drakkars-orient-n05",
+          "split": "train",
+          "query": "Design a reusable workflow for Python tests.",
+          "must_not_trigger": [
+            "gds-drakkars-orient"
+          ]
+        },
+        {
+          "id": "gds-drakkars-orient-n06",
+          "split": "validation",
+          "query": "Compare p95 CI latency before and after the rollout.",
+          "must_not_trigger": [
+            "gds-drakkars-orient"
+          ]
+        },
+        {
+          "id": "gds-drakkars-orient-n07",
+          "split": "validation",
+          "query": "Onboard this repository to the private fleet.",
+          "must_not_trigger": [
+            "gds-drakkars-orient"
+          ]
+        },
+        {
+          "id": "gds-drakkars-orient-n08",
+          "split": "validation",
+          "query": "Review this workflow for missing test coverage.",
+          "must_not_trigger": [
+            "gds-drakkars-orient"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gds-drakkars-audit-fleet",
+      "positive": [
+        {
+          "id": "gds-drakkars-audit-fleet-p01",
+          "split": "train",
+          "query": "Audit current Drakkars capacity, queues, logs, and telemetry without changing state.",
+          "expected": "gds-drakkars-audit-fleet",
+          "must_not_trigger": [
+            "gds-drakkars-orient"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-fleet-p02",
+          "split": "train",
+          "query": "Почему весь fleet медленный? Проведи read-only аудит всех четырёх узлов.",
+          "expected": "gds-drakkars-audit-fleet",
+          "must_not_trigger": [
+            "gds-drakkars-orient"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-fleet-p03",
+          "split": "train",
+          "query": "Check runner availability, retries, OOMs, and unsupported tool failures.",
+          "expected": "gds-drakkars-audit-fleet",
+          "must_not_trigger": [
+            "gds-drakkars-orient"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-fleet-p04",
+          "split": "train",
+          "query": "Correlate GitHub queue times with provider and OpenObserve evidence.",
+          "expected": "gds-drakkars-audit-fleet",
+          "must_not_trigger": [
+            "gds-drakkars-orient"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-fleet-p05",
+          "split": "train",
+          "query": "Проверь загрузку флота и полноту логов за последние шесть часов.",
+          "expected": "gds-drakkars-audit-fleet",
+          "must_not_trigger": [
+            "gds-drakkars-orient"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-fleet-p06",
+          "split": "validation",
+          "query": "Find capacity fragmentation and compatibility gaps across the fleet.",
+          "expected": "gds-drakkars-audit-fleet",
+          "must_not_trigger": [
+            "gds-drakkars-orient"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-fleet-p07",
+          "split": "validation",
+          "query": "Report queue latency by priority and pool without restarting anything.",
+          "expected": "gds-drakkars-audit-fleet",
+          "must_not_trigger": [
+            "gds-drakkars-orient"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-fleet-p08",
+          "split": "validation",
+          "query": "Audit fleet reliability, orphan runners, and telemetry loss.",
+          "expected": "gds-drakkars-audit-fleet",
+          "must_not_trigger": [
+            "gds-drakkars-orient"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "gds-drakkars-audit-fleet-n01",
+          "split": "train",
+          "query": "Tell me only which repository owns the fleet engine.",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-fleet-n02",
+          "split": "train",
+          "query": "Fix the placement algorithm and deploy it.",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-fleet-n03",
+          "split": "train",
+          "query": "Investigate one specific failed job only.",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-fleet-n04",
+          "split": "train",
+          "query": "Review a single workflow file for coverage.",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-fleet-n05",
+          "split": "train",
+          "query": "Onboard a new repository to Drakkars.",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-fleet-n06",
+          "split": "validation",
+          "query": "Roll out a new label to consumers.",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-fleet-n07",
+          "split": "validation",
+          "query": "Design reusable CI jobs for Rust.",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-fleet-n08",
+          "split": "validation",
+          "query": "Compare two already collected benchmark cohorts.",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gds-drakkars-triage-run",
+      "positive": [
+        {
+          "id": "gds-drakkars-triage-run-p01",
+          "split": "train",
+          "query": "Trace this queued GitHub Actions run end to end and explain the delay.",
+          "expected": "gds-drakkars-triage-run",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-triage-run-p02",
+          "split": "train",
+          "query": "Почему job 96859476362 выполняется пять часов?",
+          "expected": "gds-drakkars-triage-run",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-triage-run-p03",
+          "split": "train",
+          "query": "Find the first failing stage for run 123 attempt 2.",
+          "expected": "gds-drakkars-triage-run",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-triage-run-p04",
+          "split": "train",
+          "query": "Correlate this job with its GARM intent, runner, and provider instance.",
+          "expected": "gds-drakkars-triage-run",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-triage-run-p05",
+          "split": "train",
+          "query": "Explain whether this one failure is infrastructure, flaky, or deterministic.",
+          "expected": "gds-drakkars-triage-run",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-triage-run-p06",
+          "split": "validation",
+          "query": "Investigate why this run was retried without rerunning it.",
+          "expected": "gds-drakkars-triage-run",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-triage-run-p07",
+          "split": "validation",
+          "query": "Build a causal timeline for this stuck CI job.",
+          "expected": "gds-drakkars-triage-run",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-triage-run-p08",
+          "split": "validation",
+          "query": "Compare this failed job with an adjacent successful run.",
+          "expected": "gds-drakkars-triage-run",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "gds-drakkars-triage-run-n01",
+          "split": "train",
+          "query": "Audit the entire fleet for the last week.",
+          "must_not_trigger": [
+            "gds-drakkars-triage-run"
+          ]
+        },
+        {
+          "id": "gds-drakkars-triage-run-n02",
+          "split": "train",
+          "query": "Optimize all workflows in this repository.",
+          "must_not_trigger": [
+            "gds-drakkars-triage-run"
+          ]
+        },
+        {
+          "id": "gds-drakkars-triage-run-n03",
+          "split": "train",
+          "query": "Explain which module owns CI policy.",
+          "must_not_trigger": [
+            "gds-drakkars-triage-run"
+          ]
+        },
+        {
+          "id": "gds-drakkars-triage-run-n04",
+          "split": "train",
+          "query": "Roll out a new runner image.",
+          "must_not_trigger": [
+            "gds-drakkars-triage-run"
+          ]
+        },
+        {
+          "id": "gds-drakkars-triage-run-n05",
+          "split": "train",
+          "query": "Design the complete CI architecture.",
+          "must_not_trigger": [
+            "gds-drakkars-triage-run"
+          ]
+        },
+        {
+          "id": "gds-drakkars-triage-run-n06",
+          "split": "validation",
+          "query": "Measure estate-wide p95 after rollout.",
+          "must_not_trigger": [
+            "gds-drakkars-triage-run"
+          ]
+        },
+        {
+          "id": "gds-drakkars-triage-run-n07",
+          "split": "validation",
+          "query": "Onboard this project to runners.",
+          "must_not_trigger": [
+            "gds-drakkars-triage-run"
+          ]
+        },
+        {
+          "id": "gds-drakkars-triage-run-n08",
+          "split": "validation",
+          "query": "Review every workflow for missing coverage.",
+          "must_not_trigger": [
+            "gds-drakkars-triage-run"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gds-drakkars-audit-workflow",
+      "positive": [
+        {
+          "id": "gds-drakkars-audit-workflow-p01",
+          "split": "train",
+          "query": "Audit this repository's workflows for coverage, safety, and parallelism.",
+          "expected": "gds-drakkars-audit-workflow",
+          "must_not_trigger": [
+            "gds-drakkars-optimize-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-workflow-p02",
+          "split": "train",
+          "query": "Проверь GitHub Actions проекта, ничего не меняя.",
+          "expected": "gds-drakkars-audit-workflow",
+          "must_not_trigger": [
+            "gds-drakkars-optimize-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-workflow-p03",
+          "split": "train",
+          "query": "Find accidental serialization and missing required checks.",
+          "expected": "gds-drakkars-audit-workflow",
+          "must_not_trigger": [
+            "gds-drakkars-optimize-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-workflow-p04",
+          "split": "train",
+          "query": "Review runner selection for public and private Linux jobs.",
+          "expected": "gds-drakkars-audit-workflow",
+          "must_not_trigger": [
+            "gds-drakkars-optimize-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-workflow-p05",
+          "split": "train",
+          "query": "Audit permissions, pins, caches, matrices, and failure artifacts.",
+          "expected": "gds-drakkars-audit-workflow",
+          "must_not_trigger": [
+            "gds-drakkars-optimize-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-workflow-p06",
+          "split": "validation",
+          "query": "Map project technologies to actual CI jobs and report gaps.",
+          "expected": "gds-drakkars-audit-workflow",
+          "must_not_trigger": [
+            "gds-drakkars-optimize-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-workflow-p07",
+          "split": "validation",
+          "query": "Build the workflow critical path without editing YAML.",
+          "expected": "gds-drakkars-audit-workflow",
+          "must_not_trigger": [
+            "gds-drakkars-optimize-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-workflow-p08",
+          "split": "validation",
+          "query": "Check whether this CI is complete and fork-safe.",
+          "expected": "gds-drakkars-audit-workflow",
+          "must_not_trigger": [
+            "gds-drakkars-optimize-workflow"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "gds-drakkars-audit-workflow-n01",
+          "split": "train",
+          "query": "Implement the workflow improvements now.",
+          "must_not_trigger": [
+            "gds-drakkars-audit-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-workflow-n02",
+          "split": "train",
+          "query": "Audit all four fleet hosts and provider retries.",
+          "must_not_trigger": [
+            "gds-drakkars-audit-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-workflow-n03",
+          "split": "train",
+          "query": "Trace one failed run by its ID.",
+          "must_not_trigger": [
+            "gds-drakkars-audit-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-workflow-n04",
+          "split": "train",
+          "query": "Explain only where runner policy is owned.",
+          "must_not_trigger": [
+            "gds-drakkars-audit-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-workflow-n05",
+          "split": "train",
+          "query": "Onboard this repository to Drakkars.",
+          "must_not_trigger": [
+            "gds-drakkars-audit-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-workflow-n06",
+          "split": "validation",
+          "query": "Roll out a scale-set label.",
+          "must_not_trigger": [
+            "gds-drakkars-audit-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-workflow-n07",
+          "split": "validation",
+          "query": "Design a new reusable workflow library.",
+          "must_not_trigger": [
+            "gds-drakkars-audit-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-audit-workflow-n08",
+          "split": "validation",
+          "query": "Prove the last deployment improved p95.",
+          "must_not_trigger": [
+            "gds-drakkars-audit-workflow"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gds-drakkars-optimize-workflow",
+      "positive": [
+        {
+          "id": "gds-drakkars-optimize-workflow-p01",
+          "split": "train",
+          "query": "Use $gds-drakkars-optimize-workflow to reduce this CI critical path without losing tests.",
+          "expected": "gds-drakkars-optimize-workflow",
+          "must_not_trigger": [
+            "gds-drakkars-audit-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-optimize-workflow-p02",
+          "split": "train",
+          "query": "Оптимизируй workflow и реализуй безопасное распараллеливание.",
+          "expected": "gds-drakkars-optimize-workflow",
+          "must_not_trigger": [
+            "gds-drakkars-audit-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-optimize-workflow-p03",
+          "split": "train",
+          "query": "Implement faster lockfile-aware setup and preserve required checks.",
+          "expected": "gds-drakkars-optimize-workflow",
+          "must_not_trigger": [
+            "gds-drakkars-audit-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-optimize-workflow-p04",
+          "split": "train",
+          "query": "Change these workflows to use the correct runners and verify them.",
+          "expected": "gds-drakkars-optimize-workflow",
+          "must_not_trigger": [
+            "gds-drakkars-audit-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-optimize-workflow-p05",
+          "split": "train",
+          "query": "Remove accidental job serialization while keeping coverage.",
+          "expected": "gds-drakkars-optimize-workflow",
+          "must_not_trigger": [
+            "gds-drakkars-audit-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-optimize-workflow-p06",
+          "split": "validation",
+          "query": "Refactor duplicated setup into pinned reusable CI behavior.",
+          "expected": "gds-drakkars-optimize-workflow",
+          "must_not_trigger": [
+            "gds-drakkars-audit-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-optimize-workflow-p07",
+          "split": "validation",
+          "query": "Improve workflow logs, timeouts, caching, and execution speed.",
+          "expected": "gds-drakkars-optimize-workflow",
+          "must_not_trigger": [
+            "gds-drakkars-audit-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-optimize-workflow-p08",
+          "split": "validation",
+          "query": "Implement the approved CI optimization in this repository.",
+          "expected": "gds-drakkars-optimize-workflow",
+          "must_not_trigger": [
+            "gds-drakkars-audit-workflow"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "gds-drakkars-optimize-workflow-n01",
+          "split": "train",
+          "query": "Only audit this workflow and report findings.",
+          "must_not_trigger": [
+            "gds-drakkars-optimize-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-optimize-workflow-n02",
+          "split": "train",
+          "query": "Inspect current fleet capacity without edits.",
+          "must_not_trigger": [
+            "gds-drakkars-optimize-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-optimize-workflow-n03",
+          "split": "train",
+          "query": "Trace a single slow run.",
+          "must_not_trigger": [
+            "gds-drakkars-optimize-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-optimize-workflow-n04",
+          "split": "train",
+          "query": "Explain public versus private authority.",
+          "must_not_trigger": [
+            "gds-drakkars-optimize-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-optimize-workflow-n05",
+          "split": "train",
+          "query": "Deploy a new runner pool.",
+          "must_not_trigger": [
+            "gds-drakkars-optimize-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-optimize-workflow-n06",
+          "split": "validation",
+          "query": "Onboard a different repository.",
+          "must_not_trigger": [
+            "gds-drakkars-optimize-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-optimize-workflow-n07",
+          "split": "validation",
+          "query": "Design reusable behavior but do not edit.",
+          "must_not_trigger": [
+            "gds-drakkars-optimize-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-optimize-workflow-n08",
+          "split": "validation",
+          "query": "Compare measured before and after cohorts.",
+          "must_not_trigger": [
+            "gds-drakkars-optimize-workflow"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gds-drakkars-onboard-project",
+      "positive": [
+        {
+          "id": "gds-drakkars-onboard-project-p01",
+          "split": "train",
+          "query": "Use $gds-drakkars-onboard-project to connect this private repository to Drakkars.",
+          "expected": "gds-drakkars-onboard-project",
+          "must_not_trigger": [
+            "gds-drakkars-audit-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-onboard-project-p02",
+          "split": "train",
+          "query": "Подключи новый проект к нашему CI и проверь все его технологии.",
+          "expected": "gds-drakkars-onboard-project",
+          "must_not_trigger": [
+            "gds-drakkars-audit-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-onboard-project-p03",
+          "split": "train",
+          "query": "Onboard this public repository with hosted Linux runners and complete checks.",
+          "expected": "gds-drakkars-onboard-project",
+          "must_not_trigger": [
+            "gds-drakkars-audit-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-onboard-project-p04",
+          "split": "train",
+          "query": "Inventory package managers and create the correct runner mapping for this repo.",
+          "expected": "gds-drakkars-onboard-project",
+          "must_not_trigger": [
+            "gds-drakkars-audit-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-onboard-project-p05",
+          "split": "train",
+          "query": "Add deterministic CI, canary it, and record estate evidence for one project.",
+          "expected": "gds-drakkars-onboard-project",
+          "must_not_trigger": [
+            "gds-drakkars-audit-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-onboard-project-p06",
+          "split": "validation",
+          "query": "Migrate this repository onto reusable workflows without interrupting current jobs.",
+          "expected": "gds-drakkars-onboard-project",
+          "must_not_trigger": [
+            "gds-drakkars-audit-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-onboard-project-p07",
+          "split": "validation",
+          "query": "Configure one project's required checks and fleet labels safely.",
+          "expected": "gds-drakkars-onboard-project",
+          "must_not_trigger": [
+            "gds-drakkars-audit-workflow"
+          ]
+        },
+        {
+          "id": "gds-drakkars-onboard-project-p08",
+          "split": "validation",
+          "query": "Complete end-to-end Drakkars onboarding for this repository.",
+          "expected": "gds-drakkars-onboard-project",
+          "must_not_trigger": [
+            "gds-drakkars-audit-workflow"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "gds-drakkars-onboard-project-n01",
+          "split": "train",
+          "query": "Audit an already onboarded fleet without changes.",
+          "must_not_trigger": [
+            "gds-drakkars-onboard-project"
+          ]
+        },
+        {
+          "id": "gds-drakkars-onboard-project-n02",
+          "split": "train",
+          "query": "Optimize existing workflow latency only.",
+          "must_not_trigger": [
+            "gds-drakkars-onboard-project"
+          ]
+        },
+        {
+          "id": "gds-drakkars-onboard-project-n03",
+          "split": "train",
+          "query": "Trace one queued job.",
+          "must_not_trigger": [
+            "gds-drakkars-onboard-project"
+          ]
+        },
+        {
+          "id": "gds-drakkars-onboard-project-n04",
+          "split": "train",
+          "query": "Explain which repository owns the runner policy.",
+          "must_not_trigger": [
+            "gds-drakkars-onboard-project"
+          ]
+        },
+        {
+          "id": "gds-drakkars-onboard-project-n05",
+          "split": "train",
+          "query": "Roll out one existing label to many consumers.",
+          "must_not_trigger": [
+            "gds-drakkars-onboard-project"
+          ]
+        },
+        {
+          "id": "gds-drakkars-onboard-project-n06",
+          "split": "validation",
+          "query": "Design generic reusable CI without applying it.",
+          "must_not_trigger": [
+            "gds-drakkars-onboard-project"
+          ]
+        },
+        {
+          "id": "gds-drakkars-onboard-project-n07",
+          "split": "validation",
+          "query": "Compare CI performance cohorts.",
+          "must_not_trigger": [
+            "gds-drakkars-onboard-project"
+          ]
+        },
+        {
+          "id": "gds-drakkars-onboard-project-n08",
+          "split": "validation",
+          "query": "Review the repository workflows without editing.",
+          "must_not_trigger": [
+            "gds-drakkars-onboard-project"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gds-drakkars-rollout-consumer",
+      "positive": [
+        {
+          "id": "gds-drakkars-rollout-consumer-p01",
+          "split": "train",
+          "query": "Use $gds-drakkars-rollout-consumer to migrate selected repositories to the new label.",
+          "expected": "gds-drakkars-rollout-consumer",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-rollout-consumer-p02",
+          "split": "train",
+          "query": "Разверни новую версию runner behavior через canary и волны.",
+          "expected": "gds-drakkars-rollout-consumer",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-rollout-consumer-p03",
+          "split": "train",
+          "query": "Enable new capacity, canary it, then drain the old scale set safely.",
+          "expected": "gds-drakkars-rollout-consumer",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-rollout-consumer-p04",
+          "split": "train",
+          "query": "Roll out this public workflow release to private consumers using exact pins.",
+          "expected": "gds-drakkars-rollout-consumer",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-rollout-consumer-p05",
+          "split": "train",
+          "query": "Move one consumer while old and new runner paths coexist.",
+          "expected": "gds-drakkars-rollout-consumer",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-rollout-consumer-p06",
+          "split": "validation",
+          "query": "Perform the approved fleet label cutover without cancelling jobs.",
+          "expected": "gds-drakkars-rollout-consumer",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-rollout-consumer-p07",
+          "split": "validation",
+          "query": "Promote the verified runner image through bounded consumer waves.",
+          "expected": "gds-drakkars-rollout-consumer",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-drakkars-rollout-consumer-p08",
+          "split": "validation",
+          "query": "Complete the rollout and record drain and rollback evidence.",
+          "expected": "gds-drakkars-rollout-consumer",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "gds-drakkars-rollout-consumer-n01",
+          "split": "train",
+          "query": "Audit rollout readiness without applying anything.",
+          "must_not_trigger": [
+            "gds-drakkars-rollout-consumer"
+          ]
+        },
+        {
+          "id": "gds-drakkars-rollout-consumer-n02",
+          "split": "train",
+          "query": "Optimize one repository's workflow YAML.",
+          "must_not_trigger": [
+            "gds-drakkars-rollout-consumer"
+          ]
+        },
+        {
+          "id": "gds-drakkars-rollout-consumer-n03",
+          "split": "train",
+          "query": "Trace one failed canary run.",
+          "must_not_trigger": [
+            "gds-drakkars-rollout-consumer"
+          ]
+        },
+        {
+          "id": "gds-drakkars-rollout-consumer-n04",
+          "split": "train",
+          "query": "Explain where the new label is owned.",
+          "must_not_trigger": [
+            "gds-drakkars-rollout-consumer"
+          ]
+        },
+        {
+          "id": "gds-drakkars-rollout-consumer-n05",
+          "split": "train",
+          "query": "Onboard a brand-new project.",
+          "must_not_trigger": [
+            "gds-drakkars-rollout-consumer"
+          ]
+        },
+        {
+          "id": "gds-drakkars-rollout-consumer-n06",
+          "split": "validation",
+          "query": "Design the reusable workflow interface.",
+          "must_not_trigger": [
+            "gds-drakkars-rollout-consumer"
+          ]
+        },
+        {
+          "id": "gds-drakkars-rollout-consumer-n07",
+          "split": "validation",
+          "query": "Compare performance after an already completed rollout.",
+          "must_not_trigger": [
+            "gds-drakkars-rollout-consumer"
+          ]
+        },
+        {
+          "id": "gds-drakkars-rollout-consumer-n08",
+          "split": "validation",
+          "query": "Audit the whole fleet for capacity.",
+          "must_not_trigger": [
+            "gds-drakkars-rollout-consumer"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gds-ci-workflows-design",
+      "positive": [
+        {
+          "id": "gds-ci-workflows-design-p01",
+          "split": "train",
+          "query": "Design complete reusable CI for a Python and Node monorepo.",
+          "expected": "gds-ci-workflows-design",
+          "must_not_trigger": [
+            "gds-drakkars-optimize-workflow"
+          ]
+        },
+        {
+          "id": "gds-ci-workflows-design-p02",
+          "split": "train",
+          "query": "Спроектируй полный набор reusable GitHub Actions jobs без реализации.",
+          "expected": "gds-ci-workflows-design",
+          "must_not_trigger": [
+            "gds-drakkars-optimize-workflow"
+          ]
+        },
+        {
+          "id": "gds-ci-workflows-design-p03",
+          "split": "train",
+          "query": "Define the CI coverage matrix, DAG, permissions, and telemetry contract.",
+          "expected": "gds-ci-workflows-design",
+          "must_not_trigger": [
+            "gds-drakkars-optimize-workflow"
+          ]
+        },
+        {
+          "id": "gds-ci-workflows-design-p04",
+          "split": "train",
+          "query": "Design portable workflows with consumer-supplied runner labels.",
+          "expected": "gds-ci-workflows-design",
+          "must_not_trigger": [
+            "gds-drakkars-optimize-workflow"
+          ]
+        },
+        {
+          "id": "gds-ci-workflows-design-p05",
+          "split": "train",
+          "query": "Specify lockfile-aware setup for npm, bun, pnpm, uv, and pip.",
+          "expected": "gds-ci-workflows-design",
+          "must_not_trigger": [
+            "gds-drakkars-optimize-workflow"
+          ]
+        },
+        {
+          "id": "gds-ci-workflows-design-p06",
+          "split": "validation",
+          "query": "Create a reusable CI architecture for tests, security, build, and release.",
+          "expected": "gds-ci-workflows-design",
+          "must_not_trigger": [
+            "gds-drakkars-optimize-workflow"
+          ]
+        },
+        {
+          "id": "gds-ci-workflows-design-p07",
+          "split": "validation",
+          "query": "Describe hosted and private-fleet acceptance fixtures for this workflow module.",
+          "expected": "gds-ci-workflows-design",
+          "must_not_trigger": [
+            "gds-drakkars-optimize-workflow"
+          ]
+        },
+        {
+          "id": "gds-ci-workflows-design-p08",
+          "split": "validation",
+          "query": "Design fast complete CI while keeping private identities out of public code.",
+          "expected": "gds-ci-workflows-design",
+          "must_not_trigger": [
+            "gds-drakkars-optimize-workflow"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "gds-ci-workflows-design-n01",
+          "split": "train",
+          "query": "Implement these workflows in the repository.",
+          "must_not_trigger": [
+            "gds-ci-workflows-design"
+          ]
+        },
+        {
+          "id": "gds-ci-workflows-design-n02",
+          "split": "train",
+          "query": "Audit current fleet health.",
+          "must_not_trigger": [
+            "gds-ci-workflows-design"
+          ]
+        },
+        {
+          "id": "gds-ci-workflows-design-n03",
+          "split": "train",
+          "query": "Trace a specific failed run.",
+          "must_not_trigger": [
+            "gds-ci-workflows-design"
+          ]
+        },
+        {
+          "id": "gds-ci-workflows-design-n04",
+          "split": "train",
+          "query": "Explain current GDS context only.",
+          "must_not_trigger": [
+            "gds-ci-workflows-design"
+          ]
+        },
+        {
+          "id": "gds-ci-workflows-design-n05",
+          "split": "train",
+          "query": "Onboard this repository now.",
+          "must_not_trigger": [
+            "gds-ci-workflows-design"
+          ]
+        },
+        {
+          "id": "gds-ci-workflows-design-n06",
+          "split": "validation",
+          "query": "Roll out a workflow version to consumers.",
+          "must_not_trigger": [
+            "gds-ci-workflows-design"
+          ]
+        },
+        {
+          "id": "gds-ci-workflows-design-n07",
+          "split": "validation",
+          "query": "Measure p95 latency after deployment.",
+          "must_not_trigger": [
+            "gds-ci-workflows-design"
+          ]
+        },
+        {
+          "id": "gds-ci-workflows-design-n08",
+          "split": "validation",
+          "query": "Review existing YAML without proposing a new design.",
+          "must_not_trigger": [
+            "gds-ci-workflows-design"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gds-ci-performance-verify",
+      "positive": [
+        {
+          "id": "gds-ci-performance-verify-p01",
+          "split": "train",
+          "query": "Verify whether the CI rollout improved end-to-end p95 latency.",
+          "expected": "gds-ci-performance-verify",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-ci-performance-verify-p02",
+          "split": "train",
+          "query": "Сравни скорость и надёжность CI до и после изменения.",
+          "expected": "gds-ci-performance-verify",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-ci-performance-verify-p03",
+          "split": "train",
+          "query": "Measure queue, provision, setup, execution, and deploy timing by cohort.",
+          "expected": "gds-ci-performance-verify",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-ci-performance-verify-p04",
+          "split": "train",
+          "query": "Check if faster jobs caused more retries or failures.",
+          "expected": "gds-ci-performance-verify",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-ci-performance-verify-p05",
+          "split": "train",
+          "query": "Compare matched cached and cold runs after the scheduler change.",
+          "expected": "gds-ci-performance-verify",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-ci-performance-verify-p06",
+          "split": "validation",
+          "query": "Prove or reject the claimed fleet performance improvement.",
+          "expected": "gds-ci-performance-verify",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-ci-performance-verify-p07",
+          "split": "validation",
+          "query": "Analyze critical-path latency by priority without tuning anything.",
+          "expected": "gds-ci-performance-verify",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        },
+        {
+          "id": "gds-ci-performance-verify-p08",
+          "split": "validation",
+          "query": "Report median p90 p95 throughput and telemetry gaps for this rollout.",
+          "expected": "gds-ci-performance-verify",
+          "must_not_trigger": [
+            "gds-drakkars-audit-fleet"
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "gds-ci-performance-verify-n01",
+          "split": "train",
+          "query": "Optimize the workflow based on these metrics.",
+          "must_not_trigger": [
+            "gds-ci-performance-verify"
+          ]
+        },
+        {
+          "id": "gds-ci-performance-verify-n02",
+          "split": "train",
+          "query": "Audit current fleet health without a before cohort.",
+          "must_not_trigger": [
+            "gds-ci-performance-verify"
+          ]
+        },
+        {
+          "id": "gds-ci-performance-verify-n03",
+          "split": "train",
+          "query": "Trace one slow run.",
+          "must_not_trigger": [
+            "gds-ci-performance-verify"
+          ]
+        },
+        {
+          "id": "gds-ci-performance-verify-n04",
+          "split": "train",
+          "query": "Explain runner ownership.",
+          "must_not_trigger": [
+            "gds-ci-performance-verify"
+          ]
+        },
+        {
+          "id": "gds-ci-performance-verify-n05",
+          "split": "train",
+          "query": "Onboard a repository.",
+          "must_not_trigger": [
+            "gds-ci-performance-verify"
+          ]
+        },
+        {
+          "id": "gds-ci-performance-verify-n06",
+          "split": "validation",
+          "query": "Roll out the scheduler change.",
+          "must_not_trigger": [
+            "gds-ci-performance-verify"
+          ]
+        },
+        {
+          "id": "gds-ci-performance-verify-n07",
+          "split": "validation",
+          "query": "Design reusable CI jobs.",
+          "must_not_trigger": [
+            "gds-ci-performance-verify"
+          ]
+        },
+        {
+          "id": "gds-ci-performance-verify-n08",
+          "split": "validation",
+          "query": "Review workflow coverage and permissions.",
+          "must_not_trigger": [
+            "gds-ci-performance-verify"
+          ]
+        }
+      ]
+    }
+  ]
+}

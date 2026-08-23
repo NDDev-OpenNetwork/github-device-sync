@@ -17,6 +17,7 @@ import (
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/gitops"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/harness"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/harnessevidence"
+	"github.com/NDDev-OpenNetwork/github-device-sync/core/projections"
 	githubprovider "github.com/NDDev-OpenNetwork/github-device-sync/core/providers/github"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/trust"
 )
@@ -60,7 +61,8 @@ func (services *Services) moduleReleaseHarnessEvidence(
 	if moduleAnchor.Module == nil {
 		return nil, nil
 	}
-	bridge, _, findings := harness.LoadModuleBridge(estateRoot, services.Schemas)
+	engineRoot := projections.ResolveDevelopmentSourceLayout(estateRoot).EngineRoot
+	bridge, _, findings := harness.LoadModuleBridge(engineRoot, services.Schemas)
 	if len(findings) != 0 {
 		return nil, findings
 	}
@@ -105,13 +107,13 @@ func (services *Services) moduleReleaseHarnessEvidence(
 			"GDS_MODULE_RELEASE_HARNESS_EVIDENCE_NOT_PROVEN", err.Error(),
 		)}
 	}
-	bridgeRaw, err := os.ReadFile(filepath.Join(estateRoot, "harnesses", "module-bridge.yaml"))
+	bridgeRaw, err := os.ReadFile(filepath.Join(engineRoot, "harnesses", "module-bridge.yaml"))
 	if err != nil {
 		return nil, []domain.Finding{moduleReleaseFinding(
 			"GDS_MODULE_RELEASE_HARNESS_EVIDENCE_NOT_PROVEN", err.Error(),
 		)}
 	}
-	profileRaw, err := os.ReadFile(filepath.Join(estateRoot, "harnesses", harnessID, "profile.yaml"))
+	profileRaw, err := os.ReadFile(filepath.Join(engineRoot, "harnesses", harnessID, "profile.yaml"))
 	if err != nil {
 		return nil, []domain.Finding{moduleReleaseFinding(
 			"GDS_MODULE_RELEASE_HARNESS_EVIDENCE_NOT_PROVEN", err.Error(),

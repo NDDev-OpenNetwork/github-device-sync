@@ -1,0 +1,4 @@
+interface:
+  display_name: "Drakkars Audit Workflow"
+  short_description: "Audit CI coverage, safety, and parallelism"
+  default_prompt: "Use $gds-drakkars-audit-workflow for a read-only workflow audit."

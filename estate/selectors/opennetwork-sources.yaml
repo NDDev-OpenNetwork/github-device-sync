@@ -9,7 +9,7 @@ match:
   fork: false
 
 assign:
-  management_mode: "observe-only"
+  management_mode: "managed"
   portfolios:
     - "portfolio:organization-projects"
   policy_profiles:

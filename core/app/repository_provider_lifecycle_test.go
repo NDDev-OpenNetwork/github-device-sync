@@ -40,7 +40,7 @@ func TestRepositoryRenamePlanBindsProviderRemoteAndRejectsInsecureMutationRuntim
 	}
 	remote := exec.Command(
 		"git", "remote", "set-url", "origin",
-		"https://github.com/example-org/github-device-sync.git",
+		"https://github.com/NDDev-OpenNetwork/github-device-sync.git",
 	)
 	remote.Dir = root
 	if output, err := remote.CombinedOutput(); err != nil {
@@ -51,9 +51,9 @@ func TestRepositoryRenamePlanBindsProviderRemoteAndRejectsInsecureMutationRuntim
 	if err != nil {
 		t.Fatal(err)
 	}
-	oldProvider := "  owner: \"example-org\"\n  name: \"github-device-sync\"\n\nclassification:"
-	newProvider := "  owner: \"example-org\"\n  name: \"github-device-sync-renamed\"\n" +
-		"  aliases:\n    - owner: \"example-org\"\n      name: \"github-device-sync\"\n\nclassification:"
+	oldProvider := "  owner: \"NDDev-OpenNetwork\"\n  name: \"github-device-sync\"\n\nclassification:"
+	newProvider := "  owner: \"NDDev-OpenNetwork\"\n  name: \"github-device-sync-renamed\"\n" +
+		"  aliases:\n    - owner: \"NDDev-OpenNetwork\"\n      name: \"github-device-sync\"\n\nclassification:"
 	candidate := strings.Replace(string(current), oldProvider, newProvider, 1)
 	if candidate == string(current) {
 		t.Fatal("fixture provider locator was not replaced")
@@ -123,8 +123,8 @@ func TestRepositoryRenamePlanBindsProviderRemoteAndRejectsInsecureMutationRuntim
 	}
 	_, remoteName, expectedURL, targetURL, err := gitops.RemoteUpdateStep(data.Plan.Steps[1])
 	if err != nil || remoteName != "origin" ||
-		expectedURL != "https://github.com/example-org/github-device-sync.git" ||
-		targetURL != "https://github.com/example-org/github-device-sync-renamed.git" {
+		expectedURL != "https://github.com/NDDev-OpenNetwork/github-device-sync.git" ||
+		targetURL != "https://github.com/NDDev-OpenNetwork/github-device-sync-renamed.git" {
 		t.Fatalf("remote step expected=%q target=%q remote=%q err=%v", expectedURL, targetURL, remoteName, err)
 	}
 	applied := services.ApplyRepositoryTransition(

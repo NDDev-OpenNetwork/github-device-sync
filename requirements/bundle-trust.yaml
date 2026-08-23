@@ -3,7 +3,7 @@ schema_version: 1
 trust_domain: "gds-release"
 
 source:
-  owner: "example-org"
+  owner: "NDDev-OpenNetwork"
   repository: "github-device-sync"
   allowed_workflows:
     - ".github/workflows/release-bundle.yml"
