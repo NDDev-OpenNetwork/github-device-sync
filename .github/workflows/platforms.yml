@@ -1,0 +1,69 @@
+# Coverage for the shipped platforms that `ubuntu-latest` does not exercise.
+#
+# `release-installation.schema.json` and `bundle-trust.schema.json` declare
+# `target_os: {"enum": ["darwin", "linux"]}` and
+# `target_arch: {"enum": ["amd64", "arm64"]}`, so four combinations are shipped
+# and the release builder emits them. Until this workflow existed only
+# linux/amd64 ran anything; the rest were cross-compiled and never executed.
+#
+# Cross-compilation proves a target builds. It says nothing about behaviour, and
+# this engine is made of the things that differ across platforms: path
+# resolution, os.Root confinement, file locking, temp directory semantics, case
+# sensitivity. `agent-runtime` tests the same two systems for the same reason.
+#
+# A separate workflow rather than a matrix inside `gds-ci.yml`, because that file
+# is a generated projection carrying a single `.Runner`; widening it means
+# changing the engine's template and generator and regenerating under the
+# governed projection path. `.github` is outside `developmentBundleSourcePaths`,
+# so a file here leaves the bundle lock alone — the same reason
+# `release-bundle.yml` and `codeql.yml` already sit beside the generated workflow.
+name: platforms
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions: {}
+
+concurrency:
+  group: platforms-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  platform:
+    # `macos-latest` is Apple Silicon, so it covers darwin/arm64. `ubuntu-24.04-arm`
+    # covers linux/arm64. Both are standard hosted runners and unmetered on public
+    # repositories; macOS-XL and larger runners are billed even here and are not used.
+    # darwin/amd64 stays uncovered: it needs `macos-13`, the last Intel image, whose
+    # retirement is already announced — worth adding only if that target is still
+    # shipped when this is next revisited.
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: darwin-arm64
+            runner: macos-latest
+          - name: linux-arm64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
+      # The repository's own declared commands, from `.gds/repository.yaml`,
+      # so this lane cannot drift into testing something else.
+      - name: go vet
+        run: go vet ./...
+      - name: go build
+        run: go build -trimpath ./core/cmd/gds
+      - name: go test
+        run: go test ./...
