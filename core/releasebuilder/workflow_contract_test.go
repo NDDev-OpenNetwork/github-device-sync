@@ -173,7 +173,8 @@ func TestHostedReleaseWorkflowInstallsLockedPythonDependenciesBeforeReleaseGate(
 		t.Fatal("release workflow must install hash-locked Python dependencies before validation")
 	}
 	if !strings.Contains(content, "GDS_TEST_PYTHON: ${{ runner.temp }}/gds-release-python/bin/python") ||
-		!strings.Contains(content, `python3 -m venv "${GDS_TEST_PYTHON%/bin/python}"`) {
+		!strings.Contains(content, `python3 -m venv "${GDS_TEST_PYTHON%/bin/python}"`) ||
+		!strings.Contains(content, `export PATH="${GDS_TEST_PYTHON%/python}:$PATH"`) {
 		t.Fatal("release workflow must run tests with the Python environment it populated")
 	}
 }

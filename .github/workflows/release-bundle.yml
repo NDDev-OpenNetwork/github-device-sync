@@ -91,6 +91,7 @@ jobs:
           GDS_TEST_PYTHON: ${{ runner.temp }}/gds-release-python/bin/python
         run: |
           python3 -m venv "${GDS_TEST_PYTHON%/bin/python}"
+          export PATH="${GDS_TEST_PYTHON%/python}:$PATH"
           "$GDS_TEST_PYTHON" -m pip install --quiet --require-hashes -r requirements/test.txt
           scripts/validate_release.sh
 
