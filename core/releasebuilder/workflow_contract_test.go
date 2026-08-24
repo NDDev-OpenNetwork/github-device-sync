@@ -167,10 +167,14 @@ func TestHostedReleaseWorkflowInstallsLockedPythonDependenciesBeforeReleaseGate(
 		t.Fatal(err)
 	}
 	content := string(workflow)
-	install := strings.Index(content, "python3 -m pip install --quiet --require-hashes -r requirements/test.txt")
+	install := strings.Index(content, `"$GDS_TEST_PYTHON" -m pip install --quiet --require-hashes -r requirements/test.txt`)
 	validate := strings.Index(content, "scripts/validate_release.sh")
 	if install < 0 || validate < 0 || install > validate {
 		t.Fatal("release workflow must install hash-locked Python dependencies before validation")
+	}
+	if !strings.Contains(content, "GDS_TEST_PYTHON: ${{ runner.temp }}/gds-release-python/bin/python") ||
+		!strings.Contains(content, `python3 -m venv "${GDS_TEST_PYTHON%/bin/python}"`) {
+		t.Fatal("release workflow must run tests with the Python environment it populated")
 	}
 }
 
