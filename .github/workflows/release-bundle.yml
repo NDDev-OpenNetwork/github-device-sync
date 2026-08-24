@@ -87,8 +87,11 @@ jobs:
 
       - name: Run release gates
         shell: bash
+        env:
+          GDS_TEST_PYTHON: ${{ runner.temp }}/gds-release-python/bin/python
         run: |
-          python3 -m pip install --quiet --require-hashes -r requirements/test.txt
+          python3 -m venv "${GDS_TEST_PYTHON%/bin/python}"
+          "$GDS_TEST_PYTHON" -m pip install --quiet --require-hashes -r requirements/test.txt
           scripts/validate_release.sh
 
       - name: Materialize bounded signed harness evidence input

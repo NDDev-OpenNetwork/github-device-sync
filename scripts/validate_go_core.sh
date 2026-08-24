@@ -81,11 +81,24 @@ python3 scripts/validate_gds_schemas.py --json >/dev/null
 
 GDS_BIN="$BUILD_DIR/gds-host"
 go build -trimpath -o "$GDS_BIN" ./core/cmd/gds
+run_json_validator() {
+  local output=$1
+  shift
+  local status
+  if "$@" >"$output"; then
+    return 0
+  else
+    status=$?
+  fi
+  cat "$output" >&2
+  return "$status"
+}
 for CONTRACT in schemas repository estate skills plugins memories; do
-  "$GDS_BIN" --json validate "$CONTRACT" \
-    >"$BUILD_DIR/validate-$CONTRACT.json"
+  run_json_validator "$BUILD_DIR/validate-$CONTRACT.json" \
+    "$GDS_BIN" --json validate "$CONTRACT"
 done
-"$GDS_BIN" --json generate repository --check >"$BUILD_DIR/generate-repository.json"
+run_json_validator "$BUILD_DIR/generate-repository.json" \
+  "$GDS_BIN" --json generate repository --check
 
 if [ "$MODE" = "full" ]; then
   go test -race ./...

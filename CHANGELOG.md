@@ -32,6 +32,11 @@ Versioning.
   repository identity or embedded projection templates.
 - Static analysis now covers the Go engine and Actions workflows on the public
   authority before a private estate can advance its gitlink.
+- The release workflow now installs and uses one job-scoped hash-locked Python
+  environment instead of depending on undeclared runner packages or a second
+  tool-managed interpreter.
+- The declared `gds-drakkars` plugin now has its canonical source manifest, so
+  full and release validation cannot silently stop at a redirected JSON result.
 
 ## [0.1.1] - 2026-08-16
 
