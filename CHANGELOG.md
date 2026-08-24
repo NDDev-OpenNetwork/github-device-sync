@@ -5,6 +5,8 @@ Versioning.
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-08-24
+
 ### Changed
 
 - CI and Drakkars skills now qualify changes only with naturally occurring
@@ -17,6 +19,19 @@ Versioning.
   policy as their canonical Codex control. The catalog no longer requires the
   unsupported legacy `disable-model-invocation` SKILL frontmatter key; portable
   adapters continue to derive invocation behavior from the typed registry.
+- Release and platform workflows now run entirely on GitHub-hosted public
+  capacity and cover Linux amd64/arm64 plus macOS arm64 without exposing private
+  estate runner labels.
+- Public module coverage can compare declared required contexts with live
+  provider enforcement without requiring the private estate to duplicate a
+  second version ledger.
+
+### Fixed
+
+- Public anchors no longer inherit the archived private control plane's schema,
+  repository identity or embedded projection templates.
+- Static analysis now covers the Go engine and Actions workflows on the public
+  authority before a private estate can advance its gitlink.
 
 ## [0.1.1] - 2026-08-16
 
