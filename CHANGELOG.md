@@ -40,6 +40,8 @@ Versioning.
 - Release sequence is an explicit monotonic dispatch input rather than the
   repository-local workflow run number, preserving the accepted sequence ledger
   across the public-authority migration.
+- Release lifecycle operations invoked from a private control plane now bind
+  their committed implementation proof to its pinned public GDS engine root.
 
 ## [0.1.1] - 2026-08-16
 
