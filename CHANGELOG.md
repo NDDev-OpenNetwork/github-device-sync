@@ -37,6 +37,9 @@ Versioning.
   tool-managed interpreter.
 - The declared `gds-drakkars` plugin now has its canonical source manifest, so
   full and release validation cannot silently stop at a redirected JSON result.
+- Release sequence is an explicit monotonic dispatch input rather than the
+  repository-local workflow run number, preserving the accepted sequence ledger
+  across the public-authority migration.
 
 ## [0.1.1] - 2026-08-16
 
