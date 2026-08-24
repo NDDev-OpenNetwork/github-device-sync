@@ -154,6 +154,26 @@ func TestHostedReleaseWorkflowPinsAllActionsBySHA(t *testing.T) {
 	}
 }
 
+func TestHostedReleaseWorkflowInstallsLockedPythonDependenciesBeforeReleaseGate(t *testing.T) {
+	t.Parallel()
+	_, currentFile, _, ok := runtime.Caller(0)
+	if !ok {
+		t.Fatal("runtime.Caller failed")
+	}
+	repositoryRoot := filepath.Clean(filepath.Join(filepath.Dir(currentFile), "..", ".."))
+	workflowPath := filepath.Join(repositoryRoot, ".github", "workflows", "release-bundle.yml")
+	workflow, err := os.ReadFile(workflowPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	content := string(workflow)
+	install := strings.Index(content, "python3 -m pip install --quiet --require-hashes -r requirements/test.txt")
+	validate := strings.Index(content, "scripts/validate_release.sh")
+	if install < 0 || validate < 0 || install > validate {
+		t.Fatal("release workflow must install hash-locked Python dependencies before validation")
+	}
+}
+
 // The release chain runs on the estate's own fleet. What matters is that all
 // three jobs agree on one provider: provenance describes the environment of the
 // run that produced it, so a chain split across providers would attest an

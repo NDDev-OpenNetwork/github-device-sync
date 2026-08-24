@@ -87,7 +87,9 @@ jobs:
 
       - name: Run release gates
         shell: bash
-        run: scripts/validate_release.sh
+        run: |
+          python3 -m pip install --quiet --require-hashes -r requirements/test.txt
+          scripts/validate_release.sh
 
       - name: Materialize bounded signed harness evidence input
         id: harness-evidence
