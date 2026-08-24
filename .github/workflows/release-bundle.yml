@@ -16,6 +16,10 @@ on:
           - canary
           - stable
           - frozen
+      release_sequence:
+        description: "Monotonic sequence greater than every previously accepted GDS release"
+        required: true
+        type: number
       minimum_cli_version:
         description: "Minimum compatible GDS CLI SemVer"
         required: true
@@ -66,7 +70,7 @@ jobs:
     env:
       GOTOOLCHAIN: go1.26.5
       VERSION: ${{ inputs.version }}
-      RELEASE_SEQUENCE: ${{ github.run_number }}
+      RELEASE_SEQUENCE: ${{ inputs.release_sequence }}
       CHANNEL: ${{ inputs.channel }}
       MINIMUM_CLI_VERSION: ${{ inputs.minimum_cli_version }}
       HARNESS_EVIDENCE_BUNDLE_BASE64: ${{ inputs.harness_evidence_bundle_base64 }}

@@ -36,6 +36,11 @@ proven:
 - the repository visibility and active GitHub plan support artifact
   attestations.
 
+The dispatch must provide an explicit `release_sequence` greater than every
+sequence already accepted in the consumer ledger. Repository transfer or
+republication never resets that ledger, and `github.run_number` is local to one
+workflow lineage, so it is not a release sequence.
+
 The whole release chain runs on GitHub-hosted runners. The consumer
 does not constrain the runner environment: `gh attestation verify` binds the
 attestation to this repository, this reusable-workflow path, this source commit

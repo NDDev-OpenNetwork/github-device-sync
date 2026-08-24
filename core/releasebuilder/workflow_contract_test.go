@@ -96,10 +96,14 @@ func TestHostedReleaseWorkflowUsesOutputOutsideSourceRoot(t *testing.T) {
 		`HARNESS_EVIDENCE_TRUST_POLICY_DIGEST: ${{ vars.HARNESS_EVIDENCE_TRUST_POLICY_DIGEST }}`,
 		`stable/frozen requires signed active-five harness evidence`,
 		`--harness-evidence-directory $EVIDENCE_INPUT_ROOT/records`,
+		`RELEASE_SEQUENCE: ${{ inputs.release_sequence }}`,
 	} {
 		if !strings.Contains(content, required) {
 			t.Fatalf("hosted workflow is missing output contract %q", required)
 		}
+	}
+	if strings.Contains(content, "RELEASE_SEQUENCE: ${{ github.run_number }}") {
+		t.Fatal("release sequence regressed to repository-local workflow run numbering")
 	}
 	if strings.Contains(content, `$GITHUB_WORKSPACE/$RELEASE_DIRECTORY`) {
 		t.Fatal("hosted workflow still writes release output beneath the source root")
