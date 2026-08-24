@@ -47,6 +47,13 @@ def test_source_build_never_accepts_a_merely_runnable_binary() -> None:
     assert "if ! source_build_dirty" in script
 
 
+def test_seed_go_verifies_the_physical_toolchain_without_auto_selection() -> None:
+    script = BOOTSTRAP.read_text(encoding="utf-8")
+
+    assert 'GOTOOLCHAIN=local "$go_bin" version 2>/dev/null' in script
+    assert 'GOTOOLCHAIN=local "$go_bin" version' in script
+
+
 def test_registration_skip_binds_full_control_plane_locator() -> None:
     script = BOOTSTRAP.read_text(encoding="utf-8")
 

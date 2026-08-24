@@ -42,6 +42,9 @@ Versioning.
   across the public-authority migration.
 - Release lifecycle operations invoked from a private control plane now bind
   their committed implementation proof to its pinned public GDS engine root.
+- Device bootstrap verifies the physical seed Go binary with
+  `GOTOOLCHAIN=local`, so automatic toolchain selection cannot make an already
+  installed pinned toolchain appear stale on every run.
 
 ## [0.1.1] - 2026-08-16
 

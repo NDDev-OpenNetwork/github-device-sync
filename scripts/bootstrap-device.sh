@@ -336,7 +336,7 @@ phase_1() {
   info "Phase 1 — seed Go ${GO_VERSION} + build gds from source"
   ensure_c_compiler
   local go_bin="${GO_HOME}/bin/go"
-  if [ -x "$go_bin" ] && "$go_bin" version 2>/dev/null | grep -q "$GO_VERSION"; then
+  if [ -x "$go_bin" ] && GOTOOLCHAIN=local "$go_bin" version 2>/dev/null | grep -q "$GO_VERSION"; then
     ok "Go ${GO_VERSION} already installed at ${GO_HOME}"
   else
     [ "$APPLY" -eq 1 ] || { info "PLAN: install Go ${GO_VERSION} to ${GO_HOME}"; return 0; }
@@ -352,7 +352,7 @@ phase_1() {
     mkdir -p "$GO_HOME"
     tar -xzf "$tmp" -C "$GO_HOME" --strip-components=1
     rm -f "$tmp"
-    "$go_bin" version
+    GOTOOLCHAIN=local "$go_bin" version
     ok "Go ${GO_VERSION} installed"
   fi
 
