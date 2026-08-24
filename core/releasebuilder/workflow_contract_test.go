@@ -96,10 +96,14 @@ func TestHostedReleaseWorkflowUsesOutputOutsideSourceRoot(t *testing.T) {
 		`HARNESS_EVIDENCE_TRUST_POLICY_DIGEST: ${{ vars.HARNESS_EVIDENCE_TRUST_POLICY_DIGEST }}`,
 		`stable/frozen requires signed active-five harness evidence`,
 		`--harness-evidence-directory $EVIDENCE_INPUT_ROOT/records`,
+		`RELEASE_SEQUENCE: ${{ inputs.release_sequence }}`,
 	} {
 		if !strings.Contains(content, required) {
 			t.Fatalf("hosted workflow is missing output contract %q", required)
 		}
+	}
+	if strings.Contains(content, "RELEASE_SEQUENCE: ${{ github.run_number }}") {
+		t.Fatal("release sequence regressed to repository-local workflow run numbering")
 	}
 	if strings.Contains(content, `$GITHUB_WORKSPACE/$RELEASE_DIRECTORY`) {
 		t.Fatal("hosted workflow still writes release output beneath the source root")
@@ -151,6 +155,31 @@ func TestHostedReleaseWorkflowPinsAllActionsBySHA(t *testing.T) {
 		if len(sha) != 40 || strings.Trim(sha, "0123456789abcdef") != "" {
 			t.Fatalf("workflow action %q is not pinned to a 40-char SHA (got %q)", ref, sha)
 		}
+	}
+}
+
+func TestHostedReleaseWorkflowInstallsLockedPythonDependenciesBeforeReleaseGate(t *testing.T) {
+	t.Parallel()
+	_, currentFile, _, ok := runtime.Caller(0)
+	if !ok {
+		t.Fatal("runtime.Caller failed")
+	}
+	repositoryRoot := filepath.Clean(filepath.Join(filepath.Dir(currentFile), "..", ".."))
+	workflowPath := filepath.Join(repositoryRoot, ".github", "workflows", "release-bundle.yml")
+	workflow, err := os.ReadFile(workflowPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	content := string(workflow)
+	install := strings.Index(content, `"$GDS_TEST_PYTHON" -m pip install --quiet --require-hashes -r requirements/test.txt`)
+	validate := strings.Index(content, "scripts/validate_release.sh")
+	if install < 0 || validate < 0 || install > validate {
+		t.Fatal("release workflow must install hash-locked Python dependencies before validation")
+	}
+	if !strings.Contains(content, "GDS_TEST_PYTHON: ${{ runner.temp }}/gds-release-python/bin/python") ||
+		!strings.Contains(content, `python3 -m venv "${GDS_TEST_PYTHON%/bin/python}"`) ||
+		!strings.Contains(content, `export PATH="${GDS_TEST_PYTHON%/python}:$PATH"`) {
+		t.Fatal("release workflow must run tests with the Python environment it populated")
 	}
 }
 

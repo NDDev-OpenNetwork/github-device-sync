@@ -15,6 +15,7 @@ import (
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/domain"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/identity"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/operations"
+	"github.com/NDDev-OpenNetwork/github-device-sync/core/projections"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/releaseconsumer"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/serialization"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/state"
@@ -543,7 +544,7 @@ func (services *Services) releaseOperationContext(
 	if err != nil {
 		return releaseOperationContext{}, []domain.Finding{dependencyFinding(path, err)}
 	}
-	if _, err := services.Git.CommittedSourceOID(ctx, root, []string{
+	if _, err := services.Git.CommittedSourceOID(ctx, releaseImplementationRoot(root), []string{
 		"requirements/bundle-trust.yaml", ".github/workflows/release-bundle.yml",
 		"scripts/validate_release.sh", "core/app/release_operations.go", "core/app/release_scope.go", "core/bundle",
 		"core/cli", "core/cmd/gds", "core/operations", "core/providers/git/source.go",
@@ -580,6 +581,10 @@ func (services *Services) releaseOperationContext(
 			PolicyDigest: compiled.Document.CompiledPolicy.Digest,
 		},
 	}, nil
+}
+
+func releaseImplementationRoot(controlPlaneRoot string) string {
+	return projections.ResolveDevelopmentSourceLayout(controlPlaneRoot).EngineRoot
 }
 
 func (services *Services) releaseVerifier(identity bundle.TrustVerifier) (releaseconsumer.Verifier, error) {

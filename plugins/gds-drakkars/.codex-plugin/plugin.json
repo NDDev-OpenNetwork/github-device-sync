@@ -1,0 +1,20 @@
+{
+  "name": "gds-drakkars",
+  "version": "0.1.0",
+  "description": "GDS Drakkars fleet orientation, audit, triage, workflow design, optimization, onboarding, rollout, and performance verification workflows.",
+  "author": {
+    "name": "example-user"
+  },
+  "repository": "https://github.com/NDDev-OpenNetwork/github-device-sync",
+  "license": "Proprietary",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "GDS Drakkars",
+    "shortDescription": "Operate and optimize CI through Drakkars",
+    "longDescription": "Provides the profiled GDS skills for fleet audits, run triage, CI/CD workflow design, critical-path optimization, project onboarding, consumer rollout, and performance verification. Canonical skill sources remain in the public GDS engine and plugin copies are generated.",
+    "developerName": "example-user",
+    "category": "Developer Tools",
+    "capabilities": ["Read", "Write"],
+    "defaultPrompt": "Resolve the repository visibility, workflow obligations, and current fleet evidence before changing CI/CD behavior."
+  }
+}

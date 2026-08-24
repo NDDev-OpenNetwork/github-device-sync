@@ -5,6 +5,8 @@ Versioning.
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-08-24
+
 ### Changed
 
 - CI and Drakkars skills now qualify changes only with naturally occurring
@@ -17,6 +19,32 @@ Versioning.
   policy as their canonical Codex control. The catalog no longer requires the
   unsupported legacy `disable-model-invocation` SKILL frontmatter key; portable
   adapters continue to derive invocation behavior from the typed registry.
+- Release and platform workflows now run entirely on GitHub-hosted public
+  capacity and cover Linux amd64/arm64 plus macOS arm64 without exposing private
+  estate runner labels.
+- Public module coverage can compare declared required contexts with live
+  provider enforcement without requiring the private estate to duplicate a
+  second version ledger.
+
+### Fixed
+
+- Public anchors no longer inherit the archived private control plane's schema,
+  repository identity or embedded projection templates.
+- Static analysis now covers the Go engine and Actions workflows on the public
+  authority before a private estate can advance its gitlink.
+- The release workflow now installs and uses one job-scoped hash-locked Python
+  environment instead of depending on undeclared runner packages or a second
+  tool-managed interpreter.
+- The declared `gds-drakkars` plugin now has its canonical source manifest, so
+  full and release validation cannot silently stop at a redirected JSON result.
+- Release sequence is an explicit monotonic dispatch input rather than the
+  repository-local workflow run number, preserving the accepted sequence ledger
+  across the public-authority migration.
+- Release lifecycle operations invoked from a private control plane now bind
+  their committed implementation proof to its pinned public GDS engine root.
+- Device bootstrap verifies the physical seed Go binary with
+  `GOTOOLCHAIN=local`, so automatic toolchain selection cannot make an already
+  installed pinned toolchain appear stale on every run.
 
 ## [0.1.1] - 2026-08-16
 
