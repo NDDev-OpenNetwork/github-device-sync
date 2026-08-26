@@ -30,7 +30,9 @@ Resolve the current CI/fleet context and its authority boundaries without mutati
 3. Treat portable engines, reusable workflows, schemas, and generic skills as public product concerns.
 4. Treat organizations, repository identities, priorities, hosts, networks, credentials, and runtime evidence as private estate concerns.
 5. Mark unfetched provider or telemetry facts `NOT_PROVEN`.
-6. Recommend the narrowest next skill and Git boundary.
+6. Treat Runner Scale Set V2 names as routing targets. Do not equate an empty
+   classic self-hosted-label response with a missing scale-set name or listener.
+7. Recommend the narrowest next skill and Git boundary.
 
 ## Stop conditions
 
