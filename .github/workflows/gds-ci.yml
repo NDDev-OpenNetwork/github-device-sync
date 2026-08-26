@@ -1,9 +1,9 @@
 # GENERATED FILE - DO NOT EDIT DIRECTLY
 # generator: gds
 # bundle: 0.4.0-dev
-# source-tree-digest: sha256:bd945edbd404bff86af0a28a73ffae2c8398d306dc9960ae11e8e6ad146e9823
-# input-digest: sha256:0f0835ccefd7354609b379f4141cbe12123f2a215614cf1fac5e7762d894acff
-# output-digest: sha256:8f61a9ffd6949238099d4523a037d57199eb575f187cc8ac52baa4b5b832e79f
+# source-tree-digest: sha256:b091c872839681a6b51419aa37b68fe5217c0f540eef016f29da866200f5159e
+# input-digest: sha256:e6403f1f645b0c407d9941b166f49ff6ef618d86c69c6a26ced927330714e8da
+# output-digest: sha256:c268237f2cffde69b7868265ba6ac331048c98036fb9030ee7b7b3a208a9ad49
 # edit-source:
 #   - .gds/repository.yaml
 #   - policies/base/repository-default.yaml
@@ -33,7 +33,7 @@ jobs:
     name: GDS fast
     permissions:
       contents: read
-    uses: NDDev-OpenNetwork/ci-workflows/.github/workflows/go-ci.yml@18e2a7b0962783404f285e7acddbccb1e409e87f
+    uses: NDDev-OpenNetwork/ci-workflows/.github/workflows/go-ci.yml@409817cf743e76383c84e30c72edf781d73b71a1
     with:
       fetch_depth: 0
       # Public hosted CI uses GitHub's service cache; the pinned reusable
@@ -53,7 +53,7 @@ jobs:
     needs: fast
     permissions:
       contents: read
-    uses: NDDev-OpenNetwork/ci-workflows/.github/workflows/go-ci.yml@18e2a7b0962783404f285e7acddbccb1e409e87f
+    uses: NDDev-OpenNetwork/ci-workflows/.github/workflows/go-ci.yml@409817cf743e76383c84e30c72edf781d73b71a1
     with:
       fetch_depth: 0
       cache: true
