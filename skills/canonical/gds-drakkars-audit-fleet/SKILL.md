@@ -28,6 +28,10 @@ Explain fleet health and bottlenecks from correlated, time-bounded evidence.
 1. Resolve GDS context and the private estate source without copying its facts into public outputs.
 2. Establish the audit window and inventory expected pools, capacity, priority, and technologies.
 3. Correlate GitHub queue/start/end events with scheduler, provider, host, runner, and telemetry records using stable run, job, intent, and instance identifiers.
+   Before attributing queued jobs to fleet capacity, check GitHub Actions
+   service status and prove whether the exact `workflow_job` reached the
+   control-plane database. A GitHub job with no corresponding row is inbound
+   event-delivery delay, not a missing runner or exhausted pool.
 4. Measure end-to-end latency, queue time, provisioning, setup, execution, teardown, utilization, failure, retry, and orphan rates by pool and priority.
    Under contention, verify that one repository uses no more than 75 percent
    of slot, measured CPU, and measured memory capacity; without a competing
@@ -48,6 +52,20 @@ Explain fleet health and bottlenecks from correlated, time-bounded evidence.
    provider spans expose `incus_member`. Do not use the provider process
    resource host as the compute placement member.
 8. Separate confirmed faults, saturation, waste, and `NOT_PROVEN` gaps.
+9. Inspect durable lifecycle recovery rather than process health alone:
+   terminal job tombstones, overdue non-terminal provider retries,
+   assigned intents with an exact workflow-job row but no instance, scheduler
+   recovery startup grace/cooldown/active attempt, and vanished-runner recovery
+   transactions. An incomplete bounded attempt is evidence of partial progress,
+   not success and not permission for an immediate duplicate restart.
+
+## Runner scale sets
+
+For Runner Scale Set V2, `runs-on` can target `RunnerScaleSetName`. An empty
+classic-label array from the self-hosted runner REST endpoint does not by itself
+prove an unserviceable runner. Correlate the requested target with the runner's
+scale-set id/name and the scale-set listener before diagnosing label drift or
+proposing classic-label mutation.
 
 ## Safety
 
@@ -63,7 +81,9 @@ Stop before restart, retry, cancellation, deployment, resize, or configuration w
 
 ## Verification
 
-Cross-check GitHub, runtime journals, provider inventory, hosts, and observability freshness; mark gaps `NOT_PROVEN`.
+Cross-check GitHub service status, exact workflow-job delivery, runtime
+journals, recovery state, provider inventory, runner scale-set identity, hosts,
+and observability freshness; mark gaps `NOT_PROVEN`.
 
 ## References
 

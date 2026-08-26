@@ -31,6 +31,10 @@ Audit one project's CI/CD behavior without reducing verification scope or mutati
    use the declared private fleet, including private repositories in free
    organizations; keep macOS and Windows hosted unless private capacity is
    explicitly declared.
+   For estate-wide claims, inspect active default-branch workflow content rather
+   than search hits from archived branches or historical evidence. Separate
+   blocking hosted/pin drift from an explicitly tracked repository-authority or
+   product-plan gap.
 4. Build the dependency graph and critical path. Find accidental serialization,
    duplicated setup and security placements, oversized matrices, unsafe cache
    keys, and concurrency groups that can discard queued or running evidence.
@@ -47,7 +51,9 @@ Stop before editing YAML, changing rulesets, dispatching workflows, or changing 
 
 ## Verification
 
-Prove each finding from workflow source, manifests, policy, and required-check state.
+Prove each finding from default-branch workflow source, manifests, policy,
+required-check state and, when scope spans private repositories, a complete
+active-repository inventory.
 
 ## References
 
