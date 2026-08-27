@@ -38,7 +38,12 @@ Audit one project's CI/CD behavior without reducing verification scope or mutati
 4. Build the dependency graph and critical path. Find accidental serialization,
    duplicated setup and security placements, oversized matrices, unsafe cache
    keys, and concurrency groups that can discard queued or running evidence.
-5. Verify least-privilege permissions, pinning, secret isolation, fork safety, timeouts, concurrency, retry ownership, logs, telemetry, and artifact retention.
+5. Verify least-privilege permissions, pinning, secret isolation, fork safety,
+   timeouts, concurrency, retry ownership, logs, telemetry, and artifact
+   retention. Do not assume `GITHUB_TOKEN` Actions-read permission can read
+   repository Actions-retention settings: that endpoint requires repository
+   Administration read. Prefer fresh credential-free evidence produced by an
+   existing bounded authority over exposing a broader token to workflow code.
 6. Report missing coverage separately from speed opportunities.
 
 ## Output

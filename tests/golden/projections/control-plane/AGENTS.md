@@ -3,8 +3,8 @@ GENERATED FILE - DO NOT EDIT DIRECTLY
 generator: gds
 bundle: 0.4.0-dev
 source-tree-digest: sha256:0000000000000000000000000000000000000000000000000000000000000001
-input-digest: sha256:d516e979d26eb08514c93e3b7cc2f0577ff8eef33340ba9e0dee51a561f86fbd
-output-digest: sha256:198abbde694dcaccaf8126a8cc7d645830e1400a36604ca8864e4de4e69e8d18
+input-digest: sha256:be7ce80717d8e8e28bbffc2ea3931b68812b418199ba818a047cd035f16daf04
+output-digest: sha256:670970518bda1458ad0fb14b276a6ba9add2ef7491ba406774e7094d159b7109
 edit-source:
   - .gds/repository.yaml
   - policies/base/repository-default.yaml
@@ -25,6 +25,7 @@ GDS is the public engine for a multi-owner GitHub estate. It loads an external e
 - Plan, approve, apply and verify GitHub changes as recoverable transactions
 - Build, attest and install immutable releases with offline verification
 - Render harness adapters for agent tooling
+- Package canonical cross-harness skills for repository, CI and Drakkars operations
 
 ## Where to change what
 
@@ -37,6 +38,7 @@ GDS is the public engine for a multi-owner GitHub estate. It loads an external e
 - GitHub reads, writes and their failure staging — `core/providers/github`
 - Plan, approval, lock and journal semantics — `core/operations`
 - Projection identity and rendering — `core/projections`
+- Canonical agent workflows and routing — `skills/canonical`
 
 ## How to verify
 

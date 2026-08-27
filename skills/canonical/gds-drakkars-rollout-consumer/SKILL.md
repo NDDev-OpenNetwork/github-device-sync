@@ -32,7 +32,11 @@ Change consumers without losing work or creating an unserviceable label window.
    ordinary real jobs created by the selected consumers; never create
    synthetic, benchmark, soak, canary, rerun, or empty-commit traffic.
 5. Move consumers in bounded waves while old and new paths coexist.
-6. Observe queue, failures, retries, provisioning, teardown, and end-to-end latency after each wave.
+6. Observe queue, failures, retries, provisioning, teardown, end-to-end latency,
+   OTEL delivery queues/refusals and OpenObserve alert outcomes after each wave.
+   Allow the configured bounded silence window to produce a fresh recovery
+   outcome; do not treat a stale firing label or an empty raw-noise stream as
+   proof of failed telemetry.
 7. Disable the old path only when its queued and running intent count is zero. Remove it only after a further verified drain window.
 8. Record immutable evidence and preserve a tested rollback checkpoint.
 

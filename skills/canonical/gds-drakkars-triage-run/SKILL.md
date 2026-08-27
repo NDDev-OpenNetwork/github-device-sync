@@ -47,8 +47,10 @@ Trace one run from event receipt to terminal result without changing state.
 - For a delayed `JobAssigned`, check terminal tombstones before treating a
   completed job as live demand.
 - For an assigned job without an instance, inspect the scheduler recovery
-  attempt, startup grace and cooldown; healthy sibling progress is not proof
-  that the exact identity advanced.
+  attempt, typed capacity retry, startup grace and cooldown; healthy sibling
+  progress is not proof that the exact identity advanced. Raw missing workflow
+  or repository identity is expected before the authenticated running claim
+  and must not be confused with a running persistent-correlation gap.
 - For an `in_progress` job whose runner id disappeared, inspect the durable
   vanished-runner transaction and authoritative `run_attempt`. A force-cancel
   followed by one full rerun is one recovery lifecycle, not two independent
@@ -80,4 +82,5 @@ Use stable identifiers and distinguish observation, inference, and `NOT_PROVEN`.
 
 Use current GitHub service status and job events, queue intents, terminal
 tombstones, scheduler/vanished recovery state, provider leases, runner logs,
-and traces.
+traces, OTEL delivery counters and the current OpenObserve alert outcome plus
+its silence window.

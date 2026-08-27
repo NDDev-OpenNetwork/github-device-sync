@@ -5,6 +5,18 @@ Versioning.
 
 ## [Unreleased]
 
+### Changed
+
+- Drakkars audit, triage, orientation and rollout skills now model the current
+  OTEL/OTLP/OpenObserve boundary, classified host-signal metrics, host
+  compliance coverage, external backend heartbeat and bounded alert-silence
+  recovery semantics.
+- Correlation guidance preserves raw sparse identity during queued/assigned
+  capacity phases and treats only a running intent beyond its state-entry grace
+  as a persistent correlation fault.
+- Workflow audit guidance no longer assumes an Actions-read `GITHUB_TOKEN` can
+  read the repository retention Administration endpoint.
+
 ## [0.1.2] - 2026-08-24
 
 ### Changed

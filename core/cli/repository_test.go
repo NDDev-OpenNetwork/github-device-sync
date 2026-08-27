@@ -9,6 +9,7 @@ import (
 
 func repositoryOnboardFixture(t *testing.T) (string, string, string) {
 	t.Helper()
+	disableGitFixtureMaintenance(t)
 	repository := filepath.Join(t.TempDir(), "repository")
 	if err := os.Mkdir(repository, 0o755); err != nil {
 		t.Fatal(err)
