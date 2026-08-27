@@ -29,6 +29,20 @@ func runSessionGit(t *testing.T, directory string, arguments ...string) string {
 	return strings.TrimSpace(string(output))
 }
 
+// Git may start detached maintenance after a fixture command. On slower
+// hosted architectures that process can still be creating files below .git
+// when testing.TempDir removes the repository, turning a passing assertion
+// into an unlinkat "directory not empty" failure. Disable only automatic
+// maintenance for fixture processes; explicit Git behavior remains unchanged.
+func disableGitFixtureMaintenance(t *testing.T) {
+	t.Helper()
+	t.Setenv("GIT_CONFIG_COUNT", "2")
+	t.Setenv("GIT_CONFIG_KEY_0", "maintenance.auto")
+	t.Setenv("GIT_CONFIG_VALUE_0", "false")
+	t.Setenv("GIT_CONFIG_KEY_1", "gc.auto")
+	t.Setenv("GIT_CONFIG_VALUE_1", "0")
+}
+
 func sessionFixture(t *testing.T) sessionFixtureState {
 	return sessionFixtureWithPolicies(t, "preferred", "pull-request", true)
 }
@@ -44,6 +58,7 @@ func sessionFixtureWithPolicies(
 	requiredChecks bool,
 ) sessionFixtureState {
 	t.Helper()
+	disableGitFixtureMaintenance(t)
 	remote := filepath.Join(t.TempDir(), "remote.git")
 	runSessionGit(t, filepath.Dir(remote), "init", "--bare", "-q", remote)
 	client := filepath.Join(t.TempDir(), "client")
