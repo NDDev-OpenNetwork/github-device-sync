@@ -37,6 +37,7 @@ product:
     - "Plan, approve, apply and verify GitHub changes as recoverable transactions"
     - "Build, attest and install immutable releases with offline verification"
     - "Render harness adapters for agent tooling"
+    - "Package canonical cross-harness skills for repository, CI and Drakkars operations"
   entrypoints:
     - change: "Generic public policy defaults and synthetic examples"
       path: "policies"
@@ -56,6 +57,8 @@ product:
       path: "core/operations"
     - change: "Projection identity and rendering"
       path: "core/projections"
+    - change: "Canonical agent workflows and routing"
+      path: "skills/canonical"
 
 policy:
   profiles:
