@@ -29,6 +29,9 @@ Resolve the current CI/fleet context and its authority boundaries without mutati
 2. Identify repository visibility, active profiles, module pins, and canonical owner.
 3. Treat portable engines, reusable workflows, schemas, and generic skills as public product concerns.
 4. Treat organizations, repository identities, priorities, hosts, networks, credentials, and runtime evidence as private estate concerns.
+   Portable OTEL components, alert/dashboard schemas and PromQL rendering are
+   public product concerns; collector topology, OpenObserve destination,
+   external heartbeat and live alert outcomes remain private estate facts.
 5. Mark unfetched provider or telemetry facts `NOT_PROVEN`.
 6. Treat Runner Scale Set V2 names as routing targets. Do not equate an empty
    classic self-hosted-label response with a missing scale-set name or listener.
