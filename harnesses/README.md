@@ -5,10 +5,10 @@ this estate installs, one per setup system in `NDDev-OpenNetwork`. Each profile
 records only current official documentation facts.
 
 The catalogue previously carried seventeen identities: ten had no setup system
-and were held `provisional` and on-pause indefinitely. They were removed with
-the retired `nddev-*-app` line they were mapped to (ADR 0037). The catalogue
-and the work-policy allowlist are now the same set, so nothing can be
-catalogued but paused.
+and were held `provisional` and on-pause indefinitely. They were removed along
+with the retired harness application line they were mapped to; ADR 0037 records
+which and why. The catalogue and the work-policy allowlist are now the same
+set, so nothing can be catalogued but paused.
 
 Canonical harness identities are:
 
