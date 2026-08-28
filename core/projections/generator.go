@@ -313,7 +313,7 @@ func (generator *Generator) Generate(
 		}
 		managed = append(managed, newFile("AGENTS.md", agents), newFile(claudeOutputPath, claude))
 	}
-	if anchor.CI != nil {
+	if anchor.CI != nil && anchor.CI.WorkflowRef != "" {
 		workflow, renderErr := generator.renderYAML(
 			goCITemplatePath, data, bundle, inputDigest, editSources,
 		)
