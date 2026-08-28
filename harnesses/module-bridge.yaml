@@ -9,13 +9,14 @@ evidence_owner:
 runtime_tests:
   required: false
 
-# Seven harnesses, seven setup systems, one mapping each. The retired
-# `nddev-*-app` line is archived and is not named here -- not as a module,
-# not as an alias. A bridge is a statement about what exists.
+# Seven harnesses, seven setup systems, one mapping each. The retired harness
+# application line is archived and is deliberately not named in this file --
+# not as a module, not as an alias. A bridge is a statement about what exists;
+# ADR 0037 holds the history.
 #
 # `harness_id` is the ai-stp contract value and is never derived from the
-# module name. That derivation is how `antigravity-cli` and `cursor-cli`
-# were once invented here.
+# module name. Deriving it from a module name is how two identities here were
+# once invented, which ADR 0036 records.
 mappings:
   - module_id: "antigravity-setup-system"
     harness_id: "antigravity"
