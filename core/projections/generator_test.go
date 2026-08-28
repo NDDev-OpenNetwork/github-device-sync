@@ -118,6 +118,26 @@ func TestControlPlaneProjectionMatchesGolden(t *testing.T) {
 	}
 }
 
+func TestRepositoryOwnedCIDoesNotInventReusableWorkflow(t *testing.T) {
+	generator, anchor, policy, bundle := controlPlaneInputs(t)
+	anchor.Agent.GeneratedAgents = false
+	anchor.CI.WorkflowRef = ""
+	anchor.Verification.Commands.Fast = nil
+	anchor.Verification.Commands.PRRequired = nil
+	candidate, findings := generator.Generate(anchor, policy, bundle)
+	if len(findings) != 0 {
+		t.Fatalf("repository-owned CI findings = %#v", findings)
+	}
+	for _, file := range candidate.Files {
+		if file.Path == goCIOutputPath {
+			t.Fatalf("repository-owned CI generated a reusable caller: %#v", candidate.Files)
+		}
+	}
+	if len(candidate.Files) != 2 {
+		t.Fatalf("repository-owned CI files = %#v, want compiled policy and lock", candidate.Files)
+	}
+}
+
 func TestVerifyDetectsMissingManualAndSymlinkDrift(t *testing.T) {
 	generator, anchor, policy, bundle := controlPlaneInputs(t)
 	candidate, findings := generator.Generate(anchor, policy, bundle)
