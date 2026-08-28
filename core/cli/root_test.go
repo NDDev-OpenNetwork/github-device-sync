@@ -251,6 +251,9 @@ func TestGenerateRepositoryConsumesVerifiedReleasedBundle(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	anchor = []byte(strings.Replace(
+		string(anchor), "    - \"github-device-sync\"\n", "    - \"github-actions\"\n", 1,
+	))
 	if err := os.WriteFile(filepath.Join(target, ".gds", "repository.yaml"), anchor, 0o644); err != nil {
 		t.Fatal(err)
 	}
