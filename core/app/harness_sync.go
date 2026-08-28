@@ -125,7 +125,7 @@ func (services *Services) ReconcileDeviceHarnesses(
 		// own, so a selected-but-absent harness whose files are already on disk
 		// cannot be installed at this target. Two harnesses that share a skill
 		// root — `.agents/skills` is the AGENTS standard, so codex and opencode
-		// collide while zcode under `.zcode/skills` does not — cannot occupy one
+		// collide while claude-code under `.claude/skills` does not — cannot occupy one
 		// target root. Say so here, while the command is still read-only, rather
 		// than let the owner discover it half-way through a mutating run.
 		if wanted[id] {

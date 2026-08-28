@@ -54,7 +54,7 @@ func TestModuleBridgeParityCLIRequiresTwoRootsAndReturnsComputedDigests(t *testi
 	}
 	data, ok := envelope.Data.(map[string]any)
 	if !ok || data["contract"] != harness.ModuleBridgeContract ||
-		data["mappings"] != float64(17) {
+		data["mappings"] != float64(len(harness.CanonicalIDs)) {
 		t.Fatalf("data = %#v", envelope.Data)
 	}
 	if !strings.HasPrefix(fmt.Sprint(data["identity_digest"]), "sha256:") ||
@@ -110,7 +110,7 @@ func TestModuleBridgeValidateCLIIsSingleRepositoryOnly(t *testing.T) {
 		t.Fatalf("exit = %d, stderr = %q, envelope = %#v", exitCode, stderr, envelope)
 	}
 	data, ok := envelope.Data.(map[string]any)
-	if !ok || data["mappings"] != float64(17) {
+	if !ok || data["mappings"] != float64(len(harness.CanonicalIDs)) {
 		t.Fatalf("data = %#v", envelope.Data)
 	}
 }

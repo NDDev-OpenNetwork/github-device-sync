@@ -25,7 +25,7 @@ func TestCanonicalModuleBridgeCoversEveryHarnessAndDigestsDeterministically(t *t
 	if len(findings) != 0 {
 		t.Fatalf("second findings = %#v", findings)
 	}
-	if len(document.Mappings) != 17 || first.IdentityDigest != second.IdentityDigest ||
+	if len(document.Mappings) != len(CanonicalIDs) || first.IdentityDigest != second.IdentityDigest ||
 		first.InputDigest != second.InputDigest {
 		t.Fatalf("document = %#v, first = %#v, second = %#v", document, first, second)
 	}

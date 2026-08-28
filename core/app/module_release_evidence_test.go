@@ -93,8 +93,8 @@ func writeEvidenceFixture(
 			},
 			Modules: map[string]string{
 				"antigravity": strings.Repeat("5", 40),
-				"claude-code":     strings.Repeat("1", 40), "codex": strings.Repeat("2", 40),
-				"cursor": strings.Repeat("6", 40),
+				"claude-code": strings.Repeat("1", 40), "codex": strings.Repeat("2", 40),
+				"cursor":     strings.Repeat("6", 40),
 				"grok-build": moduleSHA, "opencode": strings.Repeat("3", 40), "pi": strings.Repeat("4", 40),
 			},
 		},
@@ -136,7 +136,7 @@ func TestModuleReleaseHarnessEvidenceGate(t *testing.T) {
 	commit := strings.Repeat("a", 40)
 	anchor := domain.RepositoryAnchor{
 		Module:   &domain.ModulePolicy{PinPolicy: "exact"},
-		Provider: domain.GitHubLocator{Type: "github", Owner: "example-org", Name: "nddev-grok-build-app"},
+		Provider: domain.GitHubLocator{Type: "github", Owner: "example-org", Name: "grok-setup-system"},
 		Release:  domain.ReleasePolicy{Mode: "github-release"},
 	}
 

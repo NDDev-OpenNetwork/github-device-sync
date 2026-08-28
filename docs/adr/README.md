@@ -8,6 +8,8 @@ clause stops being normative.
 
 | ADR | Title | Status | Supersedes | Superseded by |
 |---|---|---|---|---|
+| [0037](0037-seven-harnesses-one-per-setup-system.md) | Seven harnesses, one per setup system | Accepted | — | — |
+| [0036](0036-harness-identity-follows-the-consumer.md) | Harness identity follows the consumer contract | Accepted | ADR 0017 | — |
 | [0035](0035-agent-first-explicit-control-plane.md) | Agent-first explicit control plane and evidence-bound mutation | Accepted | — | — |
 | [0034](0034-gh-cli-credential-provider.md) | gh CLI credential provider and permission superset contract | Accepted | — | — |
 | [0033](0033-return-the-control-plane-to-private.md) | Return the control plane to a private repository | Accepted | — | — |
@@ -25,7 +27,7 @@ clause stops being normative.
 | [0020](0020-single-controller-runtime-and-retention.md) | Single-controller runtime, loopback ingress, and retention | Accepted | — | — |
 | [0019](0019-portable-secret-references-and-device-runtime.md) | Portable secret references and device-local GitHub runtime | Accepted | — | — |
 | [0018](0018-device-workspaces-and-metadata-repository-retirement.md) | Use device workspaces instead of metadata repositories | Accepted | — | ADR 0027, ADR 0032 (in part) |
-| [0017](0017-antigravity-cli-canonical-identity.md) | Use one canonical Antigravity CLI identity | Accepted | — | — |
+| [0017](0017-antigravity-cli-canonical-identity.md) | Use one canonical Antigravity CLI identity | Superseded by ADR 0036 | — | — |
 | [0016](0016-detached-release-envelope.md) | Bind release artifacts with a detached envelope | Accepted | — | — |
 | [0015](0015-projection-digest-layers.md) | Separate projection body, file, and aggregate digests | Accepted | — | — |
 | [0014](0014-go-production-core.md) | Implement the production GDS core in Go | Accepted | — | — |

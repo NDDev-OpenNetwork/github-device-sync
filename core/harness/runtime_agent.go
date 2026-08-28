@@ -16,8 +16,8 @@ import (
 //
 // The generic engine (RunEvidenceDriver) owns the harness-agnostic protocol: the
 // two-phase concurrent worker pool, checkpoint resume, transcript assembly, the
-// judge identity, and the evidence digest. Each harness (codex today; zcode and
-// claude next) supplies only its tool-specific behavior through this interface.
+// judge identity, and the evidence digest. Each harness (codex today, claude
+// next) supplies only its tool-specific behavior through this interface.
 // Consistency comes from every harness reusing the same engine; isolation comes
 // from each agent minting its own fixtures and environment in Prepare/Run.
 type RuntimeAgent interface {
