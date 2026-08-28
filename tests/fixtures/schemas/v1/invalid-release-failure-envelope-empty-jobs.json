@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "bundle_version": "0.7.0-rc.1",
+  "release_sequence": 47,
+  "channel": "canary",
+  "source_commit": "0123456789abcdef0123456789abcdef01234567",
+  "source_ref": "refs/tags/gds-v0.7.0-rc.1",
+  "workflow_run_id": 123456789,
+  "failed_jobs": [],
+  "superseded_by": null
+}

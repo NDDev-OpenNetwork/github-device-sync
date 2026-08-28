@@ -66,6 +66,19 @@
       "valid": true
     },
     {
+      "id": "valid-release-failure-envelope",
+      "schema": "release-failure-envelope",
+      "path": "valid-release-failure-envelope.json",
+      "valid": true
+    },
+    {
+      "id": "invalid-release-failure-envelope-empty-jobs",
+      "schema": "release-failure-envelope",
+      "path": "invalid-release-failure-envelope-empty-jobs.json",
+      "valid": false,
+      "expected_code": "GDS_INSTANCE_INVALID"
+    },
+    {
       "id": "valid-bundle-trust",
       "schema": "bundle-trust",
       "path": "valid-bundle-trust.yaml",
