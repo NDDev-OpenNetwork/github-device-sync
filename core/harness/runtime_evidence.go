@@ -92,7 +92,7 @@ type runtimeEvidenceExpectation struct {
 }
 
 // expectedRuntimeEvidenceCaseIDs is the exact case set a harness must prove.
-// A harness whose capability profile declares no hook support (e.g. zcode)
+// A harness whose capability profile declares no hook support
 // legitimately omits the hook-lifecycle case rather than being forced to prove
 // a capability it does not have; every hook-capable harness (codex, claude)
 // keeps the full set unchanged.

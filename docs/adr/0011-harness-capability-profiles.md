@@ -26,11 +26,14 @@ Canonical skill content uses the Agent Skills common denominator.
 Harness-specific controls live in sidecars, settings, plugin manifests, or
 generated projections.
 
-The owner-selected canonical set is seventeen identities:
-`antigravity`, `claude-code`, `cline`, `codex`, `cursor`,
-`github-copilot-cli`, `grok-build`, `junie-cli`, `kilo-cli`, `kimicode`,
-`kiro-cli`, `mimocode`, `opencode`, `pi`, `qoder-cli`, `qwen-code`, and
-`zcode`. The enforced set lives in `core/harness/registry.go` (`CanonicalIDs`)
+The canonical set is seven identities: `antigravity`, `claude-code`, `codex`,
+`cursor`, `grok-build`, `opencode`, and `pi` -- one per setup system.
+
+Superseded by ADR 0037. This record originally named seventeen; the other ten
+had no setup system, were held `provisional` and on-pause, and were removed
+along with the retired `nddev-*-app` line they mapped to. The structure below
+is unchanged: the enforced set still lives in `core/harness/registry.go`
+(`CanonicalIDs`)
 and is mirrored by `harnesses/capability-registry.yaml` and
 `tests/harness/runtime-contract.yaml`; the three must agree exactly.
 

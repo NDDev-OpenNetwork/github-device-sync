@@ -15,28 +15,24 @@ import (
 var CanonicalIDs = []string{
 	"antigravity",
 	"claude-code",
-	"cline",
 	"codex",
 	"cursor",
-	"github-copilot-cli",
 	"grok-build",
-	"junie-cli",
-	"kilo-cli",
-	"kimicode",
-	"kiro-cli",
-	"mimocode",
 	"opencode",
 	"pi",
-	"qoder-cli",
-	"qwen-code",
-	"zcode",
 }
 
-// WorkPolicyActiveIDs is the global execution/release allowlist. Catalogue
-// membership is deliberately separate: the other twelve stable identities
-// remain discoverable but are on-pause.
+// WorkPolicyActiveIDs is the global execution/release allowlist. It equals
+// CanonicalIDs: every catalogued harness is delivered by a setup system, so
+// there is no longer an on-pause remainder to separate.
 var WorkPolicyActiveIDs = []string{
-	"antigravity", "claude-code", "codex", "cursor", "grok-build", "opencode", "pi",
+	"antigravity",
+	"claude-code",
+	"codex",
+	"cursor",
+	"grok-build",
+	"opencode",
+	"pi",
 }
 
 func ValidateDeviceSelection(selected []string) []domain.Finding {
@@ -157,7 +153,7 @@ func ValidateStaticAll(root string, schemas *validation.Set) (RegistryReport, []
 // canonical harness but requires runtime evidence only for the owner-selected
 // set (e.g. the device's `harnesses:` selection). Unselected provisional
 // harnesses are still statically validated; they are not runtime-gated, so a
-// device that runs only Codex and ZCode is not blocked by unproven catalog
+// device that runs only Codex and Pi is not blocked by unproven catalog
 // entries (RVR-P2-009).
 func ValidateSelected(
 	root string,

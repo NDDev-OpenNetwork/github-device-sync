@@ -1,29 +1,24 @@
 # Harness capability registry
 
-`capability-registry.yaml` is the canonical index for the seventeen owner-selected
-agent harnesses. Each profile records only current official documentation facts
-and remains `provisional` until an exact installed version passes the clean
-runtime contract suite.
+`capability-registry.yaml` is the canonical index for the seven agent harnesses
+this estate installs, one per setup system in `NDDev-OpenNetwork`. Each profile
+records only current official documentation facts.
+
+The catalogue previously carried seventeen identities: ten had no setup system
+and were held `provisional` and on-pause indefinitely. They were removed with
+the retired `nddev-*-app` line they were mapped to (ADR 0037). The catalogue
+and the work-policy allowlist are now the same set, so nothing can be
+catalogued but paused.
 
 Canonical harness identities are:
 
 - `antigravity`;
 - `claude-code`;
-- `cline`;
 - `codex`;
 - `cursor`;
-- `github-copilot-cli`;
 - `grok-build`;
-- `junie-cli`;
-- `kilo-cli`;
-- `kimicode`;
-- `kiro-cli`;
-- `mimocode`;
 - `opencode`;
-- `pi`;
-- `qoder-cli`;
-- `qwen-code`;
-- `zcode`.
+- `pi`.
 
 Harnesses with native AGENTS support consume the standalone generated
 `AGENTS.md`; Claude Code receives a generated first-class

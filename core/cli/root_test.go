@@ -58,7 +58,7 @@ func TestSourceStatusReportsControlPlaneSourcesCurrent(t *testing.T) {
 		t.Fatalf("exit = %d, stderr = %q, envelope = %#v", exitCode, stderr, envelope)
 	}
 	data, ok := envelope.Data.(map[string]any)
-	if !ok || data["count"] != float64(60) {
+	if !ok || data["count"] != float64(55) {
 		t.Fatalf("data = %#v", envelope.Data)
 	}
 	immutableSource := false

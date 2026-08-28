@@ -31,19 +31,7 @@ harnesses:
     legacy_aliases:
       - "cursor-cli"
 
-  - id: "cline"
-    status: "provisional"
-    profile: "harnesses/cline/profile.yaml"
-    verified_at: "2026-07-26"
-    runtime_evidence: "delegated"
-    legacy_aliases: []
 
-  - id: "github-copilot-cli"
-    status: "provisional"
-    profile: "harnesses/github-copilot-cli/profile.yaml"
-    verified_at: "2026-07-26"
-    runtime_evidence: "delegated"
-    legacy_aliases: []
 
   - id: "grok-build"
     status: "supported"
@@ -52,40 +40,10 @@ harnesses:
     runtime_evidence: "delegated"
     legacy_aliases: []
 
-  - id: "junie-cli"
-    status: "provisional"
-    profile: "harnesses/junie-cli/profile.yaml"
-    verified_at: "2026-07-26"
-    runtime_evidence: "delegated"
-    legacy_aliases: []
 
-  - id: "kimicode"
-    status: "provisional"
-    profile: "harnesses/kimicode/profile.yaml"
-    verified_at: "2026-07-11"
-    runtime_evidence: "delegated"
-    legacy_aliases: []
 
-  - id: "kilo-cli"
-    status: "provisional"
-    profile: "harnesses/kilo-cli/profile.yaml"
-    verified_at: "2026-07-26"
-    runtime_evidence: "delegated"
-    legacy_aliases: []
 
-  - id: "kiro-cli"
-    status: "provisional"
-    profile: "harnesses/kiro-cli/profile.yaml"
-    verified_at: "2026-07-26"
-    runtime_evidence: "delegated"
-    legacy_aliases: []
 
-  - id: "mimocode"
-    status: "provisional"
-    profile: "harnesses/mimocode/profile.yaml"
-    verified_at: "2026-07-11"
-    runtime_evidence: "delegated"
-    legacy_aliases: []
 
   - id: "opencode"
     status: "supported"
@@ -101,23 +59,5 @@ harnesses:
     runtime_evidence: "delegated"
     legacy_aliases: []
 
-  - id: "qwen-code"
-    status: "provisional"
-    profile: "harnesses/qwen-code/profile.yaml"
-    verified_at: "2026-07-26"
-    runtime_evidence: "delegated"
-    legacy_aliases: []
 
-  - id: "qoder-cli"
-    status: "provisional"
-    profile: "harnesses/qoder-cli/profile.yaml"
-    verified_at: "2026-07-26"
-    runtime_evidence: "delegated"
-    legacy_aliases: []
 
-  - id: "zcode"
-    status: "provisional"
-    profile: "harnesses/zcode/profile.yaml"
-    verified_at: "2026-07-11"
-    runtime_evidence: "delegated"
-    legacy_aliases: []
