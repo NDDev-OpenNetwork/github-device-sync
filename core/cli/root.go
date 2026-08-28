@@ -1192,6 +1192,7 @@ func (executor *executor) generateCommand() *cobra.Command {
 	applyPlanID := ""
 	verifyOperationID := ""
 	operationOptions := app.ProjectionOperationOptions{}
+	sourceOptions := app.ProjectionSourceOptions{}
 	command := &cobra.Command{
 		Use:   "generate",
 		Short: "Render deterministic projection candidates in memory",
@@ -1202,6 +1203,7 @@ func (executor *executor) generateCommand() *cobra.Command {
 		Short: "Render, plan, apply, or verify exact repository projections",
 		Args:  cobra.NoArgs,
 		RunE: func(child *cobra.Command, _ []string) error {
+			operationOptions.Source = sourceOptions
 			return executor.run(child, func(ctx context.Context) domain.Envelope {
 				selected := 0
 				for _, active := range []bool{check, plan, applyPlanID != "", verifyOperationID != ""} {
@@ -1231,7 +1233,7 @@ func (executor *executor) generateCommand() *cobra.Command {
 						ctx, executor.options.cwd, verifyOperationID, operationOptions,
 					)
 				}
-				return executor.services.GenerateRepository(ctx, executor.options.cwd, check)
+				return executor.services.GenerateRepository(ctx, executor.options.cwd, check, sourceOptions)
 			})
 		},
 	}
@@ -1258,6 +1260,12 @@ func (executor *executor) generateCommand() *cobra.Command {
 	)
 	repository.Flags().StringVar(
 		&operationOptions.ApprovalReference, "approval-ref", "", "signed exact-plan approval JSON file",
+	)
+	repository.Flags().StringVar(
+		&sourceOptions.BundleArchive, "bundle-archive", "", "verified immutable GDS bundle tar.gz used as projection policy source",
+	)
+	repository.Flags().StringVar(
+		&sourceOptions.ReleaseEnvelope, "release-envelope", "", "detached release-envelope.json for --bundle-archive",
 	)
 	command.AddCommand(repository)
 	return command

@@ -71,6 +71,25 @@ Development locks use channel `development` and sequence `0`. Canary, stable,
 or frozen locks require a positive sequence and attestation identity digest.
 The development lock is test evidence, not a released immutable bundle.
 
+Standalone public modules consume released policy without copying its source
+tree into every repository:
+
+```bash
+gds generate repository \
+  --bundle-archive /absolute/gds-bundle-vX.Y.Z.tar.gz \
+  --release-envelope /absolute/release-envelope.json \
+  --check
+```
+
+Both inputs are required together. GDS verifies the complete archive against
+the detached envelope and embedded schemas, materializes only policy, schema,
+template and public exception inputs in an owned temporary directory, and
+requires the executing binary's embedded templates to match the release. The
+resulting lock records release version, sequence, channel, artifact digest,
+content-set digest and attestation identity. Plan/apply/verify require the same
+two immutable input paths so precondition re-observation cannot change source.
+Private targets cannot use this standalone boundary.
+
 ## Manual drift
 
 Verification uses `lstat`, rejects symlinks and non-regular files, confines

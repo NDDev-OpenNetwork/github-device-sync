@@ -4,6 +4,8 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"reflect"
 	"sort"
 	"strings"
@@ -55,7 +57,13 @@ func (compiler *Compiler) CompileDirectory(
 	}
 	owners, ownerFindings := compiler.loader.LoadOwners(root)
 	if len(ownerFindings) != 0 {
-		return CompileResult{Findings: ownerFindings}
+		ownerDirectory := filepath.Join(root, "estate", "owners")
+		_, ownerErr := os.Stat(ownerDirectory)
+		if !(isPublicModuleAnchor(anchor) && os.IsNotExist(ownerErr) &&
+			allFindingCodes(ownerFindings, "GDS_POLICY_OWNER_REGISTER_UNAVAILABLE")) {
+			return CompileResult{Findings: ownerFindings}
+		}
+		owners = OwnerIdentities{}
 	}
 	compiler = compiler.WithOwners(owners)
 	exceptions, exceptionFindings := compiler.loader.LoadExceptions(root)
@@ -65,6 +73,27 @@ func (compiler *Compiler) CompileDirectory(
 	return compiler.CompileWithExceptions(
 		anchor, sources, exceptions, bundleVersion, compiler.Now().UTC(),
 	)
+}
+
+func isPublicModuleAnchor(anchor domain.RepositoryAnchor) bool {
+	if anchor.Classification.VisibilityContract != "public" {
+		return false
+	}
+	for _, role := range anchor.Repository.Roles {
+		if role == "module" {
+			return true
+		}
+	}
+	return false
+}
+
+func allFindingCodes(findings []domain.Finding, code string) bool {
+	for _, finding := range findings {
+		if finding.Code != code {
+			return false
+		}
+	}
+	return len(findings) != 0
 }
 
 func (compiler *Compiler) Compile(

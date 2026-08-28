@@ -67,7 +67,7 @@ func (observer githubProjectionObserver) Observe(
 	ctx context.Context,
 	repositoryID string,
 ) (operations.Observation, error) {
-	current, findings := observer.services.projectionOperationContext(ctx, observer.root)
+	current, findings := observer.services.projectionOperationContext(ctx, observer.root, ProjectionSourceOptions{})
 	if len(findings) != 0 || current.repositoryID != repositoryID {
 		return operations.Observation{}, errors.New("local projection context is no longer proven")
 	}
@@ -267,7 +267,7 @@ func (services *Services) prepareGitHubProjectionContext(
 	options GitHubProjectionOperationOptions,
 	command string,
 ) (githubProjectionContext, *domain.Envelope) {
-	local, findings := services.projectionOperationContext(ctx, path)
+	local, findings := services.projectionOperationContext(ctx, path, ProjectionSourceOptions{})
 	if len(findings) != 0 {
 		envelope := domain.NewEnvelope(command, classifyFindings(findings), nil, findings...)
 		return githubProjectionContext{}, &envelope
@@ -370,7 +370,7 @@ func (services *Services) loadGitHubProjectionContext(
 	scope githubchange.Scope,
 	command string,
 ) (githubProjectionContext, *domain.Envelope) {
-	local, findings := services.projectionOperationContext(ctx, path)
+	local, findings := services.projectionOperationContext(ctx, path, ProjectionSourceOptions{})
 	if len(findings) != 0 {
 		envelope := domain.NewEnvelope(command, classifyFindings(findings), nil, findings...)
 		return githubProjectionContext{}, &envelope

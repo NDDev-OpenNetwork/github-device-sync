@@ -37,6 +37,7 @@ var portableRoots = []string{
 	"skills/canonical",
 	"harnesses",
 	"templates/agents",
+	"templates/github-actions",
 	"templates/harnesses",
 	"plugins/gds-core",
 	"plugins/gds-estate-admin",

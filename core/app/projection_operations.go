@@ -10,9 +10,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/NDDev-OpenNetwork/github-device-sync/core/bundle"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/compiler"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/domain"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/identity"
+	"github.com/NDDev-OpenNetwork/github-device-sync/core/manifest"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/operations"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/projections"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/state"
@@ -25,6 +27,7 @@ type ProjectionOperationOptions struct {
 	DeviceID          string
 	SessionID         string
 	ApprovalReference string
+	Source            ProjectionSourceOptions
 }
 
 type ProjectionPlanData struct {
@@ -43,13 +46,14 @@ type projectionContext struct {
 type projectionObserver struct {
 	services *Services
 	root     string
+	source   ProjectionSourceOptions
 }
 
 func (observer projectionObserver) Observe(
 	ctx context.Context,
 	repositoryID string,
 ) (operations.Observation, error) {
-	current, findings := observer.services.projectionOperationContext(ctx, observer.root)
+	current, findings := observer.services.projectionOperationContext(ctx, observer.root, observer.source)
 	if len(findings) != 0 {
 		return operations.Observation{}, fmt.Errorf(
 			"projection precondition returned %d findings", len(findings),
@@ -71,7 +75,7 @@ func (services *Services) PlanRepositoryProjection(
 	if finding := validateLocalOperationIdentity(options); finding != nil {
 		return domain.NewEnvelope("gds generate repository plan", domain.ExitInput, nil, *finding)
 	}
-	current, findings := services.projectionOperationContext(ctx, path)
+	current, findings := services.projectionOperationContext(ctx, path, options.Source)
 	if len(findings) != 0 {
 		return domain.NewEnvelope(
 			"gds generate repository plan", classifyFindings(findings), nil, findings...,
@@ -124,7 +128,7 @@ func (services *Services) PlanRepositoryProjection(
 	}
 	engine := operations.NewDefaultEngine(
 		store, services.Schemas,
-		projectionObserver{services: services, root: current.root},
+		projectionObserver{services: services, root: current.root, source: options.Source},
 		nil, options.DeviceID, options.SessionID,
 	)
 	engine.Now = services.Now
@@ -153,7 +157,7 @@ func (services *Services) ApplyRepositoryProjection(
 	if finding := validateLocalOperationIdentity(options); finding != nil {
 		return domain.NewEnvelope("gds generate repository apply", domain.ExitInput, nil, *finding)
 	}
-	current, findings := services.projectionOperationContext(ctx, path)
+	current, findings := services.projectionOperationContext(ctx, path, options.Source)
 	if len(findings) != 0 {
 		return domain.NewEnvelope(
 			"gds generate repository apply", classifyFindings(findings), nil, findings...,
@@ -170,7 +174,7 @@ func (services *Services) ApplyRepositoryProjection(
 	}
 	engine := operations.NewDefaultEngine(
 		store, services.Schemas,
-		projectionObserver{services: services, root: current.root},
+		projectionObserver{services: services, root: current.root, source: options.Source},
 		map[string]operations.ActionHandler{projections.MaterializeAction: materializer},
 		options.DeviceID, options.SessionID,
 	)
@@ -207,7 +211,7 @@ func (services *Services) VerifyRepositoryProjection(
 	if finding := validateLocalOperationIdentity(options); finding != nil {
 		return domain.NewEnvelope("gds generate repository verify", domain.ExitInput, nil, *finding)
 	}
-	current, findings := services.projectionOperationContext(ctx, path)
+	current, findings := services.projectionOperationContext(ctx, path, options.Source)
 	if len(findings) != 0 {
 		return domain.NewEnvelope(
 			"gds generate repository verify", classifyFindings(findings), nil, findings...,
@@ -224,7 +228,7 @@ func (services *Services) VerifyRepositoryProjection(
 	}
 	engine := operations.NewDefaultEngine(
 		store, services.Schemas,
-		projectionObserver{services: services, root: current.root},
+		projectionObserver{services: services, root: current.root, source: options.Source},
 		map[string]operations.ActionHandler{projections.MaterializeAction: materializer},
 		options.DeviceID, options.SessionID,
 	)
@@ -244,13 +248,37 @@ func (services *Services) VerifyRepositoryProjection(
 func (services *Services) projectionOperationContext(
 	ctx context.Context,
 	path string,
+	source ProjectionSourceOptions,
 ) (projectionContext, []domain.Finding) {
 	root, anchor, findings := services.projectionPolicyInputs(ctx, path)
+	var projectionBundle projections.Bundle
+	cleanup := func() {}
+	version := compiler.DevelopmentBundleVersion
+	if source.released() {
+		repositoryInfo, infoErr := services.Git.RepositoryInfo(ctx, path)
+		if infoErr != nil {
+			return projectionContext{}, []domain.Finding{dependencyFinding(path, infoErr)}
+		}
+		anchor, findings = manifest.NewLoader(services.Schemas).LoadRepository(repositoryInfo.WorktreeRoot)
+		if len(findings) == 0 && !isPublicModuleProjection(anchor) {
+			findings = []domain.Finding{{
+				Code: "GDS_PROJECTION_RELEASE_TARGET_INVALID", Severity: domain.SeverityHigh,
+				Message: "Released projection sources are accepted only for public modules.",
+			}}
+		}
+		var releasedManifest bundle.Manifest
+		if len(findings) == 0 {
+			root, releasedManifest, projectionBundle, cleanup, findings =
+				services.materializeReleasedProjectionSource(source)
+			version = releasedManifest.BundleVersion
+		}
+	}
+	defer cleanup()
 	if len(findings) != 0 {
 		return projectionContext{}, findings
 	}
 	compiled := services.Compiler.CompileDirectory(
-		root, anchor, compiler.DevelopmentBundleVersion,
+		root, anchor, version,
 	)
 	if len(compiled.Findings) != 0 {
 		return projectionContext{}, compiled.Findings
@@ -268,27 +296,25 @@ func (services *Services) projectionOperationContext(
 	); err != nil {
 		return projectionContext{}, []domain.Finding{dependencyFinding(path, err)}
 	}
-	// Trace metadata only; see the equivalent note in services.go. An
-	// uncommitted canonical source must not block generation, because that
-	// refusal is what forced the follow-up re-pin commit.
-	sourceLayout := projections.ResolveDevelopmentSourceLayout(root)
-	sourceOID, err := services.Git.CommittedSourceOID(
-		ctx, root, sourceLayout.Paths,
-	)
-	if err != nil {
-		sourceOID = ""
+	if !source.released() {
+		// Trace metadata only; see the equivalent note in services.go. An
+		// uncommitted canonical source must not block generation, because that
+		// refusal is what forced the follow-up re-pin commit.
+		sourceLayout := projections.ResolveDevelopmentSourceLayout(root)
+		sourceOID, sourceErr := services.Git.CommittedSourceOID(ctx, root, sourceLayout.Paths)
+		if sourceErr != nil {
+			sourceOID = ""
+		}
+		sourceTreeDigest, sourceErr := services.Git.SourceTreeDigest(ctx, root, sourceLayout.Paths)
+		if sourceErr != nil {
+			return projectionContext{}, []domain.Finding{dependencyFinding(path, sourceErr)}
+		}
+		projectionBundle, err = services.Projector.DevelopmentBundle(compiled.Document, sourceOID, sourceTreeDigest)
+		if err != nil {
+			return projectionContext{}, []domain.Finding{dependencyFinding(path, err)}
+		}
 	}
-	sourceTreeDigest, err := services.Git.SourceTreeDigest(
-		ctx, root, sourceLayout.Paths,
-	)
-	if err != nil {
-		return projectionContext{}, []domain.Finding{dependencyFinding(path, err)}
-	}
-	bundle, err := services.Projector.DevelopmentBundle(compiled.Document, sourceOID, sourceTreeDigest)
-	if err != nil {
-		return projectionContext{}, []domain.Finding{dependencyFinding(path, err)}
-	}
-	candidate, projectionFindings := services.Projector.Generate(anchor, compiled.Document, bundle)
+	candidate, projectionFindings := services.Projector.Generate(anchor, compiled.Document, projectionBundle)
 	if len(projectionFindings) != 0 {
 		return projectionContext{}, projectionFindings
 	}

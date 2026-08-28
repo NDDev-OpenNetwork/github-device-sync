@@ -20,6 +20,7 @@ import (
 
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/app"
 	approvalcontract "github.com/NDDev-OpenNetwork/github-device-sync/core/approval"
+	"github.com/NDDev-OpenNetwork/github-device-sync/core/bundle"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/canonicaljson"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/domain"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/identity"
@@ -214,6 +215,75 @@ func TestGenerateRepositoryUsesTrustedEstateBundleProvenance(t *testing.T) {
 	files, _ := candidate["files"].([]any)
 	if bundle["source_commit"] == "" || bundle["source_commit"] == targetHead || len(files) != 2 {
 		t.Fatalf("bundle=%#v candidate=%#v target_head=%s", bundle, candidate, targetHead)
+	}
+}
+
+func TestGenerateRepositoryConsumesVerifiedReleasedBundle(t *testing.T) {
+	source := repositoryRoot(t)
+	tracked := strings.Fields(runSessionGit(t, source, "ls-files"))
+	sourceCommit := runSessionGit(t, source, "rev-parse", "HEAD")
+	schemas, err := validation.NewSchemaSet()
+	if err != nil {
+		t.Fatal(err)
+	}
+	candidate, findings := bundle.Build(source, bundle.BuildOptions{
+		BundleVersion: "9.0.0", ReleaseSequence: 900, Channel: "canary",
+		SourceCommit: sourceCommit, MinimumCLIVersion: "9.0.0",
+		Workflow: ".github/workflows/release-bundle.yml", SourceRef: "refs/heads/main",
+		TrackedSources: tracked, HarnessEvidenceProvisional: true,
+	}, bundle.TrustPolicy{
+		SchemaVersion: 1, TrustDomain: "gds-release",
+		Source: bundle.TrustSource{Owner: "NDDev-OpenNetwork", Repository: "github-device-sync",
+			AllowedWorkflows: []string{".github/workflows/release-bundle.yml"}, AllowedRefs: []string{"refs/heads/main"}},
+		Release: bundle.TrustRelease{MinimumReleaseSequence: 1, AllowedChannels: []string{"canary"}},
+	}, schemas)
+	if len(findings) != 0 {
+		t.Fatalf("build findings: %#v", findings)
+	}
+	target := t.TempDir()
+	runSessionGit(t, target, "init", "-q", "-b", "main")
+	runSessionGit(t, target, "config", "user.name", "Released Projection")
+	runSessionGit(t, target, "config", "user.email", "projection@example.invalid")
+	if err := os.Mkdir(filepath.Join(target, ".gds"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	anchor, err := os.ReadFile(filepath.Join(source, ".gds", "repository.yaml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(target, ".gds", "repository.yaml"), anchor, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	runSessionGit(t, target, "add", ".gds/repository.yaml")
+	runSessionGit(t, target, "commit", "-qm", "add anchor")
+	archive := filepath.Join(t.TempDir(), "bundle.tar.gz")
+	envelope := filepath.Join(t.TempDir(), "release-envelope.json")
+	if err := os.WriteFile(archive, candidate.Artifact, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	envelopeRaw, _ := json.Marshal(candidate.Envelope)
+	if err := os.WriteFile(envelope, envelopeRaw, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	exitCode, result, stderr := executeJSON(t, "--json", "--cwd", target,
+		"generate", "repository", "--bundle-archive", archive, "--release-envelope", envelope)
+	if exitCode != 0 {
+		t.Fatalf("exit=%d stderr=%q result=%#v", exitCode, stderr, result)
+	}
+	data := result.Data.(map[string]any)
+	released := data["bundle"].(map[string]any)
+	if released["version"] != "9.0.0" || released["release_sequence"] != float64(900) ||
+		released["channel"] != "canary" || released["digest"] != candidate.Envelope.ArtifactDigest {
+		t.Fatalf("released bundle identity = %#v", released)
+	}
+}
+
+func TestGenerateRepositoryRejectsPartialReleasedBundleIdentity(t *testing.T) {
+	root := repositoryRoot(t)
+	exitCode, result, _ := executeJSON(t, "--json", "--cwd", root,
+		"generate", "repository", "--bundle-archive", filepath.Join(root, "go.mod"))
+	if exitCode != 2 || !containsFinding(result.Findings, "GDS_PROJECTION_RELEASE_INPUT_INCOMPLETE") {
+		t.Fatalf("exit=%d result=%#v", exitCode, result)
 	}
 }
 

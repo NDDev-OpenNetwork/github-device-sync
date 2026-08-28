@@ -291,15 +291,39 @@ func (services *Services) GenerateRepository(
 	ctx context.Context,
 	path string,
 	check bool,
+	options ProjectionSourceOptions,
 ) domain.Envelope {
 	root, anchor, findings := services.projectionPolicyInputs(ctx, path)
+	var releasedBundle projections.Bundle
+	cleanup := func() {}
+	version := compiler.DevelopmentBundleVersion
+	if options.released() {
+		repositoryInfo, infoErr := services.Git.RepositoryInfo(ctx, path)
+		if infoErr != nil {
+			return envelopeForError("gds generate repository", path, infoErr)
+		}
+		anchor, findings = manifest.NewLoader(services.Schemas).LoadRepository(repositoryInfo.WorktreeRoot)
+		if len(findings) == 0 && !isPublicModuleProjection(anchor) {
+			findings = []domain.Finding{{
+				Code: "GDS_PROJECTION_RELEASE_TARGET_INVALID", Severity: domain.SeverityHigh,
+				Message: "Released projection sources are accepted only for public modules.",
+			}}
+		}
+		var releasedManifest bundle.Manifest
+		if len(findings) == 0 {
+			root, releasedManifest, releasedBundle, cleanup, findings =
+				services.materializeReleasedProjectionSource(options)
+			version = releasedManifest.BundleVersion
+		}
+	}
+	defer cleanup()
 	if len(findings) != 0 {
 		return domain.NewEnvelope(
 			"gds generate repository", classifyFindings(findings), nil, findings...,
 		)
 	}
 	compiled := services.Compiler.CompileDirectory(
-		root, anchor, compiler.DevelopmentBundleVersion,
+		root, anchor, version,
 	)
 	if len(compiled.Findings) != 0 {
 		return domain.NewEnvelope(
@@ -316,29 +340,28 @@ func (services *Services) GenerateRepository(
 	); err != nil {
 		return envelopeForError("gds generate repository", path, err)
 	}
-	// The source commit is trace metadata now that the bundle identity is the
-	// source content, so an uncommitted canonical source no longer blocks
-	// generation. That refusal was the whole reason a source edit and its
-	// regenerated projection could not be one commit.
-	sourceLayout := projections.ResolveDevelopmentSourceLayout(root)
-	sourceOID, err := services.Git.CommittedSourceOID(
-		ctx, root, sourceLayout.Paths,
-	)
-	if err != nil {
-		sourceOID = ""
-	}
-	sourceTreeDigest, err := services.Git.SourceTreeDigest(
-		ctx, root, sourceLayout.Paths,
-	)
-	if err != nil {
-		return envelopeForError("gds generate repository", path, err)
-	}
-	bundle, err := services.Projector.DevelopmentBundle(compiled.Document, sourceOID, sourceTreeDigest)
-	if err != nil {
-		return domain.InternalError("gds generate repository", err)
+	projectionBundle := releasedBundle
+	if !options.released() {
+		// The source commit is trace metadata now that the bundle identity is the
+		// source content, so an uncommitted canonical source no longer blocks
+		// generation. That refusal was the whole reason a source edit and its
+		// regenerated projection could not be one commit.
+		sourceLayout := projections.ResolveDevelopmentSourceLayout(root)
+		sourceOID, sourceErr := services.Git.CommittedSourceOID(ctx, root, sourceLayout.Paths)
+		if sourceErr != nil {
+			sourceOID = ""
+		}
+		sourceTreeDigest, sourceErr := services.Git.SourceTreeDigest(ctx, root, sourceLayout.Paths)
+		if sourceErr != nil {
+			return envelopeForError("gds generate repository", path, sourceErr)
+		}
+		projectionBundle, err = services.Projector.DevelopmentBundle(compiled.Document, sourceOID, sourceTreeDigest)
+		if err != nil {
+			return domain.InternalError("gds generate repository", err)
+		}
 	}
 	candidate, projectionFindings := services.Projector.Generate(
-		anchor, compiled.Document, bundle,
+		anchor, compiled.Document, projectionBundle,
 	)
 	if check && len(projectionFindings) == 0 {
 		projectionFindings = projections.Verify(repositoryInfo.WorktreeRoot, candidate)
@@ -346,14 +369,14 @@ func (services *Services) GenerateRepository(
 	class := classifyFindings(projectionFindings)
 	envelope := domain.NewEnvelope(
 		"gds generate repository", class,
-		ProjectionData{Bundle: bundle, Candidate: candidate}, projectionFindings...,
+		ProjectionData{Bundle: projectionBundle, Candidate: candidate}, projectionFindings...,
 	)
 	envelope.Scope["repository_id"] = anchor.Repository.ID
 	return envelope
 }
 
 func (services *Services) ValidateProjections(ctx context.Context, path string) domain.Envelope {
-	envelope := services.GenerateRepository(ctx, path, true)
+	envelope := services.GenerateRepository(ctx, path, true, ProjectionSourceOptions{})
 	envelope.Command = "gds validate projections"
 	return envelope
 }
@@ -850,7 +873,7 @@ func (services *Services) ValidateSecurity(
 }
 
 func (services *Services) ValidateVisibility(ctx context.Context, path string) domain.Envelope {
-	envelope := services.GenerateRepository(ctx, path, false)
+	envelope := services.GenerateRepository(ctx, path, false, ProjectionSourceOptions{})
 	envelope.Command = "gds validate visibility"
 	return envelope
 }
@@ -862,12 +885,12 @@ func (services *Services) ValidateSourceFreshness(ctx context.Context, path stri
 }
 
 func (services *Services) ValidateReproducibility(ctx context.Context, path string) domain.Envelope {
-	first := services.GenerateRepository(ctx, path, false)
+	first := services.GenerateRepository(ctx, path, false, ProjectionSourceOptions{})
 	if first.ExitClass != domain.ExitSuccess {
 		first.Command = "gds validate reproducibility"
 		return first
 	}
-	second := services.GenerateRepository(ctx, path, false)
+	second := services.GenerateRepository(ctx, path, false, ProjectionSourceOptions{})
 	if second.ExitClass != domain.ExitSuccess {
 		second.Command = "gds validate reproducibility"
 		return second

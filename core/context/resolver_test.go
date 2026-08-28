@@ -199,7 +199,7 @@ func TestCanonicalPolicyProverRejectsCommittedSelfConsistentReplacement(t *testi
 	}
 }
 
-func TestCanonicalPolicyProverFailsClosedWithoutReleaseEvidence(t *testing.T) {
+func TestCanonicalPolicyProverRejectsUncommittedReleasedProjection(t *testing.T) {
 	resolver := newTestResolver(t)
 	document := bundleLockDocument{}
 	document.Bundle.Channel = "stable"
@@ -207,8 +207,41 @@ func TestCanonicalPolicyProverFailsClosedWithoutReleaseEvidence(t *testing.T) {
 	findings := resolver.prover.Verify(
 		context.Background(), t.TempDir(), t.TempDir(), domain.RepositoryAnchor{}, document,
 	)
-	if !hasFinding(findings, "GDS_CONTEXT_POLICY_PROVENANCE_NOT_PROVEN") {
+	if !hasFinding(findings, "GDS_CONTEXT_POLICY_ANCHOR_NOT_COMMITTED") {
 		t.Fatalf("findings = %#v", findings)
+	}
+}
+
+func TestCanonicalPolicyProverAcceptsCommittedReleasedProjectionIdentity(t *testing.T) {
+	resolver := newTestResolver(t)
+	root := t.TempDir()
+	runContextGit(t, root, "init", "--quiet")
+	runContextGit(t, root, "config", "user.name", "Release Test")
+	runContextGit(t, root, "config", "user.email", "release@example.invalid")
+	for path, content := range map[string]string{
+		".gds/repository.yaml":      "anchor\n",
+		".gds/bundle.lock.yaml":     "lock\n",
+		".gds/compiled-policy.json": "{}\n",
+	} {
+		full := filepath.Join(root, filepath.FromSlash(path))
+		if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(full, []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	runContextGit(t, root, "add", "--all")
+	runContextGit(t, root, "commit", "--quiet", "-m", "released projection")
+	document := bundleLockDocument{}
+	document.Bundle.Channel = "stable"
+	document.Bundle.Version = "1.0.0"
+	anchor := domain.RepositoryAnchor{
+		Repository:     domain.RepositoryIdentity{Roles: []string{"module"}},
+		Classification: domain.RepositoryClassification{VisibilityContract: "public"},
+	}
+	if findings := resolver.prover.Verify(context.Background(), root, "", anchor, document); len(findings) != 0 {
+		t.Fatalf("committed released identity findings = %#v", findings)
 	}
 }
 
