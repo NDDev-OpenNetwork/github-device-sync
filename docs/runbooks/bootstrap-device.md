@@ -61,7 +61,7 @@ Verifies the host OS/arch, the control-plane root, the bootstrap submodule, and
 
 ### Phase 1 — seed Go + build gds
 
-Installs the pinned Go toolchain (`go1.26.5`, the security floor) into
+Installs the pinned Go toolchain (`go1.26.7`, the security floor) into
 `~/sdk/go<version>` (the `GOTOOLCHAIN` pattern) and builds the `gds` CLI from
 the control-plane source into `~/.local/bin/gds`. The source build carries the
 nearest release version plus the exact source commit (for example,

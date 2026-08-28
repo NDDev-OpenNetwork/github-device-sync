@@ -41,7 +41,7 @@ jobs:
       cache: true
 
       runner: "ubuntu-latest"
-      go_version: "1.26.5"
+      go_version: "1.26.7"
       test_command: "go test ./..."
       timeout_minutes: 30
   pr-required:
@@ -58,7 +58,7 @@ jobs:
       fetch_depth: 0
       cache: true
       runner: "ubuntu-latest"
-      go_version: "1.26.5"
+      go_version: "1.26.7"
       build_command: "go build -trimpath ./core/cmd/gds"
       test_command: "go test ./... && python3 -m pip install --quiet --require-hashes -r requirements/test.txt && python3 -m pytest"
       timeout_minutes: 30

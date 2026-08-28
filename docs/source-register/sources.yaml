@@ -266,10 +266,10 @@ sources:
     authority: official
     url: https://go.dev/doc/devel/release
     volatility: medium
-    verified_at: "2026-07-12"
-    next_review: "2026-10-12"
+    verified_at: "2026-08-28"
+    next_review: "2026-09-28"
     status: current-release-builder-pinned
-    content_digest: sha256:b9beb140c44dd686007db7c147d07b13f64fc89450223e5fefce1457c6d05a86
+    content_digest: sha256:4c9ddc4b23faefa2fd1c9d97f7a175251e408591cecf58bce4a2612113f01b6e
     governs:
       - go.supported-releases
       - go.release-builder
@@ -305,6 +305,17 @@ sources:
     governs:
       - go.release-builder
       - security.transport
+  - id: go-2026-6218
+    authority: official-vulnerability-database
+    url: https://pkg.go.dev/vuln/GO-2026-6218
+    volatility: critical
+    verified_at: "2026-08-28"
+    next_review: "2026-09-28"
+    status: mitigated-by-release-builder
+    content_digest: sha256:de05a77cf80fd7d66bd2ebad31692e0b07f960c747b6b106e57e2c4ba81205e5
+    governs:
+      - go.release-builder
+      - security.path-boundary
   - id: pytest-release
     authority: official-package-index
     url: https://pypi.org/project/pytest/

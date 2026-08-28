@@ -10,7 +10,7 @@ the source-maintenance phase. Until then, missing content digests are
 `NOT_PROVEN`, not implied verification.
 
 The currently installed `go1.26.4` toolchain is explicitly development-only.
-The register pins `go1.26.5` as the initial release builder because official
+The register pins `go1.26.7` as the current release builder because official
 Go advisories identify security fixes in that release. The full Go validation
 gate fails closed until the exact registered builder is available.
 

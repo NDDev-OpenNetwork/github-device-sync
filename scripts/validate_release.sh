@@ -6,7 +6,7 @@ BUILD_DIR=$(mktemp -d "${TMPDIR:-/tmp}/gds-release-gate.XXXXXX")
 trap 'rm -rf -- "$BUILD_DIR"' EXIT INT TERM
 
 cd "$ROOT"
-export GOTOOLCHAIN=${GOTOOLCHAIN:-go1.26.5}
+export GOTOOLCHAIN=${GOTOOLCHAIN:-go1.26.7}
 export GOWORK=off
 export GOFLAGS=-mod=readonly
 

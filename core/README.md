@@ -132,7 +132,7 @@ Root pytest discovery is limited by `pytest.ini` to `tests/`; it never collects
 tests from independent workspace repositories. The full Go validator
 runs module integrity, vet, unit/integration/race tests, schemas, and CGo-free
 cross-builds for macOS and Linux on arm64 and amd64. It requires the exact
-source-registered release builder (`go1.26.5`). Quick validation may run on an
+source-registered release builder (`go1.26.7`). Quick validation may run on an
 older local toolchain but leaves release evidence `NOT_PROVEN`.
 
 `gds-assurance` is a separate release-gate binary. It requires a clean source

@@ -23,10 +23,10 @@ this document.
 ## Build and local validation
 
 ```bash
-GOTOOLCHAIN=go1.26.5 go build -trimpath -o /tmp/gds-controller ./core/cmd/gds-controller
+GOTOOLCHAIN=go1.26.7 go build -trimpath -o /tmp/gds-controller ./core/cmd/gds-controller
 /tmp/gds-controller --version
 python3 scripts/validate_gds_schemas.py --root . --json
-GOTOOLCHAIN=go1.26.5 go test ./core/controller ./core/webhooks ./core/state -race -count=1
+GOTOOLCHAIN=go1.26.7 go test ./core/controller ./core/webhooks ./core/state -race -count=1
 ```
 
 ## Start

@@ -46,7 +46,7 @@ SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 ROOT=$(CDPATH='' cd -- "$SCRIPT_DIR/.." && pwd)
 
 # Pinned toolchain (the security floor enforced by validate_go_core.sh).
-GO_VERSION="1.26.5"
+GO_VERSION="1.26.7"
 SDK_ROOT="${HOME}/sdk"
 GO_HOME="${SDK_ROOT}/go${GO_VERSION}"
 GDS_BIN_TARGET="${HOME}/.local/bin/gds"
@@ -340,14 +340,30 @@ phase_1() {
     ok "Go ${GO_VERSION} already installed at ${GO_HOME}"
   else
     [ "$APPLY" -eq 1 ] || { info "PLAN: install Go ${GO_VERSION} to ${GO_HOME}"; return 0; }
-    local goos goarch tarball
+    local goos goarch tarball expected_sha
     goos=$(uname -s | tr '[:upper:]' '[:lower:]')
     goarch=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
     tarball="go${GO_VERSION}.${goos}-${goarch}.tar.gz"
+    case "${goos}-${goarch}" in
+      linux-amd64) expected_sha="ffb5f8de10c62550dfddab66b36b57030721e0a44a3218e9e1181d7b59f121ca" ;;
+      linux-arm64) expected_sha="5a4ec883379d51ee9ce1040d5e87f8d35e20387574dd8c947feb01eabc3c1b37" ;;
+      darwin-arm64) expected_sha="020a1e8224811be75163e920bc77e0926a1390a6aeea19bdcf23f74b9d749f6d" ;;
+      *) die "no reviewed Go ${GO_VERSION} archive digest for ${goos}-${goarch}" ;;
+    esac
     local url="https://go.dev/dl/${tarball}"
     info "Downloading ${url}"
     local tmp; tmp=$(mktemp)
     wget -nv -O "$tmp" "$url"
+    local observed_sha
+    if command -v sha256sum >/dev/null 2>&1; then
+      observed_sha=$(sha256sum "$tmp" | awk '{print $1}')
+    else
+      observed_sha=$(shasum -a 256 "$tmp" | awk '{print $1}')
+    fi
+    [ "$observed_sha" = "$expected_sha" ] || {
+      rm -f -- "$tmp"
+      die "Go ${GO_VERSION} archive digest verification failed"
+    }
     rm -rf "$GO_HOME"
     mkdir -p "$GO_HOME"
     tar -xzf "$tmp" -C "$GO_HOME" --strip-components=1

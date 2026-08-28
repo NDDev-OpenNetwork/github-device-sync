@@ -76,7 +76,7 @@ git:
 
 ci:
   profile: "go"
-  go_version: "1.26.5"
+  go_version: "1.26.7"
   build_command: "go build -trimpath ./core/cmd/gds"
   test_command: "go test ./..."
   timeout_minutes: 30
@@ -107,8 +107,8 @@ verification:
     - "test"
     - "build"
   required_contexts:
-    - "GDS fast / go (1.26.5)"
-    - "GDS PR required / go (1.26.5)"
+    - "GDS fast / go (1.26.7)"
+    - "GDS PR required / go (1.26.7)"
 
 agent:
   context_profile: "project-default"

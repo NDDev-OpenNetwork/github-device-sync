@@ -27,7 +27,7 @@ markers, and unexpected executable content fail closed.
 ## Reproducible release unit
 
 `gds-release-builder` requires a fully tracked clean Git worktree, exact source
-ref resolving to `HEAD`, Go `1.26.5`, read-only modules, CGO disabled, portable
+ref resolving to `HEAD`, Go `1.26.7`, read-only modules, CGO disabled, portable
 CPU baselines, and an isolated build environment without ambient credentials or
 Git configuration. Stable and frozen channels require
 `refs/tags/gds-v<version>`; canary accepts only `refs/heads/main` or that exact
