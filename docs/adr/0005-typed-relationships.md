@@ -33,6 +33,11 @@ rejected for the same reason a parent field was: one generator would carry a
 list of every tree it renders, and that list is a second copy of a fact the
 renderer already owns.
 
+The direction also decides whether the fact can be checked. A rendered tree
+asserting "I came from X" can be verified against the generator's own output; a
+generator asserting "I produce these seven" has nothing local to check it
+against, and drifts exactly when a tree is added or removed.
+
 Provider owner/name and local paths are mutable locators with alias/history
 records.
 
