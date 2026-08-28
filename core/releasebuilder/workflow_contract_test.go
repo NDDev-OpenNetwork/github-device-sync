@@ -97,6 +97,7 @@ func TestHostedReleaseWorkflowUsesOutputOutsideSourceRoot(t *testing.T) {
 		`stable/frozen requires signed active-five harness evidence`,
 		`--harness-evidence-directory $EVIDENCE_INPUT_ROOT/records`,
 		`RELEASE_SEQUENCE: ${{ inputs.release_sequence }}`,
+		`canary) release_flags=(--prerelease) ;;`,
 	} {
 		if !strings.Contains(content, required) {
 			t.Fatalf("hosted workflow is missing output contract %q", required)

@@ -330,13 +330,16 @@ jobs:
           RELEASE_CHANNEL: ${{ inputs.channel }}
         run: |
           set -euo pipefail
-          latest_flags=()
-          [ "$RELEASE_CHANNEL" = "stable" ] && latest_flags=(--latest)
+          release_flags=()
+          case "$RELEASE_CHANNEL" in
+            stable) release_flags=(--latest) ;;
+            canary) release_flags=(--prerelease) ;;
+          esac
           gh release create "$RELEASE_TAG" \
             --repo "$GITHUB_REPOSITORY" \
             --title "GDS $RELEASE_TAG" \
             --verify-tag \
-            "${latest_flags[@]}" \
+            "${release_flags[@]}" \
             --notes "Immutable GDS ${RELEASE_CHANNEL} bundle for ${RELEASE_TAG}. Multi-platform binaries + SPDX SBOM + SHA256SUMS, with keyless SLSA build provenance and SBOM attestations. Online: gh attestation verify <asset> -R ${GITHUB_REPOSITORY}. Offline: verify <asset> against provenance.sigstore.json and sbom.sigstore.json using trusted-root.jsonl, all attached here." \
             "$RELEASE_DIRECTORY"/* \
             "$EVIDENCE_DIRECTORY"/*

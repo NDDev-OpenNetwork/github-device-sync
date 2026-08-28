@@ -278,6 +278,13 @@ func TestInspectStatusDetachedAndMultipleWorktrees(t *testing.T) {
 	if detached.Head.Mode != "detached" || detached.Classification != "detached" {
 		t.Fatalf("detached status = %#v", detached)
 	}
+	paths := map[string]bool{}
+	for _, worktree := range detached.Worktrees {
+		paths[worktree.Path] = true
+	}
+	if len(paths) != 2 || !paths[filepath.Clean(directory)] || !paths[filepath.Clean(linked)] {
+		t.Fatalf("linked worktree paths = %#v, want %q and %q", paths, directory, linked)
+	}
 }
 
 func TestInspectStatusCachedAheadBehindAndDiverged(t *testing.T) {
