@@ -73,7 +73,7 @@ func TestAdapterExcludesExplicitSkillsWithoutNativeEnforcement(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, harnessID := range []string{
-		"antigravity-cli", "cursor-cli", "grok-build", "mimocode", "opencode",
+		"antigravity", "cursor", "grok-build", "mimocode", "opencode",
 	} {
 		adapter, findings := NewAdapter(root, harnessID, schemas)
 		if len(findings) != 0 {

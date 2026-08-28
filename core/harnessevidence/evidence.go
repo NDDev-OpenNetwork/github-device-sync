@@ -15,7 +15,7 @@ import (
 )
 
 var ActiveHarnesses = []string{
-	"antigravity-cli", "claude-code", "codex", "cursor-cli", "grok-build", "opencode", "pi",
+	"antigravity", "claude-code", "codex", "cursor", "grok-build", "opencode", "pi",
 }
 
 var immutableCommit = regexp.MustCompile(`^[0-9a-f]{40}$`)

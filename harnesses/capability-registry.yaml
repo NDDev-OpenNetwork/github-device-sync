@@ -1,13 +1,13 @@
 schema_version: 1
 
 harnesses:
-  - id: "antigravity-cli"
+  - id: "antigravity"
     status: "supported"
-    profile: "harnesses/antigravity-cli/profile.yaml"
+    profile: "harnesses/antigravity/profile.yaml"
     verified_at: "2026-08-28"
     runtime_evidence: "delegated"
     legacy_aliases:
-      - "antigravity"
+      - "antigravity-cli"
 
   - id: "claude-code"
     status: "supported"
@@ -23,12 +23,13 @@ harnesses:
     runtime_evidence: "delegated"
     legacy_aliases: []
 
-  - id: "cursor-cli"
+  - id: "cursor"
     status: "supported"
-    profile: "harnesses/cursor-cli/profile.yaml"
+    profile: "harnesses/cursor/profile.yaml"
     verified_at: "2026-08-28"
     runtime_evidence: "delegated"
-    legacy_aliases: []
+    legacy_aliases:
+      - "cursor-cli"
 
   - id: "cline"
     status: "provisional"

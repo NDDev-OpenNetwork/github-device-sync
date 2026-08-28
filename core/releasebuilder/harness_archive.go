@@ -27,8 +27,8 @@ const (
 )
 
 var harnessEvidenceMembers = []string{
-	"antigravity-cli.json", "claude-code.json", "codex.json",
-	"cursor-cli.json", "grok-build.json", "manifest.json",
+	"antigravity.json", "claude-code.json", "codex.json",
+	"cursor.json", "grok-build.json", "manifest.json",
 	"opencode.json", "pi.json",
 }
 

@@ -13,11 +13,11 @@ import (
 )
 
 var CanonicalIDs = []string{
-	"antigravity-cli",
+	"antigravity",
 	"claude-code",
 	"cline",
 	"codex",
-	"cursor-cli",
+	"cursor",
 	"github-copilot-cli",
 	"grok-build",
 	"junie-cli",
@@ -36,7 +36,7 @@ var CanonicalIDs = []string{
 // membership is deliberately separate: the other twelve stable identities
 // remain discoverable but are on-pause.
 var WorkPolicyActiveIDs = []string{
-	"antigravity-cli", "claude-code", "codex", "cursor-cli", "grok-build", "opencode", "pi",
+	"antigravity", "claude-code", "codex", "cursor", "grok-build", "opencode", "pi",
 }
 
 func ValidateDeviceSelection(selected []string) []domain.Finding {

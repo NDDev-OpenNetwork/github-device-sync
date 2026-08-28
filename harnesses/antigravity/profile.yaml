@@ -1,11 +1,11 @@
 schema_version: 1
 
 harness_profile:
-  id: "antigravity-cli"
-  product: "antigravity-cli"
+  id: "antigravity"
+  product: "antigravity"
   status: "supported"
   aliases:
-    - "antigravity"
+    - "antigravity-cli"
   capability_version: "2026-07-11"
   verified_at: "2026-08-28"
   official_sources:
