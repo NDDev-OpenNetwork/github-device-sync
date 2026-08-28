@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"crypto/sha256"
+	"errors"
 	"fmt"
 	"io/fs"
 	"maps"
@@ -135,14 +136,23 @@ func snapshotTree(t *testing.T, root string) map[string]string {
 	snapshot := map[string]string{}
 	err := filepath.WalkDir(root, func(path string, entry fs.DirEntry, walkErr error) error {
 		if walkErr != nil {
+			if errors.Is(walkErr, fs.ErrNotExist) && strings.HasSuffix(path, ".lock") {
+				return nil
+			}
 			return walkErr
 		}
 		relative, err := filepath.Rel(root, path)
 		if err != nil {
 			return err
 		}
+		if strings.HasPrefix(filepath.ToSlash(relative), ".git/") && strings.HasSuffix(relative, ".lock") {
+			return nil
+		}
 		info, err := entry.Info()
 		if err != nil {
+			if errors.Is(err, fs.ErrNotExist) && strings.HasSuffix(path, ".lock") {
+				return nil
+			}
 			return err
 		}
 		value := info.Mode().String()
