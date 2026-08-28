@@ -581,6 +581,7 @@
             "package-consumer",
             "workflow-module-consumer",
             "fork-of",
+            "generated-from",
             "device-checkout",
             "worktree",
             "embedded-context-source"

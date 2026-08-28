@@ -24,6 +24,12 @@
       "valid": true
     },
     {
+      "id": "valid-generated-repository",
+      "schema": "repository",
+      "path": "valid-generated-repository.yaml",
+      "valid": true
+    },
+    {
       "id": "valid-repository",
       "schema": "repository",
       "path": "valid-repository.yaml",
