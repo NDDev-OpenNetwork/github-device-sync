@@ -116,6 +116,29 @@ func TestVerifyReleaseUnitRejectsOuterAndInnerTampering(t *testing.T) {
 	assertFinding(t, findings, "GDS_BUNDLE_FILE_DIGEST_MISMATCH")
 }
 
+func TestMaterializeProjectionSourceExposesOnlyVerifiedCanonicalInputs(t *testing.T) {
+	root := newPortableFixture(t)
+	candidate, findings := Build(root, testBuildOptions(root), testTrust(), testSchemas(t))
+	if len(findings) != 0 {
+		t.Fatalf("build findings: %#v", findings)
+	}
+	materialized, manifest, cleanup, findings := MaterializeProjectionSource(
+		candidate.Artifact, candidate.Envelope, testSchemas(t),
+	)
+	defer cleanup()
+	if len(findings) != 0 || manifest.BundleVersion != "1.0.0" {
+		t.Fatalf("manifest=%#v findings=%#v", manifest, findings)
+	}
+	for _, required := range []string{"policies", "schemas", "templates"} {
+		if info, err := os.Stat(filepath.Join(materialized, required)); err != nil || !info.IsDir() {
+			t.Fatalf("required source %s is unavailable: %v", required, err)
+		}
+	}
+	if _, err := os.Stat(filepath.Join(materialized, "plugins")); !os.IsNotExist(err) {
+		t.Fatalf("non-projection plugin tree was materialized: %v", err)
+	}
+}
+
 func TestVerifyAttestationAndAntiRollbackPolicy(t *testing.T) {
 	root := newPortableFixture(t)
 	candidate, findings := Build(root, testBuildOptions(root), testTrust(), testSchemas(t))

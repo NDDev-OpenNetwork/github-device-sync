@@ -29,7 +29,7 @@ func TestGitHubProjectionPlanBindsExactCandidateAndMissingRuntimeBlocksMutation(
 	if err != nil {
 		t.Fatal(err)
 	}
-	local, findings := services.projectionOperationContext(context.Background(), root)
+	local, findings := services.projectionOperationContext(context.Background(), root, ProjectionSourceOptions{})
 	if len(findings) != 0 || len(local.candidate.Files) == 0 {
 		t.Fatalf("candidate findings=%#v candidate=%#v", findings, local.candidate)
 	}

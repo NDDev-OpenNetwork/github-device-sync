@@ -14,6 +14,12 @@ canonical skills, harness profiles, safe templates, Codex plugin packages, and
 the three GDS executables. It excludes `estate/`, observed state, device
 configuration, Git metadata, runtime credentials, and private inventory.
 
+The portable template set includes `templates/agents`,
+`templates/harnesses`, and `templates/github-actions`. Omitting any generator
+template would make a cryptographically valid bundle unusable as a standalone
+projection source, so the released-projection integration test exercises the
+archive through the real CLI.
+
 Every member is bounded, slash-normalized, and regular. Symlinks, traversal,
 oversized members, duplicate paths, private user paths, high-confidence secret
 markers, and unexpected executable content fail closed.
