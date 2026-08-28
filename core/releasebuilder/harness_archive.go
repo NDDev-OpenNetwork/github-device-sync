@@ -27,8 +27,9 @@ const (
 )
 
 var harnessEvidenceMembers = []string{
-	"claude-code.json", "codex.json", "grok-build.json",
-	"manifest.json", "opencode.json", "pi.json",
+	"antigravity-cli.json", "claude-code.json", "codex.json",
+	"cursor-cli.json", "grok-build.json", "manifest.json",
+	"opencode.json", "pi.json",
 }
 
 // MaterializeHarnessEvidenceArchive validates every header before extracting
