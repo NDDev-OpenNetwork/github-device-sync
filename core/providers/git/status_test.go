@@ -280,9 +280,21 @@ func TestInspectStatusDetachedAndMultipleWorktrees(t *testing.T) {
 	}
 	paths := map[string]bool{}
 	for _, worktree := range detached.Worktrees {
-		paths[worktree.Path] = true
+		canonical, err := filepath.EvalSymlinks(worktree.Path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		paths[canonical] = true
 	}
-	if len(paths) != 2 || !paths[filepath.Clean(directory)] || !paths[filepath.Clean(linked)] {
+	directory, err = filepath.EvalSymlinks(directory)
+	if err != nil {
+		t.Fatal(err)
+	}
+	linked, err = filepath.EvalSymlinks(linked)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(paths) != 2 || !paths[directory] || !paths[linked] {
 		t.Fatalf("linked worktree paths = %#v, want %q and %q", paths, directory, linked)
 	}
 }
