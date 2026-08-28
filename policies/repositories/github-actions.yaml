@@ -1,0 +1,25 @@
+schema_version: 1
+
+policy:
+  id: "github-actions"
+  tier: "repository"
+  priority: 100
+  distribution: "public"
+
+apply:
+  github:
+    merge:
+      # CONTRIBUTING.md requires audit and rollout commits to retain their
+      # individual identities when a pull request reaches main.
+      allow_merge_commit:
+        management: "managed"
+        value: true
+      allow_squash_merge:
+        management: "managed"
+        value: false
+      allow_rebase_merge:
+        management: "managed"
+        value: false
+      allow_auto_merge:
+        management: "managed"
+        value: true
