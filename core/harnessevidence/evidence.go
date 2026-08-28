@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/canonicaljson"
-	"github.com/NDDev-OpenNetwork/github-device-sync/core/semver"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/trust"
 )
 
@@ -20,6 +19,7 @@ var ActiveHarnesses = []string{
 }
 
 var immutableCommit = regexp.MustCompile(`^[0-9a-f]{40}$`)
+var executableVersion = regexp.MustCompile(`^[0-9A-Za-z][0-9A-Za-z._+-]{0,127}$`)
 
 // AnchoredIdentity returns producer and module pins only when the independently
 // supplied trust policy contains the exact immutable active-seven mapping.
@@ -123,7 +123,7 @@ func (verifier Verifier) Verify(record Record, expected Expectation) error {
 		p.ProfileDigest != expected.ProfileDigests[p.HarnessID] ||
 		p.BridgeDigest != expected.BridgeDigests[p.HarnessID] ||
 		p.ExecutableVersion != expected.ExecutableVersions[p.HarnessID] ||
-		!semver.Valid(p.ExecutableVersion) ||
+		!executableVersion.MatchString(p.ExecutableVersion) ||
 		p.Result != "pass" || p.GeneratedAt.After(expected.Now) || !expected.Now.Before(p.ExpiresAt) ||
 		p.ExpiresAt.Sub(p.GeneratedAt) > 72*time.Hour || p.Platform.OS == "" ||
 		p.Platform.Architecture == "" || p.SuiteVersion == "" || p.SuiteCasesDigest == "" {

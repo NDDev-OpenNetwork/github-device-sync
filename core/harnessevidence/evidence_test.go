@@ -66,12 +66,12 @@ func TestIsolatedEvidenceAndAggregateRequireExactActiveSeven(t *testing.T) {
 	}
 	expected.ModuleSHAs[wrongModule.Payload.HarnessID] = wrongModule.Payload.ModuleSHA
 	invalidVersion := records[0]
-	invalidVersion.Payload.ExecutableVersion = "null"
-	expected.ExecutableVersions[invalidVersion.Payload.HarnessID] = "null"
+	invalidVersion.Payload.ExecutableVersion = "bad version"
+	expected.ExecutableVersions[invalidVersion.Payload.HarnessID] = "bad version"
 	invalidVersion.EvidenceDigest, _ = canonicaljson.Digest(invalidVersion.Payload)
 	invalidVersion.Signature = sign(t, private, "gds-harness-runtime-evidence/v1", invalidVersion.Payload)
 	if err := verifier.Verify(invalidVersion, expected); err == nil {
-		t.Fatal("signed non-semver executable version was accepted")
+		t.Fatal("signed unsafe executable version was accepted")
 	}
 }
 
