@@ -18,11 +18,20 @@ Relationships are explicit typed edges, including:
 
 - portfolio membership;
 - fork-of;
+- generated-from;
 - git-submodule consumer;
 - package consumer;
 - device checkout;
 - worktree;
 - embedded context source.
+
+`generated-from` is declared on the rendered repository and names the repository
+that renders it. It is not a dependency edge: nothing is vendored, pinned or
+executed from the generator, so it derives no consumer and requires no
+`module.consumption` declaration. Declaring it in the other direction was
+rejected for the same reason a parent field was: one generator would carry a
+list of every tree it renders, and that list is a second copy of a fact the
+renderer already owns.
 
 Provider owner/name and local paths are mutable locators with alias/history
 records.

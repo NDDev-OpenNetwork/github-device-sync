@@ -182,3 +182,42 @@ func TestIdentityIndexAcceptsDeclaredPackageConsumption(t *testing.T) {
 		t.Fatalf("declared package consumption must pass, got %+v", findings)
 	}
 }
+
+// A generated-from edge names the repository that renders this one. It is not a
+// dependency: nothing is vendored, pinned or executed from the generator, so it
+// must never appear as a consumer edge and must not demand a module.consumption
+// declaration the way the three consumer types do.
+func TestBuildIdentityIndexRecordsGeneratedFromWithoutDerivingAConsumer(t *testing.T) {
+	generatorID := "repo_01JEXAMPZ0000000000000000G"
+	renderedID := "repo_01JEXAMPZ0000000000000000H"
+	generator := indexedAnchor(generatorID, 10, "owner", "setup-systems")
+	rendered := indexedAnchor(renderedID, 11, "owner", "claude-setup-system")
+	rendered.Relationships = []domain.Relationship{{
+		Type: "generated-from", Target: generatorID,
+	}}
+	input := []IndexedRepository{{Path: "/rendered", Anchor: rendered}, {Path: "/generator", Anchor: generator}}
+	index, findings := BuildIdentityIndex(input, true)
+	if len(findings) != 0 {
+		t.Fatalf("generated-from must not produce findings: %+v", findings)
+	}
+	if len(index.Consumers) != 0 {
+		t.Fatalf("generated-from must not derive a consumer edge: %+v", index.Consumers)
+	}
+	if len(index.Relationships) != 1 || index.Relationships[0].Type != "generated-from" ||
+		index.Relationships[0].Source != renderedID || index.Relationships[0].Target != generatorID {
+		t.Fatalf("generated-from edge not recorded: %+v", index.Relationships)
+	}
+}
+
+// The edge is declared on the rendered repository, so an absent generator is a
+// missing target like any other typed relationship rather than a silent pass.
+func TestBuildIdentityIndexRejectsGeneratedFromWithAbsentGenerator(t *testing.T) {
+	renderedID := "repo_01JEXAMPZ0000000000000000H"
+	missingID := "repo_01JEXAMPZ0000000000000000G"
+	rendered := indexedAnchor(renderedID, 11, "owner", "claude-setup-system")
+	rendered.Relationships = []domain.Relationship{{Type: "generated-from", Target: missingID}}
+	_, findings := BuildIdentityIndex([]IndexedRepository{{Path: "/rendered", Anchor: rendered}}, true)
+	if len(findings) != 1 || findings[0].Code != "GDS_IDENTITY_INDEX_TARGET_MISSING" {
+		t.Fatalf("expected one missing-target finding, got %+v", findings)
+	}
+}

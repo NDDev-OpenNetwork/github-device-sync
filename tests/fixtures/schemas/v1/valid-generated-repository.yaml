@@ -1,0 +1,57 @@
+schema_version: 1
+
+repository:
+  id: "repo_01JEXAMPZ0000000000000000C"
+  display_name: "example-rendered-tree"
+  roles:
+    - "project"
+  lifecycle: "active"
+
+provider:
+  type: "github"
+  installation: "installation:github-personal"
+  repository_id: 123456789
+  owner: "example-user"
+  name: "example-rendered-tree"
+
+classification:
+  portfolios:
+    - "portfolio:personal-projects"
+  visibility_contract: "private"
+  data_classification: "private"
+
+policy:
+  profiles:
+    - "repository-default"
+  rollout_ring: "standard"
+
+git:
+  default_branch: "main"
+  integration: "pull-request"
+  branch_model: "task-branches"
+  handoff_pr: "preferred"
+  cleanup: "merged-only"
+
+verification:
+  commands:
+    test:
+      - "python -m unittest"
+  required:
+    - "test"
+
+agent:
+  context_profile: "project-default"
+  generated_agents: true
+  serena:
+    enabled: true
+    provenance_required: true
+
+release:
+  mode: "none"
+
+# A rendered tree names the repository that renders it. The edge is declared
+# here rather than on the generator so that adding or removing a tree never
+# requires a commit to the generator's own anchor.
+relationships:
+  - type: "generated-from"
+    target: "repo_01JEXAMPZ0000000000000000D"
