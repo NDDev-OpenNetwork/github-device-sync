@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"syscall"
 	"testing"
@@ -59,6 +60,17 @@ func TestMaterializeHarnessEvidenceArchive(t *testing.T) {
 	if err := MaterializeHarnessEvidenceArchive(archivePath, destination); err == nil ||
 		!strings.Contains(err.Error(), "must not exist") {
 		t.Fatalf("existing destination error = %v", err)
+	}
+}
+
+func TestHarnessEvidenceArchiveMembersAreExactlyActiveSevenPlusManifest(t *testing.T) {
+	want := []string{
+		"antigravity-cli.json", "claude-code.json", "codex.json",
+		"cursor-cli.json", "grok-build.json", "manifest.json",
+		"opencode.json", "pi.json",
+	}
+	if !slices.Equal(harnessEvidenceMembers, want) {
+		t.Fatalf("archive members = %v, want exact active-seven set %v", harnessEvidenceMembers, want)
 	}
 }
 
