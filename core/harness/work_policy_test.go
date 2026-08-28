@@ -3,7 +3,7 @@ package harness
 import "testing"
 
 func TestWorkPolicySeparatesCatalogueActiveAndDeviceSelection(t *testing.T) {
-	if len(CanonicalIDs) != 17 || len(WorkPolicyActiveIDs) != 5 {
+	if len(CanonicalIDs) != 17 || len(WorkPolicyActiveIDs) != 7 {
 		t.Fatalf("catalogue=%d active=%d", len(CanonicalIDs), len(WorkPolicyActiveIDs))
 	}
 	findings := ValidateDeviceSelection([]string{"codex", "zcode"})
@@ -11,6 +11,6 @@ func TestWorkPolicySeparatesCatalogueActiveAndDeviceSelection(t *testing.T) {
 		t.Fatalf("findings=%#v", findings)
 	}
 	if findings := ValidateDeviceSelection(WorkPolicyActiveIDs); len(findings) != 0 {
-		t.Fatalf("active five rejected: %#v", findings)
+		t.Fatalf("active seven rejected: %#v", findings)
 	}
 }

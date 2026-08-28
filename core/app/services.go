@@ -566,7 +566,7 @@ func (services *Services) BuildReleaseCandidate(
 		Workflow:          trust.Source.AllowedWorkflows[0], SourceRef: sourceRef,
 		// The candidate command has no evidence input surface and performs no
 		// publication. Its canary is therefore explicitly provisional; the hosted
-		// stable/frozen builder still requires the signed active-five manifest.
+		// stable/frozen builder still requires the signed active-seven manifest.
 		HarnessEvidenceProvisional: options.Channel == "canary",
 		TrackedSources:             trackedSources,
 	}, trust, services.Schemas)

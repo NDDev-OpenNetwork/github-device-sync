@@ -92,7 +92,9 @@ func writeEvidenceFixture(
 				Repository: "example-org/example-harnesses", Ref: "refs/tags/v1.0.0", Commit: strings.Repeat("d", 40),
 			},
 			Modules: map[string]string{
-				"claude-code": strings.Repeat("1", 40), "codex": strings.Repeat("2", 40),
+				"antigravity-cli": strings.Repeat("5", 40),
+				"claude-code":     strings.Repeat("1", 40), "codex": strings.Repeat("2", 40),
+				"cursor-cli": strings.Repeat("6", 40),
 				"grok-build": moduleSHA, "opencode": strings.Repeat("3", 40), "pi": strings.Repeat("4", 40),
 			},
 		},

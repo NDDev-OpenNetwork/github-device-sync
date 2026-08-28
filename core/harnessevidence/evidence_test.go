@@ -12,7 +12,7 @@ import (
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/trust"
 )
 
-func TestIsolatedEvidenceAndAggregateRequireExactActiveFive(t *testing.T) {
+func TestIsolatedEvidenceAndAggregateRequireExactActiveSeven(t *testing.T) {
 	public, private, _ := ed25519.GenerateKey(rand.Reader)
 	now := time.Date(2026, 8, 9, 12, 0, 0, 0, time.UTC)
 	trustVerifier := trust.Verifier{Policy: trust.Policy{SchemaVersion: 1, PolicyID: "harness-test", Identities: []trust.Identity{{
@@ -66,16 +66,16 @@ func TestIsolatedEvidenceAndAggregateRequireExactActiveFive(t *testing.T) {
 	}
 	expected.ModuleSHAs[wrongModule.Payload.HarnessID] = wrongModule.Payload.ModuleSHA
 	invalidVersion := records[0]
-	invalidVersion.Payload.ExecutableVersion = "null"
-	expected.ExecutableVersions[invalidVersion.Payload.HarnessID] = "null"
+	invalidVersion.Payload.ExecutableVersion = "bad version"
+	expected.ExecutableVersions[invalidVersion.Payload.HarnessID] = "bad version"
 	invalidVersion.EvidenceDigest, _ = canonicaljson.Digest(invalidVersion.Payload)
 	invalidVersion.Signature = sign(t, private, "gds-harness-runtime-evidence/v1", invalidVersion.Payload)
 	if err := verifier.Verify(invalidVersion, expected); err == nil {
-		t.Fatal("signed non-semver executable version was accepted")
+		t.Fatal("signed unsafe executable version was accepted")
 	}
 }
 
-func TestAnchoredIdentityRequiresExactImmutableActiveFive(t *testing.T) {
+func TestAnchoredIdentityRequiresExactImmutableActiveSeven(t *testing.T) {
 	commit := strings.Repeat("a", 40)
 	policy := trust.Policy{HarnessEvidence: &trust.HarnessEvidencePolicy{
 		Producer: trust.ProducerIdentity{
@@ -92,7 +92,7 @@ func TestAnchoredIdentityRequiresExactImmutableActiveFive(t *testing.T) {
 	}
 	delete(policy.HarnessEvidence.Modules, "pi")
 	if _, _, err := AnchoredIdentity(policy); err == nil {
-		t.Fatal("identity without the exact active-five mapping was accepted")
+		t.Fatal("identity without the exact active-seven mapping was accepted")
 	}
 	policy.HarnessEvidence.Modules["pi"] = strings.Repeat("z", 40)
 	if _, _, err := AnchoredIdentity(policy); err == nil {

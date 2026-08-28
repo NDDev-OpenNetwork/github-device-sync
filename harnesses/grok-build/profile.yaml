@@ -3,10 +3,10 @@ schema_version: 1
 harness_profile:
   id: "grok-build"
   product: "grok-build"
-  status: "provisional"
+  status: "supported"
   aliases: []
   capability_version: "2026-07-26"
-  verified_at: "2026-07-26"
+  verified_at: "2026-08-28"
   official_sources:
     - "https://x.ai/cli"
     - "https://github.com/xai-org/grok-build"

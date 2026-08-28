@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
 
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/domain"
@@ -251,8 +252,10 @@ func containsBridgeFinding(findings []domain.Finding, code string) bool {
 // requiring passing runtime contracts for all seventeen.
 //
 // The honest model is delegation, and this pins both halves of it: the report
-// names the owner instead of implying a failed attempt, and a profile that
-// claims delegation the bridge does not back is rejected.
+// names the owner instead of implying a failed attempt, the active-seven may
+// be supported only through that explicit owner plus the separate signed
+// release gate, and a profile that claims delegation the bridge does not back
+// is rejected.
 func TestSelectedRuntimeValidationReportsDelegationRatherThanSilentSuccess(t *testing.T) {
 	root := repoRootForTest(t)
 	schemas, err := validation.NewSchemaSet()
@@ -273,9 +276,12 @@ func TestSelectedRuntimeValidationReportsDelegationRatherThanSilentSuccess(t *te
 		if item.RuntimeEvidenceOwner != "example-org/example-harnesses" {
 			t.Fatalf("%s evidence owner = %q", item.Harness, item.RuntimeEvidenceOwner)
 		}
-		if item.CapabilityStatus != "provisional" {
-			t.Fatalf("%s status = %q; delegation registers a harness as available, not supported",
-				item.Harness, item.CapabilityStatus)
+		expectedStatus := "provisional"
+		if slices.Contains(WorkPolicyActiveIDs, item.Harness) {
+			expectedStatus = "supported"
+		}
+		if item.CapabilityStatus != expectedStatus {
+			t.Fatalf("%s status = %q, want %q", item.Harness, item.CapabilityStatus, expectedStatus)
 		}
 	}
 }
