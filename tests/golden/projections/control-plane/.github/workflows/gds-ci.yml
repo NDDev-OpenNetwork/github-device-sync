@@ -2,8 +2,8 @@
 # generator: gds
 # bundle: 0.4.0-dev
 # source-tree-digest: sha256:0000000000000000000000000000000000000000000000000000000000000001
-# input-digest: sha256:be7ce80717d8e8e28bbffc2ea3931b68812b418199ba818a047cd035f16daf04
-# output-digest: sha256:c268237f2cffde69b7868265ba6ac331048c98036fb9030ee7b7b3a208a9ad49
+# input-digest: sha256:68bb64d7bf23cbfbe3e1d2865285306c1198e556420ecbd3e7284873ab0de762
+# output-digest: sha256:01fb4854784be9e4564bcc84e70786484b370879be5e5ab1dd49f8b73ea2dea4
 # edit-source:
 #   - .gds/repository.yaml
 #   - policies/base/repository-default.yaml
@@ -41,7 +41,7 @@ jobs:
       cache: true
 
       runner: "ubuntu-latest"
-      go_version: "1.26.5"
+      go_version: "1.26.7"
       test_command: "go test ./..."
       timeout_minutes: 30
   pr-required:
@@ -58,7 +58,7 @@ jobs:
       fetch_depth: 0
       cache: true
       runner: "ubuntu-latest"
-      go_version: "1.26.5"
+      go_version: "1.26.7"
       build_command: "go build -trimpath ./core/cmd/gds"
       test_command: "go test ./... && python3 -m pip install --quiet --require-hashes -r requirements/test.txt && python3 -m pytest"
       timeout_minutes: 30
