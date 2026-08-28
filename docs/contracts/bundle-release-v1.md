@@ -174,8 +174,10 @@ single-host filesystem boundary; non-cooperating writers and network filesystem
 lock semantics are outside this contract.
 
 The acceptance ledger permanently binds each sequence to one artifact digest
-and keeps the highest accepted sequence. Upgrade requires a new higher
-sequence. Rollback requires an already installed lower release and one exact,
+and Semantic Version and keeps the highest accepted sequence. A higher
+sequence must preserve or increase SemVer precedence; it cannot disguise a
+version downgrade. Upgrade requires a new higher sequence. Rollback requires
+an already installed lower release and one exact,
 unexpired authorization binding target sequence, artifact digest, canonical
 installation scope, rollout ID, reason, and approval reference. Removing a
 currently active lower rollback release is permitted only when its exact digest
@@ -254,7 +256,14 @@ re-opens the trust-boundary decision before the next dispatch.
 - external artifact publication: the six-file release directory is attached to
   the `gds-v0.1.0` GitHub Release. From the workflow revision that followed that
   tag, publication also attaches the offline evidence directory to the same
-  release, so a release and its evidence are one durable artifact set.
+release, so a release and its evidence are one durable artifact set.
+
+A tag-triggered build, attestation, or publication failure is retained as a
+GitHub prerelease with `release-failure-envelope.json`. The schema binds the
+attempted version, monotonic sequence, channel, source commit/ref, workflow run,
+failed job names, and an initially null `superseded_by`. A later accepted
+release may name the failed tag as superseded; failed tags are never rewritten
+or silently deleted.
 
 ## Not proven
 

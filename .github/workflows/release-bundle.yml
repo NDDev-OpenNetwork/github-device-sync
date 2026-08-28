@@ -330,13 +330,67 @@ jobs:
           RELEASE_CHANNEL: ${{ inputs.channel }}
         run: |
           set -euo pipefail
-          latest_flags=()
-          [ "$RELEASE_CHANNEL" = "stable" ] && latest_flags=(--latest)
+          release_flags=()
+          case "$RELEASE_CHANNEL" in
+            stable) release_flags=(--latest) ;;
+            canary) release_flags=(--prerelease) ;;
+          esac
           gh release create "$RELEASE_TAG" \
             --repo "$GITHUB_REPOSITORY" \
             --title "GDS $RELEASE_TAG" \
             --verify-tag \
-            "${latest_flags[@]}" \
+            "${release_flags[@]}" \
             --notes "Immutable GDS ${RELEASE_CHANNEL} bundle for ${RELEASE_TAG}. Multi-platform binaries + SPDX SBOM + SHA256SUMS, with keyless SLSA build provenance and SBOM attestations. Online: gh attestation verify <asset> -R ${GITHUB_REPOSITORY}. Offline: verify <asset> against provenance.sigstore.json and sbom.sigstore.json using trusted-root.jsonl, all attached here." \
             "$RELEASE_DIRECTORY"/* \
             "$EVIDENCE_DIRECTORY"/*
+
+  record-failure:
+    name: Record failed release evidence
+    needs: [build, attest, publish]
+    if: ${{ always() && startsWith(github.ref, 'refs/tags/') && (needs.build.result == 'failure' || needs.attest.result == 'failure' || needs.publish.result == 'failure') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ github.ref_name }}
+      RELEASE_VERSION: ${{ inputs.version }}
+      RELEASE_SEQUENCE: ${{ inputs.release_sequence }}
+      RELEASE_CHANNEL: ${{ inputs.channel }}
+      BUILD_RESULT: ${{ needs.build.result }}
+      ATTEST_RESULT: ${{ needs.attest.result }}
+      PUBLISH_RESULT: ${{ needs.publish.result }}
+    steps:
+      - name: Publish machine-readable failure envelope
+        shell: bash
+        run: |
+          set -euo pipefail
+          envelope="$RUNNER_TEMP/release-failure-envelope.json"
+          failed_jobs="$RUNNER_TEMP/failed-jobs.json"
+          jq -cn \
+            --arg build "$BUILD_RESULT" \
+            --arg attest "$ATTEST_RESULT" \
+            --arg publish "$PUBLISH_RESULT" \
+            '[{name:"build",result:$build},{name:"attest",result:$attest},{name:"publish",result:$publish}] | map(select(.result == "failure") | .name)' \
+            > "$failed_jobs"
+          jq -n \
+            --arg version "$RELEASE_VERSION" \
+            --argjson sequence "$RELEASE_SEQUENCE" \
+            --arg channel "$RELEASE_CHANNEL" \
+            --arg commit "$GITHUB_SHA" \
+            --arg ref "$GITHUB_REF" \
+            --argjson run_id "$GITHUB_RUN_ID" \
+            --slurpfile failed "$failed_jobs" \
+            '{schema_version:1,status:"failed",bundle_version:$version,release_sequence:$sequence,channel:$channel,source_commit:$commit,source_ref:$ref,workflow_run_id:$run_id,failed_jobs:$failed[0],superseded_by:null}' \
+            > "$envelope"
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" "$envelope" --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$RELEASE_TAG" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "GDS $RELEASE_TAG (failed)" \
+              --verify-tag \
+              --prerelease \
+              --notes "Release production failed. See release-failure-envelope.json for machine-readable evidence; retain this tag and release until a later release records it as superseded." \
+              "$envelope"
+          fi

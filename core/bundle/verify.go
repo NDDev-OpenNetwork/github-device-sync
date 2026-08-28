@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/domain"
+	"github.com/NDDev-OpenNetwork/github-device-sync/core/semver"
 )
 
 func Verify(
@@ -100,6 +101,16 @@ func Verify(
 			"GDS_BUNDLE_SEQUENCE_DIGEST_CONFLICT",
 			"A release sequence is already bound to a different artifact digest.",
 		))
+	}
+	if envelope.ReleaseSequence > state.HighestSequence && state.HighestSequence > 0 {
+		if previous := state.AcceptedVersions[state.HighestSequence]; previous != "" {
+			if compared, valid := semver.Compare(envelope.BundleVersion, previous); !valid || compared < 0 {
+				findings = append(findings, verificationFinding(
+					"GDS_BUNDLE_VERSION_REGRESSION",
+					"A higher release sequence cannot lower Semantic Version precedence.",
+				))
+			}
+		}
 	}
 	status := "accepted"
 	if len(findings) != 0 {

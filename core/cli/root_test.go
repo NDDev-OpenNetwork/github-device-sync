@@ -1003,6 +1003,8 @@ func commitCLITestRepository(t *testing.T, root string, message string) {
 		{"init", "--quiet"},
 		{"config", "user.name", "GDS CLI test"},
 		{"config", "user.email", "cli-test@example.invalid"},
+		{"config", "gc.auto", "0"},
+		{"config", "maintenance.auto", "false"},
 		{"add", "--all"},
 		{"commit", "--quiet", "-m", message},
 	} {

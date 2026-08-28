@@ -43,6 +43,14 @@ func TestAcceptedBundleLedgerPreservesAntiRollbackFloor(t *testing.T) {
 	if state.HighestSequence != 2 || len(state.AcceptedDigests) != 2 {
 		t.Fatalf("acceptance floor was lowered or incomplete: %#v", state)
 	}
+	if state.AcceptedVersions[2] != second.BundleVersion {
+		t.Fatalf("accepted versions = %#v", state.AcceptedVersions)
+	}
+	regression := acceptedBundle(3, 'e')
+	regression.BundleVersion = "1.1.9"
+	if err := store.PutAcceptedBundle(ctx, regression, nil, testTime); !errors.Is(err, ErrVersionRegression) {
+		t.Fatalf("version regression error = %v, want ErrVersionRegression", err)
+	}
 
 	conflict := second
 	conflict.ArtifactDigest = digestWith('c')

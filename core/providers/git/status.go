@@ -161,12 +161,6 @@ func (runner *Runner) InspectStatus(ctx context.Context, directory string) (Stat
 	}
 	status.Repository = info
 	status.Worktrees = parseWorktrees(worktreeResult.Stdout)
-	for index := range status.Worktrees {
-		if status.Worktrees[index].Path == info.CommonGitDir &&
-			info.WorktreeRoot != info.CommonGitDir {
-			status.Worktrees[index].Path = info.WorktreeRoot
-		}
-	}
 	status.Submodules = parseSubmodules(submoduleResult.Stdout)
 	status.RemoteFreshness = "unknown"
 	status.Classification = classify(status)
