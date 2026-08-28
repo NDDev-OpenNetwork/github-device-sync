@@ -3,10 +3,10 @@ schema_version: 1
 harness_profile:
   id: "pi"
   product: "pi"
-  status: "provisional"
+  status: "supported"
   aliases: []
   capability_version: "2026-07-11"
-  verified_at: "2026-07-11"
+  verified_at: "2026-08-28"
   official_sources:
     - "https://pi.dev/docs/latest/usage"
     - "https://pi.dev/docs/latest/skills"

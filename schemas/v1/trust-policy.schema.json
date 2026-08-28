@@ -26,10 +26,12 @@
         "modules": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["claude-code", "codex", "grok-build", "opencode", "pi"],
+          "required": ["antigravity-cli", "claude-code", "codex", "cursor-cli", "grok-build", "opencode", "pi"],
           "properties": {
+            "antigravity-cli": {"$ref": "common.schema.json#/$defs/sourceCommit"},
             "claude-code": {"$ref": "common.schema.json#/$defs/sourceCommit"},
             "codex": {"$ref": "common.schema.json#/$defs/sourceCommit"},
+            "cursor-cli": {"$ref": "common.schema.json#/$defs/sourceCommit"},
             "grok-build": {"$ref": "common.schema.json#/$defs/sourceCommit"},
             "opencode": {"$ref": "common.schema.json#/$defs/sourceCommit"},
             "pi": {"$ref": "common.schema.json#/$defs/sourceCommit"}

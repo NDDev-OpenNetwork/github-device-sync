@@ -58,18 +58,20 @@ Validity and renderability are different questions.
 
 | Harness | Instruction projection | Skill discovery | Explicit-only control | Runtime status |
 |---|---|---|---|---|
-| Antigravity CLI | workspace-root `AGENTS.md` | `.agents/skills` | profile exclusion | provisional |
-| Claude Code | `.claude/CLAUDE.md` | project/plugin skills | `disable-model-invocation` | provisional |
-| Codex | root-to-CWD `AGENTS.md` | `.agents/skills` and plugins | `agents/openai.yaml` | provisional |
-| Cursor CLI | workspace-root `AGENTS.md` | `.cursor/skills` | profile exclusion | provisional |
-| Grok CLI | root-to-CWD `AGENTS.md` | `.grok/skills`, user `.agents/skills` | profile exclusion | provisional |
+| Antigravity CLI | workspace-root `AGENTS.md` | `.agents/skills` | profile exclusion | supported, delegated evidence |
+| Claude Code | `.claude/CLAUDE.md` | project/plugin skills | `disable-model-invocation` | supported, delegated evidence |
+| Codex | root-to-CWD `AGENTS.md` | `.agents/skills` and plugins | `agents/openai.yaml` | supported, delegated evidence |
+| Cursor CLI | workspace-root `AGENTS.md` | `.cursor/skills` | profile exclusion | supported, delegated evidence |
+| Grok CLI | root-to-CWD `AGENTS.md` | `.grok/skills`, user `.agents/skills` | profile exclusion | supported, delegated evidence |
 | Kimi Code | native project `AGENTS.md` (order runtime-gated) | `.agents/skills`, `.kimi-code/skills` | `disable-model-invocation` | provisional |
 | MiMo Code | workspace-root `AGENTS.md` | `.mimocode/skills`, `.agents/skills`, `.claude/skills` | profile exclusion | provisional |
-| OpenCode | root-to-CWD `AGENTS.md` | `.agents/skills`, `.opencode/skills`, `.claude/skills` | profile exclusion | provisional |
-| Pi | parent-chain `AGENTS.md` | `.agents/skills`, `.pi/skills` | `disable-model-invocation` | provisional |
+| OpenCode | root-to-CWD `AGENTS.md` | `.agents/skills`, `.opencode/skills`, `.claude/skills` | profile exclusion | supported, delegated evidence |
+| Pi | parent-chain `AGENTS.md` | `.agents/skills`, `.pi/skills` | `disable-model-invocation` | supported, delegated evidence |
 | ZCode | workspace-root `AGENTS.md` | `.zcode/skills`, managed user skills | manual `$skill` | provisional |
 
-This table records official documentation claims, not runtime support.
+The seven supported rows use a declared delegated evidence owner. Stable and
+frozen releases still require fresh signed evidence for the exact active-seven
+closure; catalogue-only rows remain provisional and on-pause.
 
 ## Validation
 

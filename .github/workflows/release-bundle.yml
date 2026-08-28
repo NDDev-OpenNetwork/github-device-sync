@@ -25,7 +25,7 @@ on:
         required: true
         type: string
       harness_evidence_bundle_base64:
-        description: "Base64 tar.gz containing manifest.json and five isolated records (required for stable/frozen)"
+        description: "Base64 tar.gz containing manifest.json and seven isolated records (required for stable/frozen)"
         required: false
         type: string
       harness_evidence_trust_policy_base64:
@@ -107,7 +107,7 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "$HARNESS_EVIDENCE_BUNDLE_BASE64" ] && [ -z "$HARNESS_EVIDENCE_TRUST_POLICY_BASE64" ]; then
-            [ "$CHANNEL" = canary ] || { echo "stable/frozen requires signed active-five harness evidence" >&2; exit 1; }
+            [ "$CHANNEL" = canary ] || { echo "stable/frozen requires signed active-seven harness evidence" >&2; exit 1; }
             echo "arguments=" >> "$GITHUB_OUTPUT"
             exit 0
           fi

@@ -2,31 +2,31 @@ schema_version: 1
 
 harnesses:
   - id: "antigravity-cli"
-    status: "provisional"
+    status: "supported"
     profile: "harnesses/antigravity-cli/profile.yaml"
-    verified_at: "2026-07-11"
+    verified_at: "2026-08-28"
     runtime_evidence: "delegated"
     legacy_aliases:
       - "antigravity"
 
   - id: "claude-code"
-    status: "provisional"
+    status: "supported"
     profile: "harnesses/claude-code/profile.yaml"
-    verified_at: "2026-07-11"
+    verified_at: "2026-08-28"
     runtime_evidence: "delegated"
     legacy_aliases: []
 
   - id: "codex"
-    status: "provisional"
+    status: "supported"
     profile: "harnesses/codex/profile.yaml"
-    verified_at: "2026-07-11"
+    verified_at: "2026-08-28"
     runtime_evidence: "delegated"
     legacy_aliases: []
 
   - id: "cursor-cli"
-    status: "provisional"
+    status: "supported"
     profile: "harnesses/cursor-cli/profile.yaml"
-    verified_at: "2026-07-11"
+    verified_at: "2026-08-28"
     runtime_evidence: "delegated"
     legacy_aliases: []
 
@@ -45,9 +45,9 @@ harnesses:
     legacy_aliases: []
 
   - id: "grok-build"
-    status: "provisional"
+    status: "supported"
     profile: "harnesses/grok-build/profile.yaml"
-    verified_at: "2026-07-26"
+    verified_at: "2026-08-28"
     runtime_evidence: "delegated"
     legacy_aliases: []
 
@@ -87,16 +87,16 @@ harnesses:
     legacy_aliases: []
 
   - id: "opencode"
-    status: "provisional"
+    status: "supported"
     profile: "harnesses/opencode/profile.yaml"
-    verified_at: "2026-07-11"
+    verified_at: "2026-08-28"
     runtime_evidence: "delegated"
     legacy_aliases: []
 
   - id: "pi"
-    status: "provisional"
+    status: "supported"
     profile: "harnesses/pi/profile.yaml"
-    verified_at: "2026-07-11"
+    verified_at: "2026-08-28"
     runtime_evidence: "delegated"
     legacy_aliases: []
 

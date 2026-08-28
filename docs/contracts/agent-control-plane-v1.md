@@ -19,7 +19,7 @@ The following invariants are fail-closed:
 - Ruleset updates preserve all externally managed and unknown writable JSON. If
   full privileged observation or lossless representation is unavailable, write
   is refused.
-- Stable/frozen bundle manifests bind a verified active-five harness evidence
+- Stable/frozen bundle manifests bind a verified active-seven harness evidence
   manifest digest. Canary evidence gaps remain visible as provisional and cannot
   auto-promote.
 - Operational identifiers may be exported. Credentials, signatures, private

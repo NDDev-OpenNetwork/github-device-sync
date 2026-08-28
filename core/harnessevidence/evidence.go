@@ -15,12 +15,14 @@ import (
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/trust"
 )
 
-var ActiveHarnesses = []string{"claude-code", "codex", "grok-build", "opencode", "pi"}
+var ActiveHarnesses = []string{
+	"antigravity-cli", "claude-code", "codex", "cursor-cli", "grok-build", "opencode", "pi",
+}
 
 var immutableCommit = regexp.MustCompile(`^[0-9a-f]{40}$`)
 
 // AnchoredIdentity returns producer and module pins only when the independently
-// supplied trust policy contains the exact immutable active-five mapping.
+// supplied trust policy contains the exact immutable active-seven mapping.
 func AnchoredIdentity(policy trust.Policy) (string, map[string]string, error) {
 	anchored := policy.HarnessEvidence
 	if anchored == nil || anchored.Producer.Repository == "" ||
@@ -172,7 +174,7 @@ func (verifier Verifier) VerifyManifest(manifest Manifest, records []Record, exp
 
 // EvaluateChannel applies release-channel semantics. Canary may carry an
 // explicitly provisional subset, but it can never auto-promote. Stable and
-// frozen require the exact signed active-five closure.
+// frozen require the exact signed active-seven closure.
 func (verifier Verifier) EvaluateChannel(manifest Manifest, records []Record, expected Expectation) (GateResult, error) {
 	if expected.Channel == "stable" || expected.Channel == "frozen" {
 		if err := verifier.VerifyManifest(manifest, records, expected); err != nil {

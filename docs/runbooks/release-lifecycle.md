@@ -29,7 +29,8 @@ proven:
 
 - `scripts/validate_release.sh` passes;
 - `stable` and `frozen` receive an isolated signed evidence archive for exactly
-  `claude-code`, `codex`, `grok-build`, `opencode`, and `pi`, plus its public
+  `antigravity-cli`, `claude-code`, `codex`, `cursor-cli`, `grok-build`,
+  `opencode`, and `pi`, plus its public
   trust policy;
 - repository variable `HARNESS_EVIDENCE_TRUST_POLICY_DIGEST` pins the exact
   `sha256:` digest of that independently distributed public trust policy;
@@ -58,7 +59,7 @@ The repository is private (ADR 0033) and owned by
 the example-org organization, so `actions/attest` provenance and SBOM
 attestation is an available release path — keyless Sigstore attestation works
 for private repositories as long as the workflow holds `id-token: write`.
-Canary may omit active-five evidence only as explicitly provisional and cannot
+Canary may omit active-seven evidence only as explicitly provisional and cannot
 auto-promote. Stable/frozen verify the aggregate signature, every isolated
 record, exact executable/module/root versions, GDS profile and bridge digests,
 freshness (maximum 72 hours), and the complete active set. Only signed artifacts

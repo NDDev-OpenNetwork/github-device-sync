@@ -25,10 +25,11 @@ performance gates, and device intent as a proxy for current device truth.
 - Required check contexts are generated from an allowlisted security workflow
   policy, exact caller pins, and content-digested reusable workflow facts.
 - The harness catalogue remains seventeen identities. Work-policy active is
-  exactly claude-code, codex, grok-build, opencode, and pi. Every harness emits
+  exactly antigravity-cli, claude-code, codex, cursor-cli, grok-build, opencode,
+  and pi. Every harness emits
   isolated signed exact-version evidence; a separately signed manifest binds the
   aggregate. Canary may be provisional and never auto-promotes. Stable/frozen
-  require all five.
+  require all seven.
 - Device operational truth is SQLite plus signed compact evidence. Read paths are
   offline by default and report claim-specific freshness; apply re-reads.
 - Cross-repository plans are dependency DAGs. Automatic compensation is valid
@@ -44,7 +45,7 @@ Mutation callers must migrate from a string reference to a signed approval JSON
 file and configure a public trust policy. State schema v8 adds plan enablement,
 device evidence, and telemetry outbox tables. Plan v1 now emits declared write
 sets; old durable plans without them require re-planning rather than migration.
-Stable/frozen release construction is unavailable until a signed active-five
+Stable/frozen release construction is unavailable until a signed active-seven
 evidence directory and trust policy are supplied.
 
 `zcode` remains catalogued and may remain installed as `installed-paused`, but it

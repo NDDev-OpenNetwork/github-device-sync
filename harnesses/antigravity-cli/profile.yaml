@@ -3,11 +3,11 @@ schema_version: 1
 harness_profile:
   id: "antigravity-cli"
   product: "antigravity-cli"
-  status: "provisional"
+  status: "supported"
   aliases:
     - "antigravity"
   capability_version: "2026-07-11"
-  verified_at: "2026-07-11"
+  verified_at: "2026-08-28"
   official_sources:
     - "https://antigravity.google/docs/skills?app=antigravity-ide"
     - "https://antigravity.google/docs/cli-reference"

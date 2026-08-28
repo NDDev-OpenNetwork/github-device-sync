@@ -94,7 +94,7 @@ func TestHostedReleaseWorkflowUsesOutputOutsideSourceRoot(t *testing.T) {
 		`path: ${{ runner.temp }}/gds-release-output`,
 		`${{ runner.temp }}/gds-release-output/release-evidence`,
 		`HARNESS_EVIDENCE_TRUST_POLICY_DIGEST: ${{ vars.HARNESS_EVIDENCE_TRUST_POLICY_DIGEST }}`,
-		`stable/frozen requires signed active-five harness evidence`,
+		`stable/frozen requires signed active-seven harness evidence`,
 		`--harness-evidence-directory $EVIDENCE_INPUT_ROOT/records`,
 		`RELEASE_SEQUENCE: ${{ inputs.release_sequence }}`,
 		`canary) release_flags=(--prerelease) ;;`,

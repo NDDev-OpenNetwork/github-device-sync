@@ -35,7 +35,9 @@ var CanonicalIDs = []string{
 // WorkPolicyActiveIDs is the global execution/release allowlist. Catalogue
 // membership is deliberately separate: the other twelve stable identities
 // remain discoverable but are on-pause.
-var WorkPolicyActiveIDs = []string{"claude-code", "codex", "grok-build", "opencode", "pi"}
+var WorkPolicyActiveIDs = []string{
+	"antigravity-cli", "claude-code", "codex", "cursor-cli", "grok-build", "opencode", "pi",
+}
 
 func ValidateDeviceSelection(selected []string) []domain.Finding {
 	active := make(map[string]struct{}, len(WorkPolicyActiveIDs))
@@ -407,10 +409,11 @@ func validateProfile(
 			map[string]any{"harness": harnessID, "path": relativePath},
 		))
 	}
-	if profile.Status == "supported" && profile.RuntimeTests.LastResult != "pass" {
+	if profile.Status == "supported" && profile.RuntimeTests.LastResult != "pass" &&
+		!(profile.RuntimeTests.LastResult == "delegated" && delegated) {
 		findings = append(findings, harnessFinding(
 			"GDS_HARNESS_STATUS_UNPROVEN",
-			"A harness cannot be supported before its required runtime suite passes.",
+			"A harness cannot be supported before its runtime suite passes locally or has an explicit delegated evidence owner.",
 			map[string]any{"harness": harnessID, "path": relativePath},
 		))
 	}
