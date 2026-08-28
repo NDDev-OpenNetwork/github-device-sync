@@ -8,7 +8,7 @@ import (
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/bundle"
 )
 
-const ExpectedGoVersion = "go1.26.5"
+const ExpectedGoVersion = "go1.26.7"
 
 type Target = bundle.ReleaseTarget
 

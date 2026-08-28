@@ -38,7 +38,7 @@ Authority: `docs/migration/gds-completion-plan.md`. Release mechanics:
 `release.mode: bundle` (`.gds/repository.yaml`). A release identity is coherent
 only when all of these agree and are recorded together:
 
-- source commit (fully tracked clean worktree, reproducible `go1.26.5` build);
+- source commit (fully tracked clean worktree, reproducible `go1.26.7` build);
 - monotonic release sequence (the anti-rollback floor);
 - artifact digests over the exact six-file release directory;
 - SPDX SBOM and Sigstore provenance in the offline evidence directory;

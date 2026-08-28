@@ -3,8 +3,9 @@ set -euo pipefail
 
 ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 MODE=full
-MINIMUM_SECURE_GO_VERSION=go1.26.5
-RELEASE_GO_VERSION=${GDS_RELEASE_GO_VERSION:-go1.26.5}
+MINIMUM_SECURE_GO_VERSION=go1.26.7
+RELEASE_GO_VERSION=${GDS_RELEASE_GO_VERSION:-go1.26.7}
+GOVULNCHECK_VERSION=v1.6.0
 
 if [ "${1:-}" = "--quick" ]; then
   MODE=quick
@@ -101,6 +102,7 @@ run_json_validator "$BUILD_DIR/generate-repository.json" \
   "$GDS_BIN" --json generate repository --check
 
 if [ "$MODE" = "full" ]; then
+  go run "golang.org/x/vuln/cmd/govulncheck@${GOVULNCHECK_VERSION}" ./...
   go test -race ./...
   mkdir -p "$BUILD_DIR/cross"
   for TARGET in darwin/arm64 darwin/amd64 linux/arm64 linux/amd64; do

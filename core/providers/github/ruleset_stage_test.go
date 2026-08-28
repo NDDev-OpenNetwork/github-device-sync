@@ -38,7 +38,7 @@ func rulesetStageTestRepository(t *testing.T, server *httptest.Server) *Reposito
 func ownedRulesetRule() RulesetRule {
 	return RulesetRule{
 		Type:                 "required_status_checks",
-		RequiredStatusChecks: []RequiredStatusCheck{{Context: "GDS fast / go (1.26.5)"}},
+		RequiredStatusChecks: []RequiredStatusCheck{{Context: "GDS fast / go (1.26.7)"}},
 	}
 }
 

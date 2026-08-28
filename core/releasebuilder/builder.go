@@ -539,7 +539,7 @@ func releaseEnvironment(goos string, goarch string, cache string, home string) [
 		"CGO_ENABLED=0", "GOAMD64=v1", "GOARM64=v8.0", "GOENV=off",
 		"GOCACHE="+cache, "GOMODCACHE="+filepath.Join(home, "go", "pkg", "mod"),
 		"GOPROXY=https://proxy.golang.org,direct", "GOSUMDB=sum.golang.org",
-		"GOTELEMETRY=off", "GOTOOLCHAIN=go1.26.5", "GOWORK=off",
+		"GOTELEMETRY=off", "GOTOOLCHAIN=go1.26.7", "GOWORK=off",
 		"GIT_CONFIG_GLOBAL=/dev/null", "GIT_CONFIG_NOSYSTEM=1", "GIT_TERMINAL_PROMPT=0",
 		"HOME="+home, "LANG=C", "LC_ALL=C", "TZ=UTC",
 	)

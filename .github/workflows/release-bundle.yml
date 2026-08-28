@@ -68,7 +68,7 @@ jobs:
     permissions:
       contents: read
     env:
-      GOTOOLCHAIN: go1.26.5
+      GOTOOLCHAIN: go1.26.7
       VERSION: ${{ inputs.version }}
       RELEASE_SEQUENCE: ${{ inputs.release_sequence }}
       CHANNEL: ${{ inputs.channel }}
@@ -86,7 +86,7 @@ jobs:
       - name: Install exact Go toolchain
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: "1.26.5"
+          go-version: "1.26.7"
           cache: true
 
       - name: Run release gates

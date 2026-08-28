@@ -96,7 +96,7 @@ type VerificationPolicy struct {
 	// protected branch enforces, as the anchor claims them.
 	//
 	// It is a separate vocabulary from Commands on purpose. A required context
-	// is a check run name -- "govulncheck", "ci-gate", "GDS fast / go (1.26.5)"
+	// is a check run name -- "govulncheck", "ci-gate", "GDS fast / go (1.26.7)"
 	// -- and not a command, so no derivation connects the two. Stating the set
 	// is what makes it comparable with what the provider actually enforces; the
 	// alternative, inferring a gate from the commands beside it, would produce a

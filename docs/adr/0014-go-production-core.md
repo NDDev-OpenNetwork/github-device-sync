@@ -24,7 +24,7 @@ Implement the production `gds` CLI and portable control-plane core in Go.
 
 - Set the module language baseline to Go 1.25 so the two currently supported
   Go release families can build it. Pin the release builder separately to the
-  exact verified toolchain, initially Go 1.26.5. A builder older than Go 1.26.5
+  exact verified toolchain, currently Go 1.26.7. A builder older than Go 1.26.7
   is release-blocked; accepting a later builder requires a source-register
   update and the same release gates.
 - Build release artifacts with `CGO_ENABLED=0` for macOS and Linux on amd64 and

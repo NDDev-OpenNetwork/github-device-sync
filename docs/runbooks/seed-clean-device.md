@@ -142,7 +142,7 @@ Use exactly one of the two mechanisms, in trust order. Both end with an absolute
 
    ```bash
    SEED_VERSION=0.1.0        # >= the target release manifest's minimum_cli_version
-   GOTOOLCHAIN=go1.26.5 go build -trimpath \
+   GOTOOLCHAIN=go1.26.7 go build -trimpath \
      -ldflags "-X github.com/NDDev-OpenNetwork/github-device-sync/core/cli.Version=$SEED_VERSION" \
      -o gds ./core/cmd/gds
    shasum -a 256 gds          # record; this is the seed digest

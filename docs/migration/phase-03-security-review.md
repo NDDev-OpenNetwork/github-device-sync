@@ -1,5 +1,15 @@
 # Phase 03 security review
 
+## 2026-08-28 release-builder refresh
+
+The stable 0.7.0 review reran `govulncheck v1.6.0` against the complete module.
+Go 1.26.5 exposed reachable standard-library paths for GO-2026-6218,
+GO-2026-6090, GO-2026-6089, GO-2026-5972, and GO-2026-5026. The exact release
+builder and minimum security floor are therefore Go 1.26.7. Full, PR-required,
+and release validation now execute the pinned vulnerability scanner instead of
+relying on a historical evidence record. Device bootstrap verifies the official
+archive SHA-256 before extracting the toolchain.
+
 Status: implementation accepted for development; release evidence blocked.
 
 Date: 2026-07-11.
