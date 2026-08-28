@@ -151,6 +151,20 @@ func TestVerifyAttestationAndAntiRollbackPolicy(t *testing.T) {
 		t.Fatalf("exact rollback authorization was not accepted: result=%#v findings=%#v", result, findings)
 	}
 
+	forward := candidate.Envelope
+	forward.ReleaseSequence = 3
+	forward.BundleVersion = "0.9.0"
+	state = AcceptanceState{
+		HighestSequence:  2,
+		AcceptedDigests:  map[int]string{2: digest(bytes.Repeat([]byte{'b'}, 64))},
+		AcceptedVersions: map[int]string{2: "1.0.0"},
+	}
+	result, findings = Verify(forward, testTrust(), evidence, state, nil, now)
+	assertFinding(t, findings, "GDS_BUNDLE_VERSION_REGRESSION")
+	if result.Status != "quarantined" {
+		t.Fatalf("semantic version regression was not quarantined: %#v", result)
+	}
+
 	evidence.Verified = false
 	result, findings = Verify(candidate.Envelope, testTrust(), evidence, AcceptanceState{}, nil, now)
 	assertFinding(t, findings, "GDS_BUNDLE_ATTESTATION_INVALID")

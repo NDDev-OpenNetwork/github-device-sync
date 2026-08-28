@@ -150,8 +150,9 @@ type AttestationEvidence struct {
 }
 
 type AcceptanceState struct {
-	HighestSequence int            `json:"highest_sequence"`
-	AcceptedDigests map[int]string `json:"accepted_digests"`
+	HighestSequence  int            `json:"highest_sequence"`
+	AcceptedDigests  map[int]string `json:"accepted_digests"`
+	AcceptedVersions map[int]string `json:"accepted_versions,omitempty"`
 }
 
 type RollbackAuthorization struct {

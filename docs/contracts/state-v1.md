@@ -170,7 +170,8 @@ and migration reports include all four effective kill switches.
 Accepted bundle evidence is append-only and keyed by trust domain plus release
 sequence. A sequence cannot be rebound to another digest. The highest accepted
 sequence remains the anti-rollback floor even after an explicitly authorized
-downgrade is recorded.
+downgrade is recorded, and the version recorded at that floor prevents a
+higher sequence from lowering Semantic Version precedence.
 
 Rollout plan bytes, target-set digest, bundle identity, and creation time are
 immutable. Target and rollout transitions use compare-and-swap preconditions.

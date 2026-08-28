@@ -11,6 +11,7 @@ import (
 
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/bundle"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/rollout"
+	"github.com/NDDev-OpenNetwork/github-device-sync/core/semver"
 )
 
 type AcceptedBundle struct {
@@ -112,10 +113,12 @@ func (store *Store) PutAcceptedBundle(
 	}
 
 	var highest int
+	var highestVersion string
 	if err := transaction.QueryRowContext(
-		ctx, `SELECT COALESCE(MAX(release_sequence), 0) FROM accepted_bundles WHERE trust_domain = ?`,
+		ctx, `SELECT release_sequence, bundle_version FROM accepted_bundles
+		      WHERE trust_domain = ? ORDER BY release_sequence DESC LIMIT 1`,
 		record.TrustDomain,
-	).Scan(&highest); err != nil {
+	).Scan(&highest, &highestVersion); err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return fmt.Errorf("read bundle acceptance floor: %w", err)
 	}
 	if record.ReleaseSequence < highest {
@@ -124,6 +127,11 @@ func (store *Store) PutAcceptedBundle(
 		}
 	} else if authorization != nil {
 		return fmt.Errorf("rollback authorization is only valid for a sequence downgrade")
+	}
+	if record.ReleaseSequence > highest && highest > 0 {
+		if compared, valid := semver.Compare(record.BundleVersion, highestVersion); !valid || compared < 0 {
+			return ErrVersionRegression
+		}
 	}
 	if _, err := transaction.ExecContext(
 		ctx,
@@ -169,7 +177,7 @@ func (store *Store) BundleAcceptanceState(
 ) (bundle.AcceptanceState, error) {
 	rows, err := store.db.QueryContext(
 		ctx,
-		`SELECT release_sequence, artifact_digest FROM accepted_bundles
+		`SELECT release_sequence, bundle_version, artifact_digest FROM accepted_bundles
          WHERE trust_domain = ? ORDER BY release_sequence`,
 		trustDomain,
 	)
@@ -177,14 +185,17 @@ func (store *Store) BundleAcceptanceState(
 		return bundle.AcceptanceState{}, fmt.Errorf("read bundle acceptance state: %w", err)
 	}
 	defer rows.Close()
-	result := bundle.AcceptanceState{AcceptedDigests: map[int]string{}}
+	result := bundle.AcceptanceState{
+		AcceptedDigests: map[int]string{}, AcceptedVersions: map[int]string{},
+	}
 	for rows.Next() {
 		var sequence int
-		var digest string
-		if err := rows.Scan(&sequence, &digest); err != nil {
+		var version, digest string
+		if err := rows.Scan(&sequence, &version, &digest); err != nil {
 			return bundle.AcceptanceState{}, err
 		}
 		result.AcceptedDigests[sequence] = digest
+		result.AcceptedVersions[sequence] = version
 		if sequence > result.HighestSequence {
 			result.HighestSequence = sequence
 		}

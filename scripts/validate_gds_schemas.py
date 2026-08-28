@@ -72,6 +72,7 @@ SCHEMA_FILES = {
     "controller-runtime": "controller-runtime.schema.json",
     "repository": "repository.schema.json",
     "release-envelope": "release-envelope.schema.json",
+    "release-failure-envelope": "release-failure-envelope.schema.json",
     "release-installation": "release-installation.schema.json",
     "rollout": "rollout.schema.json",
     "rollout-request": "rollout-request.schema.json",
