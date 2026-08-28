@@ -1,10 +1,11 @@
 schema_version: 1
 
 harness_profile:
-  id: "cursor-cli"
-  product: "cursor-cli"
+  id: "cursor"
+  product: "cursor"
   status: "supported"
-  aliases: []
+  aliases:
+    - "cursor-cli"
   capability_version: "2026-07-11"
   verified_at: "2026-08-28"
   official_sources:

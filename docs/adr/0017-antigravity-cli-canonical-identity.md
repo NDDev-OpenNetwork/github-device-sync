@@ -1,6 +1,10 @@
 # ADR 0017: Use one canonical Antigravity CLI identity
 
-Status: Accepted
+Status: Superseded by ADR 0036
+
+The principle in this record stands: one canonical identity per harness, no
+parallel profiles, and unknown identifiers fail rather than being redirected.
+Only the chosen string was wrong. See `0036-harness-identity-follows-the-consumer.md`.
 
 Date: 2026-07-11
 

@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 	"time"
 
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/domain"
@@ -69,7 +70,17 @@ func (services *Services) moduleReleaseHarnessEvidence(
 	moduleID := filepath.Base(moduleAnchor.Provider.Name)
 	var harnessID string
 	for _, mapping := range bridge.Mappings {
-		if mapping.ModuleID == moduleID && mapping.Lifecycle == "active" {
+		// `renamed` is as live as `active` -- it means the module still ships
+		// under a new ID. Matching only `active` silently dropped the gate for
+		// every renamed module, which is a release proceeding unproven rather
+		// than a release failing, so it has to be both.
+		if mapping.Lifecycle != "active" && mapping.Lifecycle != "renamed" {
+			continue
+		}
+		// An anchor may still name the module by a historical ID. Those are
+		// exactly what `module_aliases` records, and refusing to resolve them
+		// would drop the gate the moment a module is renamed.
+		if mapping.ModuleID == moduleID || slices.Contains(mapping.ModuleAliases, moduleID) {
 			harnessID = mapping.HarnessID
 		}
 	}

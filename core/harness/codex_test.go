@@ -27,7 +27,11 @@ func TestCodexStaticContractPassesAndRuntimeIsDelegated(t *testing.T) {
 	if report.RuntimeEvidence != "delegated" {
 		t.Fatalf("runtime evidence = %q, want delegated", report.RuntimeEvidence)
 	}
-	if report.RuntimeEvidenceOwner != "example-org/example-harnesses" {
+	// Asserted against the bridge rather than a literal. The previous literal
+	// was "example-org/example-harnesses", which is how a placeholder survived
+	// in the bridge: naming the real owner failed the test that demanded the
+	// example.
+	if report.RuntimeEvidenceOwner != bridgeEvidenceOwner(t) {
 		t.Fatalf("evidence owner = %q, want the bridge owner", report.RuntimeEvidenceOwner)
 	}
 	if len(report.Plugins) != 3 {
@@ -92,7 +96,9 @@ func TestCanonicalRegistryHasExactHarnessSet(t *testing.T) {
 		report.RuntimeContract.Harnesses != len(CanonicalIDs) {
 		t.Fatalf("runtime contract = %#v", report.RuntimeContract)
 	}
-	if len(report.Aliases) != 1 || report.Aliases["antigravity"] != "antigravity-cli" {
+	if len(report.Aliases) != 2 ||
+		report.Aliases["antigravity-cli"] != "antigravity" ||
+		report.Aliases["cursor-cli"] != "cursor" {
 		t.Fatalf("alias map = %#v", report.Aliases)
 	}
 	// The control plane delegates harness runtime proof to the isolated per-harness
@@ -101,4 +107,19 @@ func TestCanonicalRegistryHasExactHarnessSet(t *testing.T) {
 	if len(findings) != 0 {
 		t.Fatalf("expected no findings once runtime proof is delegated, got %#v", findings)
 	}
+}
+
+// bridgeEvidenceOwner reads the owner the bridge actually declares, so a test
+// cannot pin an identity the production file is then forbidden to change.
+func bridgeEvidenceOwner(t *testing.T) string {
+	t.Helper()
+	schemas, err := validation.NewSchemaSet()
+	if err != nil {
+		t.Fatal(err)
+	}
+	bridge, _, findings := LoadModuleBridge(repositoryRoot(t), schemas)
+	if len(findings) != 0 {
+		t.Fatalf("bridge findings: %+v", findings)
+	}
+	return bridge.EvidenceOwner.Repository
 }

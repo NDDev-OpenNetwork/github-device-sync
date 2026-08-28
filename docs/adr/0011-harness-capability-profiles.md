@@ -27,7 +27,7 @@ Harness-specific controls live in sidecars, settings, plugin manifests, or
 generated projections.
 
 The owner-selected canonical set is seventeen identities:
-`antigravity-cli`, `claude-code`, `cline`, `codex`, `cursor-cli`,
+`antigravity`, `claude-code`, `cline`, `codex`, `cursor`,
 `github-copilot-cli`, `grok-build`, `junie-cli`, `kilo-cli`, `kimicode`,
 `kiro-cli`, `mimocode`, `opencode`, `pi`, `qoder-cli`, `qwen-code`, and
 `zcode`. The enforced set lives in `core/harness/registry.go` (`CanonicalIDs`)

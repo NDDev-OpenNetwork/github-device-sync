@@ -445,7 +445,13 @@ func compareModuleBridge(
 			{gitmodules[derivedModulePath], "derived module path is absent from .gitmodules"},
 			{gitlinks[derivedModulePath] != "", "derived module path is absent from the stage-zero git index"},
 			{gitlinks[derivedModulePath] == module.ExpectedHead, "stage-zero gitlink differs from expected_head"},
-			{bridge.EvidenceOwner.Repository == "example-org/example-harnesses", "evidence repository differs"},
+			// The evidence owner is not compared here. It is a bridge-owned
+			// declaration with no counterpart on the NDDev side, so parity has
+			// nothing to compare it against; the schema already constrains its
+			// shape and `validate` already requires it. The check that used to
+			// sit here pinned the literal "example-org/example-harnesses",
+			// which is why that placeholder survived in the bridge for so long:
+			// naming the real owner failed a check that demanded the example.
 		}
 		for _, check := range checks {
 			if !check.ok {

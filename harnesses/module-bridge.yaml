@@ -2,62 +2,89 @@ schema_version: 1
 contract: "nddev-module-harness-bridge/v2"
 
 consumer:
-  repository_id: "repo_01JEXAMPZ0000000000000000M"
+  repository_id: "repo_01M0QNDKCJ0K9XZHXVPCERB4XK"
 relationship_scope: "git-submodule-consumer"
 evidence_owner:
-  repository: "example-org/example-harnesses"
+  repository: "NDDev-it-com/setup-systems"
 runtime_tests:
   required: false
 
+# The seven supported harnesses are delivered by the live setup systems in
+# NDDev-OpenNetwork. Their previous module identities were the
+# `nddev-*-app` repositories, which are archived under `rldyourmnd`; the
+# schema keeps those as aliases because `renamed` requires at least one and
+# `active` forbids them, so the provenance is enforced rather than
+# conventional.
+#
+# `harness_id` is the ai-stp contract value and is never derived from the
+# module name. That derivation is exactly how `antigravity-cli` and
+# `cursor-cli` were invented here.
 mappings:
-  - module_id: "nddev-antigravity-cli-app"
-    harness_id: "antigravity-cli"
-    lifecycle: "active"
-  - module_id: "nddev-claude-app"
+  - module_id: "antigravity-setup-system"
+    harness_id: "antigravity"
+    lifecycle: "renamed"
+    module_aliases:
+      - "nddev-antigravity-cli-app"
+  - module_id: "claude-setup-system"
     harness_id: "claude-code"
-    lifecycle: "active"
+    lifecycle: "renamed"
+    module_aliases:
+      - "nddev-claude-app"
+  - module_id: "codex-setup-system"
+    harness_id: "codex"
+    lifecycle: "renamed"
+    module_aliases:
+      - "nddev-codex-app"
+  - module_id: "cursor-setup-system"
+    harness_id: "cursor"
+    lifecycle: "renamed"
+    module_aliases:
+      - "nddev-cursor-cli-app"
+  - module_id: "grok-setup-system"
+    harness_id: "grok-build"
+    lifecycle: "renamed"
+    module_aliases:
+      - "nddev-grok-build-app"
+  - module_id: "opencode-setup-system"
+    harness_id: "opencode"
+    lifecycle: "renamed"
+    module_aliases:
+      - "nddev-opencode-app"
+  - module_id: "pi-setup-system"
+    harness_id: "pi"
+    lifecycle: "renamed"
+    module_aliases:
+      - "nddev-pi-app"
+
+  # No live setup system delivers these. Their modules are archived and
+  # nothing renders them, so they are retired rather than active.
   - module_id: "nddev-cline-app"
     harness_id: "cline"
-    lifecycle: "active"
-  - module_id: "nddev-codex-app"
-    harness_id: "codex"
-    lifecycle: "active"
-  - module_id: "nddev-cursor-cli-app"
-    harness_id: "cursor-cli"
-    lifecycle: "active"
+    lifecycle: "retired"
   - module_id: "nddev-github-copilot-cli-app"
     harness_id: "github-copilot-cli"
-    lifecycle: "active"
-  - module_id: "nddev-grok-build-app"
-    harness_id: "grok-build"
-    lifecycle: "active"
+    lifecycle: "retired"
   - module_id: "nddev-junie-cli-app"
     harness_id: "junie-cli"
-    lifecycle: "active"
+    lifecycle: "retired"
   - module_id: "nddev-kilo-cli-app"
     harness_id: "kilo-cli"
-    lifecycle: "active"
+    lifecycle: "retired"
   - module_id: "nddev-kimicode-app"
     harness_id: "kimicode"
-    lifecycle: "active"
+    lifecycle: "retired"
   - module_id: "nddev-kiro-cli-app"
     harness_id: "kiro-cli"
-    lifecycle: "active"
+    lifecycle: "retired"
   - module_id: "nddev-mimocode-app"
     harness_id: "mimocode"
-    lifecycle: "active"
-  - module_id: "nddev-opencode-app"
-    harness_id: "opencode"
-    lifecycle: "active"
-  - module_id: "nddev-pi-app"
-    harness_id: "pi"
-    lifecycle: "active"
+    lifecycle: "retired"
   - module_id: "nddev-qoder-cli-app"
     harness_id: "qoder-cli"
-    lifecycle: "active"
+    lifecycle: "retired"
   - module_id: "nddev-qwen-code-app"
     harness_id: "qwen-code"
-    lifecycle: "active"
+    lifecycle: "retired"
   - module_id: "nddev-zcode-app"
     harness_id: "zcode"
-    lifecycle: "active"
+    lifecycle: "retired"

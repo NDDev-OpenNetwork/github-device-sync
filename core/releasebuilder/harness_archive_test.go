@@ -65,8 +65,8 @@ func TestMaterializeHarnessEvidenceArchive(t *testing.T) {
 
 func TestHarnessEvidenceArchiveMembersAreExactlyActiveSevenPlusManifest(t *testing.T) {
 	want := []string{
-		"antigravity-cli.json", "claude-code.json", "codex.json",
-		"cursor-cli.json", "grok-build.json", "manifest.json",
+		"antigravity.json", "claude-code.json", "codex.json",
+		"cursor.json", "grok-build.json", "manifest.json",
 		"opencode.json", "pi.json",
 	}
 	if !slices.Equal(harnessEvidenceMembers, want) {

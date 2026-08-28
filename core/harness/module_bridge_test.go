@@ -273,7 +273,10 @@ func TestSelectedRuntimeValidationReportsDelegationRatherThanSilentSuccess(t *te
 		if item.RuntimeEvidence != "delegated" {
 			t.Fatalf("%s runtime evidence = %q, want delegated", item.Harness, item.RuntimeEvidence)
 		}
-		if item.RuntimeEvidenceOwner != "example-org/example-harnesses" {
+		// Read from the bridge, not pinned to a literal -- see the note in
+		// codex_test.go: the literal that used to sit here is why the bridge
+		// carried a placeholder owner for as long as it did.
+		if item.RuntimeEvidenceOwner != bridgeEvidenceOwner(t) {
 			t.Fatalf("%s evidence owner = %q", item.Harness, item.RuntimeEvidenceOwner)
 		}
 		expectedStatus := "provisional"

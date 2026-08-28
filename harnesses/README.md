@@ -7,11 +7,11 @@ runtime contract suite.
 
 Canonical harness identities are:
 
-- `antigravity-cli`;
+- `antigravity`;
 - `claude-code`;
 - `cline`;
 - `codex`;
-- `cursor-cli`;
+- `cursor`;
 - `github-copilot-cli`;
 - `grok-build`;
 - `junie-cli`;
