@@ -434,3 +434,173 @@ func moduleReleaseReadServices(t *testing.T) (*app.Services, string) {
 	}
 	return services, runtimePath
 }
+
+// TestModuleUpdatePinAcceptsCheckedOutModuleWithoutApproval covers the shape a
+// real estate is always in and the command used to refuse: the submodule is
+// initialized and already advanced to the commit being pinned.
+//
+// Before this, that state produced GDS_MODULE_PIN_CONSUMER_STATE_UNSAFE (the
+// advanced gitlink counts as a dirty consumer) and, once past it,
+// GDS_MODULE_PIN_GITLINK_NOT_ELIGIBLE (the checkout must be absent). The only
+// way through was `git submodule deinit`, which is written down nowhere. Apply
+// then demanded a signed approval for a gitlink rewrite in the consumer's own
+// working tree. So this test passes no approval reference at all.
+func TestModuleUpdatePinAcceptsCheckedOutModuleWithoutApproval(t *testing.T) {
+	moduleID := "repo_01JEXAMPZ0000000000000000D"
+	module := sessionFixtureWithPolicies(t, "never", "direct", false)
+	moduleAnchorPath := filepath.Join(module.client, ".gds", "repository.yaml")
+	moduleAnchor, err := os.ReadFile(filepath.Join(
+		repositoryRoot(t), "tests", "fixtures", "schemas", "v1", "valid-module-fork-repository.yaml",
+	))
+	if err != nil {
+		t.Fatal(err)
+	}
+	moduleAnchor = []byte(strings.Replace(string(moduleAnchor),
+		"repo_01JEXAMPZ0000000000000000C", moduleID, 1))
+	moduleAnchor = []byte(strings.Replace(string(moduleAnchor),
+		`pin_policy: "version-tag"`, `pin_policy: "default-branch-commit"`, 1))
+	moduleAnchor = []byte(strings.Replace(string(moduleAnchor),
+		`integration: "pull-request"`, `integration: "direct"`, 1))
+	moduleAnchor = append(moduleAnchor, []byte(
+		"\nverification:\n  commands:\n    test:\n      - \"true\"\n  required:\n    - \"test\"\n",
+	)...)
+	if err := os.WriteFile(moduleAnchorPath, moduleAnchor, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	runSessionGit(t, module.client, "add", ".gds/repository.yaml")
+	runSessionGit(t, module.client, "commit", "-qm", "configure module")
+	runSessionGit(t, module.client, "push", "-q", "origin", "main")
+	moduleTargetOID := runSessionGit(t, module.client, "rev-parse", "HEAD")
+
+	consumer := sessionFixtureWithPolicies(t, "never", "direct", false)
+	consumerAnchorPath := filepath.Join(consumer.client, ".gds", "repository.yaml")
+	consumerAnchor, err := os.ReadFile(consumerAnchorPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	consumerAnchor = []byte(strings.Replace(
+		string(consumerAnchor), "\nrelease:\n",
+		"\nrelationships:\n  - type: \"git-submodule-consumer\"\n    target: \""+moduleID+"\"\n    gitmodules_name: \"module\"\n\nrelease:\n", 1,
+	))
+	if err := os.WriteFile(consumerAnchorPath, consumerAnchor, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	modules := "[submodule \"module\"]\n\tpath = modules/module\n\turl = https://github.com/example-org/public-module-fork.git\n"
+	if err := os.WriteFile(filepath.Join(consumer.client, ".gitmodules"), []byte(modules), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	runSessionGit(t, consumer.client, "add", ".gds/repository.yaml", ".gitmodules")
+	runSessionGit(t, consumer.client, "update-index", "--add", "--cacheinfo",
+		"160000,"+module.firstOID+",modules/module")
+	runSessionGit(t, consumer.client, "commit", "-qm", "configure module consumer")
+	runSessionGit(t, consumer.client, "push", "-q", "origin", "main")
+	runSessionGit(t, consumer.client, "switch", "-qc", "task/update-module-pin")
+
+	// The state under test: a real checkout of the module inside the consumer,
+	// sitting at exactly the commit about to be pinned.
+	modulePath := filepath.Join(consumer.client, "modules", "module")
+	runSessionGit(t, consumer.client, "clone", "-q", module.client, modulePath)
+	runSessionGit(t, modulePath, "checkout", "-q", moduleTargetOID)
+	if head := runSessionGit(t, modulePath, "rev-parse", "HEAD"); head != moduleTargetOID {
+		t.Fatalf("submodule head=%q want=%q", head, moduleTargetOID)
+	}
+
+	statePath := sessionStatePath(t)
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
+	exitCode, planned, stderr := executeJSON(
+		t, "--json", "--cwd", consumer.client, "module", "update-pin", "--plan",
+		"--module", module.client, "--name", "module",
+		"--state-path", statePath, "--device-id", syncTestDeviceID,
+		"--session-id", "module-update-pin",
+	)
+	if exitCode != 0 || planned.Mutation.Attempted {
+		t.Fatalf("plan exit=%d stderr=%q envelope=%#v", exitCode, stderr, planned)
+	}
+	planID := syncPlanID(t, planned.Data)
+	exitCode, applied, stderr := executeJSON(
+		t, "--json", "module", "update-pin", "--apply", planID,
+		"--state-path", statePath, "--device-id", syncTestDeviceID,
+		"--session-id", "module-update-pin",
+	)
+	if exitCode != 0 || !applied.Mutation.Completed {
+		t.Fatalf("apply without approval exit=%d stderr=%q envelope=%#v", exitCode, stderr, applied)
+	}
+	fields := strings.Fields(runSessionGit(t, consumer.client, "ls-files", "--stage", "modules/module"))
+	if len(fields) < 2 || fields[1] != moduleTargetOID {
+		t.Fatalf("staged gitlink=%#v want=%s", fields, moduleTargetOID)
+	}
+}
+
+// TestModuleUpdatePinStillRefusesAnUnrelatedChange proves the relaxation above
+// is exactly one gitlink wide. An untracked file next to the advanced submodule
+// is still an unsafe consumer.
+func TestModuleUpdatePinStillRefusesAnUnrelatedChange(t *testing.T) {
+	moduleID := "repo_01JEXAMPZ0000000000000000D"
+	module := sessionFixtureWithPolicies(t, "never", "direct", false)
+	moduleAnchorPath := filepath.Join(module.client, ".gds", "repository.yaml")
+	moduleAnchor, err := os.ReadFile(filepath.Join(
+		repositoryRoot(t), "tests", "fixtures", "schemas", "v1", "valid-module-fork-repository.yaml",
+	))
+	if err != nil {
+		t.Fatal(err)
+	}
+	moduleAnchor = []byte(strings.Replace(string(moduleAnchor),
+		"repo_01JEXAMPZ0000000000000000C", moduleID, 1))
+	moduleAnchor = []byte(strings.Replace(string(moduleAnchor),
+		`pin_policy: "version-tag"`, `pin_policy: "default-branch-commit"`, 1))
+	moduleAnchor = []byte(strings.Replace(string(moduleAnchor),
+		`integration: "pull-request"`, `integration: "direct"`, 1))
+	moduleAnchor = append(moduleAnchor, []byte(
+		"\nverification:\n  commands:\n    test:\n      - \"true\"\n  required:\n    - \"test\"\n",
+	)...)
+	if err := os.WriteFile(moduleAnchorPath, moduleAnchor, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	runSessionGit(t, module.client, "add", ".gds/repository.yaml")
+	runSessionGit(t, module.client, "commit", "-qm", "configure module")
+	runSessionGit(t, module.client, "push", "-q", "origin", "main")
+	moduleTargetOID := runSessionGit(t, module.client, "rev-parse", "HEAD")
+
+	consumer := sessionFixtureWithPolicies(t, "never", "direct", false)
+	consumerAnchorPath := filepath.Join(consumer.client, ".gds", "repository.yaml")
+	consumerAnchor, err := os.ReadFile(consumerAnchorPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	consumerAnchor = []byte(strings.Replace(
+		string(consumerAnchor), "\nrelease:\n",
+		"\nrelationships:\n  - type: \"git-submodule-consumer\"\n    target: \""+moduleID+"\"\n    gitmodules_name: \"module\"\n\nrelease:\n", 1,
+	))
+	if err := os.WriteFile(consumerAnchorPath, consumerAnchor, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	modules := "[submodule \"module\"]\n\tpath = modules/module\n\turl = https://github.com/example-org/public-module-fork.git\n"
+	if err := os.WriteFile(filepath.Join(consumer.client, ".gitmodules"), []byte(modules), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	runSessionGit(t, consumer.client, "add", ".gds/repository.yaml", ".gitmodules")
+	runSessionGit(t, consumer.client, "update-index", "--add", "--cacheinfo",
+		"160000,"+module.firstOID+",modules/module")
+	runSessionGit(t, consumer.client, "commit", "-qm", "configure module consumer")
+	runSessionGit(t, consumer.client, "push", "-q", "origin", "main")
+	runSessionGit(t, consumer.client, "switch", "-qc", "task/update-module-pin")
+
+	modulePath := filepath.Join(consumer.client, "modules", "module")
+	runSessionGit(t, consumer.client, "clone", "-q", module.client, modulePath)
+	runSessionGit(t, modulePath, "checkout", "-q", moduleTargetOID)
+	if err := os.WriteFile(filepath.Join(consumer.client, "stray.txt"), []byte("x\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	statePath := sessionStatePath(t)
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
+	exitCode, planned, _ := executeJSON(
+		t, "--json", "--cwd", consumer.client, "module", "update-pin", "--plan",
+		"--module", module.client, "--name", "module",
+		"--state-path", statePath, "--device-id", syncTestDeviceID,
+		"--session-id", "module-update-pin",
+	)
+	if exitCode == 0 || !containsFinding(planned.Findings, "GDS_MODULE_PIN_CONSUMER_STATE_UNSAFE") {
+		t.Fatalf("plan with an unrelated change exit=%d envelope=%#v", exitCode, planned)
+	}
+}

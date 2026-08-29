@@ -122,11 +122,30 @@ preserve all unrelated anchor content. Add requires `.gitmodules`, the index
 gitlink, provider identity, and module stable identity to agree. Remove is
 blocked while the gitlink contract still exists.
 
-`update-pin` accepts one clean non-default consumer task branch and one exact
-uninitialized stage-zero gitlink. The selected module must match the typed
-relationship, be clean on its default branch, and have that exact commit
-published on its origin. The current handler supports `default-branch-commit`;
-version and package policies require their release providers first.
+`update-pin` accepts one non-default consumer task branch and one exact
+stage-zero gitlink whose checkout is either absent or already at the target
+commit. The selected module must match the typed relationship, be clean on its
+default branch, and have that exact commit published on its origin. The current
+handler supports `default-branch-commit`; version and package policies require
+their release providers first.
+
+Accepting the second checkout shape is what makes the command usable. The
+consumer is otherwise clean, but an advanced submodule reports its gitlink as
+one unstaged change, and the cleanliness rule counted that as a dirty consumer
+-- while the eligibility rule demanded a *changed* gitlink. The two read as a
+contradiction, and the only way through was `git submodule deinit`, written down
+nowhere. A checkout sitting at the target commit is stronger evidence than an
+absent one: the consumer holds the commit it is about to pin. The relaxation is
+exactly one gitlink wide; a staged, untracked or conflicted path, or a second
+unstaged one, still refuses with `GDS_MODULE_PIN_CONSUMER_STATE_UNSAFE`.
+
+Applying a pin needs no approval. The only mutation is a gitlink rewrite in the
+consumer's own working tree: it writes no provider, replaces no credential and
+publishes nothing, and the consumer's pull request and checks are its real gate.
+Requiring a signed approval meant the private signing key had to be present to
+advance a pin, so pins stopped advancing and the estate drifted behind modules
+it had already merged. Signed approval stays on the operations that write
+outside the repository -- provider lifecycle, rulesets, releases and anchors.
 
 The module's origin is observed and never written: the only mutation is a
 gitlink rewrite in the consumer index. Both plan and apply once gated that

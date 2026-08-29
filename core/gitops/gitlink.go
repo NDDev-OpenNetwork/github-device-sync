@@ -54,7 +54,8 @@ func (handler *UpdateGitlinkHandler) Verify(
 	}
 	if expected.WorktreeRoot != parameters.ConsumerRoot || expected.Name != parameters.GitmodulesName ||
 		expected.GitlinkOID != parameters.TargetOID || expected.GitlinkStage != 0 ||
-		expected.WorktreeState != "uninitialized" || expected.Staged != 1 ||
+		(expected.WorktreeState != "uninitialized" && expected.WorktreeState != "at-gitlink") ||
+		expected.Staged != 1 ||
 		expected.Unstaged != 0 || expected.Untracked != 0 || expected.Conflicted != 0 {
 		return errors.New("gitlink after evidence differs from the exact step")
 	}
