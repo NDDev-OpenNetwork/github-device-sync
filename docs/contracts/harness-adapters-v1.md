@@ -8,29 +8,21 @@ cases remain independently `NOT_PROVEN` until exact transcripts pass.
 
 The catalogue is every harness GDS can render. It is owned by
 `harnesses/capability-registry.yaml` and mirrored by
-`core/harness.CanonicalIDs`; `scripts/validate_harness_docs.py` fails when this
-list, the registry, and that constant disagree, so the three cannot drift apart
-silently as they did before.
+`core/harness.CanonicalIDs`. The list below is generated from the registry by
+`scripts/generate_harness_docs.py`; `--check` runs in validation and fails when
+it is stale, so prose cannot disagree with the code.
 
+<!-- generated:harness-ids -->
 ```text
-antigravity-cli
+antigravity
 claude-code
-cline
 codex
-cursor-cli
-github-copilot-cli
+cursor
 grok-build
-junie-cli
-kilo-cli
-kimicode
-kiro-cli
-mimocode
 opencode
 pi
-qoder-cli
-qwen-code
-zcode
 ```
+<!-- /generated:harness-ids -->
 
 A catalogue entry is not a promise that the harness is installable yet. An entry
 whose profile declares `skill_strategy: "not-proven"` is a valid, honest
@@ -63,15 +55,11 @@ Validity and renderability are different questions.
 | Codex | root-to-CWD `AGENTS.md` | `.agents/skills` and plugins | `agents/openai.yaml` | supported, delegated evidence |
 | Cursor CLI | workspace-root `AGENTS.md` | `.cursor/skills` | profile exclusion | supported, delegated evidence |
 | Grok CLI | root-to-CWD `AGENTS.md` | `.grok/skills`, user `.agents/skills` | profile exclusion | supported, delegated evidence |
-| Kimi Code | native project `AGENTS.md` (order runtime-gated) | `.agents/skills`, `.kimi-code/skills` | `disable-model-invocation` | provisional |
-| MiMo Code | workspace-root `AGENTS.md` | `.mimocode/skills`, `.agents/skills`, `.claude/skills` | profile exclusion | provisional |
 | OpenCode | root-to-CWD `AGENTS.md` | `.agents/skills`, `.opencode/skills`, `.claude/skills` | profile exclusion | supported, delegated evidence |
 | Pi | parent-chain `AGENTS.md` | `.agents/skills`, `.pi/skills` | `disable-model-invocation` | supported, delegated evidence |
-| ZCode | workspace-root `AGENTS.md` | `.zcode/skills`, managed user skills | manual `$skill` | provisional |
 
-The seven supported rows use a declared delegated evidence owner. Stable and
-frozen releases still require fresh signed evidence for the exact active-seven
-closure; catalogue-only rows remain provisional and on-pause.
+Every row uses the declared delegated evidence owner. Stable and frozen
+releases require fresh signed evidence for the exact seven-harness closure.
 
 ## Validation
 

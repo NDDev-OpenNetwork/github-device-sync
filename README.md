@@ -32,7 +32,7 @@ canonical source
 
 The former `nddev-monorepo`, `forks-monorepo`, and
 `example-user-monorepo` metadata repositories are not part of the active
-topology. Their migration evidence is retained in `docs/migration/`.
+topology.
 
 ## Local development
 
@@ -86,9 +86,9 @@ uv run --with-requirements requirements/test.txt --with pytest-cov python -m pyt
 also runs the source-bound 2000-repository assurance scenario and requires
 current source evidence before any artifact can be attested.
 
-It does **not** prove harness runtime behaviour, and no longer claims to. All
-seventeen harnesses are registered here as available and `provisional`; their
-runtime suites live in the private `example-org/example-harnesses` repository,
+It does **not** prove harness runtime behaviour, and no longer claims to. The
+seven harnesses are registered here with delegated runtime evidence; their
+runtime suites live in the private `NDDev-it-com/setup-systems` repository,
 which `harnesses/module-bridge.yaml` names as the evidence owner. Each profile
 records `runtime_tests.last_result: delegated`, and
 `gds validate harnesses --runtime` reports `runtime_evidence: "delegated"` with
@@ -99,5 +99,4 @@ claiming `delegated` that the bridge does not map is rejected
 evidence here nor delegates it (`GDS_HARNESS_RUNTIME_UNOWNED`). Promoting a
 harness to `supported` still requires a local `pass`.
 
-Architecture, contracts, migration evidence, and the remaining acceptance
-order are in `docs/architecture/`, `docs/contracts/`, and `docs/migration/`.
+Architecture and contracts are in `docs/architecture/` and `docs/contracts/`.

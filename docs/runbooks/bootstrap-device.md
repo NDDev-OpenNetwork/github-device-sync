@@ -205,5 +205,5 @@ failures.
 
 ## Authority
 
-`docs/migration/gds-completion-plan.md`. Lower-level contracts:
+`docs/contracts/authority-and-change-protocol-v1.md`. Lower-level contracts:
 `docs/contracts/seed-bootstrap-v1.md`, `docs/contracts/bundle-release-v1.md`.

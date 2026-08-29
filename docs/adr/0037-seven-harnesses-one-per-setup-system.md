@@ -4,7 +4,7 @@ Status: Accepted
 
 Date: 2026-08-29
 
-Supersedes the seventeen-identity set in ADR 0011.
+Supersedes: ADR 0011 (the seventeen-identity set only)
 
 ## Context
 

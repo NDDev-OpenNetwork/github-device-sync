@@ -4,14 +4,13 @@ Status: Accepted
 
 Date: 2026-08-29
 
-Supersedes: ADR 0017
-
 ## Context
 
-ADR 0017 established that each harness has exactly one canonical machine
-identity in GDS, that no parallel profile is generated for the same runtime,
-and that an unknown identifier fails rather than being silently redirected.
-That principle is correct and is retained in full.
+An earlier decision, since removed from the tree with the rest of the
+superseded record, established that each harness has exactly one canonical
+machine identity in GDS, that no parallel profile is generated for the same
+runtime, and that an unknown identifier fails rather than being silently
+redirected. That principle is correct and is carried forward here in full.
 
 What it got wrong was the value. It named `antigravity-cli` as the canonical
 Google agent CLI identity, and the registry later recorded `antigravity` — the
@@ -47,13 +46,14 @@ Where GDS and the consumer disagree about a harness identity in future, the
 consumer wins, and GDS records the change rather than negotiating it.
 
 The previous strings are retained in `legacy_aliases` and in the harness
-profile `aliases`. This does not reopen the compatibility-alias question ADR
-0017 closed: an alias is migration provenance and collision-detection input,
+profile `aliases`. This does not reopen the compatibility-alias question that
+earlier decision closed: an alias is migration provenance and collision-detection input,
 never a second live identity. Unknown identifiers still fail as unknown.
 
 ## Consequences
 
-- The canonical registry remains an exact seventeen-harness set.
+- The canonical registry remains an exact set. (As accepted this said
+  seventeen; ADR 0037 reduced it to seven the same day.)
 - Release evidence archive members are renamed `antigravity.json` and
   `cursor.json`. Two parties are involved and they are not the same one:
   `NDDev-it-com/setup-systems` owns the harness *runtime* evidence and is what
@@ -76,8 +76,8 @@ never a second live identity. Unknown identifiers still fail as unknown.
 - Keep `antigravity-cli` and ask `ai-stp` to change: rejected. GDS consumes
   the identity and does not define it, and the consumer's set is derived from
   a single literal specifically so it cannot drift.
-- Accept both values as live identities: rejected for the reason ADR 0017 gave
-  — evidence and rollout state would diverge.
+- Accept both values as live identities: rejected for the reason the earlier
+  decision gave — evidence and rollout state would diverge.
 - Leave it and document the mismatch: rejected. A join on harness ID would
   silently drop two of seven and report five as though that were the answer.
 
