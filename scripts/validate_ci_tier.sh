@@ -17,6 +17,7 @@ run_python_contracts() {
   python3 scripts/validate_gds_schemas.py
   python3 scripts/validate_python_locks.py
   python3 scripts/generate_adr_index.py --check
+  python3 scripts/generate_harness_docs.py --check
 }
 
 run_python_tests() {

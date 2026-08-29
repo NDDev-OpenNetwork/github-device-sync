@@ -35,7 +35,7 @@ Ubuntu `24.04`/`26.04` (`amd64`/`arm64`).
   Publication does not accept the bundle on this device — step 3 verification
   still governs.
 
-Authority: `docs/migration/gds-completion-plan.md`. Typed handoff contract:
+Authority: `docs/contracts/authority-and-change-protocol-v1.md`. Typed handoff contract:
 `docs/contracts/seed-bootstrap-v1.md`. Higher-level sequencing:
 `docs/runbooks/bootstrap-device.md` (the `scripts/bootstrap-device.sh` orchestrator
 that acquires the Go toolchain and drives this seam on a canary/source-build

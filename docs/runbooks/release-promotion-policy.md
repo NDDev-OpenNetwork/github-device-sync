@@ -29,7 +29,7 @@ rollout adoption (`C11`/`C12`), live GitHub App evidence, and restore/recovery
 rehearsal. Publishing an artifact is not promoting it. Do not weaken any gate to
 work around these boundaries.
 
-Authority: `docs/migration/gds-completion-plan.md`. Release mechanics:
+Authority: `docs/contracts/authority-and-change-protocol-v1.md`. Release mechanics:
 `docs/runbooks/release-lifecycle.md`. Bundle contract:
 `docs/contracts/bundle-release-v1.md`.
 

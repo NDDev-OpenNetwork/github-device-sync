@@ -4,14 +4,12 @@
 this estate installs, one per setup system in `NDDev-OpenNetwork`. Each profile
 records only current official documentation facts.
 
-The catalogue previously carried seventeen identities: ten had no setup system
-and were held `provisional` and on-pause indefinitely. They were removed along
-with the retired harness application line they were mapped to; ADR 0037 records
-which and why. The catalogue and the work-policy allowlist are now the same
-set, so nothing can be catalogued but paused.
+The catalogue and the work-policy allowlist are the same set, so nothing can be
+catalogued but paused. ADR 0037 records why the catalogue is seven.
 
 Canonical harness identities are:
 
+<!-- generated:harness-ids -->
 - `antigravity`;
 - `claude-code`;
 - `codex`;
@@ -19,6 +17,7 @@ Canonical harness identities are:
 - `grok-build`;
 - `opencode`;
 - `pi`.
+<!-- /generated:harness-ids -->
 
 Harnesses with native AGENTS support consume the standalone generated
 `AGENTS.md`; Claude Code receives a generated first-class

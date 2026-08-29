@@ -6,8 +6,7 @@ describes the system as it is now, and a version stamped here goes stale
 silently every time a release ships without an architecture change. Release
 boundaries live in `CHANGELOG.md` and `docs/version-ledger.md`. For the
 migration design baseline that preceded the Go implementation, see
-`migration-baseline.md`; for the verbatim owner-approved redesign contract, see
-`GDS_AGENT_SYSTEM_REDESIGN_2026-07.md`.
+the ADRs in `docs/adr/`.
 
 ## What gds is
 
@@ -68,8 +67,9 @@ provenance, and rejects equal-priority selector ambiguity.
 | Control-plane service | `state`, `controller`, `reconciler`, `webhooks`, `audit` | SQLite journal, webhook worker, drift reconciler, signed audit snapshots. |
 | Orchestration | `app`, `cli`, `cmd/*` | Use-case wiring, Cobra adapter, seven binaries. |
 
-Seven binaries: `gds`, `gds-controller`, `gds-assurance`,
-`gds-release-builder`, and `gds-{claude,codex,zcode}-runtime-driver`.
+Six binaries: `gds`, `gds-controller`, `gds-assurance`,
+`gds-performance-evidence`, `gds-release-builder`, and
+`gds-{claude,codex}-runtime-driver`.
 
 ## Verification
 

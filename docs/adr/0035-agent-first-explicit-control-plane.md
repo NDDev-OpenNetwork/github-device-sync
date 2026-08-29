@@ -24,9 +24,12 @@ performance gates, and device intent as a proxy for current device truth.
   plan.
 - Required check contexts are generated from an allowlisted security workflow
   policy, exact caller pins, and content-digested reusable workflow facts.
-- The harness catalogue remains seventeen identities. Work-policy active is
-  exactly antigravity-cli, claude-code, codex, cursor-cli, grok-build, opencode,
-  and pi. Every harness emits
+- The harness catalogue and the work-policy active set are the same seven
+  identities: antigravity, claude-code, codex, cursor, grok-build, opencode and
+  pi. (As accepted, this read "seventeen identities" with an active subset of
+  seven, and named two of them `antigravity-cli` and `cursor-cli`; ADR 0036
+  corrected the identities and ADR 0037 removed the unbacked ten.) Every
+  harness emits
   isolated signed exact-version evidence; a separately signed manifest binds the
   aggregate. Canary may be provisional and never auto-promotes. Stable/frozen
   require all seven.
