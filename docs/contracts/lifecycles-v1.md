@@ -139,6 +139,16 @@ absent one: the consumer holds the commit it is about to pin. The relaxation is
 exactly one gitlink wide; a staged, untracked or conflicted path, or a second
 unstaged one, still refuses with `GDS_MODULE_PIN_CONSUMER_STATE_UNSAFE`.
 
+`update-pin` runs the module's required lanes twice -- once when planning at
+the target commit, and once when the engine re-observes its preconditions before
+the mutation -- so it defaults to a twenty-minute deadline rather than the
+two-minute one sized for a read. An explicit `--timeout` always wins. Before
+that, the default expired mid-observation and the engine reported
+`GDS_STALE_PLAN`, "the repository changed before its first mutation step", which
+sends the reader looking for a concurrent writer that does not exist. Any
+command whose deadline expires now also carries
+`GDS_COMMAND_DEADLINE_EXCEEDED`, naming the deadline and the flag.
+
 Applying a pin needs no approval. The only mutation is a gitlink rewrite in the
 consumer's own working tree: it writes no provider, replaces no credential and
 publishes nothing, and the consumer's pull request and checks are its real gate.

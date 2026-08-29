@@ -4,6 +4,7 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"runtime"
@@ -1859,7 +1860,9 @@ func (executor *executor) modulePinCommand() *cobra.Command {
 		Use: "update-pin", Short: "Update one exact consumer gitlink to a finalized module commit",
 		Args: cobra.NoArgs,
 		RunE: func(child *cobra.Command, _ []string) error {
-			return executor.run(child, func(ctx context.Context) domain.Envelope {
+			// Plan and apply both run the module's required lanes at the target
+			// commit, so this needs the lane deadline rather than the read one.
+			return executor.runLanes(child, func(ctx context.Context) domain.Envelope {
 				if selectedModes(plan, applyPlanID, verifyOperationID) != 1 {
 					return domain.NewEnvelope("gds module update-pin", domain.ExitInput, nil, domain.Finding{
 						Code: "GDS_MODULE_PIN_MODE_REQUIRED", Severity: domain.SeverityHigh,
@@ -2753,8 +2756,33 @@ func (executor *executor) doctorCommand() *cobra.Command {
 	return command
 }
 
+// laneCommandTimeout is the default deadline for commands that execute another
+// repository's declared verification lanes rather than reading state. Two
+// minutes is right for a read and far too short for a command that runs a
+// module's test suite twice -- once to plan, once to re-observe before the
+// mutation -- which is how a working `module update-pin` came to look broken.
+const laneCommandTimeout = 20 * time.Minute
+
 func (executor *executor) run(
 	command *cobra.Command,
+	operation func(context.Context) domain.Envelope,
+) error {
+	return executor.runWithin(command, 0, operation)
+}
+
+// runLanes is run for commands that execute a module's verification lanes. An
+// explicit --timeout always wins; the longer default applies only when the
+// caller did not choose one.
+func (executor *executor) runLanes(
+	command *cobra.Command,
+	operation func(context.Context) domain.Envelope,
+) error {
+	return executor.runWithin(command, laneCommandTimeout, operation)
+}
+
+func (executor *executor) runWithin(
+	command *cobra.Command,
+	minimum time.Duration,
 	operation func(context.Context) domain.Envelope,
 ) error {
 	if executor.options.timeout <= 0 {
@@ -2766,9 +2794,26 @@ func (executor *executor) run(
 		executor.result = &envelope
 		return nil
 	}
-	ctx, cancel := context.WithTimeout(command.Context(), executor.options.timeout)
+	deadline := executor.options.timeout
+	if minimum > deadline && !command.Flags().Changed("timeout") {
+		deadline = minimum
+	}
+	ctx, cancel := context.WithTimeout(command.Context(), deadline)
 	defer cancel()
 	envelope := operation(ctx)
+	// A deadline is not a changed repository. Without this, an expired context
+	// surfaces as whatever the interrupted step reported -- for update-pin that
+	// was GDS_STALE_PLAN, "the repository changed before its first mutation
+	// step", which sends the reader looking for a concurrent writer that does
+	// not exist. Say what actually happened, and say how long it had.
+	if errors.Is(ctx.Err(), context.DeadlineExceeded) && envelope.ExitCode != 0 {
+		envelope.Findings = append(envelope.Findings, domain.Finding{
+			Code:     "GDS_COMMAND_DEADLINE_EXCEEDED",
+			Severity: domain.SeverityHigh,
+			Message:  "The command deadline expired before the operation finished; any earlier finding describes an interrupted step, not a changed repository.",
+			Evidence: map[string]any{"deadline": deadline.String(), "flag": "--timeout"},
+		})
+	}
 	executor.result = &envelope
 	return nil
 }
