@@ -101,7 +101,15 @@ func (services *Services) PlanModuleUpdatePin(
 		}},
 		Steps: []operations.Step{{
 			StepID: "update-gitlink-pin", RepositoryID: current.assessment.ConsumerID,
-			Action: gitops.UpdateGitlinkAction, RequiresApproval: true,
+			// A gitlink rewrite in the consumer's own working tree is local and
+			// fully reversible: it writes no provider, replaces no credential and
+			// publishes nothing. It used to require a signed approval, which meant
+			// the private Ed25519 key had to be present to advance a pin -- so pins
+			// stopped advancing and the estate silently drifted behind its modules.
+			// The real gate on this change is the consumer's own pull request and
+			// checks. Signed approval stays on the operations that write outside
+			// this repository: provider lifecycle, rulesets, releases and anchors.
+			Action: gitops.UpdateGitlinkAction, RequiresApproval: false,
 			Compensation: operations.Compensation{Mode: "explicit-plan", Action: gitops.UpdateGitlinkAction},
 			Parameters: map[string]any{"gitlink_pin": map[string]any{
 				"consumer_root":    current.assessment.ConsumerRoot,
@@ -253,9 +261,21 @@ func (services *Services) modulePinContext(
 	if err != nil {
 		return modulePinContext{}, []domain.Finding{modulePinFinding("GDS_MODULE_PIN_CONSUMER_NOT_PROVEN", err.Error())}
 	}
+	consumerTopology, err := services.Git.InspectTopology(ctx, consumerInfo.WorktreeRoot)
+	if err != nil {
+		return modulePinContext{}, []domain.Finding{modulePinFinding("GDS_MODULE_PIN_GITLINK_NOT_PROVEN", err.Error())}
+	}
+	var submodule *gitprovider.Submodule
+	for index := range consumerTopology.Submodules {
+		if consumerTopology.Submodules[index].Name == gitmodulesName {
+			submodule = &consumerTopology.Submodules[index]
+			break
+		}
+	}
 	consumerStatus, err := services.Git.InspectStatus(ctx, consumerInfo.WorktreeRoot)
 	if err != nil || consumerStatus.Head.Mode != "branch" || consumerStatus.Head.OID == "" ||
-		consumerStatus.Branch.Name == consumer.Git.DefaultBranch || !checkoutStatusIsClean(consumerStatus) {
+		consumerStatus.Branch.Name == consumer.Git.DefaultBranch ||
+		!pinConsumerStatusIsClean(consumerStatus, submodule) {
 		return modulePinContext{}, []domain.Finding{modulePinFinding(
 			"GDS_MODULE_PIN_CONSUMER_STATE_UNSAFE", "Module pin updates require a clean attached non-default consumer task branch.",
 		)}
@@ -348,21 +368,11 @@ func (services *Services) modulePinContext(
 			"GDS_MODULE_PIN_CHECKS_NOT_PROVEN", err.Error(),
 		)}
 	}
-	consumerTopology, err := services.Git.InspectTopology(ctx, consumerInfo.WorktreeRoot)
-	if err != nil {
-		return modulePinContext{}, []domain.Finding{modulePinFinding("GDS_MODULE_PIN_GITLINK_NOT_PROVEN", err.Error())}
-	}
-	var submodule *gitprovider.Submodule
-	for index := range consumerTopology.Submodules {
-		if consumerTopology.Submodules[index].Name == gitmodulesName {
-			submodule = &consumerTopology.Submodules[index]
-			break
-		}
-	}
 	if submodule == nil || submodule.GitlinkOID == "" || submodule.GitlinkStage != 0 ||
-		submodule.WorktreeState != "uninitialized" || submodule.GitlinkOID == targetOID {
+		submodule.GitlinkOID == targetOID || !pinWorktreeStateIsEligible(*submodule, targetOID) {
 		return modulePinContext{}, []domain.Finding{modulePinFinding(
-			"GDS_MODULE_PIN_GITLINK_NOT_ELIGIBLE", "Consumer requires one changed, uninitialized, stage-zero gitlink.",
+			"GDS_MODULE_PIN_GITLINK_NOT_ELIGIBLE",
+			"Consumer requires one changed, stage-zero gitlink whose checkout is absent or already at the target commit.",
 		)}
 	}
 	consumerCompiled := services.Compiler.CompileDirectory(estateRoot, consumer, compiler.DevelopmentBundleVersion)
@@ -483,4 +493,42 @@ func modulePinManagementFinding(relationship domain.Relationship) *domain.Findin
 		"Generic gitlink mutation is disabled for this consumer; use its repository-owned atomic pin transaction.",
 	)
 	return &finding
+}
+
+// pinConsumerStatusIsClean accepts the one shape a pin update necessarily
+// produces: the submodule being repinned is checked out and advanced, so the
+// consumer reports exactly one changed entry and that entry is a gitlink.
+//
+// The shared cleanliness rule counts that as dirty, which is why advancing a
+// pin used to require `git submodule deinit` first -- an undocumented step that
+// made the two guards read as a contradiction (`GDS_MODULE_PIN_CONSUMER_STATE_
+// UNSAFE` wants a clean consumer, `GDS_MODULE_PIN_GITLINK_NOT_ELIGIBLE` wants a
+// changed gitlink). Nothing else is relaxed: any staged, untracked, conflicted
+// or second changed entry still refuses.
+func pinConsumerStatusIsClean(status gitprovider.Status, target *gitprovider.Submodule) bool {
+	if checkoutStatusIsClean(status) {
+		return true
+	}
+	if target == nil || target.WorktreeState != "off-gitlink" {
+		return false
+	}
+	return status.Changes.Staged == 0 && status.Changes.Untracked == 0 &&
+		status.Changes.Conflicted == 0 && status.Submodules.Conflicted == 0 &&
+		status.Changes.Unstaged == 1 && status.Changes.SubmoduleChanges == 1 &&
+		status.Submodules.Modified <= 1
+}
+
+// pinWorktreeStateIsEligible allows the gitlink to be advanced either from an
+// absent checkout or from one that already holds exactly the target commit.
+// The second case is strictly more evidence than the first: the consumer's own
+// working tree contains the commit about to be pinned.
+func pinWorktreeStateIsEligible(submodule gitprovider.Submodule, targetOID string) bool {
+	switch submodule.WorktreeState {
+	case "uninitialized":
+		return true
+	case "off-gitlink":
+		return submodule.CurrentOID != "" && submodule.CurrentOID == targetOID
+	default:
+		return false
+	}
 }
