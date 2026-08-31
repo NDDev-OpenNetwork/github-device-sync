@@ -127,6 +127,23 @@ func (services *Services) CoverModules(
 			Evidence: map[string]any{"module": selected},
 		})
 	}
+	// Coverage over nothing is not coverage. Without this the command reports
+	// success having compared no module against any gate, which is
+	// indistinguishable from every module being covered -- and the estates most
+	// likely to hit it are the ones whose repositories were never declared as
+	// modules, which is exactly when someone is asking whether their gates are
+	// watched.
+	if len(data.Modules) == 0 {
+		findings = append(findings, domain.Finding{
+			Code: "GDS_MODULE_COVERAGE_SCOPE_NOT_PROVEN", Severity: domain.SeverityHigh,
+			Message: "No declared git-submodule-consumer relationship was covered, " +
+				"so no gate was compared.",
+			Evidence: map[string]any{
+				"declared_relationships": len(consumer.Relationships),
+				"repository_id":          consumer.Repository.ID,
+			},
+		})
+	}
 	return domain.NewEnvelope(command, classifyFindings(findings), data, findings...)
 }
 
