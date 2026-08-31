@@ -5,14 +5,14 @@ bundle:
   version: "0.4.0-dev"
   release_sequence: 0
   channel: "development"
-  source_tree_digest: "sha256:a18f15d00b467f9585fecf7ee3230f00025f69726e17135f14eb99f3036b5827"
-  digest: "sha256:7d370fff3455208269852d3bd0f7e4eff1e61b3eb8e80df9c967245bf464cda5"
+  source_tree_digest: "sha256:6575f7ab7d654653e39aa0d9eb5648c2756f4f8ae509f008c057ee86a9c2adb7"
+  digest: "sha256:42bc2599a495e89bd447962dfeeed5dcdb678050b392d311a158fafe27c2ad5e"
 
 projection:
-  input_digest: "sha256:88f5073a543617f2b37990db826b8777ef8c396eb658de403f60e2e480e15f62"
-  output_digest: "sha256:d76ab0b017214dce592c2ae8b23e30b89caabf5a0197be3b25dae6d948cd00aa"
+  input_digest: "sha256:79d3ea8ed38ee3b2619c9d07194a4f9a53f729d27cdd6863777b806857f7e310"
+  output_digest: "sha256:dd5ead67cc14484b9bd0f47467474cc21dd1f30c22146df0e7982bec006e9fcf"
   files:
     - path: ".gds/compiled-policy.json"
       digest: "sha256:78d09606bb4168d74bce1f50ab62b46a7ded34652c6b23af1badfd26dd060e94"
     - path: ".github/workflows/gds-ci.yml"
-      digest: "sha256:1508f13759d4a238114e35d7c6ee6e0f6d2b3b09e18d8fb7eff46b534143cb73"
+      digest: "sha256:7e1fecd895583d8133905ec4a1ef7052e9752ee194f9040dc07c6e83f51f6f2e"
