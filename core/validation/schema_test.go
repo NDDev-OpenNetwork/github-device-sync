@@ -1,15 +1,20 @@
 package validation
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
+	"io/fs"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
 
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/domain"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/serialization"
+	gdsschemas "github.com/NDDev-OpenNetwork/github-device-sync/schemas"
 )
 
 func TestEmbeddedSchemasCompile(t *testing.T) {
@@ -116,4 +121,70 @@ func toJSONValue(t *testing.T, value any) any {
 		t.Fatalf("serialization.Decode() error = %v", err)
 	}
 	return decoded
+}
+
+// TestSchemaDigestIdentifiesTheEmbeddedSet covers what a version string cannot:
+// the digest must name the schema revision this binary compiled, so a caller can
+// tie a green validation to the schemas that produced it. A build-time version
+// can name a revision that was never released, which is why the digest is
+// derived from content rather than stamped.
+func TestSchemaDigestIdentifiesTheEmbeddedSet(t *testing.T) {
+	t.Parallel()
+	first, err := NewSchemaSet()
+	if err != nil {
+		t.Fatalf("NewSchemaSet() error = %v", err)
+	}
+	digest := first.Digest()
+	if !strings.HasPrefix(digest, "sha256:") || len(digest) != len("sha256:")+64 {
+		t.Fatalf("Digest() = %q, want a sha256: prefix and 64 hex characters", digest)
+	}
+	// Determinism matters more than the value: two sets compiled from the same
+	// embedded schemas must agree, or the digest identifies the run instead of
+	// the schemas and is worse than printing nothing.
+	second, err := NewSchemaSet()
+	if err != nil {
+		t.Fatalf("NewSchemaSet() second call error = %v", err)
+	}
+	if second.Digest() != digest {
+		t.Fatalf("Digest() is not deterministic: %q then %q", digest, second.Digest())
+	}
+}
+
+// TestSchemaDigestCoversEverySchemaFile guards the direction the digest exists
+// to guard. A digest that skipped a file would stay identical while that file
+// changed, which is the failure it is meant to make impossible.
+func TestSchemaDigestCoversEverySchemaFile(t *testing.T) {
+	t.Parallel()
+	set, err := NewSchemaSet()
+	if err != nil {
+		t.Fatalf("NewSchemaSet() error = %v", err)
+	}
+	entries, err := fs.ReadDir(gdsschemas.V1, "v1")
+	if err != nil {
+		t.Fatalf("ReadDir() error = %v", err)
+	}
+	expected := sha256.New()
+	files := 0
+	for _, entry := range entries {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".schema.json") {
+			continue
+		}
+		path := "v1/" + entry.Name()
+		raw, err := gdsschemas.V1.ReadFile(path)
+		if err != nil {
+			t.Fatalf("ReadFile(%s) error = %v", path, err)
+		}
+		expected.Write([]byte(path))
+		expected.Write([]byte{0})
+		expected.Write(raw)
+		expected.Write([]byte{0})
+		files++
+	}
+	if files == 0 {
+		t.Fatal("no embedded schema files found; the digest would be vacuous")
+	}
+	want := "sha256:" + hex.EncodeToString(expected.Sum(nil))
+	if set.Digest() != want {
+		t.Fatalf("Digest() = %q, want %q over %d schema files", set.Digest(), want, files)
+	}
 }
