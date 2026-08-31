@@ -4,6 +4,7 @@ package validation
 
 import (
 	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -26,6 +27,7 @@ import (
 
 type Set struct {
 	compiled map[string]*jsonschema.Schema
+	digest   string
 }
 
 type offlineLoader struct{}
@@ -79,6 +81,11 @@ func NewSchemaSet() (*Set, error) {
 		doc  any
 	}
 	resources := []resource{}
+	// The digest identifies the schema revision a binary actually validates
+	// against. A version string cannot: it is stamped at build time and can name
+	// a revision that was never released, so a caller printing it beside a green
+	// result reports a name with no contract behind it.
+	digest := sha256.New()
 	for _, entry := range entries {
 		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".schema.json") {
 			continue
@@ -92,6 +99,10 @@ func NewSchemaSet() (*Set, error) {
 		if err != nil {
 			return nil, fmt.Errorf("decode embedded schema %s: %w", path, err)
 		}
+		digest.Write([]byte(path))
+		digest.Write([]byte{0})
+		digest.Write(raw)
+		digest.Write([]byte{0})
 		object, ok := doc.(map[string]any)
 		if !ok {
 			return nil, fmt.Errorf("schema %s root is not an object", path)
@@ -121,8 +132,13 @@ func NewSchemaSet() (*Set, error) {
 		}
 		compiled[resource.name] = schema
 	}
-	return &Set{compiled: compiled}, nil
+	return &Set{compiled: compiled, digest: "sha256:" + hex.EncodeToString(digest.Sum(nil))}, nil
 }
+
+// Digest returns the content digest of the embedded schema set this binary
+// compiled. Callers record it beside a validation result so a pass can be tied
+// to the schema revision that produced it.
+func (set *Set) Digest() string { return set.digest }
 
 func (set *Set) Names() []string {
 	names := make([]string, 0, len(set.compiled))

@@ -810,8 +810,13 @@ func (services *Services) ValidateRepository(ctx context.Context, path string) d
 		}
 	}
 	class := classifyFindings(findings)
+	// The schema digest travels with the result so a pass can be attributed to
+	// the schema revision that produced it. The binary's version string cannot do
+	// that: it is stamped at build time and may name a revision that was never
+	// released.
 	envelope := domain.NewEnvelope("gds validate repository", class, map[string]any{
 		"target": info.WorktreeRoot, "anchor": anchorPath,
+		"schema_digest": services.Schemas.Digest(),
 	}, findings...)
 	return envelope
 }
