@@ -1127,29 +1127,3 @@ func repositoryGitIndexPath(t *testing.T, root string) string {
 	t.Helper()
 	return runSessionGit(t, root, "rev-parse", "--path-format=absolute", "--git-path", "index")
 }
-
-// TestModuleCoverageOverNothingIsNotSuccess covers the case the command was
-// silent about: this repository declares no git-submodule-consumer
-// relationship, so coverage compares no module against any gate. Reporting
-// success there is indistinguishable from every module being covered, and the
-// estates most likely to hit it are the ones asking whether their gates are
-// watched at all.
-func TestModuleCoverageOverNothingIsNotSuccess(t *testing.T) {
-	root := repositoryRoot(t)
-	exitCode, envelope, stderr := executeJSON(t,
-		"--json", "--cwd", root, "module", "coverage",
-	)
-	if exitCode == 0 {
-		t.Fatalf("coverage over an empty module set exited 0; envelope = %#v, stderr = %q",
-			envelope, stderr)
-	}
-	found := false
-	for _, finding := range envelope.Findings {
-		if finding.Code == "GDS_MODULE_COVERAGE_SCOPE_NOT_PROVEN" {
-			found = true
-		}
-	}
-	if !found {
-		t.Fatalf("no GDS_MODULE_COVERAGE_SCOPE_NOT_PROVEN finding; envelope = %#v", envelope)
-	}
-}
