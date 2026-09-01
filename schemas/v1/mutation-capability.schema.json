@@ -116,7 +116,7 @@
         "visibility"
       ],
       "properties": {
-        "auto_merge": {"const": "forbidden"},
+        "auto_merge": {"enum": ["allowed", "forbidden"]},
         "delete": {"const": "separate-approval"},
         "force": {"const": "forbidden"},
         "permissions": {"const": "forbidden"},

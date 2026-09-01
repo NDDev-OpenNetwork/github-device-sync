@@ -33,12 +33,6 @@ func TestRepositoryMutatorRejectsUnboundOperationsBeforeRequest(t *testing.T) {
 	); err == nil {
 		t.Fatal("pull-request mutation outside the bound scope was accepted")
 	}
-	enabled := true
-	if _, _, err := repository.UpdateRepositorySettings(
-		context.Background(), RepositorySettingsUpdate{AllowAutoMerge: &enabled},
-	); err == nil {
-		t.Fatal("auto-merge enablement was accepted")
-	}
 	if requests.Load() != 0 {
 		t.Fatalf("rejected mutations made %d provider requests", requests.Load())
 	}
@@ -68,6 +62,45 @@ func TestSetActionsPermissionsOmitsUnmanagedFields(t *testing.T) {
 	}
 	if _, err := repository.SetActionsPermissions(
 		context.Background(), ActionsPermissionsUpdate{Enabled: true},
+	); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// Auto-merge used to be refused inside the mutation contract, so a repository
+// could only ever have it turned off. Nothing about enabling it touches the
+// three boundaries an agent stops at -- it merges exactly what the required
+// checks already passed -- and refusing it cost every pull request a poll loop.
+// It is now an ordinary managed setting, and this proves the value reaches
+// GitHub instead of being rejected before the request.
+func TestUpdateRepositorySettingsCarriesAutoMergeEnablement(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		var body map[string]any
+		if err := json.NewDecoder(request.Body).Decode(&body); err != nil {
+			t.Fatal(err)
+		}
+		if len(body) != 1 || body["allow_auto_merge"] != true {
+			t.Errorf("auto-merge payload=%#v", body)
+		}
+		_, _ = writer.Write([]byte(`{"id":42,"node_id":"R_1","name":"repository",` +
+			`"full_name":"example/repository","owner":{"login":"example"},` +
+			`"default_branch":"main","html_url":"https://github.com/example/repository",` +
+			`"allow_auto_merge":true}`))
+	}))
+	defer server.Close()
+	mutator := mutationTestMutator(
+		t, server, []string{MutationRepositorySettings}, nil, nil,
+	)
+	repository, err := mutator.BindRepository(RepositoryMutationScope{
+		RepositoryID: 42, Owner: "example", Name: "repository",
+		Operations: []string{MutationRepositorySettings},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	enabled := true
+	if _, _, err := repository.UpdateRepositorySettings(
+		context.Background(), RepositorySettingsUpdate{AllowAutoMerge: &enabled},
 	); err != nil {
 		t.Fatal(err)
 	}

@@ -114,7 +114,7 @@
           "const": "pull-request"
         },
         "auto_merge": {
-          "const": false
+          "type": "boolean"
         }
       }
     },

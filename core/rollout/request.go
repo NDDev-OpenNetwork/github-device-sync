@@ -16,6 +16,10 @@ type Request struct {
 	RepositoryIDs []string      `json:"repository_ids"`
 	Rings         []RingSpec    `json:"rings"`
 	Gates         RequestGates  `json:"gates"`
+	// AutoMerge lets a rollout hand its pull requests to GitHub auto-merge so
+	// they land the moment their required checks pass. The checks stay exactly
+	// as strict; only the wait for someone to press merge is removed.
+	AutoMerge bool `json:"auto_merge"`
 }
 
 type RequestBundle struct {
@@ -45,5 +49,6 @@ func BuildRequest(request Request, schemas *validation.Set) (Plan, []domain.Find
 		RepositoryIDs:  request.RepositoryIDs,
 		Rings:          request.Rings,
 		MaxFailureRate: request.Gates.MaxFailureRate,
+		AutoMerge:      request.AutoMerge,
 	}, schemas)
 }

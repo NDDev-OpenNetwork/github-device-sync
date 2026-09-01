@@ -80,6 +80,9 @@
         ]
       }
     },
+    "auto_merge": {
+      "type": "boolean"
+    },
     "gates": {
       "type": "object",
       "additionalProperties": false,
