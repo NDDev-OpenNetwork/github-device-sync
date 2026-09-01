@@ -23,7 +23,9 @@ import (
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/webhooks"
 )
 
-var version = "0.4.0-dev"
+// version is the development default; the release builder stamps the exact
+// tag via -X main.version. The -dev suffix keeps an unstamped binary honest.
+var version = "0.8.0-dev"
 
 func main() {
 	ctx, stop := signal.NotifyContext(
