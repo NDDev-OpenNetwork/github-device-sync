@@ -177,6 +177,14 @@ func TestGenerateRepositoryReturnsCandidateWithoutMutation(t *testing.T) {
 	if envelope.Mutation.Attempted || envelope.Mutation.Completed {
 		t.Fatalf("mutation = %#v", envelope.Mutation)
 	}
+	// A committed tree plans without the uncommitted-sources warning; the
+	// warning's loud half fires only on dirty tracked files, where a lock
+	// applied now would mismatch the canonical digest after the commit.
+	for _, finding := range envelope.Findings {
+		if finding.Code == "GDS_PROJECTION_SOURCES_UNCOMMITTED" {
+			t.Fatalf("clean tree warned about uncommitted sources: %#v", finding)
+		}
+	}
 	assertEnvelopeSchema(t, envelope)
 }
 
