@@ -498,7 +498,7 @@ func releaseAdditionalFiles(
 		})
 	}
 	for _, plugin := range []string{"gds-core", "gds-estate-admin", "gds-module"} {
-		candidate, findings := skills.BuildPackage(root, plugin, schemas)
+		candidate, findings := skills.BuildPackage(root, root, plugin, schemas)
 		if len(findings) != 0 {
 			return nil, findingError("build plugin "+plugin, findings)
 		}

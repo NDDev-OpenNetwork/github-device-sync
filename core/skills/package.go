@@ -73,7 +73,11 @@ type hookHandler struct {
 	StatusMessage string `json:"statusMessage,omitempty"`
 }
 
-func BuildPackage(root, pluginID string, schemas *validation.Set) (PackageCandidate, []domain.Finding) {
+// BuildPackage packages one plugin for the authority rooted at root. The
+// registry and every skill source belong to the authority; the plugin static
+// files (hooks, manifest chrome) ship with the engine distribution and are
+// read from staticRoot, which equals root on the engine repository itself.
+func BuildPackage(root, staticRoot, pluginID string, schemas *validation.Set) (PackageCandidate, []domain.Finding) {
 	outcome := Validate(root, schemas)
 	if len(outcome.Findings) != 0 {
 		return PackageCandidate{Plugin: pluginID}, outcome.Findings
@@ -89,7 +93,7 @@ func BuildPackage(root, pluginID string, schemas *validation.Set) (PackageCandid
 	if len(findings) != 0 {
 		return PackageCandidate{Plugin: pluginID}, findings
 	}
-	contents, staticFindings := pluginStaticFiles(root, pluginID)
+	contents, staticFindings := pluginStaticFiles(staticRoot, pluginID)
 	findings = append(findings, staticFindings...)
 	for _, definition := range selected {
 		for _, relative := range []string{"SKILL.md", filepath.Join("agents", "openai.yaml")} {

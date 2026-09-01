@@ -225,7 +225,7 @@ func validateMarketplaceAndPackages(
 			))
 			continue
 		}
-		candidate, packageFindings := skills.BuildPackage(root, plugin, schemas)
+		candidate, packageFindings := skills.BuildPackage(root, root, plugin, schemas)
 		report.Plugins = append(report.Plugins, candidate)
 		findings = append(findings, packageFindings...)
 	}

@@ -781,7 +781,8 @@ func (services *Services) ValidateSchemas(
 			return envelopeForError("gds validate schemas", candidate, err)
 		}
 	}
-	findings := services.Schemas.ValidateCanonical(root, fixturePath)
+	engineRoot := projections.ResolveDevelopmentSourceLayout(root).EngineRoot
+	findings := services.Schemas.ValidateCanonical(root, engineRoot, fixturePath)
 	class := classifyFindings(findings)
 	return domain.NewEnvelope("gds validate schemas", class, ValidationData{
 		Target: root, SchemaCount: len(services.Schemas.Names()),
@@ -1006,7 +1007,8 @@ func (services *Services) PackagePlugin(
 	if err != nil {
 		return envelopeForError("gds skill package", path, err)
 	}
-	candidate, findings := skills.BuildPackage(info.WorktreeRoot, plugin, services.Schemas)
+	staticRoot := projections.ResolveDevelopmentSourceLayout(info.WorktreeRoot).EngineRoot
+	candidate, findings := skills.BuildPackage(info.WorktreeRoot, staticRoot, plugin, services.Schemas)
 	return domain.NewEnvelope(
 		"gds skill package", classifyFindings(findings), candidate, findings...,
 	)
@@ -1021,9 +1023,10 @@ func (services *Services) ValidatePlugins(ctx context.Context, path string) doma
 	findings := append([]domain.Finding{}, catalog.Findings...)
 	data := PluginValidationData{}
 	if len(catalog.Findings) == 0 {
+		staticRoot := projections.ResolveDevelopmentSourceLayout(info.WorktreeRoot).EngineRoot
 		for _, plugin := range catalog.Registry.Plugins {
 			candidate, pluginFindings := skills.BuildPackage(
-				info.WorktreeRoot, plugin.ID, services.Schemas,
+				info.WorktreeRoot, staticRoot, plugin.ID, services.Schemas,
 			)
 			data.Packages = append(data.Packages, candidate)
 			findings = append(findings, pluginFindings...)
@@ -1045,9 +1048,10 @@ func (services *Services) ValidateHarness(
 	}
 	var report any
 	var findings []domain.Finding
+	engineRoot := projections.ResolveDevelopmentSourceLayout(info.WorktreeRoot).EngineRoot
 	switch harnessID {
 	case "all":
-		report, findings = harness.ValidateAll(info.WorktreeRoot, services.Schemas)
+		report, findings = harness.ValidateAll(engineRoot, services.Schemas)
 	case "selected":
 		selected, selectionFindings := services.estateSelectedHarnesses(info.WorktreeRoot)
 		if len(selectionFindings) != 0 {
@@ -1055,9 +1059,9 @@ func (services *Services) ValidateHarness(
 				"gds validate harnesses", classifyFindings(selectionFindings), nil, selectionFindings...,
 			)
 		}
-		report, findings = harness.ValidateSelected(info.WorktreeRoot, selected, services.Schemas)
+		report, findings = harness.ValidateSelected(engineRoot, selected, services.Schemas)
 	default:
-		report, findings = harness.Validate(info.WorktreeRoot, harnessID, services.Schemas)
+		report, findings = harness.Validate(engineRoot, harnessID, services.Schemas)
 	}
 	return domain.NewEnvelope(
 		"gds validate harnesses", classifyFindings(findings), report, findings...,
@@ -1118,10 +1122,11 @@ func (services *Services) ValidateHarnessStatic(
 	}
 	var report any
 	var findings []domain.Finding
+	engineRoot := projections.ResolveDevelopmentSourceLayout(info.WorktreeRoot).EngineRoot
 	if harnessID == "all" {
-		report, findings = harness.ValidateStaticAll(info.WorktreeRoot, services.Schemas)
+		report, findings = harness.ValidateStaticAll(engineRoot, services.Schemas)
 	} else {
-		report, findings = harness.ValidateStatic(info.WorktreeRoot, harnessID, services.Schemas)
+		report, findings = harness.ValidateStatic(engineRoot, harnessID, services.Schemas)
 	}
 	return domain.NewEnvelope(
 		"gds validate harnesses", classifyFindings(findings), report, findings...,
