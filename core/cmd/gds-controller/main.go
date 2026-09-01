@@ -139,7 +139,7 @@ func run(ctx context.Context, arguments []string, stdout io.Writer, stderr io.Wr
 	}
 	service := &controller.Service{
 		Store: store, Webhook: receiver, Worker: worker, Reconciler: runner, Backup: backups,
-		Telemetry:   telemetryExporter,
+		Telemetry:   telemetryFlusher(telemetryExporter),
 		WebhookPath: runtime.Config.Controller.WebhookPath,
 		WebhookPoll: time.Duration(
 			runtime.Config.Controller.Schedule.WebhookPollMilliseconds,
@@ -175,6 +175,19 @@ func openState(ctx context.Context, path string) (*state.Store, error) {
 	default:
 		return nil, err
 	}
+}
+
+// telemetryFlusher hands the exporter to the service's optional sink slot.
+// FromEnvironment yields a typed-nil *Exporter when no endpoint is
+// configured, and storing that inside the interface field would defeat the
+// service's nil guard: the loop would spawn and Flush would panic on a nil
+// receiver — measured live as a crash after the first successful
+// reconciliation. Absence must stay an untyped nil.
+func telemetryFlusher(exporter *telemetry.Exporter) controller.TelemetryFlusher {
+	if exporter == nil {
+		return nil
+	}
+	return exporter
 }
 
 func startupError(writer io.Writer, phase string, err error) int {

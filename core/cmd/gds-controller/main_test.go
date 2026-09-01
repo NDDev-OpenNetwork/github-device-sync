@@ -26,3 +26,9 @@ func TestRunRequiresExplicitPrivateRuntime(t *testing.T) {
 		t.Fatalf("stderr=%q", stderr.String())
 	}
 }
+
+func TestTelemetryFlusherKeepsAbsentExporterUntyped(t *testing.T) {
+	if telemetryFlusher(nil) != nil {
+		t.Fatal("absent telemetry became a typed nil inside the interface")
+	}
+}
