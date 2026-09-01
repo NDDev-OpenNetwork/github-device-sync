@@ -8,7 +8,11 @@ import (
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/domain"
 )
 
-const DevelopmentBundleVersion = "0.4.0-dev"
+// DevelopmentBundleVersion stamps bundles compiled from policy sources on a
+// policy-owner checkout. It tracks the current release line with a -dev
+// suffix so a development bundle is dated honestly; the development channel
+// field, not this string, is what classifies the bundle.
+const DevelopmentBundleVersion = "0.8.0-dev"
 
 type PolicySource struct {
 	SchemaVersion int               `json:"schema_version"`

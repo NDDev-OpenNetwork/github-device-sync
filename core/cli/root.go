@@ -19,7 +19,10 @@ import (
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/harness"
 )
 
-var Version = "0.7.0"
+// Version is the development default; a release build overrides it with the
+// exact tag via -X. It carries the -dev suffix so an unstamped binary can
+// never claim to be a released one.
+var Version = "0.8.0-dev"
 
 type options struct {
 	json    bool
