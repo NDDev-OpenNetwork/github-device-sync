@@ -22,12 +22,16 @@ var policyTierOrder = map[string]int{
 }
 
 var monotonicStrength = map[string]map[string]int{
-	"security.external_write_requires_approval":     {"false": 0, "true": 1},
-	"security.public_projection_scan":               {"optional": 0, "required": 1},
-	"context.private_parent_persistence":            {"ephemeral-only": 0, "forbidden": 1},
-	"agent.generated_projection_edit":               {"warn": 0, "forbidden": 1},
-	"security.secrets_in_repository":                {"forbidden": 1},
-	"package_management.npm_family_on_managed_path": {"forbidden": 1},
+	"security.external_write_requires_approval": {"false": 0, "true": 1},
+	"security.public_projection_scan":           {"optional": 0, "required": 1},
+	"context.private_parent_persistence":        {"ephemeral-only": 0, "forbidden": 1},
+	"agent.generated_projection_edit":           {"warn": 0, "forbidden": 1},
+	"security.secrets_in_repository":            {"forbidden": 1},
+	// "allowed" joined the vocabulary when the estate-wide ban on the npm
+	// family collided with fixed decision 13 -- every toolchain a project
+	// actually uses must work. The base may allow; a role like control-plane
+	// may only strengthen to forbidden, never the reverse.
+	"package_management.npm_family_on_managed_path": {"allowed": 0, "forbidden": 1},
 	"package_management.mutable_version_resolution": {"forbidden": 1},
 	"package_management.remote_stream_to_shell":     {"forbidden": 1},
 }

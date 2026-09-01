@@ -425,3 +425,22 @@ func testRepositoryRoot(t *testing.T) string {
 	}
 	return filepath.Clean(filepath.Join(filepath.Dir(currentFile), "..", ".."))
 }
+
+// TestNpmFamilyStrengthensButNeverWeakens covers the vocabulary "allowed"
+// gained when the estate-wide npm-family ban collided with the owner's fixed
+// decision that every toolchain a project actually uses must work. A role may
+// strengthen the base's allowed to forbidden; the reverse is a weakening and
+// must be refused exactly like every other monotonic field.
+func TestNpmFamilyStrengthensButNeverWeakens(t *testing.T) {
+	t.Parallel()
+	path := "package_management.npm_family_on_managed_path"
+	if isWeakening(path, "allowed", "forbidden") {
+		t.Fatal("strengthening allowed -> forbidden was refused")
+	}
+	if !isWeakening(path, "forbidden", "allowed") {
+		t.Fatal("weakening forbidden -> allowed was permitted")
+	}
+	if !isWeakening(path, "allowed", "unheard-of") {
+		t.Fatal("an unknown value did not count as weakening")
+	}
+}

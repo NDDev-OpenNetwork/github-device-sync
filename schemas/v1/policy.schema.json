@@ -422,7 +422,7 @@
           "uniqueItems": true,
           "items": { "type": "string" }
         },
-        "npm_family_on_managed_path": { "const": "forbidden" },
+        "npm_family_on_managed_path": { "enum": ["allowed", "forbidden"] },
         "mutable_version_resolution": { "const": "forbidden" },
         "remote_stream_to_shell": { "const": "forbidden" }
       }
