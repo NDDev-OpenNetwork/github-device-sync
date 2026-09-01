@@ -213,9 +213,6 @@ func validateRepositorySettingsUpdate(update RepositorySettingsUpdate) error {
 	if update.Name != nil && !githubNamePattern.MatchString(*update.Name) {
 		return fmt.Errorf("GitHub repository rename target is invalid")
 	}
-	if update.AllowAutoMerge != nil && *update.AllowAutoMerge {
-		return fmt.Errorf("enabling GitHub auto-merge is outside the ordinary mutation contract")
-	}
 	if update.MergeCommitTitle != nil &&
 		!validMergeSetting(*update.MergeCommitTitle, "PR_TITLE", "MERGE_MESSAGE") {
 		return fmt.Errorf("GitHub merge commit title setting is invalid")

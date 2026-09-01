@@ -111,7 +111,7 @@ acceptance/polling states, timeout and recovery behavior, and runtime fixtures.
 
 - non-force branch create and fast-forward update;
 - bounded file create/update with required old blob SHA for replacements;
-- draft pull-request creation; ordinary mutation does not merge or auto-merge;
+- draft pull-request creation; ordinary mutation does not merge;
 - repository rename, archive, and merge settings;
 - Actions, selected-actions, and workflow-token settings;
 - repository-level immutable-release enable/disable;
@@ -125,8 +125,11 @@ bytes and contain printable ASCII except double quotes; multi-select values are
 bounded to 200 unique non-empty items. `null` remains the explicit unset value.
 Provider and reconciliation paths share the same validator.
 
-Visibility, permission changes, force updates, auto-merge, and ruleset bypass
-are absent from the ordinary provider API. Delete and visibility remain
+Visibility, permission changes, force updates, and ruleset bypass are absent
+from the ordinary provider API. `allow_auto_merge` is an ordinary merge setting
+the provider may set in either direction: it changes when GitHub merges a pull
+request whose required checks already passed, not whether those checks are
+required. Delete and visibility remain
 separate-approval gates even though their underlying GitHub permission is
 Administration(write). Repository transfer is also absent because its token
 and asynchronous completion contracts differ from installation mutations.

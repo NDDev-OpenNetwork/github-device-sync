@@ -69,6 +69,7 @@ type BuildInput struct {
 	RepositoryIDs  []string
 	Rings          []RingSpec
 	MaxFailureRate float64
+	AutoMerge      bool
 }
 
 func Build(input BuildInput, schemas *validation.Set) (Plan, []domain.Finding) {
@@ -110,7 +111,7 @@ func Build(input BuildInput, schemas *validation.Set) (Plan, []domain.Finding) {
 		},
 		TargetSetDigest: targetDigest, TargetCount: len(targets), Waves: waves,
 		Gates:    Gates{MaxFailureRate: input.MaxFailureRate},
-		Mutation: Mutation{Mode: "pull-request", AutoMerge: false},
+		Mutation: Mutation{Mode: "pull-request", AutoMerge: input.AutoMerge},
 	}
 	digest, err := planDigest(plan)
 	if err != nil {

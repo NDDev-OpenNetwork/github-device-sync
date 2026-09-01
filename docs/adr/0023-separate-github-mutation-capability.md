@@ -20,9 +20,18 @@ or bug to substitute another repository path after approval.
   are rejected, not tolerated.
 - A mutation factory is bound to one immutable repository ID, verified
   owner/name locator, and an operation subset before write methods are exposed.
-- Force updates, auto-merge, visibility changes, permission changes, and
-  ruleset bypass are not ordinary methods. Repository deletion is separately
-  gated.
+- Force updates, visibility changes, permission changes, and ruleset bypass
+  are not ordinary methods. Repository deletion is separately gated.
+- Auto-merge is an ordinary merge setting (amended 2026-09-01). It was
+  originally grouped with the four above, which held it off in every managed
+  repository. That grouping was wrong: force, visibility, permissions and
+  bypass each remove a check, while auto-merge removes only the wait between a
+  check passing and the merge it already authorized. Nothing about it can lose
+  data, replace a credential, or expose private content, so it is not one of
+  the boundaries this engine stops at. Holding it off cost real time -- two
+  dependency pull requests sat 30.7 h and 25.4 h waiting for someone to notice
+  they were green -- and cost every other pull request a poll loop. The
+  required checks remain the gate; only the wait is gone.
 - Repository transfer is not exposed by the installation-token mutation
   provider. GitHub requires a user access token and completes transfer
   asynchronously after a `202 Accepted` response that still identifies the
