@@ -55,6 +55,7 @@ func TestCanonicalSchemasAndFixturesPass(t *testing.T) {
 	root := repositoryRoot(t)
 	findings := set.ValidateCanonical(
 		root,
+		root,
 		filepath.Join(root, "tests", "fixtures", "schemas", "v1", "cases.json"),
 	)
 	if len(findings) != 0 {

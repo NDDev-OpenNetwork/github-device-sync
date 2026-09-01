@@ -19,11 +19,11 @@ func TestBuildPackagesAreDeterministicAndStandalone(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, plugin := range []string{"gds-core", "gds-estate-admin", "gds-module"} {
-		first, findings := BuildPackage(root, plugin, schemas)
+		first, findings := BuildPackage(root, root, plugin, schemas)
 		if len(findings) != 0 {
 			t.Fatalf("%s findings: %+v", plugin, findings)
 		}
-		second, findings := BuildPackage(root, plugin, schemas)
+		second, findings := BuildPackage(root, root, plugin, schemas)
 		if len(findings) != 0 {
 			t.Fatalf("%s second findings: %+v", plugin, findings)
 		}

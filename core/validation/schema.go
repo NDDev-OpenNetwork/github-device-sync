@@ -173,24 +173,31 @@ func (set *Set) ValidateFile(schemaName, path string) []domain.Finding {
 	return set.Validate(schemaName, value, path)
 }
 
-func (set *Set) ValidateCanonical(root string, fixtureIndex string) []domain.Finding {
+// ValidateCanonical validates the canonical inputs of an authority rooted at
+// root. Engine-distribution inputs (the migration registry, the harness
+// registry and bridge, harness profiles, bundle trust, the source register)
+// are read from engineRoot: on the engine repository the two roots coincide,
+// while an external estate pins the engine as a module and owns only its
+// anchor, skills and exceptions. Reading engine inputs from the estate root
+// produced five unconditional read failures on every external authority.
+func (set *Set) ValidateCanonical(root string, engineRoot string, fixtureIndex string) []domain.Finding {
 	findings := []domain.Finding{}
 	findings = append(findings, set.ValidateFile(
 		"repository", filepath.Join(root, ".gds", "repository.yaml"),
 	)...)
 	findings = append(findings, set.ValidateFile(
-		"migration-registry", filepath.Join(root, "schemas", "migrations", "registry.yaml"),
+		"migration-registry", filepath.Join(engineRoot, "schemas", "migrations", "registry.yaml"),
 	)...)
 	findings = append(findings, set.ValidateFile(
 		"skill-registry", filepath.Join(root, "skills", "registry.yaml"),
 	)...)
 	findings = append(findings, set.ValidateFile(
-		"harness-registry", filepath.Join(root, "harnesses", "capability-registry.yaml"),
+		"harness-registry", filepath.Join(engineRoot, "harnesses", "capability-registry.yaml"),
 	)...)
 	findings = append(findings, set.ValidateFile(
-		"module-harness-bridge", filepath.Join(root, "harnesses", "module-bridge.yaml"),
+		"module-harness-bridge", filepath.Join(engineRoot, "harnesses", "module-bridge.yaml"),
 	)...)
-	profilePaths, err := filepath.Glob(filepath.Join(root, "harnesses", "*", "profile.yaml"))
+	profilePaths, err := filepath.Glob(filepath.Join(engineRoot, "harnesses", "*", "profile.yaml"))
 	if err != nil {
 		findings = append(findings, domain.Finding{
 			Code: "GDS_HARNESS_PROFILE_DISCOVERY_FAILED", Severity: domain.SeverityHigh,
@@ -204,10 +211,10 @@ func (set *Set) ValidateCanonical(root string, fixtureIndex string) []domain.Fin
 		}
 	}
 	findings = append(findings, set.ValidateFile(
-		"bundle-trust", filepath.Join(root, "requirements", "bundle-trust.yaml"),
+		"bundle-trust", filepath.Join(engineRoot, "requirements", "bundle-trust.yaml"),
 	)...)
 	findings = append(findings, set.ValidateFile(
-		"source-register", filepath.Join(root, "docs", "source-register", "sources.yaml"),
+		"source-register", filepath.Join(engineRoot, "docs", "source-register", "sources.yaml"),
 	)...)
 	exceptionPaths, err := filepath.Glob(filepath.Join(root, "estate", "exceptions", "*.yaml"))
 	if err != nil {
