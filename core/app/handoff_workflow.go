@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/NDDev-OpenNetwork/github-device-sync/core/agentjournal"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/canonicaljson"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/compiler"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/domain"
@@ -205,7 +206,7 @@ func (services *Services) ApplyHandoff(
 	if finding := validateOperationActor(options.DeviceID, options.SessionID); finding != nil {
 		return domain.NewEnvelope("gds handoff apply", domain.ExitInput, nil, *finding)
 	}
-	_, store, stateFinding := openOperationState(ctx, options.StatePath)
+	statePath, store, stateFinding := openOperationState(ctx, options.StatePath)
 	if stateFinding != nil {
 		return domain.NewEnvelope("gds handoff apply", domain.ExitInput, nil, *stateFinding)
 	}
@@ -251,7 +252,38 @@ func (services *Services) ApplyHandoff(
 	envelope.Mutation.Attempted = result.MutationAttempted
 	envelope.Mutation.Completed = result.MutationCompleted
 	envelope.Scope["repository_id"] = plan.Scope.Repositories[0]
+	// The checkpoint is durable; now the handoff itself becomes a durable
+	// goal another agent can pick up. The journal is evidence beside the
+	// operation, so a failure to write it is a finding, never a rollback of
+	// a checkpoint that already exists.
+	recorder := agentjournal.Recorder{
+		Directory: filepath.Join(filepath.Dir(statePath), "agent-journals"),
+		Now:       services.Now,
+	}
+	if err := recorder.RecordCheckpoint(
+		ctx, result.OperationID, plan.Scope.Repositories[0],
+		handoffGoalIntent(plan), files, "operation:"+result.OperationID,
+		options.SessionID,
+	); err != nil {
+		envelope.Findings = append(envelope.Findings, domain.Finding{
+			Code: "GDS_HANDOFF_AGENT_JOURNAL_NOT_RECORDED", Severity: domain.SeverityMedium,
+			Message: "The checkpoint exists, but its agent-runtime goal journal was not recorded: " + err.Error(),
+		})
+	} else {
+		envelope.Scope["agent_journal"] = recorder.JournalPath(result.OperationID)
+	}
 	return envelope
+}
+
+// handoffGoalIntent names the goal after the plan's own checkpoint message,
+// falling back to a stable phrase when the plan carries none.
+func handoffGoalIntent(plan operations.Plan) string {
+	for _, step := range plan.Steps {
+		if message, ok := step.Parameters["message"].(string); ok && strings.TrimSpace(message) != "" {
+			return message
+		}
+	}
+	return "carry the checkpointed work to completion"
 }
 
 func (services *Services) VerifyHandoff(
@@ -265,7 +297,7 @@ func (services *Services) VerifyHandoff(
 	if finding := validateOperationActor(options.DeviceID, options.SessionID); finding != nil {
 		return domain.NewEnvelope("gds handoff verify", domain.ExitInput, nil, *finding)
 	}
-	_, store, stateFinding := openOperationState(ctx, options.StatePath)
+	statePath, store, stateFinding := openOperationState(ctx, options.StatePath)
 	if stateFinding != nil {
 		return domain.NewEnvelope("gds handoff verify", domain.ExitInput, nil, *stateFinding)
 	}
@@ -301,6 +333,18 @@ func (services *Services) VerifyHandoff(
 	envelope := domain.Success("gds handoff verify", result)
 	envelope.OperationID = operationID
 	envelope.Scope["repository_id"] = plan.Scope.Repositories[0]
+	recorder := agentjournal.Recorder{
+		Directory: filepath.Join(filepath.Dir(statePath), "agent-journals"),
+		Now:       services.Now,
+	}
+	if err := recorder.RecordVerified(ctx, operationID, "gds handoff --verify "+operationID, options.SessionID); err != nil {
+		envelope.Findings = append(envelope.Findings, domain.Finding{
+			Code: "GDS_HANDOFF_AGENT_JOURNAL_NOT_RECORDED", Severity: domain.SeverityMedium,
+			Message: "The verification succeeded, but the agent-runtime goal journal was not advanced: " + err.Error(),
+		})
+	} else {
+		envelope.Scope["agent_journal"] = recorder.JournalPath(operationID)
+	}
 	return envelope
 }
 
