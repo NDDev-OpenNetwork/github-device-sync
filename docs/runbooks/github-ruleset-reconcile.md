@@ -1,7 +1,7 @@
 # Runbook: reconciling the default-branch ruleset
 
 Status: local implementation runbook. Applying mutates live branch protection on
-the control-plane repository; read the whole document before the first apply.
+the selected repository; read the whole document before the first apply.
 
 `gds github ruleset` is the only supported way to change the tracked
 default-branch ruleset. Editing it in the GitHub UI leaves the tracked contract
