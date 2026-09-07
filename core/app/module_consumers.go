@@ -12,6 +12,8 @@ import (
 
 type ModuleConsumerPlanOptions struct {
 	ProjectionOperationOptions
+	Version         string
+	RuntimeConfig   string
 	ModulePath      string
 	InventoryRoot   string
 	MaxDepth        int
@@ -152,6 +154,7 @@ func (services *Services) PlanModuleConsumerUpdates(
 			envelope := services.PlanModuleUpdatePin(ctx, path, ModulePinOptions{
 				ProjectionOperationOptions: options.ProjectionOperationOptions,
 				ModulePath:                 moduleInfo.WorktreeRoot, GitmodulesName: name,
+				Version: options.Version, RuntimeConfig: options.RuntimeConfig,
 			})
 			result := ModuleConsumerSubplan{
 				ConsumerID: consumerID, Mode: mode, Path: path,

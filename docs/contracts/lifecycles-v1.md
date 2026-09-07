@@ -124,10 +124,41 @@ blocked while the gitlink contract still exists.
 
 `update-pin` accepts one non-default consumer task branch and one exact
 stage-zero gitlink whose checkout is either absent or already at the target
-commit. The selected module must match the typed relationship, be clean on its
-default branch, and have that exact commit published on its origin. The current
-handler supports `default-branch-commit`; version and package policies require
-their release providers first.
+commit. The selected module must match the typed relationship. For
+`default-branch-commit`, it must be clean on its default branch with that exact
+commit published on origin.
+
+For `version-tag`, supply `--version 1.2.3` at plan time and materialize that
+published tag in a clean module checkout (detached HEAD is supported). The
+configured `release.tag_style` determines whether the tag is `v1.2.3` or
+`1.2.3`. GDS reads origin without fetching or changing module refs and requires
+the fetched local tag object and peeled commit to match origin exactly. The
+module checkout must hold that commit so its identity, policy and verification
+commands come from the selected artifact. All declared required lanes,
+including compatibility when required, run at that exact commit.
+
+A required GitHub Release, or `release.mode: github-release`, additionally
+requires `--runtime-config` (or the default device-local read runtime). GDS
+proves the provider repository identity and exact tag object, a published
+non-draft release, and a complete nonempty asset inventory with uploaded state,
+IDs, names, sizes and SHA-256 digests. It binds these to the stored plan; it does
+not download or execute release assets. The existing release reader's bounded
+inventory contract applies (100 assets, each at most 64 MiB). A release's
+`target_commitish` can name a branch and is metadata; the tag proves the commit,
+as specified by the [GitHub release API](https://docs.github.com/en/rest/releases/releases#create-a-release).
+
+Apply re-observes the chosen artifact and lanes before staging the gitlink.
+Journaled postconditions and explicit verify re-read the artifact, source
+manifest and consumer relationship manifest. Changed tags (including a new
+annotated tag object at the same commit), replaced release/assets, missing
+publication and unrelated checkout changes refuse. This proves the observed
+artifact at each transaction phase; it does not enable provider-side tag
+protection. Version flags cannot override an existing plan. Package consumers
+still require their registry and dependency-manifest provider.
+
+`update-consumers --plan --version 1.2.3` forwards the same explicit artifact
+selection and read runtime to each selected consumer's independent subplan.
+Both consumer planning commands use the module-lane deadline.
 
 Accepting the second checkout shape is what makes the command usable. The
 consumer is otherwise clean, but an advanced submodule reports its gitlink as
