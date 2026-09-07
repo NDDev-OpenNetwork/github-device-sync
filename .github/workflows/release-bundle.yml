@@ -48,21 +48,9 @@ jobs:
     # job downloads this job's artifact and verifies SHA256SUMS before any OIDC
     # token is requested.
     #
-    # persist-credentials is NOT set to false here: actions/checkout's persisted
-    # token is required for fetch-depth:0 on a private repository. This job has
-    # no write/OIDC permission, so the persisted token cannot be abused. (The
-    # prior attempt at this split failed because persist-credentials:false
-    # stripped the token the private-repo deep fetch needs — commit 6863c0f.)
-    # The estate's own fleet builds the estate's own releases. The consumer binds
-    # the attestation to this repository, this workflow path, this source commit
-    # and this ref against the estate's trusted root; the hosting provider adds
-    # nothing to that identity, and requiring a GitHub-hosted one rejected valid
-    # releases built here.
-    # This repository is public, so GitHub-hosted runners are unmetered and a
-    # fork's pull request cannot reach anything of ours. All three jobs must keep
-    # ONE provider between them: provenance describes the environment of the run
-    # that produced it, so a mixed chain attests an environment the build did not
-    # happen in (core/releasebuilder asserts this).
+    # This public repository builds only on GitHub-hosted runners. The build,
+    # attestation and publication jobs keep the same provider, as required by
+    # the release workflow contract. Permissions remain separate per job.
     runs-on: ubuntu-latest
     timeout-minutes: 75
     permissions:
@@ -188,11 +176,7 @@ jobs:
     # tools, and only then requests OIDC tokens for attestation. All semantic
     # release validation and candidate execution belongs to the unprivileged
     # build job above; this job treats its output as inert data.
-    # OIDC signing runs on the fleet with the rest of the chain. Splitting it
-    # across providers would make the provenance describe an environment the
-    # build did not happen in, which is worse than either provider alone.
-    # Interim; see the org-rollout note on the build job. Must equal the other
-    # two: the contract test compares these lines verbatim.
+    # Keep this job on the same hosted provider as build and publication.
     runs-on: ubuntu-latest
     timeout-minutes: 75
     permissions:
@@ -277,8 +261,7 @@ jobs:
     # This job can create the GitHub Release but cannot request an OIDC token or
     # create attestations. It consumes only inert artifacts produced by the
     # preceding jobs and never checks out or executes candidate source.
-    # Interim; see the org-rollout note on the build job. Must equal the other
-    # two: the contract test compares these lines verbatim.
+    # Keep the same hosted provider as build and attestation.
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:

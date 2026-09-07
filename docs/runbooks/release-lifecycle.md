@@ -42,49 +42,39 @@ sequence already accepted in the consumer ledger. Repository transfer or
 republication never resets that ledger, and `github.run_number` is local to one
 workflow lineage, so it is not a release sequence.
 
-The whole release chain runs on GitHub-hosted runners. The consumer
-does not constrain the runner environment: `gh attestation verify` binds the
-attestation to this repository, this reusable-workflow path, this source commit
-and this ref, checked against the estate's own trusted root. An owner-controlled
-fleet is exactly as authoritative for that identity as an owner-controlled
-repository secret, and the previous `--deny-self-hosted-runners` restriction
-rejected the estate's own valid releases while adding nothing to it.
+The whole release chain runs on GitHub-hosted runners. The unprivileged build
+job executes the exact source and release gates with `contents: read`; a
+separate attestation job holds OIDC/attestation authority and treats build
+outputs as inert files; publication has release-write authority and no OIDC.
+The consumer checks repository, workflow, source ref/commit, digests and the
+independently trusted signing root. The current source contract keeps all three
+jobs on the same hosted runner provider.
 
-Do not split the chain across providers. Provenance describes the environment of
-the run that produced it, so building on one provider and attesting on another
-yields a claim about an environment the build did not happen in — worse than
-either provider used consistently.
+This repository is public. GitHub Free, Pro and Team support artifact
+attestations for public repositories; private/internal attestations require
+GitHub Enterprise Cloud. A permission such as `id-token: write` does not establish
+plan eligibility. See [GitHub artifact attestation availability](https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations).
 
-The repository is private (ADR 0033) and owned by
-the example-org organization, so `actions/attest` provenance and SBOM
-attestation is an available release path — keyless Sigstore attestation works
-for private repositories as long as the workflow holds `id-token: write`.
 Canary may omit active-seven evidence only as explicitly provisional and cannot
-auto-promote. Stable/frozen verify the aggregate signature, every isolated
-record, exact executable/module/root versions, GDS profile and bridge digests,
-freshness (maximum 72 hours), and the complete active set. Only signed artifacts
-and public trust material enter workflow inputs; private signing keys never do.
+auto-promote. Stable/frozen require an exact version tag and verify the aggregate
+signature, every isolated record, anchored module/root identity, GDS profile and
+bridge digests, freshness (maximum 72 hours), and the complete active set. This
+gate is enforced independently of individual `runtime_tests.required` profile
+settings. Only signed records and public trust material enter workflow inputs;
+private signing keys never do.
 
-The producer workflow is defined in the supporting `example-harnesses`
-repository at `docs/gds-runtime-evidence.md`. Its deterministic flat archive is
-the value encoded for `harness_evidence_archive_base64`; the independently
-distributed public policy is encoded for
-`harness_evidence_trust_policy_base64`. The policy identity needs both
-`harness-evidence` and `harness-evidence-aggregate` roles. Before dispatch,
-decode both into a temporary directory and run a local stable
-`gds-release-builder` build against them; producer self-consistency is not a
-substitute for compatibility with the real GDS verifier.
+The evidence producer is independently managed. Its deterministic flat archive
+is encoded in `harness_evidence_bundle_base64`; the independently distributed
+public policy is encoded in `harness_evidence_trust_policy_base64`. The policy
+identity needs both `harness-evidence` and `harness-evidence-aggregate` roles.
+Before dispatch, decode both into a temporary directory and exercise the local
+`gds-release-builder` against the exact target source/tag and evidence. Producer
+self-consistency is not a substitute for compatibility with the GDS verifier.
 
-The gate was exercised end to end historically: run `30046936069` built the
-canary-channel bundle from `refs/heads/main` (2026-07-23), and run
-`30064955206` built, attested, and published the stable `gds-v0.1.0` bundle
-from `refs/tags/gds-v0.1.0` (2026-07-24T10:11:01Z) with keyless Sigstore SLSA
-build provenance and an SBOM attestation. Releases through `gds-v0.3.6` were
-signed on self-hosted runners; they were previously unusable as bootstrap
-candidates because the consumer rejected any self-hosted signer, and that
-restriction is gone, so they are ordinary releases judged on their own contents.
-A prior successful dispatch is still not an approval: every bootstrap release
-requires its own exact `A5` approval.
+Published releases and past workflow runs are historical evidence. They do not
+prove that a new source commit, sequence, channel or active-seven record set is
+eligible, and do not authorize a later publication. Bind publication approval to
+the concrete release identity through checkpoint `A5`.
 
 ## Read-only verification
 
