@@ -95,6 +95,8 @@ type templateData struct {
 	GoVersion                string
 	BuildCommand             string
 	TestCommand              string
+	FastCommand              string
+	DeclaredFastCommands     bool
 	PRRequiredCommand        string
 	TimeoutMinutes           int
 	WorkflowRef              string
@@ -606,13 +608,19 @@ func projectionTemplateData(
 	if product == nil {
 		product = &domain.ProductFacts{}
 	}
+	fastCommand := ciString(anchor.CI, func(value *domain.CIPolicy) string { return value.TestCommand })
+	if len(anchor.Verification.Commands.Fast) != 0 {
+		fastCommand = strings.Join(anchor.Verification.Commands.Fast, " && ")
+	}
 	return templateData{
-		AdvisoryCI:   compiler.AdvisoryCI(policy),
-		Purpose:      product.Purpose,
-		Capabilities: product.Capabilities,
-		Entrypoints:  product.Entrypoints,
-		RepositoryID: anchor.Repository.ID,
-		Roles:        strings.Join(anchor.Repository.Roles, ", "), BundleVersion: bundle.Version,
+		FastCommand:          fastCommand,
+		DeclaredFastCommands: len(anchor.Verification.Commands.Fast) != 0,
+		AdvisoryCI:           compiler.AdvisoryCI(policy),
+		Purpose:              product.Purpose,
+		Capabilities:         product.Capabilities,
+		Entrypoints:          product.Entrypoints,
+		RepositoryID:         anchor.Repository.ID,
+		Roles:                strings.Join(anchor.Repository.Roles, ", "), BundleVersion: bundle.Version,
 		ExternalWriteApproval: effectiveString(
 			policy.Effective, "security", "external_write_requires_approval",
 		),

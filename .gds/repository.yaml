@@ -97,7 +97,8 @@ verification:
     build:
       - "go build -trimpath ./core/cmd/gds"
     fast:
-      - "scripts/validate_go_core.sh --quick"
+      - "scripts/validate_shell.sh"
+      - "scripts/validate_go_core.sh --fast"
     pr-required:
       - "go test ./..."
       - "python3 -m pip install --quiet --require-hashes -r requirements/test.txt"

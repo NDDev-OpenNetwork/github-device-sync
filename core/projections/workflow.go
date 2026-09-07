@@ -15,7 +15,7 @@ var fullWorkflowSHA = regexp.MustCompile(`(?m)^\s*uses:\s*[A-Za-z0-9_.-]+/[A-Za-
 func validateGoWorkflowCaller(content []byte, anchor domain.RepositoryAnchor) error {
 	if anchor.CI == nil || anchor.CI.Profile != "go" || anchor.CI.GoVersion == "" ||
 		anchor.CI.BuildCommand == "" || anchor.CI.TestCommand == "" ||
-		anchor.CI.WorkflowRef == "" || len(anchor.Verification.Commands.Fast) == 0 ||
+		anchor.CI.WorkflowRef == "" ||
 		len(anchor.Verification.Commands.PRRequired) == 0 ||
 		anchor.CI.TimeoutMinutes < 1 || anchor.CI.TimeoutMinutes > 120 {
 		return errors.New("Go CI repository policy is incomplete")

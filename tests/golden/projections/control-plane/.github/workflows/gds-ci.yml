@@ -2,8 +2,8 @@
 # generator: gds
 # bundle: 0.8.0-dev
 # source-tree-digest: sha256:0000000000000000000000000000000000000000000000000000000000000001
-# input-digest: sha256:3d7c04888af26c66e2c8b7fedc84b08f90a73d1182cd18ee889c3a849151ce25
-# output-digest: sha256:01fb4854784be9e4564bcc84e70786484b370879be5e5ab1dd49f8b73ea2dea4
+# input-digest: sha256:a0d8d237e113629cdf67cf248e3010dfb024ec97d3c692824258f99a66d77421
+# output-digest: sha256:4a875d4ed62fe6b2d279515f9a19274e159ae8ed58f3a1a0843c60a49f663886
 # edit-source:
 #   - .gds/repository.yaml
 #   - policies/base/repository-default.yaml
@@ -42,14 +42,14 @@ jobs:
 
       runner: "ubuntu-latest"
       go_version: "1.26.7"
-      test_command: "go test ./..."
+      # Declared fast commands own their build scope; the complete build is below.
+      build_command: ""
+      test_command: "scripts/validate_shell.sh && scripts/validate_go_core.sh --fast"
       timeout_minutes: 30
   pr-required:
     name: GDS PR required
-    # Serialized behind fast: both tiers run the integrated assurance scenario,
-    # which asserts wall-clock budgets, and running two of them side by side on
-    # one host measures contention rather than the code. It is also the right
-    # gate order — there is no value in the expensive tier once fast is red.
+    # Run the declared fast checks first. Repositories can keep this phase
+    # inexpensive and reserve their full test/build commands for this job.
     needs: fast
     permissions:
       contents: read

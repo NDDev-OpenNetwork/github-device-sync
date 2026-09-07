@@ -48,3 +48,18 @@ GitHub describes the status-check requirement in
 [available rules](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets)
 and the update payload in the
 [repository rules REST API](https://docs.github.com/en/rest/repos/rules#update-a-repository-ruleset).
+
+## Fast Go verification
+
+Generated Go callers use the ordered `verification.commands.fast` list for the
+fast job. Its commands own that phase's build scope, so the reusable workflow's
+default build is disabled there; `ci.build_command` still runs in PR required.
+With no fast list, the caller falls back to `ci.test_command` and the reusable
+workflow's normal build. Older generation required a fast list but ignored its
+contents.
+
+This repository selects shell lint plus `scripts/validate_go_core.sh --fast` for
+fast CI. The latter checks Go formatting, module consistency, vet, Python lock
+metadata and the Go schema validator. Full Go and Python tests remain in PR
+required. `--quick` still runs the complete development validation, and release
+validation retains its security floor, vulnerability/race checks and rebuilds.
