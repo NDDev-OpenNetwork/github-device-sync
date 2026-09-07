@@ -148,6 +148,14 @@ func TestGovernanceExplicitEstateOverridesEnvironmentForPolicy(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
+	canonical, err := filepath.EvalSymlinks(explicit)
+	if err != nil {
+		t.Fatal(err)
+	}
+	alias := filepath.Join(t.TempDir(), "selected-estate")
+	if err := os.Symlink(explicit, alias); err != nil {
+		t.Fatal(err)
+	}
 	// Only the explicit estate contains the repository's selected profile.
 	if err := os.Remove(filepath.Join(registered, "policies", "stacks", "continuous-development.yaml")); err != nil {
 		t.Fatal(err)
@@ -166,7 +174,7 @@ func TestGovernanceExplicitEstateOverridesEnvironmentForPolicy(t *testing.T) {
 	options := GitHubGovernanceOperationOptions{
 		GitHubGovernanceOptions: GitHubGovernanceOptions{
 			GitHubReadOptions: GitHubReadOptions{
-				EstateRoot: explicit, RuntimeConfig: runtimePath,
+				EstateRoot: alias, RuntimeConfig: runtimePath,
 				InstallationID: "installation:github-opennetwork",
 			},
 			Owner: "NDDev-OpenNetwork", Repository: "github-device-sync", CompareLocal: true,
@@ -176,7 +184,7 @@ func TestGovernanceExplicitEstateOverridesEnvironmentForPolicy(t *testing.T) {
 	if failure != nil {
 		t.Fatalf("explicit policy root was not honored: %#v", failure)
 	}
-	if current.estateRoot != explicit || current.observer(services).estateRoot != explicit {
+	if current.estateRoot != canonical || current.observer(services).estateRoot != canonical {
 		t.Fatal("operation and precondition observer did not bind the selected estate")
 	}
 	read := services.GitHubGovernance(context.Background(), root, options.GitHubGovernanceOptions)
