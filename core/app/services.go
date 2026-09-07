@@ -385,7 +385,14 @@ func (services *Services) policyInputs(
 	ctx context.Context,
 	path string,
 ) (string, domain.RepositoryAnchor, []domain.Finding) {
-	outcome := services.Context.Resolve(ctx, path)
+	return services.policyInputsWithEstateRoot(ctx, path, "")
+}
+
+func (services *Services) policyInputsWithEstateRoot(
+	ctx context.Context,
+	path, estateRoot string,
+) (string, domain.RepositoryAnchor, []domain.Finding) {
+	outcome := services.Context.ResolveWithEstateRoot(ctx, path, estateRoot)
 	if outcome.Context.Workspace.GitWorktreeRoot == "" {
 		return "", domain.RepositoryAnchor{}, outcome.Findings
 	}

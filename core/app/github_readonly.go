@@ -157,7 +157,7 @@ func (services *Services) GitHubGovernance(
 		Status: "observed-only", Counts: map[string]int{}, Fields: []governance.FieldResult{},
 	}
 	if options.CompareLocal {
-		estateRoot, anchor, findings := services.policyInputs(ctx, path)
+		estateRoot, anchor, findings := services.policyInputsWithEstateRoot(ctx, path, options.EstateRoot)
 		if len(findings) != 0 {
 			return domain.NewEnvelope(command, classifyFindings(findings), nil, findings...)
 		}

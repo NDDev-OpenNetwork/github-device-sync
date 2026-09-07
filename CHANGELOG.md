@@ -5,6 +5,9 @@ Versioning.
 
 ## [Unreleased]
 
+- Honor explicit estate selection for governance policy compilation and local
+  comparison, retaining authority checks and the same root during apply.
+
 - Update workflow dependencies through the canonical Go caller anchor and
   regenerated provenance. Exclude that generated dependency from direct
   Dependabot rewrites while retaining other workflow update proposals.
