@@ -1,18 +1,25 @@
 name: CI feedback
 
 on:
-  workflow_run:
-    workflows: [gds-ci]
+  # Trusted publisher reads completed-run metadata only; source-run code and
+  # artifacts are never executed. Its code is fixed by the reviewed caller/ref.
+  workflow_run: # zizmor: ignore[dangerous-triggers]
+    workflows: ["codeql", "dependabot-projection-convergence", "gds-ci", "platforms", "gds-release-bundle"]
     types: [completed]
 
-permissions:
-  actions: read
-  issues: write
+permissions: {}
+
+concurrency:
+  group: ci-feedback-events-${{ github.repository_id }}-${{ github.run_id }}
+  cancel-in-progress: false
 
 jobs:
   feedback:
     if: ${{ contains(fromJSON('["failure","timed_out","action_required","stale","startup_failure","cancelled"]'), github.event.workflow_run.conclusion) }}
-    uses: NDDev-OpenNetwork/github-actions/.github/workflows/ci-feedback.yml@a0dc5592333dcfdf2a3d239ed1f2b128899e5482
+    permissions:
+      actions: read # Read exact completed run and job metadata.
+      issues: write # Publish bounded failure evidence in this repository.
+    uses: NDDev-OpenNetwork/github-actions/.github/workflows/ci-feedback.yml@a0dc5592333dcfdf2a3d239ed1f2b128899e5482  # commit:a0dc5592333dcfdf2a3d239ed1f2b128899e5482
     with:
       run-id: ${{ format('{0}', github.event.workflow_run.id) }}
       run-attempt: ${{ format('{0}', github.event.workflow_run.run_attempt) }}
