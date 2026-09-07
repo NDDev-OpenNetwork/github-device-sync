@@ -1464,7 +1464,27 @@
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "name", "target", "enforcement", "rules"],
+      "allOf": [{
+        "if": {
+          "required": ["remove_required_status_checks"],
+          "properties": {"remove_required_status_checks": {"const": true}}
+        },
+        "then": {
+          "properties": {
+            "rules": {"not": {"contains": {
+              "properties": {"type": {"const": "required_status_checks"}},
+              "required": ["type"]
+            }}}
+          },
+          "anyOf": [
+            {"properties": {"rules": {"minItems": 1}}},
+            {"properties": {"id": {"minimum": 1}}}
+          ]
+        },
+        "else": {"properties": {"rules": {"minItems": 1}}}
+      }],
       "properties": {
+        "remove_required_status_checks": {"type": "boolean"},
         "id": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
         "name": {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "^[^\\u0000\\r\\n]+$"},
         "target": {"const": "branch"},
@@ -1480,7 +1500,7 @@
     },
     "githubRulesetRules": {
       "type": "array",
-      "minItems": 1,
+      "minItems": 0,
       "maxItems": 32,
       "items": {"$ref": "#/$defs/githubRulesetRule"}
     },

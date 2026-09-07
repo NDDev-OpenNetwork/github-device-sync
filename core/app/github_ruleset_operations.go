@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/NDDev-OpenNetwork/github-device-sync/core/compiler"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/domain"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/githubmutationruntime"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/githubruleset"
@@ -311,6 +312,7 @@ func (services *Services) githubRulesetContext(
 		})
 		return githubRulesetOperationContext{}, &failure
 	}
+	desired = rulesetForDeliveryPolicy(desired, governanceContext.policy)
 	capability, found := mutationCapabilityForInstallation(
 		governanceContext.runtime.desired, options.InstallationID,
 	)
@@ -364,7 +366,7 @@ func (services *Services) githubRulesetContext(
 	if rulesetID == 0 {
 		return githubRulesetOperationContext{
 			governance: governanceContext, privileged: privileged,
-			desired: desired, exists: false, inSync: false,
+			desired: desired, exists: false, inSync: desired.RemoveRequiredStatusChecks && len(desired.Rules) == 0,
 			providerRepositoryID: providerRepositoryID,
 			mutationCapabilityID: capability.Mutation.ID,
 		}, nil
@@ -399,6 +401,11 @@ func rulesetOwnedStateMatches(
 	byType := map[string]githubprovider.RulesetRule{}
 	for _, rule := range observed.Rules {
 		byType[rule.Type] = rule
+	}
+	if desired.RemoveRequiredStatusChecks {
+		if _, present := byType["required_status_checks"]; present {
+			return false
+		}
 	}
 	for _, wanted := range desired.Rules {
 		actual, present := byType[wanted.Type]
@@ -589,4 +596,20 @@ func githubRulesetPlanInvalid(command string) domain.Envelope {
 		Code: "GDS_GITHUB_RULESET_PLAN_INVALID", Severity: domain.SeverityHigh,
 		Message: "The referenced plan is not a valid stored GitHub ruleset plan.",
 	})
+}
+
+// Policy projection is explicit and bound by the plan's compiled-policy digest.
+func rulesetForDeliveryPolicy(desired githubprovider.RepositoryRuleset, policy compiler.CompiledPolicyDocument) githubprovider.RepositoryRuleset {
+	if !compiler.AdvisoryCI(policy) {
+		return desired
+	}
+	desired.RemoveRequiredStatusChecks = true
+	rules := make([]githubprovider.RulesetRule, 0, len(desired.Rules))
+	for _, rule := range desired.Rules {
+		if rule.Type != "required_status_checks" {
+			rules = append(rules, rule)
+		}
+	}
+	desired.Rules = rules
+	return desired
 }

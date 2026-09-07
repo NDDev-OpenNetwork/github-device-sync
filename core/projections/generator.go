@@ -77,6 +77,7 @@ type Generator struct {
 }
 
 type templateData struct {
+	AdvisoryCI               bool
 	Purpose                  string
 	Capabilities             []string
 	Entrypoints              []domain.ProductEntrypoint
@@ -606,6 +607,7 @@ func projectionTemplateData(
 		product = &domain.ProductFacts{}
 	}
 	return templateData{
+		AdvisoryCI:   compiler.AdvisoryCI(policy),
 		Purpose:      product.Purpose,
 		Capabilities: product.Capabilities,
 		Entrypoints:  product.Entrypoints,

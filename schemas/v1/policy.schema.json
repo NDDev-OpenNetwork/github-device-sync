@@ -94,6 +94,12 @@
     }
   },
   "$defs": {
+    "deliverySettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profile"],
+      "properties": {"profile": {"enum": ["standard", "continuous-development"]}}
+    },
     "gitSettings": {
       "type": "object",
       "additionalProperties": false,
@@ -431,6 +437,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "delivery": {"$ref": "#/$defs/deliverySettings"},
         "git": {
           "$ref": "#/$defs/gitSettings"
         },
@@ -462,6 +469,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "delivery": {"$ref": "#/$defs/deliverySettings"},
         "git": {
           "$ref": "#/$defs/gitSettings"
         },

@@ -509,3 +509,27 @@ func projectionRepositoryRoot(t *testing.T) string {
 	}
 	return filepath.Clean(filepath.Join(filepath.Dir(currentFile), "..", ".."))
 }
+
+func TestAdvisoryDeliveryGuidanceDoesNotAlterWorkflowResults(t *testing.T) {
+	generator, anchor, policy, bundle := controlPlaneInputs(t)
+	baseline, findings := generator.Generate(anchor, policy, bundle)
+	if len(findings) != 0 {
+		t.Fatal(findings)
+	}
+	policy.Effective["delivery"] = map[string]any{"profile": "continuous-development"}
+	advisory, findings := generator.Generate(anchor, policy, bundle)
+	if len(findings) != 0 {
+		t.Fatal(findings)
+	}
+	body := candidateFile(t, advisory, "AGENTS.md").Content
+	if !bytes.Contains(body, []byte("Broad GitHub CI is asynchronous evidence")) {
+		t.Fatalf("missing guidance: %s", body)
+	}
+	if bytes.Contains(candidateFile(t, baseline, "AGENTS.md").Content, []byte("## Continuous development")) {
+		t.Fatal("default profile changed")
+	}
+	workflow := candidateFile(t, advisory, goCIOutputPath).Content
+	if bytes.Contains(workflow, []byte("continue-on-error")) || bytes.Contains(workflow, []byte("|| true")) {
+		t.Fatal("advisory CI must preserve real outcomes")
+	}
+}
