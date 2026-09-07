@@ -420,14 +420,22 @@ func rulesetOwnedStateMatches(
 		if wanted.Type != "required_status_checks" {
 			continue
 		}
-		observedContexts := map[string]struct{}{}
+		// The rule is replaced as a whole by the provider adapter. A subset
+		// comparison would leave retired required checks active forever and
+		// would ignore a check produced by the wrong integration.
+		if actual.StrictRequiredStatusChecksPolicy != wanted.StrictRequiredStatusChecksPolicy ||
+			len(actual.RequiredStatusChecks) != len(wanted.RequiredStatusChecks) {
+			return false
+		}
+		observedContexts := map[githubprovider.RequiredStatusCheck]int{}
 		for _, check := range actual.RequiredStatusChecks {
-			observedContexts[check.Context] = struct{}{}
+			observedContexts[check]++
 		}
 		for _, check := range wanted.RequiredStatusChecks {
-			if _, ok := observedContexts[check.Context]; !ok {
+			if observedContexts[check] == 0 {
 				return false
 			}
+			observedContexts[check]--
 		}
 	}
 	return true
