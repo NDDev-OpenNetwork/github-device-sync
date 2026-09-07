@@ -280,6 +280,10 @@ func validateReleaseInput(input ReleaseInput) error {
 }
 
 func normalizeRelease(raw releaseResponse, owner string, name string) (Release, error) {
+	return normalizeReleaseResponse(raw, owner, name, true)
+}
+
+func normalizeReleaseResponse(raw releaseResponse, owner string, name string, exactTarget bool) (Release, error) {
 	releaseURL, urlErr := url.Parse(raw.HTMLURL)
 	if urlErr != nil || releaseURL == nil {
 		return Release{}, responseContractError{code: "release-url-invalid"}
@@ -296,7 +300,8 @@ func normalizeRelease(raw releaseResponse, owner string, name string) (Release, 
 		}
 	}
 	if raw.ID < 1 || raw.NodeID == "" ||
-		!releaseTagNamePattern.MatchString(raw.TagName) || !validGitOID(raw.TargetCommitish) ||
+		!releaseTagNamePattern.MatchString(raw.TagName) ||
+		!boundedProviderText(raw.TargetCommitish, 256) || (exactTarget && !validGitOID(raw.TargetCommitish)) ||
 		!boundedProviderText(raw.Name, 256) || len(raw.Body) > 64<<10 ||
 		strings.ContainsRune(raw.Body, '\x00') ||
 		releaseURL.Scheme != "https" || !strings.EqualFold(releaseURL.Host, "github.com") ||

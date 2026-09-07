@@ -165,3 +165,33 @@ func moduleConsumerFixture(
 	}
 	return consumer
 }
+
+func TestModuleConsumerPlanningForwardsVersionArtifact(t *testing.T) {
+	root := t.TempDir()
+	moduleRoot, _, oldOID := moduleConsumerModuleFixture(t, root)
+	anchorPath := filepath.Join(moduleRoot, ".gds/repository.yaml")
+	raw, err := os.ReadFile(anchorPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	source := strings.Replace(string(raw), `pin_policy: "default-branch-commit"`, `pin_policy: "version-tag"`, 1)
+	source = strings.Replace(source, `github_release: "required"`, `github_release: "optional"`, 1)
+	source = strings.Replace(source, `mode: "none"`, `mode: "version-tag"`, 1)
+	if err := os.WriteFile(anchorPath, []byte(source), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	runSessionGit(t, moduleRoot, "commit", "-qam", "versioned module")
+	runSessionGit(t, moduleRoot, "tag", "v1.2.3")
+	runSessionGit(t, moduleRoot, "push", "-q", "origin", "main", "refs/tags/v1.2.3")
+	const consumerID = "repo_01JEXAMPZ0000000000000000D"
+	moduleConsumerFixture(t, root, "git-consumer", consumerID, 223456789, "git-submodule-consumer", oldOID)
+	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
+	code, result, stderr := executeJSON(t, "--json", "module", "update-consumers", "--plan", "--module", moduleRoot, "--inventory-root", root, "--consumer-id", consumerID, "--version", "1.2.3", "--state-path", sessionStatePath(t), "--device-id", syncTestDeviceID, "--session-id", "version-consumers")
+	if code != 0 {
+		t.Fatalf("version consumers=%#v stderr=%s", result, stderr)
+	}
+	data, _ := result.Data.(map[string]any)
+	if data["planned"] != float64(1) || data["blocked"] != float64(0) {
+		t.Fatalf("versioned subplan not created: %#v", data)
+	}
+}

@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"path/filepath"
 	"strings"
@@ -22,18 +23,21 @@ type ModulePinOptions struct {
 	ProjectionOperationOptions
 	ModulePath     string
 	GitmodulesName string
+	Version        string
+	RuntimeConfig  string
 }
 
 type ModulePinAssessment struct {
-	ConsumerID     string `json:"consumer_id"`
-	ModuleID       string `json:"module_id"`
-	ConsumerRoot   string `json:"consumer_root"`
-	ModuleRoot     string `json:"module_root"`
-	GitmodulesName string `json:"gitmodules_name"`
-	GitlinkPath    string `json:"gitlink_path"`
-	ExpectedOldOID string `json:"expected_old_oid"`
-	TargetOID      string `json:"target_oid"`
-	TargetRef      string `json:"target_ref"`
+	ConsumerID     string             `json:"consumer_id"`
+	ModuleID       string             `json:"module_id"`
+	ConsumerRoot   string             `json:"consumer_root"`
+	ModuleRoot     string             `json:"module_root"`
+	GitmodulesName string             `json:"gitmodules_name"`
+	GitlinkPath    string             `json:"gitlink_path"`
+	ExpectedOldOID string             `json:"expected_old_oid"`
+	TargetOID      string             `json:"target_oid"`
+	TargetRef      string             `json:"target_ref"`
+	Artifact       *ModulePinArtifact `json:"artifact,omitempty"`
 }
 
 type ModulePinPlanData struct {
@@ -48,10 +52,12 @@ type modulePinContext struct {
 }
 
 type modulePinObserver struct {
-	services *Services
-	consumer string
-	module   string
-	name     string
+	services      *Services
+	consumer      string
+	module        string
+	name          string
+	version       string
+	runtimeConfig string
 }
 
 func (observer modulePinObserver) Observe(
@@ -59,7 +65,7 @@ func (observer modulePinObserver) Observe(
 	repositoryID string,
 ) (operations.Observation, error) {
 	current, findings := observer.services.modulePinContext(
-		ctx, observer.consumer, observer.module, observer.name,
+		ctx, observer.consumer, observer.module, observer.name, observer.version, observer.runtimeConfig,
 	)
 	if len(findings) != 0 || current.assessment.ConsumerID != repositoryID {
 		return operations.Observation{}, errors.New("module pin precondition is no longer proven")
@@ -75,7 +81,7 @@ func (services *Services) PlanModuleUpdatePin(
 	if finding := validateLocalOperationIdentity(options.ProjectionOperationOptions); finding != nil {
 		return domain.NewEnvelope("gds module update-pin plan", domain.ExitInput, nil, *finding)
 	}
-	current, findings := services.modulePinContext(ctx, path, options.ModulePath, options.GitmodulesName)
+	current, findings := services.modulePinContext(ctx, path, options.ModulePath, options.GitmodulesName, options.Version, options.RuntimeConfig)
 	if len(findings) != 0 {
 		return domain.NewEnvelope(
 			"gds module update-pin plan", classifyFindings(findings), nil, findings...,
@@ -111,15 +117,7 @@ func (services *Services) PlanModuleUpdatePin(
 			// this repository: provider lifecycle, rulesets, releases and anchors.
 			Action: gitops.UpdateGitlinkAction, RequiresApproval: false,
 			Compensation: operations.Compensation{Mode: "explicit-plan", Action: gitops.UpdateGitlinkAction},
-			Parameters: map[string]any{"gitlink_pin": map[string]any{
-				"consumer_root":    current.assessment.ConsumerRoot,
-				"module_root":      current.assessment.ModuleRoot,
-				"module_id":        current.assessment.ModuleID,
-				"gitmodules_name":  current.assessment.GitmodulesName,
-				"expected_old_oid": current.assessment.ExpectedOldOID,
-				"target_oid":       current.assessment.TargetOID,
-				"target_ref":       current.assessment.TargetRef,
-			}},
+			Parameters:   map[string]any{"gitlink_pin": modulePinParameters(current.assessment)},
 		}},
 		ApprovalClass: "update-module-gitlink-pin",
 	})
@@ -128,7 +126,7 @@ func (services *Services) PlanModuleUpdatePin(
 	}
 	engine := operations.NewDefaultEngine(
 		store, services.Schemas,
-		modulePinObserver{services: services, consumer: current.assessment.ConsumerRoot, module: current.assessment.ModuleRoot, name: current.assessment.GitmodulesName},
+		modulePinObserver{services: services, consumer: current.assessment.ConsumerRoot, module: current.assessment.ModuleRoot, name: current.assessment.GitmodulesName, version: options.Version, runtimeConfig: options.RuntimeConfig},
 		nil, options.DeviceID, options.SessionID,
 	)
 	engine.Now = services.Now
@@ -173,8 +171,8 @@ func (services *Services) ApplyModuleUpdatePin(
 	}
 	engine := operations.NewDefaultEngine(
 		store, services.Schemas,
-		modulePinObserver{services: services, consumer: assessment.ConsumerRoot, module: assessment.ModuleRoot, name: assessment.GitmodulesName},
-		map[string]operations.ActionHandler{gitops.UpdateGitlinkAction: handler},
+		modulePinObserver{services: services, consumer: assessment.ConsumerRoot, module: assessment.ModuleRoot, name: assessment.GitmodulesName, version: modulePinVersion(assessment), runtimeConfig: options.RuntimeConfig},
+		map[string]operations.ActionHandler{gitops.UpdateGitlinkAction: services.modulePinHandler(handler, assessment, plan, options.RuntimeConfig)},
 		options.DeviceID, options.SessionID,
 	)
 	engine.Now = services.Now
@@ -225,7 +223,7 @@ func (services *Services) VerifyModuleUpdatePin(
 	}
 	engine := operations.NewDefaultEngine(
 		store, services.Schemas, modulePinObserver{},
-		map[string]operations.ActionHandler{gitops.UpdateGitlinkAction: handler},
+		map[string]operations.ActionHandler{gitops.UpdateGitlinkAction: services.modulePinHandler(handler, assessment, plan, options.RuntimeConfig)},
 		options.DeviceID, options.SessionID,
 	)
 	engine.Now = services.Now
@@ -247,6 +245,8 @@ func (services *Services) modulePinContext(
 	consumerPath string,
 	modulePath string,
 	gitmodulesName string,
+	version string,
+	runtimeConfig string,
 ) (modulePinContext, []domain.Finding) {
 	if strings.TrimSpace(modulePath) == "" || strings.TrimSpace(gitmodulesName) == "" {
 		return modulePinContext{}, []domain.Finding{modulePinFinding(
@@ -306,10 +306,11 @@ func (services *Services) modulePinContext(
 			"GDS_MODULE_PIN_IDENTITY_MISMATCH", "Selected module boundary does not match the typed consumer relationship.",
 		)}
 	}
-	if moduleAnchor.Module.PinPolicy != "default-branch-commit" {
-		return modulePinContext{}, []domain.Finding{modulePinFinding(
-			"GDS_MODULE_PIN_RELEASE_REQUIRED", "This module pin policy requires a verified versioned release before consumer update.",
-		)}
+	if moduleAnchor.Module.PinPolicy != "default-branch-commit" && moduleAnchor.Module.PinPolicy != "version-tag" {
+		return modulePinContext{}, []domain.Finding{modulePinFinding("GDS_MODULE_PIN_RELEASE_REQUIRED", "Module pin policy requires an unsupported publication provider.")}
+	}
+	if (moduleAnchor.Module.PinPolicy == "version-tag") != (strings.TrimSpace(version) != "") {
+		return modulePinContext{}, []domain.Finding{modulePinFinding("GDS_MODULE_PIN_VERSION_REQUIRED", "Select --version exactly when the module pin policy is version-tag.")}
 	}
 	moduleInfo, err := services.Git.RepositoryInfo(ctx, modulePath)
 	if err != nil {
@@ -317,26 +318,27 @@ func (services *Services) modulePinContext(
 	}
 	moduleRoot := moduleInfo.WorktreeRoot
 	moduleStatus, err := services.Git.InspectStatus(ctx, moduleRoot)
-	if err != nil || moduleStatus.Head.Mode != "branch" ||
-		moduleStatus.Branch.Name != moduleAnchor.Git.DefaultBranch || !checkoutStatusIsClean(moduleStatus) {
-		return modulePinContext{}, []domain.Finding{modulePinFinding(
-			"GDS_MODULE_PIN_SOURCE_STATE_UNSAFE", "Module source must be clean on its default branch.",
-		)}
+	if err != nil || !checkoutStatusIsClean(moduleStatus) || moduleStatus.Head.OID == "" {
+		return modulePinContext{}, []domain.Finding{modulePinFinding("GDS_MODULE_PIN_SOURCE_STATE_UNSAFE", "Module source must be clean at the selected commit.")}
 	}
-	// The module's origin is observed, never written. `LocalPushSupported` used
-	// to guard this line, which asks whether the module's remote accepts a push
-	// from this device -- a question this operation never needs, since the only
-	// mutation is a gitlink rewrite in the consumer. It refuses every remote that
-	// is not a local path, so on a real estate it refused every module, and the
-	// pin could not advance for that reason alone. `ObserveRemoteBranchOptional`
-	// is an `ls-remote`, and proving the target commit is published is exactly
-	// what this step is for.
 	targetRef := "refs/heads/" + moduleAnchor.Git.DefaultBranch
-	targetOID, found, err := services.GitMutations.ObserveRemoteBranchOptional(ctx, moduleRoot, "origin", targetRef)
-	if err != nil || !found || targetOID != moduleStatus.Head.OID {
-		return modulePinContext{}, []domain.Finding{modulePinFinding(
-			"GDS_MODULE_PIN_TARGET_NOT_PUBLISHED", "Module default commit is not exactly published on its configured origin.",
-		)}
+	targetOID := ""
+	var artifact *ModulePinArtifact
+	if moduleAnchor.Module.PinPolicy == "version-tag" {
+		artifact, err = services.observeModulePinArtifact(ctx, moduleRoot, version, runtimeConfig)
+		if err != nil {
+			return modulePinContext{}, []domain.Finding{modulePinArtifactFinding(err)}
+		}
+		targetRef, targetOID = artifact.Tag.TagRef, artifact.Tag.CommitOID
+	} else {
+		if moduleStatus.Head.Mode != "branch" || moduleStatus.Branch.Name != moduleAnchor.Git.DefaultBranch {
+			return modulePinContext{}, []domain.Finding{modulePinFinding("GDS_MODULE_PIN_SOURCE_STATE_UNSAFE", "Module source must be clean on its default branch.")}
+		}
+		var found bool
+		targetOID, found, err = services.GitMutations.ObserveRemoteBranchOptional(ctx, moduleRoot, "origin", targetRef)
+		if err != nil || !found || targetOID != moduleStatus.Head.OID {
+			return modulePinContext{}, []domain.Finding{modulePinFinding("GDS_MODULE_PIN_TARGET_NOT_PUBLISHED", "Module default commit is not exactly published on its configured origin.")}
+		}
 	}
 	// Resolve cheap eligibility and policy failures before materializing a
 	// throwaway checkout or invoking any module command. Rejected pins must
@@ -401,8 +403,9 @@ func (services *Services) modulePinContext(
 		// Verification joins the fingerprint so the plan is bound to the evidence
 		// that justified it. A plan approved while a lane passed must not stay
 		// applicable after that lane stops passing.
-		Verification string `json:"verification"`
-	}{consumerStatus, *submodule, moduleAnchor.Repository.ID, moduleStatus.Head.OID, moduleManifestDigest, targetRef, targetOID, verificationDigest})
+		Verification string             `json:"verification"`
+		Artifact     *ModulePinArtifact `json:"artifact,omitempty"`
+	}{consumerStatus, *submodule, moduleAnchor.Repository.ID, moduleStatus.Head.OID, moduleManifestDigest, targetRef, targetOID, verificationDigest, artifact})
 	if err != nil {
 		return modulePinContext{}, []domain.Finding{modulePinFinding("GDS_MODULE_PIN_FINGERPRINT_FAILED", err.Error())}
 	}
@@ -411,7 +414,7 @@ func (services *Services) modulePinContext(
 			ConsumerID: consumer.Repository.ID, ModuleID: moduleAnchor.Repository.ID,
 			ConsumerRoot: consumerInfo.WorktreeRoot, ModuleRoot: moduleRoot,
 			GitmodulesName: gitmodulesName, GitlinkPath: submodule.Path,
-			ExpectedOldOID: submodule.GitlinkOID, TargetOID: targetOID, TargetRef: targetRef,
+			ExpectedOldOID: submodule.GitlinkOID, TargetOID: targetOID, TargetRef: targetRef, Artifact: artifact,
 		},
 		observation: operations.Observation{
 			RepositoryID: consumer.Repository.ID, HeadOID: consumerStatus.Head.OID,
@@ -468,6 +471,19 @@ func loadModulePinPlan(
 	assessment.ExpectedOldOID, _ = raw["expected_old_oid"].(string)
 	assessment.TargetOID, _ = raw["target_oid"].(string)
 	assessment.TargetRef, _ = raw["target_ref"].(string)
+	if raw["artifact"] != nil {
+		encoded, marshalErr := json.Marshal(raw["artifact"])
+		if marshalErr != nil || json.Unmarshal(encoded, &assessment.Artifact) != nil ||
+			assessment.Artifact == nil || assessment.Artifact.Version == "" ||
+			assessment.Artifact.Tag.TagRef != assessment.TargetRef ||
+			assessment.Artifact.Tag.CommitOID != assessment.TargetOID ||
+			assessment.Artifact.Tag.TagOID == "" || assessment.Artifact.ManifestDigest == "" {
+			return operations.Plan{}, ModulePinAssessment{}, errors.New("module artifact parameters are invalid")
+		}
+	}
+	if strings.HasPrefix(assessment.TargetRef, "refs/tags/") && assessment.Artifact == nil {
+		return operations.Plan{}, ModulePinAssessment{}, errors.New("version pin plan lacks artifact evidence")
+	}
 	if assessment.ConsumerRoot == "" || assessment.ModuleRoot == "" || assessment.ModuleID == "" ||
 		assessment.GitmodulesName == "" || assessment.ExpectedOldOID == "" ||
 		assessment.TargetOID == "" || assessment.TargetRef == "" {
@@ -534,4 +550,17 @@ func pinWorktreeStateIsEligible(submodule gitprovider.Submodule, targetOID strin
 	default:
 		return false
 	}
+}
+
+func modulePinParameters(assessment ModulePinAssessment) map[string]any {
+	result := map[string]any{
+		"consumer_root": assessment.ConsumerRoot, "module_root": assessment.ModuleRoot,
+		"module_id": assessment.ModuleID, "gitmodules_name": assessment.GitmodulesName,
+		"expected_old_oid": assessment.ExpectedOldOID, "target_oid": assessment.TargetOID,
+		"target_ref": assessment.TargetRef,
+	}
+	if assessment.Artifact != nil {
+		result["artifact"] = assessment.Artifact
+	}
+	return result
 }

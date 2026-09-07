@@ -8,6 +8,12 @@ import (
 	"strings"
 )
 
+// GitHub may retain a branch in target_commitish after a tag exists; that
+// field is not the released commit identity. Read observers preserve it as
+// metadata. Artifact consumers resolve the tag itself; mutation verification
+// still compares the target against its explicitly requested commit.
+// https://docs.github.com/en/rest/releases/releases#create-a-release
+//
 // Release observation is read-only and therefore lives on the read client rather
 // than the repository mutator. Verification and release planning must not need
 // mutation credentials merely to observe the provider state.
@@ -44,7 +50,7 @@ func (client *Client) GetReleaseByTag(
 	if err := decodeJSON(response.Body, &raw); err != nil {
 		return Release{}, fmt.Errorf("decode GitHub release: %w", err)
 	}
-	release, err := normalizeRelease(raw, owner, name)
+	release, err := normalizeReleaseResponse(raw, owner, name, false)
 	if err != nil || release.TagName != tagName {
 		return Release{}, fmt.Errorf("GitHub release response is invalid")
 	}
@@ -167,7 +173,7 @@ func (client *Client) GetReleaseByTagOptional(
 	if err := decodeJSON(response.Body, &raw); err != nil {
 		return Release{}, response.Meta, false, invalidGovernanceResponse(response, err)
 	}
-	release, err := normalizeRelease(raw, owner, name)
+	release, err := normalizeReleaseResponse(raw, owner, name, false)
 	if err != nil || release.TagName != tagName {
 		return Release{}, response.Meta, false, invalidGovernanceResponse(response, err)
 	}

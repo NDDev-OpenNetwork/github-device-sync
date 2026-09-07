@@ -1775,7 +1775,7 @@ func (executor *executor) moduleConsumerPlanCommand() *cobra.Command {
 		Use: "update-consumers", Short: "Plan independent updates for explicitly selected module consumers",
 		Args: cobra.NoArgs,
 		RunE: func(child *cobra.Command, _ []string) error {
-			return executor.run(child, func(ctx context.Context) domain.Envelope {
+			return executor.runLanes(child, func(ctx context.Context) domain.Envelope {
 				if !plan {
 					return domain.NewEnvelope("gds module update-consumers", domain.ExitInput, nil, domain.Finding{
 						Code: "GDS_MODULE_CONSUMER_PLAN_REQUIRED", Severity: domain.SeverityHigh,
@@ -1796,6 +1796,8 @@ func (executor *executor) moduleConsumerPlanCommand() *cobra.Command {
 	command.Flags().StringVar(&options.StatePath, "state-path", "", "local GDS state database path")
 	command.Flags().StringVar(&options.DeviceID, "device-id", "", "canonical current device identity")
 	command.Flags().StringVar(&options.SessionID, "session-id", "", "bounded non-secret session identity")
+	command.Flags().StringVar(&options.Version, "version", "", "exact SemVer artifact required for version-tag modules")
+	command.Flags().StringVar(&options.RuntimeConfig, "runtime-config", "", "private device-local GitHub read runtime for required publication")
 	return command
 }
 
@@ -1872,7 +1874,7 @@ func (executor *executor) modulePinCommand() *cobra.Command {
 						Message: "Use exactly one of --plan, --apply, or --verify.",
 					})
 				}
-				if !plan && (child.Flags().Changed("module") || child.Flags().Changed("name")) {
+				if !plan && (child.Flags().Changed("module") || child.Flags().Changed("name") || child.Flags().Changed("version")) {
 					return domain.NewEnvelope("gds module update-pin", domain.ExitInput, nil, domain.Finding{
 						Code: "GDS_MODULE_PIN_INPUT_CONFLICT", Severity: domain.SeverityHigh,
 						Message: "Module identity flags cannot alter a stored pin plan.",
@@ -1898,6 +1900,8 @@ func (executor *executor) modulePinCommand() *cobra.Command {
 	command.Flags().StringVar(&options.DeviceID, "device-id", "", "canonical current device identity")
 	command.Flags().StringVar(&options.SessionID, "session-id", "", "bounded non-secret session identity")
 	command.Flags().StringVar(&options.ApprovalReference, "approval-ref", "", "signed exact-plan approval JSON file")
+	command.Flags().StringVar(&options.Version, "version", "", "exact SemVer artifact required for version-tag modules; plan only")
+	command.Flags().StringVar(&options.RuntimeConfig, "runtime-config", "", "private device-local GitHub read runtime for required publication")
 	return command
 }
 

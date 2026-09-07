@@ -828,6 +828,117 @@
         }
       }
     },
+    "modulePinArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "tag",
+        "manifest_digest"
+      ],
+      "properties": {
+        "version": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 128
+        },
+        "tag": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tag_ref",
+            "tag_oid",
+            "commit_oid"
+          ],
+          "properties": {
+            "tag_ref": {
+              "type": "string",
+              "pattern": "^refs/tags/",
+              "maxLength": 512
+            },
+            "tag_oid": {
+              "$ref": "common.schema.json#/$defs/gitOid"
+            },
+            "commit_oid": {
+              "$ref": "common.schema.json#/$defs/gitOid"
+            }
+          }
+        },
+        "manifest_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "release_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "release_immutable": {
+          "type": "boolean"
+        },
+        "release_prerelease": {
+          "type": "boolean"
+        },
+        "assets": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 100,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "size",
+              "state",
+              "browser_download_url",
+              "sha256"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 255
+              },
+              "size": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 67108864
+              },
+              "state": {
+                "const": "uploaded"
+              },
+              "browser_download_url": {
+                "type": "string",
+                "format": "uri",
+                "maxLength": 4096
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^sha256:[a-f0-9]{64}$"
+              }
+            }
+          }
+        }
+      },
+      "dependentRequired": {
+        "release_id": [
+          "assets"
+        ],
+        "assets": [
+          "release_id"
+        ],
+        "release_immutable": [
+          "release_id"
+        ],
+        "release_prerelease": [
+          "release_id"
+        ]
+      }
+    },
     "gitlinkPinParameters": {
       "type": "object",
       "additionalProperties": false,
@@ -841,20 +952,39 @@
         "target_ref"
       ],
       "properties": {
-        "consumer_root": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^/"},
-        "module_root": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^/"},
-        "module_id": {"$ref": "common.schema.json#/$defs/repositoryId"},
+        "consumer_root": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^/"
+        },
+        "module_root": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^/"
+        },
+        "module_id": {
+          "$ref": "common.schema.json#/$defs/repositoryId"
+        },
         "gitmodules_name": {
           "description": "The .gitmodules entry name, which is a submodule name and not a GitHub repository name. Every module in this estate names it by path, so the repository anchor has always typed it as a safe relative path; this said repositoryName, which forbids the slash, and no module pin could be planned at all.",
           "$ref": "common.schema.json#/$defs/safeRelativePath"
         },
-        "expected_old_oid": {"$ref": "common.schema.json#/$defs/gitOid"},
-        "target_oid": {"$ref": "common.schema.json#/$defs/gitOid"},
+        "expected_old_oid": {
+          "$ref": "common.schema.json#/$defs/gitOid"
+        },
+        "target_oid": {
+          "$ref": "common.schema.json#/$defs/gitOid"
+        },
         "target_ref": {
           "type": "string",
           "minLength": 12,
           "maxLength": 512,
           "pattern": "^refs/(heads|tags)/[A-Za-z0-9][A-Za-z0-9._/-]*$"
+        },
+        "artifact": {
+          "$ref": "#/$defs/modulePinArtifact"
         }
       }
     },

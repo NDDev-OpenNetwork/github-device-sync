@@ -20,17 +20,26 @@ independent repository transactions.
 ## Inputs
 
 - Module repository ID and exact eligible artifact.
-- Consumer selector, compatibility evidence, rollout rings, and approval.
+- Explicit consumer IDs, compatibility evidence, and rollout rings.
+- For `version-tag`, the exact SemVer version and a clean module checkout at
+  that fetched tag; read runtime configuration when GitHub publication is required.
 
 ## Preconditions
 
 1. Verify artifact publication, reachability, compatibility, and provenance.
 2. Resolve current consumers from typed relationships.
-3. Run `gds module update-consumers --plan` and obtain approval.
+3. Run `gds module update-consumers --plan` with exact consumer selectors.
+   For `version-tag`, pass `--version` and, where needed, `--runtime-config`.
+   A default-branch module must remain clean at its published default commit.
+   Package consumers require a registry provider and are not handled by gitlink
+   transactions.
 
 ## Workflow
 
-1. Apply representative canary consumer updates.
+1. Inspect each stored subplan's artifact and target OID, then apply representative
+   canary updates with `gds module update-pin --apply <plan-id>`. Local gitlink
+   rewrites require no signed approval; provider publication remains a separate
+   transaction. Do not change version or identity flags when applying a plan.
 2. Run each consumer's required verification.
 3. Advance bounded waves only when gates pass.
 4. Preserve consumers intentionally pinned to older compatible artifacts.
@@ -47,6 +56,9 @@ fall back to a generic gitlink-only update.
 ## Verification
 
 Run `gds module update-pin --verify <operation-id> --json` per consumer.
+Supply the read runtime again when required. Versioned verification re-observes
+the exact tag object, peeled commit, source manifest and required release/assets;
+it refuses moved tags or replaced assets even if the staged gitlink still matches.
 `gds module update-consumers` plans only and has no apply or verify mode.
 
 ## Output
