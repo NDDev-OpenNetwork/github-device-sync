@@ -533,3 +533,33 @@ func TestAdvisoryDeliveryGuidanceDoesNotAlterWorkflowResults(t *testing.T) {
 		t.Fatal("advisory CI must preserve real outcomes")
 	}
 }
+
+func TestGoCallerHonorsFastCommandsWithoutRepeatingBroadTests(t *testing.T) {
+	generator, anchor, policy, bundle := controlPlaneInputs(t)
+	anchor.CI.TestCommand = "go test ./..."
+	anchor.Verification.Commands.Fast = []string{"go vet ./...", "scripts/check-format.sh"}
+	anchor.Verification.Commands.PRRequired = []string{"go test ./..."}
+	candidate, findings := generator.Generate(anchor, policy, bundle)
+	if len(findings) != 0 {
+		t.Fatal(findings)
+	}
+	workflow := string(candidateFile(t, candidate, goCIOutputPath).Content)
+	if !strings.Contains(workflow, `test_command: "go vet ./... && scripts/check-format.sh"`) {
+		t.Fatalf("fast commands ignored:\n%s", workflow)
+	}
+	if strings.Count(workflow, `test_command: "go test ./..."`) != 1 {
+		t.Fatalf("broad tests repeated:\n%s", workflow)
+	}
+	if !strings.Contains(workflow, `build_command: ""`) {
+		t.Fatal("fast caller repeats the default broad build")
+	}
+	anchor.Verification.Commands.Fast = nil
+	fallback, findings := generator.Generate(anchor, policy, bundle)
+	if len(findings) != 0 {
+		t.Fatal(findings)
+	}
+	workflow = string(candidateFile(t, fallback, goCIOutputPath).Content)
+	if strings.Count(workflow, `test_command: "go test ./..."`) != 2 || strings.Contains(workflow, `build_command: ""`) {
+		t.Fatalf("undeclared fast behavior changed:\n%s", workflow)
+	}
+}

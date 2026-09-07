@@ -31,14 +31,14 @@ jobs:
 {{ end }}
       runner: {{ yamlQuote .Runner }}
       go_version: {{ yamlQuote .GoVersion }}
-      test_command: {{ yamlQuote .TestCommand }}
+{{ if .DeclaredFastCommands }}      # Declared fast commands own their build scope; the complete build is below.
+      build_command: ""
+{{ end }}      test_command: {{ yamlQuote .FastCommand }}
       timeout_minutes: {{ .TimeoutMinutes }}
   pr-required:
     name: GDS PR required
-    # Serialized behind fast: both tiers run the integrated assurance scenario,
-    # which asserts wall-clock budgets, and running two of them side by side on
-    # one host measures contention rather than the code. It is also the right
-    # gate order — there is no value in the expensive tier once fast is red.
+    # Run the declared fast checks first. Repositories can keep this phase
+    # inexpensive and reserve their full test/build commands for this job.
     needs: fast
     permissions:
       contents: read

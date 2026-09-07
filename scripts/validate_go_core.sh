@@ -7,12 +7,12 @@ MINIMUM_SECURE_GO_VERSION=go1.26.7
 RELEASE_GO_VERSION=${GDS_RELEASE_GO_VERSION:-go1.26.7}
 GOVULNCHECK_VERSION=v1.6.0
 
-if [ "${1:-}" = "--quick" ]; then
-  MODE=quick
-  shift
-fi
+case "${1:-}" in
+  --quick) MODE=quick; shift ;;
+  --fast) MODE=fast; shift ;;
+esac
 if [ "$#" -ne 0 ]; then
-  printf 'usage: %s [--quick]\n' "$0" >&2
+  printf 'usage: %s [--quick|--fast]\n' "$0" >&2
   exit 4
 fi
 
@@ -54,7 +54,7 @@ if ! go_version_at_least "$GO_VERSION" "$MINIMUM_SECURE_GO_VERSION"; then
   fi
   printf '%s\n' \
     "WARNING: $GO_VERSION is older than the security floor $MINIMUM_SECURE_GO_VERSION." \
-    "Quick results are development-only; release evidence remains NOT_PROVEN." >&2
+    "This validation is development-only; release evidence remains NOT_PROVEN." >&2
 fi
 
 if [ "$MODE" = "full" ] && [ "$GO_VERSION" != "$RELEASE_GO_VERSION" ]; then
@@ -76,6 +76,15 @@ fi
 go mod tidy -diff
 go mod verify
 go vet ./...
+
+if [ "$MODE" = "fast" ]; then
+  python3 scripts/validate_python_locks.py
+  # The Go validator is self-contained; fast CI needs no unpinned Python packages.
+  go run ./core/cmd/gds --json validate schemas > /dev/null
+  printf 'GDS Go core validation: PASS (fast; full tests run separately)\n'
+  exit 0
+fi
+
 go test ./...
 python3 scripts/validate_python_locks.py
 python3 scripts/validate_gds_schemas.py --json >/dev/null

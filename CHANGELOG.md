@@ -15,6 +15,11 @@ Versioning.
 
 ### Changed
 
+- Generated Go callers honor declared fast verification commands, falling back
+  to the existing test command when none are declared. GDS uses a dedicated
+  formatting/module/vet/schema fast mode and runs its full Go tests once in the
+  PR-required job; the complete build remains in that job.
+
 - Ruleset reconciliation compares the complete owned required-check identities,
   including integration IDs and strict policy. Retired extra contexts or a
   different check producer no longer appear synchronized; external parameters
