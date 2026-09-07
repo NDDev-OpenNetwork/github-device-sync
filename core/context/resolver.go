@@ -134,6 +134,22 @@ func NewResolver(
 	}
 }
 
+// ResolveWithEstateRoot applies an operation-local estate override through the
+// same authority checks as GDS_ESTATE_ROOT, without changing process state.
+func (resolver *Resolver) ResolveWithEstateRoot(ctx context.Context, path, estateRoot string) Outcome {
+	if estateRoot == "" {
+		return resolver.Resolve(ctx, path)
+	}
+	selected := *resolver
+	selected.getenv = func(key string) string {
+		if key == "GDS_ESTATE_ROOT" {
+			return estateRoot
+		}
+		return resolver.getenv(key)
+	}
+	return selected.Resolve(ctx, path)
+}
+
 func (resolver *Resolver) Resolve(ctx context.Context, path string) Outcome {
 	resolvedPath, err := resolveDirectory(path)
 	if err != nil {

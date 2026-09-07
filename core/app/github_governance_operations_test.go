@@ -138,3 +138,64 @@ func appGovernanceOperationServer(t *testing.T) *httptest.Server {
 		}
 	}))
 }
+
+func TestGovernanceExplicitEstateOverridesEnvironmentForPolicy(t *testing.T) {
+	root := appTestRepositoryRoot(t)
+	registered := os.Getenv("GDS_ESTATE_ROOT")
+	explicit := t.TempDir()
+	for _, directory := range []string{".gds", "estate", "policies"} {
+		if err := copyAppTestTree(registered, explicit, directory); err != nil {
+			t.Fatal(err)
+		}
+	}
+	// Only the explicit estate contains the repository's selected profile.
+	if err := os.Remove(filepath.Join(registered, "policies", "stacks", "continuous-development.yaml")); err != nil {
+		t.Fatal(err)
+	}
+	runtimePath := appTestRuntimeConfig(t, root)
+	services, err := NewServices(DefaultClock)
+	if err != nil {
+		t.Fatal(err)
+	}
+	server := appGovernanceOperationServer(t)
+	client := server.Client()
+	client.Timeout = 5 * time.Second
+	services.GitHubRuntimeBuildOptions = githubruntime.BuildOptions{
+		BaseURL: server.URL + "/", HTTPClient: client, AllowInsecureLoopback: true,
+	}
+	options := GitHubGovernanceOperationOptions{
+		GitHubGovernanceOptions: GitHubGovernanceOptions{
+			GitHubReadOptions: GitHubReadOptions{
+				EstateRoot: explicit, RuntimeConfig: runtimePath,
+				InstallationID: "installation:github-opennetwork",
+			},
+			Owner: "NDDev-OpenNetwork", Repository: "github-device-sync", CompareLocal: true,
+		},
+	}
+	current, failure := services.githubGovernanceContext(context.Background(), root, options, "test")
+	if failure != nil {
+		t.Fatalf("explicit policy root was not honored: %#v", failure)
+	}
+	if current.estateRoot != explicit || current.observer(services).estateRoot != explicit {
+		t.Fatal("operation and precondition observer did not bind the selected estate")
+	}
+	read := services.GitHubGovernance(context.Background(), root, options.GitHubGovernanceOptions)
+	if read.ExitClass != domain.ExitSuccess {
+		t.Fatalf("read-only comparison selected a different policy root: %#v", read)
+	}
+	if os.Getenv("GDS_ESTATE_ROOT") != registered {
+		t.Fatal("operation override changed process environment")
+	}
+	options.EstateRoot = ""
+	_, failure = services.githubGovernanceContext(context.Background(), root, options, "test")
+	if failure == nil || !appHasFinding(*failure, "GDS_POLICY_PROFILE_MISSING") {
+		t.Fatalf("default estate should still lack the selected profile: %#v", failure)
+	}
+	for _, invalid := range []string{filepath.Join(explicit, "missing"), root} {
+		options.EstateRoot = invalid
+		_, failure = services.githubGovernanceContext(context.Background(), root, options, "test")
+		if failure == nil || failure.Mutation.Attempted {
+			t.Fatalf("unverified estate must fail before mutation: %#v", failure)
+		}
+	}
+}

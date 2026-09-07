@@ -5,6 +5,9 @@ Versioning.
 
 ## [Unreleased]
 
+- Honor explicit estate selection for governance policy compilation and local
+  comparison, retaining authority checks and the same root during apply.
+
 - Select continuous development for the GDS repository itself and document
   explicit ruleset removal plus cautious readback after ambiguous write errors.
   Generic policy defaults remain opt-in for other consumers.

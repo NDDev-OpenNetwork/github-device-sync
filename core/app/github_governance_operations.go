@@ -350,7 +350,7 @@ func (services *Services) githubGovernanceContext(
 		})
 		return githubGovernanceOperationContext{}, &envelope
 	}
-	estateRoot, anchor, findings := services.policyInputs(ctx, path)
+	estateRoot, anchor, findings := services.policyInputsWithEstateRoot(ctx, path, options.EstateRoot)
 	if len(findings) != 0 {
 		envelope := domain.NewEnvelope(command, classifyFindings(findings), nil, findings...)
 		return githubGovernanceOperationContext{}, &envelope

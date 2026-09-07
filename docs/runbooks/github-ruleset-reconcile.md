@@ -47,6 +47,9 @@ lost this way reports nothing; the only evidence is its absence.
 
 ## Preconditions
 
+- `--estate-root` selects the verified control-plane used for both provider
+  inventory and canonical policy. It overrides environment/registered estate
+  selection for this operation; the precondition observer retains that root.
 - The mutation runtime must be configured. `gds context --json` reporting
   `capabilities.mutations.runtime: configuration-required` means the GitHub App
   credential does not resolve on this device, and the apply will fail *after* its
