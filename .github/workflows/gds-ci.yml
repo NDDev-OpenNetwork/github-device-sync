@@ -33,7 +33,7 @@ jobs:
     name: GDS fast
     permissions:
       contents: read
-    uses: NDDev-OpenNetwork/ci-workflows/.github/workflows/go-ci.yml@409817cf743e76383c84e30c72edf781d73b71a1
+    uses: NDDev-OpenNetwork/ci-workflows/.github/workflows/go-ci.yml@706233fdc953d4281389c0fd5f8c1a007e19a1f5
     with:
       fetch_depth: 0
       # Public hosted CI uses GitHub's service cache; the pinned reusable
@@ -53,7 +53,7 @@ jobs:
     needs: fast
     permissions:
       contents: read
-    uses: NDDev-OpenNetwork/ci-workflows/.github/workflows/go-ci.yml@409817cf743e76383c84e30c72edf781d73b71a1
+    uses: NDDev-OpenNetwork/ci-workflows/.github/workflows/go-ci.yml@706233fdc953d4281389c0fd5f8c1a007e19a1f5
     with:
       fetch_depth: 0
       cache: true
