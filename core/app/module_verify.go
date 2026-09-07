@@ -44,7 +44,7 @@ type CommandReport struct {
 	Status     string `json:"status"`
 	ExitCode   int    `json:"exit_code"`
 	DurationMS int64  `json:"duration_ms"`
-	// Diagnostic is the tail of stderr, bounded and redacted. It is the whole
+	// Diagnostic is the combined output tail, bounded and redacted. It is the whole
 	// difference between a usable report and a guess: a failing command may be a
 	// defect in the module or a tool missing from this device, and nothing in
 	// the exit code separates those. `python3 -m pytest` exiting 1 in 14ms with
@@ -275,7 +275,20 @@ func runDeclaredCommand(
 	command := exec.CommandContext(bounded, "bash", "-euo", "pipefail", "-c", declared)
 	command.Dir = directory
 	command.Stdin = nil
-	diagnostic := &strings.Builder{}
+	// This selector belongs to the controller operation. Module commands prove
+	// their own source checkout, and must not silently select its consumer's
+	// estate. A declared command can still explicitly select an estate itself.
+	environment := os.Environ()
+	command.Env = make([]string, 0, len(environment))
+	for _, value := range environment {
+		if !strings.HasPrefix(value, "GDS_ESTATE_ROOT=") {
+			command.Env = append(command.Env, value)
+		}
+	}
+	// Bound inherited output pipes as well as the command itself.
+	command.WaitDelay = 2 * time.Second
+	diagnostic := &moduleCommandOutput{}
+	command.Stdout = diagnostic
 	command.Stderr = diagnostic
 	err := command.Run()
 	report := CommandReport{
@@ -286,17 +299,23 @@ func runDeclaredCommand(
 		return report
 	}
 	report.Diagnostic = boundedDiagnostic(diagnostic.String())
+	if report.Diagnostic == "" {
+		report.Diagnostic = boundedDiagnostic(err.Error())
+	}
 	if errors.Is(bounded.Err(), context.DeadlineExceeded) {
 		report.Status = "timeout"
 		report.ExitCode = -1
 		return report
 	}
 	report.Status = "failed"
-	report.ExitCode = command.ProcessState.ExitCode()
+	report.ExitCode = -1
+	if command.ProcessState != nil {
+		report.ExitCode = command.ProcessState.ExitCode()
+	}
 	return report
 }
 
-// boundedDiagnostic keeps the last lines of stderr, redacted and bounded.
+// boundedDiagnostic keeps the last output lines, redacted and bounded.
 //
 // The tail rather than the head: a failing build prints its progress first and
 // its reason last, so the head is the part nobody needs. The bound exists

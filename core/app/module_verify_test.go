@@ -74,3 +74,46 @@ func TestBoundedDiagnosticKeepsTheTail(t *testing.T) {
 		t.Fatalf("diagnostic = %q", bounded[:40])
 	}
 }
+
+func TestDeclaredCommandDoesNotInheritControllerEstateSelection(t *testing.T) {
+	t.Setenv("GDS_ESTATE_ROOT", t.TempDir())
+	t.Setenv("GDS_MODULE_TEST_VALUE", "preserved")
+	report := runDeclaredCommand(context.Background(), t.TempDir(),
+		`test -z "${GDS_ESTATE_ROOT+x}" && test "$GDS_MODULE_TEST_VALUE" = preserved`, 30*time.Second)
+	if report.Status != "passed" {
+		t.Fatalf("controller selection leaked into module: %#v", report)
+	}
+}
+
+func TestDeclaredCommandPreservesStdoutFailure(t *testing.T) {
+	t.Parallel()
+	report := runDeclaredCommand(context.Background(), t.TempDir(), `printf 'FAIL: module assertion\n'; exit 1`, 30*time.Second)
+	if report.Status != "failed" || !strings.Contains(report.Diagnostic, "FAIL: module assertion") {
+		t.Fatalf("stdout failure lost: %#v", report)
+	}
+}
+
+func TestModuleCommandOutputBoundsBothStreamsDuringExecution(t *testing.T) {
+	t.Parallel()
+	output := &moduleCommandOutput{}
+	for _, value := range []string{strings.Repeat("first", 20000), strings.Repeat("second", 20000), "last diagnostic"} {
+		n, err := output.Write([]byte(value))
+		if err != nil || n != len(value) {
+			t.Fatalf("write=%d %v", n, err)
+		}
+		if len(output.String()) > moduleCommandOutputLimit {
+			t.Fatal("unbounded process output")
+		}
+	}
+	if !strings.HasSuffix(output.String(), "last diagnostic") {
+		t.Fatal("tail lost")
+	}
+}
+
+func TestDeclaredCommandReportsUnavailableShellWithoutPanic(t *testing.T) {
+	t.Setenv("PATH", t.TempDir())
+	report := runDeclaredCommand(context.Background(), t.TempDir(), "true", time.Second)
+	if report.Status != "failed" || report.ExitCode != -1 || report.Diagnostic == "" {
+		t.Fatalf("launch failure=%#v", report)
+	}
+}
