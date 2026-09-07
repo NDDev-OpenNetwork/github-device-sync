@@ -16,3 +16,13 @@
 - No repository-owned verification command is declared; report it as
   `NOT_PROVEN`.
 {{- end }}
+{{- if .AdvisoryCI }}
+
+## Continuous development
+
+- Broad GitHub CI is asynchronous evidence; it does not block ordinary merge
+  or deployment. Preserve actual failed, cancelled, skipped and unknown results.
+- Run checks relevant to the changed behavior and follow project-owned build,
+  migration and runtime contracts. Report failures in the owning repository.
+- Selecting this profile does not itself apply provider settings or deploy code.
+{{- end }}

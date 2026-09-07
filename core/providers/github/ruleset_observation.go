@@ -152,7 +152,7 @@ func normalizeRepositoryRuleset(
 		raw.SourceType != "Repository" || !strings.EqualFold(raw.Source, owner+"/"+name) ||
 		(raw.Enforcement != "active" && raw.Enforcement != "disabled" && raw.Enforcement != "evaluate") ||
 		len(raw.Conditions.RefName.Include) == 0 || len(raw.Conditions.RefName.Include) > 100 ||
-		len(raw.Conditions.RefName.Exclude) > 100 || len(raw.Rules) == 0 || len(raw.Rules) > 32 {
+		len(raw.Conditions.RefName.Exclude) > 100 || raw.Rules == nil || len(raw.Rules) > 32 {
 		return RepositoryRulesetState{}, fmt.Errorf("GitHub repository ruleset response is invalid")
 	}
 	state := RepositoryRulesetState{

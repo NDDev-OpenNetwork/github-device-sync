@@ -40,6 +40,7 @@ type GitHubGovernancePlanData struct {
 }
 
 type githubGovernanceOperationContext struct {
+	policy      compiler.CompiledPolicyDocument
 	root        string
 	estateRoot  string
 	runtime     githubRuntime
@@ -433,6 +434,7 @@ func (services *Services) githubGovernanceContext(
 	ready, blocker := githubGovernanceMutationGate(runtime.desired, assignment, capability, anchor.Repository.Lifecycle)
 	return githubGovernanceOperationContext{
 		root: localRoot, estateRoot: estateRoot, runtime: runtime, reader: reader, snapshot: snapshot,
+		policy:     compiled.Document,
 		comparison: comparison, remediation: remediation, assignment: assignment,
 		capability: capability, ready: ready, blocker: blocker,
 		observation: operations.Observation{

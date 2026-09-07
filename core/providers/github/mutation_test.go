@@ -304,7 +304,7 @@ func TestRepositoryRulesetUpdatePreservesExternallyManagedPayload(t *testing.T) 
 		"rules":[
 			{"type":"pull_request","parameters":{"required_approving_review_count":2,"require_last_push_approval":true,"allowed_merge_methods":["squash"],"required_reviewers":[],"dismissal_restriction":{"enabled":false,"allowed_actors":[]}}},
 			{"type":"provider_future_rule","parameters":{"opaque":{"keep":true}}},
-			{"type":"required_status_checks","parameters":{"required_status_checks":[{"context":"old"}],"strict_required_status_checks_policy":false,"do_not_enforce_on_create":true}}
+			{"type":"required_status_checks","parameters":{"required_status_checks":[{"context":"old"}],"strict_required_status_checks_policy":false,"do_not_enforce_on_create":true,"future_status_parameter":{"keep":true}}}
 		]}`)}
 	desired := RepositoryRuleset{ID: 9, Name: "gds-main", Target: "branch", Enforcement: "active", Rules: []RulesetRule{
 		{
@@ -332,6 +332,10 @@ func TestRepositoryRulesetUpdatePreservesExternallyManagedPayload(t *testing.T) 
 		rules[1].(map[string]any)["type"] != "provider_future_rule" ||
 		rules[2].(map[string]any)["type"] != "required_status_checks" {
 		t.Fatalf("rule order/external rules changed: %#v", rules)
+	}
+	statusParameters := rules[2].(map[string]any)["parameters"].(map[string]any)
+	if statusParameters["future_status_parameter"] == nil || statusParameters["do_not_enforce_on_create"] != false {
+		t.Fatalf("status parameters were not merged losslessly: %#v", statusParameters)
 	}
 	pullParameters := rules[0].(map[string]any)["parameters"].(map[string]any)
 	if pullParameters["require_extra_approval_for_unattributed_changes"] != false ||
@@ -380,4 +384,59 @@ func mutationTestMutator(
 		t.Fatal(err)
 	}
 	return mutator
+}
+
+func TestExplicitStatusCheckRemovalPreservesOtherRulesAndWireFields(t *testing.T) {
+	for _, remove := range []bool{false, true} {
+		t.Run(fmt.Sprint(remove), func(t *testing.T) {
+			var received map[string]any
+			writes := 0
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				writes++
+				if r.Method != http.MethodPut || r.URL.Path != "/repos/example/repository/rulesets/9" {
+					t.Errorf("wrong target: %s %s", r.Method, r.URL.Path)
+				}
+				if err := json.NewDecoder(r.Body).Decode(&received); err != nil {
+					t.Error(err)
+				}
+				_, _ = w.Write([]byte(`{"id":9,"name":"gds-main","target":"branch","source_type":"Repository","source":"example/repository","enforcement":"active"}`))
+			}))
+			defer server.Close()
+			mutator := mutationTestMutator(t, server, []string{MutationRepositoryRuleset}, nil, nil)
+			repository, err := mutator.BindRepository(RepositoryMutationScope{RepositoryID: 42, Owner: "example", Name: "repository", Operations: []string{MutationRepositoryRuleset}})
+			if err != nil {
+				t.Fatal(err)
+			}
+			current := RepositoryRulesetState{ID: 9, WritablePayload: json.RawMessage(`{"name":"gds-main","target":"branch","enforcement":"active","bypass_actors":[{"actor_id":7,"actor_type":"Team","bypass_mode":"always"}],"conditions":{"ref_name":{"include":["~DEFAULT_BRANCH"],"exclude":["refs/heads/vendor/**"]}},"rules":[{"type":"required_status_checks","parameters":{"required_status_checks":[{"context":"background"}],"strict_required_status_checks_policy":true}},{"type":"required_signatures"},{"type":"pull_request","parameters":{"required_approving_review_count":2}},{"type":"provider_future_rule","parameters":{"keep":true}}]}`)}
+			desired := RepositoryRuleset{ID: 9, Name: "gds-main", Rules: []RulesetRule{{Type: "required_signatures"}}, RemoveRequiredStatusChecks: remove}
+			if _, _, err := repository.UpsertDefaultBranchRuleset(context.Background(), desired, &current); err != nil {
+				t.Fatal(err)
+			}
+			if writes != 1 {
+				t.Fatalf("writes=%d", writes)
+			}
+			if _, present := received["remove_required_status_checks"]; present {
+				t.Fatal("internal intent leaked to wire")
+			}
+			var old map[string]any
+			_ = json.Unmarshal(current.WritablePayload, &old)
+			for _, key := range []string{"bypass_actors", "conditions"} {
+				if !reflect.DeepEqual(received[key], old[key]) {
+					t.Fatalf("changed %s", key)
+				}
+			}
+			want := old["rules"].([]any)
+			if remove {
+				want = want[1:]
+			}
+			if !reflect.DeepEqual(received["rules"], want) {
+				t.Fatalf("rules=%#v want=%#v", received["rules"], want)
+			}
+			desired.Rules = []RulesetRule{{Type: "required_status_checks", RequiredStatusChecks: []RequiredStatusCheck{{Context: "conflict"}}}}
+			desired.RemoveRequiredStatusChecks = true
+			if _, _, err := repository.UpsertDefaultBranchRuleset(context.Background(), desired, &current); err == nil || writes != 1 {
+				t.Fatal("conflicting intent reached provider")
+			}
+		})
+	}
 }

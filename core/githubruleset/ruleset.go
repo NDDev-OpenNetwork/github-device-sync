@@ -278,12 +278,12 @@ func normalizeDesired(value githubprovider.RepositoryRuleset) (githubprovider.Re
 	if value.ID < 0 || value.Name == "" || len(value.Name) > 256 || strings.ContainsAny(value.Name, "\x00\r\n") ||
 		(value.Target != "" && value.Target != "branch") ||
 		(value.Enforcement != "" && value.Enforcement != "active") ||
-		len(value.Rules) == 0 || len(value.Rules) > 32 {
+		(len(value.Rules) == 0 && !(value.RemoveRequiredStatusChecks && value.ID > 0)) || len(value.Rules) > 32 {
 		return githubprovider.RepositoryRuleset{}, errors.New("desired GitHub ruleset is invalid")
 	}
 	value.Target = "branch"
 	value.Enforcement = "active"
-	value.Rules = append([]githubprovider.RulesetRule(nil), value.Rules...)
+	value.Rules = append([]githubprovider.RulesetRule{}, value.Rules...)
 	seen := map[string]struct{}{}
 	for index := range value.Rules {
 		rule := &value.Rules[index]
@@ -314,6 +314,9 @@ func normalizeDesired(value githubprovider.RepositoryRuleset) (githubprovider.Re
 			}
 			rule.AllowedMergeMethods = methods
 		case "required_status_checks":
+			if value.RemoveRequiredStatusChecks {
+				return githubprovider.RepositoryRuleset{}, errors.New("required status checks conflict with explicit removal")
+			}
 			if len(rule.RequiredStatusChecks) == 0 || len(rule.RequiredStatusChecks) > 50 ||
 				rule.RequiredApprovingReviewCount != 0 {
 				return githubprovider.RepositoryRuleset{}, errors.New("GitHub status-check rule is invalid")
@@ -343,7 +346,7 @@ func normalizeDesired(value githubprovider.RepositoryRuleset) (githubprovider.Re
 func normalizeState(value githubprovider.RepositoryRulesetState) (githubprovider.RepositoryRulesetState, error) {
 	if value.ID <= 0 || value.Name == "" || value.Target != "branch" || value.SourceType != "Repository" ||
 		value.Source == "" || (value.Enforcement != "active" && value.Enforcement != "disabled" && value.Enforcement != "evaluate") || len(value.ConditionIncludes) == 0 ||
-		len(value.Rules) == 0 {
+		value.Rules == nil {
 		return githubprovider.RepositoryRulesetState{}, errors.New("GitHub ruleset state is invalid")
 	}
 	includes := make([]string, len(value.ConditionIncludes))
@@ -377,7 +380,8 @@ func normalizeState(value githubprovider.RepositoryRulesetState) (githubprovider
 		knownRules = append(knownRules, rule)
 	}
 	desired, err := normalizeDesired(githubprovider.RepositoryRuleset{
-		ID: value.ID, Name: value.Name, Target: value.Target,
+		RemoveRequiredStatusChecks: len(knownRules) == 0,
+		ID:                         value.ID, Name: value.Name, Target: value.Target,
 		Enforcement: "active", Rules: knownRules,
 	})
 	if err != nil {
@@ -472,7 +476,18 @@ func ownedStateEqual(current githubprovider.RepositoryRulesetState, desired gith
 	if desired.Enforcement == "" && current.Enforcement != "active" {
 		return false
 	}
-	return reflect.DeepEqual(ownedRules(current.Rules), ownedRules(desired.Rules))
+	currentOwned := ownedRulesByType(current.Rules)
+	if desired.RemoveRequiredStatusChecks {
+		if _, present := currentOwned["required_status_checks"]; present {
+			return false
+		}
+	}
+	for kind, wanted := range ownedRulesByType(desired.Rules) {
+		if actual, present := currentOwned[kind]; !present || !reflect.DeepEqual(actual, wanted) {
+			return false
+		}
+	}
+	return true
 }
 
 func applyOwnedState(current githubprovider.RepositoryRulesetState, desired githubprovider.RepositoryRuleset) githubprovider.RepositoryRulesetState {
@@ -483,12 +498,15 @@ func applyOwnedState(current githubprovider.RepositoryRulesetState, desired gith
 	owned := ownedRulesByType(desired.Rules)
 	result := make([]githubprovider.RulesetRule, 0, len(current.Rules)+len(owned))
 	for _, rule := range current.Rules {
+		if desired.RemoveRequiredStatusChecks && rule.Type == "required_status_checks" {
+			continue
+		}
 		if rule.Type == "required_status_checks" || rule.Type == "pull_request" {
 			if replacement, exists := owned[rule.Type]; exists {
-				if rule.Type == "pull_request" {
-					replacement.ExternalParameters = append(json.RawMessage(nil), rule.ExternalParameters...)
-				}
+				replacement.ExternalParameters = append(json.RawMessage(nil), rule.ExternalParameters...)
 				result = append(result, replacement)
+			} else {
+				result = append(result, rule)
 			}
 			delete(owned, rule.Type)
 			continue
