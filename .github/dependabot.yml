@@ -40,27 +40,12 @@ updates:
     labels:
       - dependencies
       - ci
-    # Every `ci-workflows` reusable pin is withheld, because a Dependabot commit
-    # that moves one is unmergeable by construction for two independent reasons.
-    #
-    # `generate_required_checks.py` derives the required status-check contexts
-    # offline from `requirements/required-check-facts.json`, a cache of upstream
-    # job names keyed by exact commit. A moved pin misses that cache and the
-    # generator fails closed; refreshing it needs a fetch Dependabot never makes.
-    #
-    # The `go-ci.yml` pin additionally appears only in `gds-ci.yml`, a
-    # bundle-locked projection under `generated_projection_edit: forbidden`.
-    # Rewriting it there detaches the projection from `.gds/bundle.lock.yaml`
-    # and every check fails `GDS_CONTEXT_PROJECTION_DIGEST_MISMATCH`, however
-    # good the new ref is. Its canonical home is `ci.workflow_ref` in
-    # `.gds/repository.yaml`, and moving it is an anchor edit plus a signed
-    # regeneration.
-    #
-    # So the family is bumped by hand: move the pin, run
-    # `scripts/refresh_required_check_facts.py`, commit both. Upstream movement
-    # is surfaced by `scripts/report_workflow_ref_drift.py` instead of by a bot.
+    # The Go caller is generated. Update ci.workflow_ref in .gds/repository.yaml
+    # and regenerate through gds generate repository --plan/--apply; editing the
+    # output alone breaks its bundle provenance. Other workflow pins remain
+    # visible as Dependabot proposals and retain ordinary review.
     ignore:
-      - dependency-name: "example-org/ci-workflows/*"
+      - dependency-name: "NDDev-OpenNetwork/ci-workflows/.github/workflows/go-ci.yml"
     groups:
       github-actions:
         applies-to: version-updates

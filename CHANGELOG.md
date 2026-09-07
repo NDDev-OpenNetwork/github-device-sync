@@ -5,6 +5,10 @@ Versioning.
 
 ## [Unreleased]
 
+- Update workflow dependencies through the canonical Go caller anchor and
+  regenerated provenance. Exclude that generated dependency from direct
+  Dependabot rewrites while retaining other workflow update proposals.
+
 - Select continuous development for the GDS repository itself and document
   explicit ruleset removal plus cautious readback after ambiguous write errors.
   Generic policy defaults remain opt-in for other consumers.
