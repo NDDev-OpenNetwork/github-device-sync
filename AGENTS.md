@@ -37,6 +37,13 @@ checkout.
 - Keep secrets, runtime state, caches, logs and generated evidence untracked.
 - Generated fixtures under `tests/golden` change only through their generator.
 
+## Continuous development
+
+This repository selects the continuous-development policy. Treat broad GitHub
+CI as asynchronous evidence for ordinary integration, preserve actual outcomes,
+and run checks relevant to the changed behavior. Release integrity, dependency
+identity and provider transaction controls remain required.
+
 ## Verification
 
 - Lint: `scripts/validate_shell.sh`.

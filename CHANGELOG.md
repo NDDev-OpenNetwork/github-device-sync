@@ -5,6 +5,10 @@ Versioning.
 
 ## [Unreleased]
 
+- Select continuous development for the GDS repository itself and document
+  explicit ruleset removal plus cautious readback after ambiguous write errors.
+  Generic policy defaults remain opt-in for other consumers.
+
 - Publish unsuccessful completed self-workflow attempts as unassigned,
   repository-local CI evidence; preserve actual conclusions and exact attempts.
 
