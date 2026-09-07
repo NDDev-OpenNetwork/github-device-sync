@@ -180,6 +180,11 @@ sends the reader looking for a concurrent writer that does not exist. Any
 command whose deadline expires now also carries
 `GDS_COMMAND_DEADLINE_EXCEEDED`, naming the deadline and the flag.
 
+Module commands run without the controller's ambient `GDS_ESTATE_ROOT` selector;
+their source checks must resolve their own checkout. A declared command may
+explicitly select an estate when its contract requires one. Failures retain a
+bounded, redacted tail from both stdout and stderr, including launch errors.
+
 Applying a pin needs no approval. The only mutation is a gitlink rewrite in the
 consumer's own working tree: it writes no provider, replaces no credential and
 publishes nothing, and the consumer's pull request and checks are its real gate.
