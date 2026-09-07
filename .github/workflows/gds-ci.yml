@@ -1,14 +1,15 @@
 # GENERATED FILE - DO NOT EDIT DIRECTLY
 # generator: gds
 # bundle: 0.8.0-dev
-# source-tree-digest: sha256:a2b5ad7bdb6a7198d0de86e3de879062c71df5e86ff2f257257693aee319aa4a
-# input-digest: sha256:f914cbb8b69051475867d7fe14977debf309cb4ee1bd9bcddd6e64c7098bd886
+# source-tree-digest: sha256:27c680c6d2fa6dbdb297d8902b19bccd2e9114449d0494fd4866df78b149631e
+# input-digest: sha256:66e0e6e6b2788574f5a52479e921db822414f730671be57ed68aa96836aa7ac7
 # output-digest: sha256:4a875d4ed62fe6b2d279515f9a19274e159ae8ed58f3a1a0843c60a49f663886
 # edit-source:
 #   - .gds/repository.yaml
 #   - policies/base/repository-default.yaml
 #   - policies/repositories/github-device-sync.yaml
 #   - policies/roles/public-module.yaml
+#   - policies/stacks/continuous-development.yaml
 #   - templates/agents/repository.md.tmpl
 #   - templates/github-actions/go.yml.tmpl
 #   - templates/harnesses/claude.md.tmpl

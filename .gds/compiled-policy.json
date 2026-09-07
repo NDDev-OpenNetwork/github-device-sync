@@ -3,7 +3,7 @@
   "compiled_policy": {
     "repository_id": "repo_01M0EZ7TB3KNXNSP78Z8M64WXG",
     "bundle_version": "0.8.0-dev",
-    "digest": "sha256:13fde780e078b9143e913db7cf706c8908b52c21ec51f28d26d3c9fdd715e080"
+    "digest": "sha256:f901d1860f277a0262d83c6fa06a806f7740677fb14576bbf5816c69af565974"
   },
   "sources": [
     {
@@ -21,6 +21,14 @@
       "distribution": "public",
       "path": "policies/roles/public-module.yaml",
       "digest": "sha256:084f7b09dbfd85a386e47cf83ea0015154b6b01fa3cf85a68f04ef407b89ed4b"
+    },
+    {
+      "id": "continuous-development",
+      "tier": "stack",
+      "priority": 500,
+      "distribution": "public",
+      "path": "policies/stacks/continuous-development.yaml",
+      "digest": "sha256:678b6876cd6cf58d7b97e7e0751e7ec9c0d3f75c2c78c5bfbe0d02930774195d"
     },
     {
       "id": "github-device-sync",
@@ -41,6 +49,9 @@
     },
     "context": {
       "private_parent_persistence": "forbidden"
+    },
+    "delivery": {
+      "profile": "continuous-development"
     },
     "git": {
       "branch_cleanup": "merged-only",
@@ -186,6 +197,13 @@
       "tier": "base",
       "priority": 100,
       "file": "policies/base/repository-default.yaml",
+      "operation": "set"
+    },
+    "/effective/delivery/profile": {
+      "source": "continuous-development",
+      "tier": "stack",
+      "priority": 500,
+      "file": "policies/stacks/continuous-development.yaml",
       "operation": "set"
     },
     "/effective/git/branch_cleanup": {

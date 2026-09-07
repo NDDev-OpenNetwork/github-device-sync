@@ -65,6 +65,7 @@ policy:
     - "repository-default"
     - "public-module"
     - "github-device-sync"
+    - "continuous-development"
   rollout_ring: "standard"
 
 git:
