@@ -5,6 +5,10 @@ Versioning.
 
 ## [Unreleased]
 
+- Publish unsuccessful completed self-workflow attempts as unassigned,
+  repository-local CI evidence; preserve actual conclusions and exact attempts.
+
+
 - Reject ineligible module pins and invalid consumer policy before running
   module verification commands; eligible plans and apply still verify the exact
   published target and bind that evidence to the transaction.
