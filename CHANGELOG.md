@@ -5,6 +5,12 @@ Versioning.
 
 ## [Unreleased]
 
+- Add opt-in `continuous-development` policy with explicit, journaled removal
+  intent for selected repository ruleset status checks and generated advisory CI
+  guidance. Preserve omitted rules and unknown status-check parameters across
+  updates; verify empty ruleset readback and replay without another write.
+
+
 ### Changed
 
 - Ruleset reconciliation compares the complete owned required-check identities,

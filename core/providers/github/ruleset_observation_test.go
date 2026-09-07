@@ -3,6 +3,7 @@ package github
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -62,4 +63,33 @@ func rulesetStateJSON(includeBypass bool) string {
 		bypass = `,"bypass_actors":[]`
 	}
 	return fmt.Sprintf(`{"id":9,"name":"gds-default-branch","target":"branch","source_type":"Repository","source":"example/repository","enforcement":"active"%s,"conditions":{"ref_name":{"include":["~DEFAULT_BRANCH"],"exclude":[]},"future_condition":{"preserve":true}},"rules":[{"type":"non_fast_forward"},{"type":"pull_request","provider_rule_metadata":{"preserve":true},"parameters":{"required_approving_review_count":1,"dismiss_stale_reviews_on_push":true,"require_code_owner_review":true,"required_review_thread_resolution":true,"require_last_push_approval":false}}]}`, bypass)
+}
+
+func TestEmptyRulesetObservationRequiresExplicitArray(t *testing.T) {
+	for _, rules := range []string{`[]`, `null`, ``} {
+		t.Run(rules, func(t *testing.T) {
+			var document map[string]any
+			if err := json.Unmarshal([]byte(rulesetStateJSON(true)), &document); err != nil {
+				t.Fatal(err)
+			}
+			if rules == "" {
+				delete(document, "rules")
+			} else {
+				var value any
+				_ = json.Unmarshal([]byte(rules), &value)
+				document["rules"] = value
+			}
+			raw, _ := json.Marshal(document)
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { _, _ = w.Write(raw) }))
+			defer server.Close()
+			client := testClient(t, server, fixedToken("token", time.Now().Add(time.Hour)), nil)
+			state, _, err := client.GetRepositoryRuleset(context.Background(), "example", "repository", 9)
+			if (err == nil) != (rules == "[]") {
+				t.Fatalf("err=%v", err)
+			}
+			if err == nil && state.Rules == nil {
+				t.Fatal("empty rules must remain an array")
+			}
+		})
+	}
 }

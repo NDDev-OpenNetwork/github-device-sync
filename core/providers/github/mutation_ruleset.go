@@ -37,11 +37,13 @@ type RulesetRule struct {
 }
 
 type RepositoryRuleset struct {
-	ID          int64         `json:"id"`
-	Name        string        `json:"name"`
-	Target      string        `json:"target"`
-	Enforcement string        `json:"enforcement"`
-	Rules       []RulesetRule `json:"rules"`
+	// RemoveRequiredStatusChecks is explicit plan intent, never a GitHub wire field.
+	RemoveRequiredStatusChecks bool          `json:"remove_required_status_checks,omitempty"`
+	ID                         int64         `json:"id"`
+	Name                       string        `json:"name"`
+	Target                     string        `json:"target"`
+	Enforcement                string        `json:"enforcement"`
+	Rules                      []RulesetRule `json:"rules"`
 }
 
 type rulesetMutationResponse struct {
@@ -60,6 +62,9 @@ func (mutator *RepositoryMutator) UpsertDefaultBranchRuleset(
 ) (RulesetSummary, MutationMeta, error) {
 	if err := validateRepositoryRuleset(ruleset); err != nil {
 		return RulesetSummary{}, MutationMeta{}, err
+	}
+	if ruleset.RemoveRequiredStatusChecks && ruleset.ID > 0 && current == nil {
+		return RulesetSummary{}, MutationMeta{}, rulesetStageFailure(RulesetStageObservationBinding, "removal-observation-missing")
 	}
 	var payload map[string]any
 	if current != nil {
@@ -91,7 +96,7 @@ func (mutator *RepositoryMutator) UpsertDefaultBranchRuleset(
 		if payload["enforcement"] == "" {
 			payload["enforcement"] = "active"
 		}
-		if err := replaceOwnedRules(payload, ruleset.Rules); err != nil {
+		if err := replaceOwnedRules(payload, ruleset.Rules, ruleset.RemoveRequiredStatusChecks); err != nil {
 			return RulesetSummary{}, MutationMeta{}, err
 		}
 	} else {
@@ -162,7 +167,7 @@ func (mutator *RepositoryMutator) UpsertDefaultBranchRuleset(
 	}, meta, nil
 }
 
-func replaceOwnedRules(payload map[string]any, desired []RulesetRule) error {
+func replaceOwnedRules(payload map[string]any, desired []RulesetRule, removeChecks bool) error {
 	rawRules, ok := payload["rules"].([]any)
 	if !ok {
 		return rulesetStageFieldFailure(
@@ -187,12 +192,13 @@ func replaceOwnedRules(payload map[string]any, desired []RulesetRule) error {
 			)
 		}
 		typeName, _ := rule["type"].(string)
+		if removeChecks && typeName == "required_status_checks" {
+			continue
+		}
 		if typeName == "required_status_checks" || typeName == "pull_request" {
 			if replacement, exists := owned[typeName]; exists {
-				if typeName == "pull_request" {
-					if err := preserveExternalPullParameters(rule, replacement); err != nil {
-						return err
-					}
+				if err := preserveExternalRuleParameters(rule, replacement); err != nil {
+					return err
 				}
 				result = append(result, replacement)
 				delete(owned, typeName)
@@ -212,30 +218,23 @@ func replaceOwnedRules(payload map[string]any, desired []RulesetRule) error {
 	return nil
 }
 
-func preserveExternalPullParameters(observed, desired map[string]any) error {
+func preserveExternalRuleParameters(observed, desired map[string]any) error {
 	observedParameters, ok := observed["parameters"].(map[string]any)
 	if !ok {
 		return rulesetStageFieldFailure(
-			RulesetStageExternalFieldMerge, "preserved-pull-parameters-not-an-object", "rules/pull_request",
+			RulesetStageExternalFieldMerge, "preserved-rule-parameters-not-an-object", "rules/parameters",
 		)
 	}
 	desiredParameters, ok := desired["parameters"].(map[string]any)
 	if !ok {
 		return rulesetStageFieldFailure(
-			RulesetStageExternalFieldMerge, "desired-pull-parameters-not-an-object", "rules/pull_request",
+			RulesetStageExternalFieldMerge, "desired-rule-parameters-not-an-object", "rules/parameters",
 		)
 	}
-	owned := map[string]bool{
-		"required_approving_review_count":                 true,
-		"dismiss_stale_reviews_on_push":                   true,
-		"require_code_owner_review":                       true,
-		"required_review_thread_resolution":               true,
-		"require_last_push_approval":                      true,
-		"require_extra_approval_for_unattributed_changes": true,
-		"allowed_merge_methods":                           true,
-	}
 	for key, value := range observedParameters {
-		if !owned[key] {
+		// The encoder supplies every owned parameter, including false/empty
+		// values. Preserve only keys outside that closed owned set.
+		if _, owned := desiredParameters[key]; !owned {
 			desiredParameters[key] = value
 		}
 	}
@@ -256,7 +255,7 @@ func validateRepositoryRuleset(ruleset RepositoryRuleset) error {
 		{boundedProviderText(ruleset.Name, 256), "name-unbounded", "name"},
 		{ruleset.Target == "" || ruleset.Target == "branch", "target-unsupported", "target"},
 		{ruleset.Enforcement == "" || ruleset.Enforcement == "active", "enforcement-unsupported", "enforcement"},
-		{len(ruleset.Rules) > 0, "rules-empty", "rules"},
+		{len(ruleset.Rules) > 0 || (ruleset.RemoveRequiredStatusChecks && ruleset.ID > 0), "rules-empty", "rules"},
 		{len(ruleset.Rules) <= 32, "rules-over-bound", "rules"},
 	} {
 		if !condition.ok {
@@ -284,6 +283,9 @@ func validateRepositoryRuleset(ruleset RepositoryRuleset) error {
 				)
 			}
 		case "required_status_checks":
+			if ruleset.RemoveRequiredStatusChecks {
+				return rulesetStageFieldFailure(RulesetStageContractValidation, "status-check-removal-conflicts", rule.Type)
+			}
 			if len(rule.RequiredStatusChecks) == 0 || len(rule.RequiredStatusChecks) > 50 ||
 				rule.RequiredApprovingReviewCount != 0 {
 				return rulesetStageFieldFailure(

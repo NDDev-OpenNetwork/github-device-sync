@@ -3,6 +3,7 @@ package githubruleset
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"reflect"
 	"strings"
 	"testing"
@@ -266,5 +267,102 @@ func TestRulesetSemanticPostconditionIgnoresOnlyWritableSerialization(t *testing
 	right.Rules = []githubprovider.RulesetRule{{Type: "deletion"}}
 	if reflect.DeepEqual(rulesetSemanticState(left), rulesetSemanticState(right)) {
 		t.Fatal("semantic ruleset drift was hidden with serialization evidence")
+	}
+}
+
+func TestRemovalApplyVerifyAndReplay(t *testing.T) {
+	for _, keepOther := range []bool{false, true} {
+		t.Run(fmt.Sprint(keepOther), func(t *testing.T) {
+			fixture := newRulesetFixture()
+			state := desiredState(Scope{Owner: "example", Name: "repository"}, desiredRuleset(9), 9)
+			state.WritablePayload = json.RawMessage(`{"fixture":"before"}`)
+			if keepOther {
+				state.Rules = append(state.Rules, githubprovider.RulesetRule{Type: "required_signatures"})
+			}
+			fixture.state = &state
+			expected := visibleState(state)
+			desired := githubprovider.RepositoryRuleset{ID: 9, Name: state.Name, Target: "branch", Enforcement: "active", Rules: []githubprovider.RulesetRule{}, RemoveRequiredStatusChecks: true}
+			step := rulesetStep(&expected, desired)
+			handler := &Handler{Reader: fixture, Writer: fixture}
+			result, err := handler.Apply(context.Background(), step)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if fixture.writes != 1 || requiredChecks(fixture.state.Rules) != nil {
+				t.Fatal("checks were not removed")
+			}
+			if (len(fixture.state.Rules) == 1) != keepOther {
+				t.Fatal("other rules changed")
+			}
+			raw, _ := json.Marshal(result.After)
+			if err := handler.Verify(context.Background(), step, raw); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := handler.Apply(context.Background(), step); err != nil || fixture.writes != 1 {
+				t.Fatalf("replay wrote again: %v", err)
+			}
+			fixture.state.Rules = append(fixture.state.Rules, githubprovider.RulesetRule{Type: "required_status_checks", RequiredStatusChecks: []githubprovider.RequiredStatusCheck{{Context: "returned"}}})
+			if err := handler.Verify(context.Background(), step, raw); err == nil {
+				t.Fatal("verification accepted restored checks")
+			}
+		})
+	}
+}
+
+func TestOmittedRulePreservedByExpectedPostcondition(t *testing.T) {
+	state := desiredState(Scope{Owner: "example", Name: "repository"}, desiredRuleset(9), 9)
+	desired := githubprovider.RepositoryRuleset{ID: 9, Name: state.Name, Enforcement: "active", Rules: []githubprovider.RulesetRule{{Type: "required_signatures"}}}
+	after := applyOwnedState(state, desired)
+	if requiredChecks(after.Rules) == nil || !ownedStateEqual(after, desired) {
+		t.Fatal("omission must preserve existing status checks")
+	}
+}
+
+func TestRemovalPlanSchemaAndParameterValidation(t *testing.T) {
+	schemas, err := validation.NewSchemaSet()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct {
+		name                      string
+		id                        int64
+		remove, withChecks, valid bool
+	}{
+		{"bound-clear-only", 9, true, false, true},
+		{"ordinary-empty", 9, false, false, false},
+		{"empty-create", 0, true, false, false},
+		{"contradictory", 9, true, true, false},
+		{"default", 9, false, true, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			desired := desiredRuleset(tc.id)
+			desired.RemoveRequiredStatusChecks = tc.remove
+			if !tc.withChecks {
+				desired.Rules = []githubprovider.RulesetRule{}
+			}
+			state := desiredState(Scope{Owner: "example", Name: "repository"}, desiredRuleset(9), 9)
+			state.WritablePayload = json.RawMessage(`{"fixture":"plan"}`)
+			expected := visibleState(state)
+			step := rulesetStep(&expected, desired)
+			if tc.id == 0 {
+				step = rulesetStep(nil, desired)
+			}
+			now := time.Date(2026, 7, 11, 5, 0, 0, 0, time.UTC)
+			plan, err := operations.NewPlan("plan_01KX7BV07RHD6KRA4Z4J0KCHGR", now, now.Add(15*time.Minute), operations.PlanInput{
+				Operation: "reconcile-github-ruleset", Actor: operations.Actor{Type: "agent-session", SessionID: "test-session"},
+				Preconditions: []operations.Precondition{{RepositoryID: step.RepositoryID, HeadOID: strings.Repeat("a", 40), ManifestDigest: "sha256:" + strings.Repeat("a", 64), PolicyDigest: "sha256:" + strings.Repeat("b", 64)}},
+				Steps:         []operations.Step{step}, ApprovalClass: "github-ruleset-write",
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got := len(plan.Validate(schemas)) == 0; got != tc.valid {
+				t.Fatalf("schema valid=%v findings=%#v", got, plan.Validate(schemas))
+			}
+			_, err = StepParameters(step)
+			if (err == nil) != tc.valid {
+				t.Fatalf("parameters valid=%v err=%v", err == nil, err)
+			}
+		})
 	}
 }
