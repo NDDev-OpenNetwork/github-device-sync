@@ -7,6 +7,11 @@ Versioning.
 
 ### Changed
 
+- Ruleset reconciliation compares the complete owned required-check identities,
+  including integration IDs and strict policy. Retired extra contexts or a
+  different check producer no longer appear synchronized; external parameters
+  and unowned rule types remain preserved.
+
 - Drakkars audit, triage, orientation and rollout skills now model the current
   OTEL/OTLP/OpenObserve boundary, classified host-signal metrics, host
   compliance coverage, external backend heartbeat and bounded alert-silence

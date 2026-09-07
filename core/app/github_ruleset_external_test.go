@@ -135,6 +135,43 @@ func TestRulesetPlannerDetectsOwnedPullRequestDrift(t *testing.T) {
 	}
 }
 
+func TestRulesetPlannerRequiresExactCheckIdentityAndPolicy(t *testing.T) {
+	checks := []githubprovider.RequiredStatusCheck{
+		{Context: "CI / build", IntegrationID: 123},
+		{Context: "Analysis", IntegrationID: 456},
+	}
+	desired := githubprovider.RepositoryRuleset{Enforcement: "active", Rules: []githubprovider.RulesetRule{{
+		Type: "required_status_checks", RequiredStatusChecks: checks,
+		StrictRequiredStatusChecksPolicy: true,
+	}}}
+	for _, tc := range []struct {
+		name   string
+		checks []githubprovider.RequiredStatusCheck
+		strict bool
+		match  bool
+	}{
+		{"equal", checks, true, true},
+		{"reordered", []githubprovider.RequiredStatusCheck{checks[1], checks[0]}, true, true},
+		{"retired-check-still-required", append(slices.Clone(checks), githubprovider.RequiredStatusCheck{Context: "Old gate"}), true, false},
+		{"missing-check", checks[:1], true, false},
+		{"wrong-integration", []githubprovider.RequiredStatusCheck{{Context: "CI / build", IntegrationID: 789}, checks[1]}, true, false},
+		{"unbound-integration", []githubprovider.RequiredStatusCheck{{Context: "CI / build"}, checks[1]}, true, false},
+		{"duplicate-replaces-check", []githubprovider.RequiredStatusCheck{checks[0], checks[0]}, true, false},
+		{"strict-policy-drift", checks, false, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			observed := githubprovider.RepositoryRulesetState{Enforcement: "active", Rules: []githubprovider.RulesetRule{{
+				Type: "required_status_checks", RequiredStatusChecks: tc.checks,
+				StrictRequiredStatusChecksPolicy: tc.strict,
+				ExternalParameters:               []byte(`{"future_parameter":true}`),
+			}, {Type: "required_signatures"}}}
+			if got := rulesetOwnedStateMatches(observed, desired); got != tc.match {
+				t.Fatalf("owned state match = %t, want %t", got, tc.match)
+			}
+		})
+	}
+}
+
 // A declaration that names a generated context would pin, as unowned, something
 // the generator governs -- so the two sources of truth would disagree with no
 // way to tell which won.
