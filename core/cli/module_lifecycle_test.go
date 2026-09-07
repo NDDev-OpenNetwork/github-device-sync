@@ -128,9 +128,12 @@ func TestModuleUpdatePinRequiresPublishedModuleAndStagesOnlyGitlink(t *testing.T
 	// estate does. A module the consumer pins must state how it is proven, and
 	// the pin must now prove it at the target commit, so the fixture declares a
 	// lane that succeeds in a clean checkout.
-	moduleAnchor = append(moduleAnchor, []byte(
-		"\nverification:\n  commands:\n    test:\n      - \"true\"\n  required:\n    - \"test\"\n",
-	)...)
+	marker := filepath.Join(t.TempDir(), "module-command-ran")
+	command := "printf verified >> '" + strings.ReplaceAll(marker, "'", "'\"'\"'") + "'"
+	moduleAnchor = append(moduleAnchor, []byte(fmt.Sprintf(
+		"\nverification:\n  commands:\n    test:\n      - %q\n  required:\n    - \"test\"\n", command,
+	))...)
+
 	if err := os.WriteFile(moduleAnchorPath, moduleAnchor, 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -168,6 +171,24 @@ func TestModuleUpdatePinRequiresPublishedModuleAndStagesOnlyGitlink(t *testing.T
 
 	statePath := sessionStatePath(t)
 	t.Setenv("GDS_ESTATE_ROOT", testEstateRoot(t))
+	// A checkout at the old pin is clean but cannot be updated by this
+	// transaction. Reject it before executing the module's commands.
+	modulePath := filepath.Join(consumer.client, "modules", "module")
+	runSessionGit(t, consumer.client, "clone", "-q", module.client, modulePath)
+	runSessionGit(t, modulePath, "checkout", "-q", oldOID)
+	code, rejected, diagnostics := executeJSON(
+		t, "--json", "--cwd", consumer.client, "module", "update-pin", "--plan",
+		"--module", module.client, "--name", "module",
+		"--state-path", statePath, "--device-id", syncTestDeviceID,
+		"--session-id", "module-update-pin",
+	)
+	if code == 0 || len(rejected.Findings) != 1 || rejected.Findings[0].Code != "GDS_MODULE_PIN_GITLINK_NOT_ELIGIBLE" {
+		t.Fatalf("ineligible pin: code=%d diagnostics=%q envelope=%#v", code, diagnostics, rejected)
+	}
+	if _, err := os.Stat(marker); !os.IsNotExist(err) {
+		t.Fatalf("ineligible pin ran module commands: %v", err)
+	}
+	runSessionGit(t, modulePath, "checkout", "-q", moduleTargetOID)
 	exitCode, planned, stderr := executeJSON(
 		t, "--json", "--cwd", consumer.client, "module", "update-pin", "--plan",
 		"--module", module.client, "--name", "module",
@@ -176,6 +197,9 @@ func TestModuleUpdatePinRequiresPublishedModuleAndStagesOnlyGitlink(t *testing.T
 	)
 	if exitCode != 0 || planned.Mutation.Attempted {
 		t.Fatalf("plan exit=%d stderr=%q envelope=%#v", exitCode, stderr, planned)
+	}
+	if content, err := os.ReadFile(marker); err != nil || string(content) != "verified" {
+		t.Fatalf("eligible pin did not verify its module: content=%q err=%v", content, err)
 	}
 	planID := syncPlanID(t, planned.Data)
 	exitCode, applied, stderr := executeJSON(

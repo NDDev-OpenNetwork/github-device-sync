@@ -338,6 +338,20 @@ func (services *Services) modulePinContext(
 			"GDS_MODULE_PIN_TARGET_NOT_PUBLISHED", "Module default commit is not exactly published on its configured origin.",
 		)}
 	}
+	// Resolve cheap eligibility and policy failures before materializing a
+	// throwaway checkout or invoking any module command. Rejected pins must
+	// not spend a full verification run proving a target they cannot consume.
+	if submodule == nil || submodule.GitlinkOID == "" || submodule.GitlinkStage != 0 ||
+		submodule.GitlinkOID == targetOID || !pinWorktreeStateIsEligible(*submodule, targetOID) {
+		return modulePinContext{}, []domain.Finding{modulePinFinding(
+			"GDS_MODULE_PIN_GITLINK_NOT_ELIGIBLE",
+			"Consumer requires one changed, stage-zero gitlink whose checkout is absent or already at the target commit.",
+		)}
+	}
+	consumerCompiled := services.Compiler.CompileDirectory(estateRoot, consumer, compiler.DevelopmentBundleVersion)
+	if len(consumerCompiled.Findings) != 0 {
+		return modulePinContext{}, consumerCompiled.Findings
+	}
 	// Required checks used to refuse the pin outright, whatever the module was:
 	// any declared lane meant "no verified execution evidence" and there was no
 	// way to supply any. Every module in this estate declares at least one, so
@@ -367,17 +381,6 @@ func (services *Services) modulePinContext(
 		return modulePinContext{}, []domain.Finding{modulePinFinding(
 			"GDS_MODULE_PIN_CHECKS_NOT_PROVEN", err.Error(),
 		)}
-	}
-	if submodule == nil || submodule.GitlinkOID == "" || submodule.GitlinkStage != 0 ||
-		submodule.GitlinkOID == targetOID || !pinWorktreeStateIsEligible(*submodule, targetOID) {
-		return modulePinContext{}, []domain.Finding{modulePinFinding(
-			"GDS_MODULE_PIN_GITLINK_NOT_ELIGIBLE",
-			"Consumer requires one changed, stage-zero gitlink whose checkout is absent or already at the target commit.",
-		)}
-	}
-	consumerCompiled := services.Compiler.CompileDirectory(estateRoot, consumer, compiler.DevelopmentBundleVersion)
-	if len(consumerCompiled.Findings) != 0 {
-		return modulePinContext{}, consumerCompiled.Findings
 	}
 	consumerManifestDigest, err := fileDigest(filepath.Join(consumerInfo.WorktreeRoot, ".gds", "repository.yaml"))
 	if err != nil {
