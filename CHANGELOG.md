@@ -5,6 +5,11 @@ Versioning.
 
 ## [Unreleased]
 
+- Reject ineligible module pins and invalid consumer policy before running
+  module verification commands; eligible plans and apply still verify the exact
+  published target and bind that evidence to the transaction.
+
+
 ### Changed
 
 - Ruleset reconciliation compares the complete owned required-check identities,
