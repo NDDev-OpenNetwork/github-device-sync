@@ -127,6 +127,18 @@ func TestReconciliationRunnerCannotSucceedWithoutSignedAudit(t *testing.T) {
 		!reconcileResultHasFinding(run.Result, "GDS_AUDIT_SNAPSHOT_FAILED") {
 		t.Fatalf("run=%+v err=%v", run, err)
 	}
+	if got := auditFindingEvidence(run.Result, "error"); got != "private signing detail" {
+		t.Fatalf("audit finding error=%q", got)
+	}
+}
+
+func auditFindingEvidence(result reconciler.Result, key string) any {
+	for _, finding := range result.Findings {
+		if finding.Code == "GDS_AUDIT_SNAPSHOT_FAILED" {
+			return finding.Evidence[key]
+		}
+	}
+	return nil
 }
 
 func reconcileResultHasFinding(result reconciler.Result, code string) bool {

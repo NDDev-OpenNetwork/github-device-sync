@@ -1,6 +1,7 @@
 package audit
 
 import (
+	"bytes"
 	"context"
 	"crypto/ed25519"
 	"crypto/rand"
@@ -75,6 +76,36 @@ func TestRecorderPrunesOnlyExpiredVerifiedSnapshots(t *testing.T) {
 	}
 	if _, err := os.Lstat(filepath.Join(recorder.Directory, currentID+".json")); err != nil {
 		t.Fatalf("current snapshot error=%v", err)
+	}
+}
+
+func TestRecorderPruneAcceptsSnapshotOmittingFalseArchived(t *testing.T) {
+	recorder, publicKey := auditRecorder(t)
+	createdAt := time.Date(2026, 7, 11, 0, 0, 0, 0, time.UTC)
+	snapshotID, _, err := recorder.Record(
+		context.Background(), "estate_01KX7PNHB7DFRJ36HK7G12E6PF",
+		"reconciliation_01KX7BV07RHD6KRA4Z4J0KCHGS", auditResult(), createdAt,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(recorder.Directory, snapshotID+".json")
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bytes.Contains(raw, []byte(`"archived"`)) {
+		t.Fatalf("false archived leaked into signed audit payload: %s", raw)
+	}
+	if _, err := loadSnapshot(path, publicKey); err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := recorder.Record(
+		context.Background(), "estate_01KX7PNHB7DFRJ36HK7G12E6PF",
+		"reconciliation_01KX7BV07RHD6KRA4Z4J0KCHGT", auditResult(),
+		createdAt.Add(time.Minute),
+	); err != nil {
+		t.Fatal(err)
 	}
 }
 
