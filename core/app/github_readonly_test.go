@@ -80,6 +80,15 @@ func TestGitHubInventoryAndReconciliationUseLiveReadOnlyRuntime(t *testing.T) {
 		summaryData.DriftByClass["identity"] != 5 {
 		t.Fatalf("summary=%#v", summary)
 	}
+	coverage := services.GitHubCoverage(context.Background(), root, GitHubCoverageOptions{
+		GitHubReadOptions: GitHubReadOptions{RuntimeConfig: runtimePath},
+	})
+	coverageData, ok := coverage.Data.(GitHubCoverageData)
+	if coverage.ExitClass != domain.ExitSuccess || !ok || coverage.Mutation.Attempted ||
+		coverageData.Coverage.Counts["partial"] != 5 ||
+		coverageData.Coverage.LocalIdentitiesCollected {
+		t.Fatalf("coverage=%#v", coverage)
+	}
 }
 
 func TestGitHubInventoryRejectsWrongInstallationOwner(t *testing.T) {

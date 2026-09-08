@@ -46,8 +46,9 @@ func Compile(
 		seenProviderIDs[repository.ProviderID] = struct{}{}
 		assignment := Assignment{
 			ProviderID: repository.ProviderID, Owner: repository.Owner, Name: repository.Name,
-			IdentityState: "unassigned", ManagementMode: config.Root.Discovery.DefaultManagementMode,
-			RolloutRing: config.Root.Rollout.DefaultRing,
+			Archived: repository.Archived, IdentityState: "unassigned",
+			ManagementMode: config.Root.Discovery.DefaultManagementMode,
+			RolloutRing:    config.Root.Rollout.DefaultRing,
 		}
 		owner, found := ownerByLogin[strings.ToLower(repository.Owner)]
 		if !found {

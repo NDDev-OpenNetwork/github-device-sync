@@ -97,6 +97,8 @@ private schema-validated runtime file, verifies the installation/account
 identity, and returns current request IDs and rate metadata without persisting
 the token or response. `gds reconcile --plan` performs the same current reads
 for the exact estate installation set and emits no external mutation.
+`gds github coverage` classifies that App union against optional local GDS
+identities by immutable GitHub repository ID.
 
 `gds github governance` reads one exact repository and defaults to
 `observed-only`. `--compare-local` additionally proves that the current local

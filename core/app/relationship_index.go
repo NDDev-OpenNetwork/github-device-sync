@@ -48,3 +48,38 @@ func (services *Services) completeRelationshipIndex(
 	findings = append(findings, indexFindings...)
 	return index, findings
 }
+
+func (services *Services) coverageIdentities(
+	ctx context.Context,
+	options DiscoveryOptions,
+) ([]estate.IdentityRepository, []domain.Finding) {
+	if finding := validateDiscoveryOptions(options); finding != nil {
+		return nil, []domain.Finding{*finding}
+	}
+	discovered, err := services.Discovery.Discover(ctx, options.Root, discovery.Options{
+		MaxDepth: options.MaxDepth, MaxRepositories: options.MaxRepositories,
+		Concurrency: options.Concurrency, IncludeArchived: options.IncludeArchived,
+	})
+	if err != nil {
+		return nil, []domain.Finding{{
+			Code: "GDS_IDENTITY_INDEX_DISCOVERY_FAILED", Severity: domain.SeverityHigh,
+			Message: err.Error(), Evidence: map[string]any{"root": options.Root},
+		}}
+	}
+	indexed := make([]estate.IndexedRepository, 0, len(discovered.Boundaries))
+	findings := append([]domain.Finding(nil), discovered.Findings...)
+	loader := manifest.NewLoader(services.Schemas)
+	for _, boundary := range discovered.Boundaries {
+		if boundary.AnchorState != "valid" {
+			continue
+		}
+		anchorValue, anchorFindings := loader.LoadRepository(boundary.Path)
+		findings = append(findings, anchorFindings...)
+		if len(anchorFindings) == 0 {
+			indexed = append(indexed, estate.IndexedRepository{Path: boundary.Path, Anchor: anchorValue})
+		}
+	}
+	index, indexFindings := estate.BuildIdentityIndex(indexed, false)
+	findings = append(findings, indexFindings...)
+	return index.Repositories, findings
+}

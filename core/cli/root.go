@@ -2488,6 +2488,34 @@ func (executor *executor) githubCommand() *cobra.Command {
 		&options.InstallationID, "installation", "", "exact logical estate installation id",
 	)
 	command.AddCommand(inventory)
+	coverageOptions := app.GitHubCoverageOptions{}
+	coverage := &cobra.Command{
+		Use:   "coverage",
+		Short: "Classify App inventories against local GDS identities by GitHub repository ID",
+		Args:  cobra.NoArgs,
+		RunE: func(child *cobra.Command, _ []string) error {
+			return executor.run(child, func(ctx context.Context) domain.Envelope {
+				return executor.services.GitHubCoverage(ctx, executor.options.cwd, coverageOptions)
+			})
+		},
+	}
+	addGitHubReadFlags(coverage, &coverageOptions.GitHubReadOptions)
+	coverage.Flags().BoolVar(
+		&coverageOptions.IncludeLocal, "include-local", false,
+		"union device-local GDS identities with App inventories by immutable GitHub repository ID",
+	)
+	coverage.Flags().StringVar(&coverageOptions.LocalRoot, "root", "", "filesystem root for local identity discovery")
+	coverage.Flags().IntVar(&coverageOptions.LocalMaxDepth, "max-depth", 8, "maximum directory depth for local identity discovery")
+	coverage.Flags().IntVar(
+		&coverageOptions.LocalMaxRepositories, "local-max-repositories", 2000,
+		"hard local identity count limit",
+	)
+	coverage.Flags().IntVar(&coverageOptions.LocalConcurrency, "concurrency", 4, "bounded Git inspection workers")
+	coverage.Flags().BoolVar(
+		&coverageOptions.IncludeArchived, "include-archived", false,
+		"also index local repositories whose anchor declares lifecycle: archived",
+	)
+	command.AddCommand(coverage)
 	governanceOptions := app.GitHubGovernanceOperationOptions{}
 	governancePlan := false
 	governanceApply := ""
