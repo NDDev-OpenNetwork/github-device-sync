@@ -57,6 +57,16 @@ func sessionFixtureWithPolicies(
 	integrationPolicy string,
 	requiredChecks bool,
 ) sessionFixtureState {
+	return sessionFixtureWithPolicyProfiles(t, handoffPolicy, integrationPolicy, requiredChecks, nil)
+}
+
+func sessionFixtureWithPolicyProfiles(
+	t *testing.T,
+	handoffPolicy string,
+	integrationPolicy string,
+	requiredChecks bool,
+	profiles []string,
+) sessionFixtureState {
 	t.Helper()
 	disableGitFixtureMaintenance(t)
 	remote := filepath.Join(t.TempDir(), "remote.git")
@@ -86,6 +96,15 @@ func sessionFixtureWithPolicies(
 	if !requiredChecks {
 		anchor = []byte(strings.Replace(
 			string(anchor), "required:\n    - \"test\"", "required: []", 1,
+		))
+	}
+	if len(profiles) != 0 {
+		block := "  profiles:\n"
+		for _, profile := range profiles {
+			block += "    - \"" + profile + "\"\n"
+		}
+		anchor = []byte(strings.Replace(
+			string(anchor), "  profiles:\n    - \"repository-default\"\n", block, 1,
 		))
 	}
 	if err := os.WriteFile(filepath.Join(client, ".gds", "repository.yaml"), anchor, 0o644); err != nil {
