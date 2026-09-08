@@ -2,6 +2,8 @@
 // identities by immutable provider repository ID. It does not invent a second
 // inspector: gds github inventory remains one installation, gds reconcile
 // remains the App union, and this evaluator is the ID-stable coverage view.
+// UserTokenUnion is always not-proven: PAT memberships outside App installs
+// are a separate reader contract, not a silent extra in this report.
 package githubcoverage
 
 import (
@@ -13,11 +15,13 @@ import (
 )
 
 const (
-	StatusMigrated      = "migrated"
-	StatusPartial       = "partial"
-	StatusDenied        = "denied"
-	StatusUnknown       = "unknown"
-	StatusNotApplicable = "not-applicable"
+	StatusMigrated          = "migrated"
+	StatusPartial           = "partial"
+	StatusDenied            = "denied"
+	StatusUnknown           = "unknown"
+	StatusNotApplicable     = "not-applicable"
+	StatusObserved          = "observed"
+	UserTokenUnionNotProven = "not-proven"
 )
 
 type RepositoryCoverage struct {
@@ -38,6 +42,7 @@ type InstallationCoverage struct {
 
 type Report struct {
 	LocalIdentitiesCollected bool                   `json:"local_identities_collected"`
+	UserTokenUnion           string                 `json:"user_token_union"`
 	Installations            []InstallationCoverage `json:"installations"`
 	Repositories             []RepositoryCoverage   `json:"repositories"`
 	Counts                   map[string]int         `json:"counts"`
@@ -51,6 +56,7 @@ func Evaluate(
 ) Report {
 	report := Report{
 		LocalIdentitiesCollected: localCollected,
+		UserTokenUnion:           UserTokenUnionNotProven,
 		Counts:                   map[string]int{},
 	}
 	installationStatus := map[string]string{}
@@ -84,6 +90,14 @@ func Evaluate(
 	local := map[int64]estate.IdentityRepository{}
 	for _, identity := range identities {
 		if identity.ProviderID <= 0 {
+			report.Repositories = append(report.Repositories, RepositoryCoverage{
+				ProviderID:      identity.ProviderID,
+				Owner:           identity.Owner,
+				Name:            identity.Name,
+				GDSRepositoryID: identity.ID,
+				Status:          StatusUnknown,
+				Reasons:         []string{"github_id_missing"},
+			})
 			continue
 		}
 		local[identity.ProviderID] = identity
@@ -111,7 +125,17 @@ func Evaluate(
 		return report.Installations[left].InstallationID < report.Installations[right].InstallationID
 	})
 	sort.Slice(report.Repositories, func(left, right int) bool {
-		return report.Repositories[left].ProviderID < report.Repositories[right].ProviderID
+		a, b := report.Repositories[left], report.Repositories[right]
+		if a.ProviderID != b.ProviderID {
+			return a.ProviderID < b.ProviderID
+		}
+		if a.GDSRepositoryID != b.GDSRepositoryID {
+			return a.GDSRepositoryID < b.GDSRepositoryID
+		}
+		if a.Owner != b.Owner {
+			return a.Owner < b.Owner
+		}
+		return a.Name < b.Name
 	})
 	for _, repository := range report.Repositories {
 		report.Counts[repository.Status]++
@@ -133,16 +157,9 @@ func classifyInstallation(result reconciler.Result, installation reconciler.Inst
 	}
 	switch installation.Status {
 	case "observed", "observed-unpersisted":
-		return "observed"
-	case "identity-mismatch":
-		return StatusUnknown
-	case "not-proven":
-		return StatusUnknown
+		return StatusObserved
 	default:
-		if installation.Status == "" {
-			return StatusUnknown
-		}
-		return installation.Status
+		return StatusUnknown
 	}
 }
 

@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/domain"
+	"github.com/NDDev-OpenNetwork/github-device-sync/core/githubcoverage"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/githubruntime"
 )
 
@@ -86,8 +87,48 @@ func TestGitHubInventoryAndReconciliationUseLiveReadOnlyRuntime(t *testing.T) {
 	coverageData, ok := coverage.Data.(GitHubCoverageData)
 	if coverage.ExitClass != domain.ExitSuccess || !ok || coverage.Mutation.Attempted ||
 		coverageData.Coverage.Counts["partial"] != 5 ||
-		coverageData.Coverage.LocalIdentitiesCollected {
+		coverageData.Coverage.LocalIdentitiesCollected ||
+		coverageData.Coverage.UserTokenUnion != githubcoverage.UserTokenUnionNotProven {
 		t.Fatalf("coverage=%#v", coverage)
+	}
+}
+
+func TestGitHubCoverageIncludeLocalEmptyRootMarksIdentitiesMissing(t *testing.T) {
+	root := appTestRepositoryRoot(t)
+	runtimePath := appTestRuntimeConfig(t, root)
+	server := appTestGitHubServer(t, false)
+	services, err := NewServices(DefaultClock)
+	if err != nil {
+		t.Fatal(err)
+	}
+	client := server.Client()
+	client.Timeout = 5 * time.Second
+	services.GitHubRuntimeBuildOptions = githubruntime.BuildOptions{
+		BaseURL: server.URL + "/", HTTPClient: client, AllowInsecureLoopback: true,
+	}
+	coverage := services.GitHubCoverage(context.Background(), root, GitHubCoverageOptions{
+		GitHubReadOptions: GitHubReadOptions{RuntimeConfig: runtimePath},
+		IncludeLocal:      true,
+		LocalRoot:         t.TempDir(),
+	})
+	coverageData, ok := coverage.Data.(GitHubCoverageData)
+	if coverage.ExitClass != domain.ExitSuccess || !ok || coverage.Mutation.Attempted ||
+		!coverageData.Coverage.LocalIdentitiesCollected ||
+		coverageData.Coverage.Counts["partial"] != 5 ||
+		coverageData.Coverage.UserTokenUnion != githubcoverage.UserTokenUnionNotProven {
+		t.Fatalf("coverage=%#v", coverage)
+	}
+	for _, repository := range coverageData.Coverage.Repositories {
+		found := false
+		for _, reason := range repository.Reasons {
+			if reason == "gds_identity_missing" {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Fatalf("repository=%#v", repository)
+		}
 	}
 }
 

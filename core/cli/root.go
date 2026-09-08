@@ -2491,7 +2491,7 @@ func (executor *executor) githubCommand() *cobra.Command {
 	coverageOptions := app.GitHubCoverageOptions{}
 	coverage := &cobra.Command{
 		Use:   "coverage",
-		Short: "Classify App inventories against local GDS identities by GitHub repository ID",
+		Short: "Classify App-installation inventories against local GDS identities by GitHub repository ID",
 		Args:  cobra.NoArgs,
 		RunE: func(child *cobra.Command, _ []string) error {
 			return executor.run(child, func(ctx context.Context) domain.Envelope {
@@ -2502,7 +2502,7 @@ func (executor *executor) githubCommand() *cobra.Command {
 	addGitHubReadFlags(coverage, &coverageOptions.GitHubReadOptions)
 	coverage.Flags().BoolVar(
 		&coverageOptions.IncludeLocal, "include-local", false,
-		"union device-local GDS identities with App inventories by immutable GitHub repository ID",
+		"union device-local GDS identities with App inventories by immutable GitHub repository ID; not a PAT membership union",
 	)
 	coverage.Flags().StringVar(&coverageOptions.LocalRoot, "root", "", "filesystem root for local identity discovery")
 	coverage.Flags().IntVar(&coverageOptions.LocalMaxDepth, "max-depth", 8, "maximum directory depth for local identity discovery")

@@ -98,7 +98,9 @@ identity, and returns current request IDs and rate metadata without persisting
 the token or response. `gds reconcile --plan` performs the same current reads
 for the exact estate installation set and emits no external mutation.
 `gds github coverage` classifies that App union against optional local GDS
-identities by immutable GitHub repository ID.
+identities by immutable GitHub repository ID. The report's `user_token_union`
+field is `not-proven` until a dedicated user-token reader exists; gh-cli
+inventory is still one reader per estate installation, not PAT-visible extras.
 
 `gds github governance` reads one exact repository and defaults to
 `observed-only`. `--compare-local` additionally proves that the current local
