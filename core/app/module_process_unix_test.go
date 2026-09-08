@@ -78,11 +78,25 @@ func TestDeclaredSuccessCannotLeaveBackgroundWriter(t *testing.T) {
 
 func TestDeclaredTimeoutDoesNotClaimSetsidChildren(t *testing.T) {
 	// Process-group cleanup is not ownership of setsid/Docker-daemon children.
+	// Darwin images have no util-linux `setsid(1)`; python3.os.setsid is the
+	// same syscall on linux and darwin.
+	if _, err := exec.LookPath("python3"); err != nil {
+		t.Skip("python3 is required to create a new session without util-linux")
+	}
 	dir := t.TempDir()
+	child := "import os, signal, time\n" +
+		"os.setsid()\n" +
+		"open('child.pid', 'w', encoding='ascii').write(str(os.getpid()))\n" +
+		"signal.signal(signal.SIGTERM, signal.SIG_IGN)\n" +
+		"while True:\n" +
+		"    time.sleep(0.05)\n"
+	if err := os.WriteFile(filepath.Join(dir, "setsid_child.py"), []byte(child), 0o600); err != nil {
+		t.Fatal(err)
+	}
 	report := runDeclaredCommand(
 		context.Background(),
 		dir,
-		"setsid bash -c 'echo $$ > child.pid; trap \"\" TERM; while :; do sleep 0.05; done' & wait",
+		"python3 setsid_child.py & wait",
 		350*time.Millisecond,
 	)
 	pid := readOwnedTestChild(t, dir)
