@@ -414,6 +414,23 @@ The token response must exactly match the installation permission and
 repository-selection contract before the inventory request is sent. Missing,
 extra, stronger, or differently scoped permissions return exit 12.
 
+### `gds github coverage --runtime-config <path>`
+
+Unions every estate GitHub App installation inventory (the same read path as
+`gds reconcile --plan`) with optional device-local GDS identities, keyed by
+immutable GitHub repository ID. Owner/name rename of the same ID is
+`migrated` with `locator_changed`. Archived repositories stay
+`not-applicable`; they are not auto-unarchived. App-visible repositories
+without a collected local identity are `partial`. An installation whose
+permission contract fails is `denied`; a missing inventory is `unknown`.
+
+`--include-local` discovers anchors under `--root` (default: cwd). User
+memberships and PAT-visible repositories that no App installation can see
+remain outside this command until a user-token reader exists.
+
+The command performs no provider mutation. Missing runtime evidence returns
+exit 3.
+
 ### `gds github governance --installation <id> --owner <owner> --repository <name>`
 
 Reads one exact repository metadata/governance snapshot: merge and available

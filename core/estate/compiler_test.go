@@ -184,6 +184,18 @@ func estateHasFinding(findings []domain.Finding, code string) bool {
 	return false
 }
 
+func TestCompilePreservesArchivedObservation(t *testing.T) {
+	t.Parallel()
+	config := loadCanonical(t)
+	compiled, findings := Compile(config, []ObservedRepository{{
+		ProviderID: 42, Owner: "example-user", Name: "retired",
+		Archived: true, Visibility: "private", DefaultBranch: "main",
+	}})
+	if len(findings) != 0 || len(compiled.Repositories) != 1 || !compiled.Repositories[0].Archived {
+		t.Fatalf("compiled=%#v findings=%#v", compiled, findings)
+	}
+}
+
 func organizationForksSelector(t *testing.T, config Config) Selector {
 	t.Helper()
 	for _, selector := range config.Selectors {

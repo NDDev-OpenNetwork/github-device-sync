@@ -27,6 +27,25 @@ func TestGitHubInventoryRequiresRuntimeEvidenceWithoutAttemptingMutation(t *test
 	assertEnvelopeSchema(t, envelope)
 }
 
+func TestGitHubCoverageRequiresRuntimeEvidenceWithoutAttemptingMutation(t *testing.T) {
+	root := repositoryRoot(t)
+	missing := filepath.Join(t.TempDir(), "github-runtime.yaml")
+	exitCode, envelope, stderr := executeJSON(
+		t,
+		"--json", "--cwd", root,
+		"github", "coverage",
+		"--runtime-config", missing,
+	)
+	if exitCode != 3 || envelope.ExitClass != domain.ExitNotProven || stderr != "" {
+		t.Fatalf("exit=%d stderr=%q envelope=%#v", exitCode, stderr, envelope)
+	}
+	if !containsFinding(envelope.Findings, "GDS_GITHUB_RUNTIME_NOT_PROVEN") ||
+		envelope.Mutation.Attempted || envelope.Mutation.Completed {
+		t.Fatalf("envelope=%#v", envelope)
+	}
+	assertEnvelopeSchema(t, envelope)
+}
+
 func TestGitHubGovernanceRequiresExactRepositoryScopeBeforeRuntimeAccess(t *testing.T) {
 	root := repositoryRoot(t)
 	exitCode, envelope, stderr := executeJSON(

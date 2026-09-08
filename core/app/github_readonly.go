@@ -9,6 +9,7 @@ import (
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/compiler"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/domain"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/estate"
+	"github.com/NDDev-OpenNetwork/github-device-sync/core/githubcoverage"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/githubruntime"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/governance"
 	githubprovider "github.com/NDDev-OpenNetwork/github-device-sync/core/providers/github"
@@ -45,6 +46,21 @@ type ReconciliationPlanData struct {
 	MutationMode      string            `json:"mutation_mode"`
 	ExternalMutations []string          `json:"external_mutations"`
 	Result            reconciler.Result `json:"result"`
+}
+
+type GitHubCoverageOptions struct {
+	GitHubReadOptions
+	IncludeLocal         bool
+	LocalRoot            string
+	LocalMaxDepth        int
+	LocalMaxRepositories int
+	LocalConcurrency     int
+	IncludeArchived      bool
+}
+
+type GitHubCoverageData struct {
+	Coverage githubcoverage.Report `json:"coverage"`
+	Result   reconciler.Result     `json:"result"`
 }
 
 type githubRuntime struct {
@@ -214,6 +230,63 @@ func (services *Services) ReconcileGitHub(
 		Kind: "read-only-reconciliation", MutationMode: "none",
 		ExternalMutations: []string{}, Result: result,
 	}, result.Findings...)
+	envelopeValue.Scope["estate_id"] = runtime.desired.Root.Estate.ID
+	return envelopeValue
+}
+
+func (services *Services) GitHubCoverage(
+	ctx context.Context,
+	path string,
+	options GitHubCoverageOptions,
+) domain.Envelope {
+	const command = "gds github coverage"
+	runtime, envelope := services.loadGitHubRuntime(ctx, path, options.GitHubReadOptions, command)
+	if envelope != nil {
+		return *envelope
+	}
+	readers := make(map[string]reconciler.InstallationReader, len(runtime.readers))
+	for id, reader := range runtime.readers {
+		readers[id] = reader
+	}
+	result := (reconciler.Reconciler{
+		Config: runtime.desired, Readers: readers,
+		Concurrency:     runtime.desired.Root.Rollout.MaxParallelObservation,
+		MaxRepositories: runtime.maxRepositories,
+	}).ReconcileAll(ctx)
+	findings := append([]domain.Finding(nil), result.Findings...)
+	var identities []estate.IdentityRepository
+	localCollected := false
+	if options.IncludeLocal {
+		local := DiscoveryOptions{
+			Root: options.LocalRoot, MaxDepth: options.LocalMaxDepth,
+			MaxRepositories: options.LocalMaxRepositories, Concurrency: options.LocalConcurrency,
+			IncludeArchived: options.IncludeArchived,
+		}
+		if local.Root == "" {
+			local.Root = path
+		}
+		if local.MaxDepth == 0 {
+			local.MaxDepth = 8
+		}
+		if local.MaxRepositories == 0 {
+			local.MaxRepositories = 2000
+		}
+		if local.Concurrency == 0 {
+			local.Concurrency = 4
+		}
+		var localFindings []domain.Finding
+		identities, localFindings = services.coverageIdentities(ctx, local)
+		localCollected = true
+		findings = append(findings, localFindings...)
+	}
+	coverage := githubcoverage.Evaluate(runtime.desired, result, identities, localCollected)
+	class := classifyFindings(findings)
+	if class == domain.ExitSuccess && len(result.Findings) != 0 {
+		class = domain.ExitNotProven
+	}
+	envelopeValue := domain.NewEnvelope(command, class, GitHubCoverageData{
+		Coverage: coverage, Result: result,
+	}, findings...)
 	envelopeValue.Scope["estate_id"] = runtime.desired.Root.Estate.ID
 	return envelopeValue
 }

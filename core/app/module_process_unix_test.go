@@ -76,6 +76,26 @@ func TestDeclaredSuccessCannotLeaveBackgroundWriter(t *testing.T) {
 	assertTestChildStopped(t, pid)
 }
 
+func TestDeclaredTimeoutDoesNotClaimSetsidChildren(t *testing.T) {
+	// Process-group cleanup is not ownership of setsid/Docker-daemon children.
+	dir := t.TempDir()
+	report := runDeclaredCommand(
+		context.Background(),
+		dir,
+		"setsid bash -c 'echo $$ > child.pid; trap \"\" TERM; while :; do sleep 0.05; done' & wait",
+		350*time.Millisecond,
+	)
+	pid := readOwnedTestChild(t, dir)
+	defer stopOwnedTestChild(pid)
+	if report.Status == "passed" {
+		t.Fatalf("setsid child made the parent look finished: %#v", report)
+	}
+	b, err := exec.Command("ps", "-o", "stat=", "-p", strconv.Itoa(pid)).Output()
+	if err != nil || strings.TrimSpace(string(b)) == "" || strings.HasPrefix(strings.TrimSpace(string(b)), "Z") {
+		t.Fatalf("setsid child %d did not remain outside the module process group: err=%v stat=%q", pid, err, b)
+	}
+}
+
 func readOwnedTestChild(t *testing.T, dir string) int {
 	t.Helper()
 	deadline := time.Now().Add(3 * time.Second)

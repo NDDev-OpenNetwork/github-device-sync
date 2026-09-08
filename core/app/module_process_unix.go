@@ -17,7 +17,9 @@ const moduleTerminationWait = 2 * time.Second
 
 // Own a new group, never the caller's group. Cancel and normal-exit cleanup
 // share one synchronous operation, so no delayed signal goroutine outlives the
-// command or its verification workspace.
+// command or its verification workspace. Descendants that call setsid, or a
+// daemon such as Docker started by the command, are a different process group
+// and are not reaped here.
 func configureModuleProcess(command *exec.Cmd) (func() (bool, error), error) {
 	command.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	var once sync.Once
