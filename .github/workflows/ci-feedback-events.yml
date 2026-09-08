@@ -19,7 +19,7 @@ jobs:
     permissions:
       actions: read # Read exact completed run and job metadata.
       issues: write # Publish bounded failure evidence in this repository.
-    uses: NDDev-OpenNetwork/github-actions/.github/workflows/ci-feedback.yml@a8fd623d86582ec13c434f7cd124ea6b8170dd5e  # commit:a8fd623d86582ec13c434f7cd124ea6b8170dd5e
+    uses: NDDev-OpenNetwork/github-actions/.github/workflows/ci-feedback.yml@c078ddcbcfb771f56a334184b7b6399cfd9c39c4  # commit:c078ddcbcfb771f56a334184b7b6399cfd9c39c4
     with:
       run-id: ${{ format('{0}', github.event.workflow_run.id) }}
       run-attempt: ${{ format('{0}', github.event.workflow_run.run_attempt) }}
