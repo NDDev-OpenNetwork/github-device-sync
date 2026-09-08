@@ -51,6 +51,8 @@ type CommandReport struct {
 	// "No module named pytest" is not a broken module, and a reader must be able
 	// to see that without rerunning anything.
 	Diagnostic string `json:"diagnostic,omitempty"`
+	// A failed cleanup must not be followed by workspace deletion or another lane.
+	CleanupPending bool `json:"cleanup_pending,omitempty"`
 }
 
 const defaultModuleCommandTimeout = 10 * time.Minute
@@ -176,13 +178,13 @@ func (services *Services) runModuleLanes(
 	modulePath string,
 	plan moduleworkflow.VerificationPlan,
 	timeout time.Duration,
-) (ModuleVerification, []domain.Finding) {
-	report := ModuleVerification{
+) (report ModuleVerification, findings []domain.Finding) {
+	report = ModuleVerification{
 		GitmodulesName: plan.GitmodulesName, Path: plan.Path,
 		GitlinkOID: plan.GitlinkOID, RepositoryID: plan.RepositoryID,
 		Lanes: []LaneReport{},
 	}
-	findings := []domain.Finding{}
+	findings = []domain.Finding{}
 
 	workspace, err := os.MkdirTemp("", "gds-module-verify-")
 	if err != nil {
@@ -192,8 +194,27 @@ func (services *Services) runModuleLanes(
 			Evidence: map[string]any{"gitmodules_name": plan.GitmodulesName},
 		})
 	}
-	defer os.RemoveAll(workspace)
 	checkout := filepath.Join(workspace, "checkout")
+	registered, preserve := false, false
+	defer func() {
+		if preserve {
+			return
+		}
+		cleanupCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		var cleanupErr error
+		if registered {
+			cleanupErr = services.GitMutations.RemoveWorktree(cleanupCtx, modulePath, checkout)
+		}
+		if cleanupErr == nil {
+			cleanupErr = os.RemoveAll(workspace)
+		}
+		if cleanupErr != nil {
+			findings = append(findings, domain.Finding{Code: "GDS_MODULE_VERIFICATION_CLEANUP_NOT_PROVEN", Severity: domain.SeverityHigh,
+				Message:  "Verification workspace cleanup failed; retained state requires inspection.",
+				Evidence: map[string]any{"workspace": workspace, "error": cleanupErr.Error()}})
+		}
+	}()
 
 	if err := services.GitMutations.AddDetachedWorktree(
 		ctx, modulePath, checkout, plan.GitlinkOID,
@@ -206,9 +227,7 @@ func (services *Services) runModuleLanes(
 			},
 		})
 	}
-	defer func() {
-		_ = services.GitMutations.RemoveWorktree(ctx, modulePath, checkout)
-	}()
+	registered = true
 
 	for _, lane := range plan.Lanes {
 		laneReport := LaneReport{Lane: lane.Lane, Commands: []CommandReport{}}
@@ -216,6 +235,14 @@ func (services *Services) runModuleLanes(
 		for _, declared := range lane.Commands {
 			result := runDeclaredCommand(ctx, checkout, declared, timeout)
 			laneReport.Commands = append(laneReport.Commands, result)
+			if result.CleanupPending {
+				preserve = true
+				report.Lanes = append(report.Lanes, laneReport)
+				findings = append(findings, domain.Finding{Code: "GDS_MODULE_VERIFICATION_CLEANUP_NOT_PROVEN", Severity: domain.SeverityHigh,
+					Message:  "Command descendants may still own the verification workspace; no later lane was started.",
+					Evidence: map[string]any{"workspace": workspace, "command": declared, "diagnostic": result.Diagnostic}})
+				return report, findings
+			}
 			if result.Status == "passed" {
 				continue
 			}
@@ -275,6 +302,10 @@ func runDeclaredCommand(
 	command := exec.CommandContext(bounded, "bash", "-euo", "pipefail", "-c", declared)
 	command.Dir = directory
 	command.Stdin = nil
+	stop, configureErr := configureModuleProcess(command)
+	if configureErr != nil {
+		return CommandReport{Command: declared, Status: "failed", ExitCode: -1, Diagnostic: configureErr.Error()}
+	}
 	// This selector belongs to the controller operation. Module commands prove
 	// their own source checkout, and must not silently select its consumer's
 	// estate. A declared command can still explicitly select an estate itself.
@@ -291,14 +322,23 @@ func runDeclaredCommand(
 	command.Stdout = diagnostic
 	command.Stderr = diagnostic
 	err := command.Run()
+	leftover, cleanupErr := stop()
+	if err == nil && leftover {
+		err = errors.New("declared command exited with unjoined descendants")
+	}
+	err = errors.Join(err, bounded.Err(), cleanupErr)
 	report := CommandReport{
 		Command: declared, Status: "passed",
-		DurationMS: time.Since(started).Milliseconds(),
+		DurationMS:     time.Since(started).Milliseconds(),
+		CleanupPending: cleanupErr != nil,
 	}
 	if err == nil {
 		return report
 	}
 	report.Diagnostic = boundedDiagnostic(diagnostic.String())
+	if cleanupErr != nil {
+		report.Diagnostic = boundedDiagnostic(report.Diagnostic + "\n" + cleanupErr.Error())
+	}
 	if report.Diagnostic == "" {
 		report.Diagnostic = boundedDiagnostic(err.Error())
 	}
