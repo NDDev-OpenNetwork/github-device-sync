@@ -123,8 +123,11 @@ func (runner ReconciliationRunner) Run(ctx context.Context) (ReconciliationRunRe
 	if auditErr != nil {
 		result.Findings = append(result.Findings, domain.Finding{
 			Code: "GDS_AUDIT_SNAPSHOT_FAILED", Severity: domain.SeverityHigh,
-			Message:  "Signed reconciliation audit snapshot could not be created.",
-			Evidence: map[string]any{"error_type": fmt.Sprintf("%T", auditErr)},
+			Message: "Signed reconciliation audit snapshot could not be created.",
+			Evidence: map[string]any{
+				"error_type": fmt.Sprintf("%T", auditErr),
+				"error":      auditErr.Error(),
+			},
 		})
 		status = "failed"
 		for _, installation := range result.Installations {

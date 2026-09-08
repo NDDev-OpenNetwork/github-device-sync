@@ -170,7 +170,7 @@ type Assignment struct {
 	ProviderID      int64    `json:"provider_id"`
 	Owner           string   `json:"owner"`
 	Name            string   `json:"name"`
-	Archived        bool     `json:"archived"`
+	Archived        bool     `json:"archived,omitempty"` // false must omit: audit prune remashals historical snapshots
 	OwnerID         string   `json:"owner_id,omitempty"`
 	InstallationID  string   `json:"installation_id,omitempty"`
 	IdentityState   string   `json:"identity_state"`
