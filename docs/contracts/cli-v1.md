@@ -425,9 +425,13 @@ without a collected local identity are `partial`. An installation whose
 permission contract fails is `denied`, including repositories that already
 have a local GDS identity; a missing inventory is `unknown`.
 
-`--include-local` discovers anchors under `--root` (default: cwd). User
-memberships and PAT-visible repositories that no App installation can see
-remain outside this command until a user-token reader exists.
+`--include-local` discovers anchors under `--root` (default: cwd). Local
+anchors whose GitHub repository ID is missing stay `unknown` with
+`github_id_missing`; they are not dropped. The JSON report always sets
+`user_token_union` to `not-proven`: user memberships and PAT-visible
+repositories that no App installation can see remain outside this command
+until a dedicated user-token reader exists. Do not read App/gh-cli inventory
+as that union.
 
 The command performs no provider mutation. Missing runtime evidence returns
 exit 3.

@@ -142,6 +142,63 @@ func TestEvaluateLocalOnlyWhenAppObservedIsPartial(t *testing.T) {
 	}
 }
 
+func TestEvaluateRecordsUserTokenUnionAsNotProven(t *testing.T) {
+	t.Parallel()
+	report := Evaluate(coverageConfig(), reconciler.Result{
+		Installations: []reconciler.InstallationResult{{
+			InstallationID: "installation:github-personal", Status: "observed",
+		}},
+	}, nil, false)
+	if report.UserTokenUnion != UserTokenUnionNotProven {
+		t.Fatalf("report=%#v", report)
+	}
+}
+
+func TestEvaluateMapsUnknownInstallationStatusToUnknown(t *testing.T) {
+	t.Parallel()
+	report := Evaluate(coverageConfig(), reconciler.Result{
+		Installations: []reconciler.InstallationResult{{
+			InstallationID: "installation:github-personal", Status: "reconciler-only-status",
+		}},
+	}, nil, false)
+	if report.Installations[0].Status != StatusUnknown {
+		t.Fatalf("installations=%#v", report.Installations)
+	}
+}
+
+func TestEvaluateObservedInstallationUsesCoverageConstant(t *testing.T) {
+	t.Parallel()
+	report := Evaluate(coverageConfig(), reconciler.Result{
+		Installations: []reconciler.InstallationResult{{
+			InstallationID: "installation:github-personal", Status: "observed-unpersisted",
+		}},
+	}, nil, false)
+	if report.Installations[0].Status != StatusObserved {
+		t.Fatalf("installations=%#v", report.Installations)
+	}
+}
+
+func TestEvaluateReportsMissingGitHubIDWithoutCollapsingIdentities(t *testing.T) {
+	t.Parallel()
+	report := Evaluate(coverageConfig(), reconciler.Result{
+		Installations: []reconciler.InstallationResult{{
+			InstallationID: "installation:github-personal", Status: "observed",
+		}},
+	}, []estate.IdentityRepository{
+		{ID: "repo_zero_a", ProviderID: 0, Owner: "example-user", Name: "alpha"},
+		{ID: "repo_zero_b", ProviderID: 0, Owner: "example-user", Name: "beta"},
+	}, true)
+	if report.Counts[StatusUnknown] != 2 || len(report.Repositories) != 2 {
+		t.Fatalf("report=%#v", report)
+	}
+	if report.Repositories[0].GDSRepositoryID != "repo_zero_a" ||
+		report.Repositories[1].GDSRepositoryID != "repo_zero_b" ||
+		!containsReason(report.Repositories[0], "github_id_missing") ||
+		!containsReason(report.Repositories[1], "github_id_missing") {
+		t.Fatalf("repositories=%#v", report.Repositories)
+	}
+}
+
 func coverageConfig() estate.Config {
 	return estate.Config{
 		Root: estate.Root{Installations: []string{"installation:github-personal"}},
