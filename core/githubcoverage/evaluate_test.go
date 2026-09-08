@@ -84,6 +84,32 @@ func TestEvaluateClassifiesPermissionMismatchAsDenied(t *testing.T) {
 	}
 }
 
+func TestEvaluateDeniedInstallDoesNotCountLocalMatchAsMigrated(t *testing.T) {
+	t.Parallel()
+	report := Evaluate(coverageConfig(), reconciler.Result{
+		Installations: []reconciler.InstallationResult{{
+			InstallationID: "installation:github-personal", RepositoryCount: 1, Status: "not-proven",
+		}},
+		Findings: []domain.Finding{{
+			Code:     "GDS_RECONCILE_PERMISSION_CONTRACT_MISMATCH",
+			Evidence: map[string]any{"installation": "installation:github-personal"},
+		}},
+		Inventory: estate.CompiledInventory{Repositories: []estate.Assignment{{
+			ProviderID: 42, Owner: "example-user", Name: "renamed",
+			InstallationID: "installation:github-personal",
+		}}},
+	}, []estate.IdentityRepository{{
+		ID: "repo_01TEST", ProviderID: 42, Owner: "example-user", Name: "original",
+	}}, true)
+	if report.Counts[StatusDenied] != 1 || report.Counts[StatusMigrated] != 0 {
+		t.Fatalf("report=%#v", report)
+	}
+	if !containsReason(report.Repositories[0], "installation_denied") ||
+		!containsReason(report.Repositories[0], "locator_changed") {
+		t.Fatalf("repository=%#v", report.Repositories[0])
+	}
+}
+
 func TestEvaluateAppOnlyWithoutLocalIdentitiesIsPartial(t *testing.T) {
 	t.Parallel()
 	report := Evaluate(coverageConfig(), reconciler.Result{

@@ -171,6 +171,11 @@ func classifyObserved(
 		coverage.Reasons = append(coverage.Reasons, "archived")
 		return coverage
 	}
+	if status := installationStatus[assignment.InstallationID]; status == StatusDenied {
+		coverage.Status = StatusDenied
+		coverage.Reasons = append(coverage.Reasons, "installation_denied")
+		return coverage
+	}
 	if hasLocal {
 		coverage.Status = StatusMigrated
 		return coverage
@@ -180,9 +185,6 @@ func classifyObserved(
 		coverage.Reasons = append(coverage.Reasons, "local_identity_not_collected")
 	} else {
 		coverage.Reasons = append(coverage.Reasons, "gds_identity_missing")
-	}
-	if status := installationStatus[assignment.InstallationID]; status == StatusDenied {
-		coverage.Status = StatusDenied
 	}
 	return coverage
 }

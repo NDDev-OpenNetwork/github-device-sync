@@ -422,7 +422,8 @@ immutable GitHub repository ID. Owner/name rename of the same ID is
 `migrated` with `locator_changed`. Archived repositories stay
 `not-applicable`; they are not auto-unarchived. App-visible repositories
 without a collected local identity are `partial`. An installation whose
-permission contract fails is `denied`; a missing inventory is `unknown`.
+permission contract fails is `denied`, including repositories that already
+have a local GDS identity; a missing inventory is `unknown`.
 
 `--include-local` discovers anchors under `--root` (default: cwd). User
 memberships and PAT-visible repositories that no App installation can see
