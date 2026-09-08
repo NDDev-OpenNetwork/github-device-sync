@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -14,8 +15,17 @@ func prepareCompleteFixture(
 	integration string,
 	requiredChecks bool,
 ) (sessionFixtureState, string, string) {
+	return prepareCompleteFixtureWithProfiles(t, integration, requiredChecks, nil)
+}
+
+func prepareCompleteFixtureWithProfiles(
+	t *testing.T,
+	integration string,
+	requiredChecks bool,
+	profiles []string,
+) (sessionFixtureState, string, string) {
 	t.Helper()
-	fixture := sessionFixtureWithPolicies(t, "never", integration, requiredChecks)
+	fixture := sessionFixtureWithPolicyProfiles(t, "never", integration, requiredChecks, profiles)
 	runSessionGit(t, fixture.client, "switch", "-qc", "task/complete")
 	if err := os.WriteFile(filepath.Join(fixture.client, "fixture.txt"), []byte("complete\n"), 0o644); err != nil {
 		t.Fatal(err)
@@ -102,6 +112,17 @@ func TestCompleteBlocksUnprovenChecksPRPolicyAndNetworkApply(t *testing.T) {
 	checksPlan := planCompleteFixture(t, checksFixture, checksState, "checks-session")
 	if checksPlan.exitCode != 3 || !containsFinding(checksPlan.envelope.Findings, "GDS_COMPLETE_CHECK_NOT_PROVEN") {
 		t.Fatalf("checks plan=%#v stderr=%q", checksPlan.envelope, checksPlan.stderr)
+	}
+
+	advisoryFixture, advisoryState, _ := prepareCompleteFixtureWithProfiles(
+		t, "direct", true, []string{"repository-default", "continuous-development"},
+	)
+	advisoryPlan := planCompleteFixture(t, advisoryFixture, advisoryState, "advisory-session")
+	if advisoryPlan.exitCode != 0 || containsFinding(advisoryPlan.envelope.Findings, "GDS_COMPLETE_CHECK_NOT_PROVEN") {
+		t.Fatalf("advisory plan=%#v stderr=%q", advisoryPlan.envelope, advisoryPlan.stderr)
+	}
+	if !completePlanKeepsUnprovenBackgroundChecks(t, advisoryPlan.envelope.Data) {
+		t.Fatal("advisory completion dropped declared background checks")
 	}
 
 	prFixture, prState, _ := prepareCompleteFixture(t, "pull-request", false)
@@ -242,4 +263,32 @@ func TestCompleteFinalizesModuleBeforeConsumerAndLeavesFinalGitlink(t *testing.T
 	if branch := runSessionGit(t, consumer.client, "branch", "--show-current"); branch != "main" {
 		t.Fatalf("consumer branch=%q", branch)
 	}
+}
+
+func completePlanKeepsUnprovenBackgroundChecks(t *testing.T, data any) bool {
+	t.Helper()
+	raw, err := json.Marshal(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var parsed struct {
+		Assessments []struct {
+			RequiredChecks []struct {
+				Name   string `json:"name"`
+				Status string `json:"status"`
+			} `json:"required_checks"`
+		} `json:"assessments"`
+	}
+	if err := json.Unmarshal(raw, &parsed); err != nil {
+		t.Fatal(err)
+	}
+	if len(parsed.Assessments) != 1 || len(parsed.Assessments[0].RequiredChecks) == 0 {
+		return false
+	}
+	for _, check := range parsed.Assessments[0].RequiredChecks {
+		if check.Name == "" || check.Status != "not-proven" {
+			return false
+		}
+	}
+	return true
 }

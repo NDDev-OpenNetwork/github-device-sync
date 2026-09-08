@@ -11,6 +11,20 @@ import (
 	gitprovider "github.com/NDDev-OpenNetwork/github-device-sync/core/providers/git"
 )
 
+func TestUnprovenRequiredChecksBlockOnlyWithoutAdvisoryCI(t *testing.T) {
+	t.Parallel()
+	checks := []HandoffCheck{{Name: "test", Status: "not-proven", Commands: []string{"go test ./..."}}}
+	if !unprovenRequiredChecksBlockCompletion(false, checks) {
+		t.Fatal("absent advisory profile must still require execution evidence")
+	}
+	if unprovenRequiredChecksBlockCompletion(true, checks) {
+		t.Fatal("continuous-development must not block ordinary completion on unproven background lanes")
+	}
+	if unprovenRequiredChecksBlockCompletion(false, nil) {
+		t.Fatal("no declared required lanes must not invent a check gate")
+	}
+}
+
 func TestOrderCompletionGraphIsDeterministicWithoutDependencies(t *testing.T) {
 	contexts := []completeContext{
 		{repositoryID: "repo_c"},

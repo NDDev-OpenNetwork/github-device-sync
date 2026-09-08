@@ -387,18 +387,6 @@ func (services *Services) completeContext(
 		current.assessment.Reason = "published-task-upstream-required"
 		return current, []domain.Finding{completeFinding(info.WorktreeRoot, current.assessment.Reason)}
 	}
-	if len(current.assessment.RequiredChecks) != 0 {
-		current.assessment.Reason = "required-checks-not-proven"
-		findings := []domain.Finding{}
-		for _, check := range current.assessment.RequiredChecks {
-			findings = append(findings, domain.Finding{
-				Code: "GDS_COMPLETE_CHECK_NOT_PROVEN", Severity: domain.SeverityHigh,
-				Message:  "Completion cannot integrate while a required check lacks execution evidence.",
-				Evidence: map[string]any{"check": check.Name, "commands": check.Commands},
-			})
-		}
-		return current, findings
-	}
 	if anchor.Git.Integration != "direct" {
 		current.assessment.Reason = "pull-request-provider-unavailable"
 		return current, []domain.Finding{{
@@ -498,6 +486,18 @@ func (services *Services) completeContext(
 	if len(compiled.Findings) != 0 {
 		current.assessment.Reason = "policy-not-proven"
 		return current, compiled.Findings
+	}
+	if unprovenRequiredChecksBlockCompletion(compiler.AdvisoryCI(compiled.Document), current.assessment.RequiredChecks) {
+		current.assessment.Reason = "required-checks-not-proven"
+		findings := []domain.Finding{}
+		for _, check := range current.assessment.RequiredChecks {
+			findings = append(findings, domain.Finding{
+				Code: "GDS_COMPLETE_CHECK_NOT_PROVEN", Severity: domain.SeverityHigh,
+				Message:  "Completion cannot integrate while a required check lacks execution evidence.",
+				Evidence: map[string]any{"check": check.Name, "commands": check.Commands},
+			})
+		}
+		return current, findings
 	}
 	current.assessment.Eligible = true
 	current.assessment.ApplySupported = applySupported
@@ -634,6 +634,10 @@ func checkoutStatusIsClean(status gitprovider.Status) bool {
 		status.Changes.Untracked == 0 && status.Changes.Conflicted == 0 &&
 		status.Changes.SubmoduleChanges == 0 && status.Submodules.Modified == 0 &&
 		status.Submodules.Conflicted == 0
+}
+
+func unprovenRequiredChecksBlockCompletion(advisoryCI bool, checks []HandoffCheck) bool {
+	return !advisoryCI && len(checks) != 0
 }
 
 func completeFinding(path string, reason string) domain.Finding {
