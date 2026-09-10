@@ -6,7 +6,6 @@ selector:
 
 match:
   owner: "owner:acme"
-  fork: false
   visibility:
     - "public"
     - "private"

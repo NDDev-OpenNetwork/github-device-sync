@@ -9,7 +9,6 @@ selector:
 
 match:
   owner: "owner:acme"
-  fork: false
   name_prefixes:
     - "server-"
 

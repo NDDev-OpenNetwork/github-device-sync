@@ -16,16 +16,12 @@ device:
 
 workspace_roots:
   projects: "${HOME}/Developer/example-user"
-  forks: "${HOME}/Developer/forks"
 
 materialization:
   default_mode: "absent"
   include:
     - selector: "portfolio:personal-projects"
       workspace_root: "projects"
-      mode: "active"
-    - selector: "portfolio:forks"
-      workspace_root: "forks"
       mode: "active"
 
 harnesses:

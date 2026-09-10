@@ -42,7 +42,7 @@
     "classification": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["fork_portfolio", "source_portfolio"],
+      "required": ["source_portfolio"],
       "properties": {
         "fork_portfolio": {
           "$ref": "common.schema.json#/$defs/portfolioReference"
