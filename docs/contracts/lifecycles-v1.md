@@ -345,6 +345,18 @@ publication-proven checkout with no unsafe worktree state is atomically moved
 to deterministic device quarantine. Restoration requires a separate explicit
 plan.
 
+Like materialization, removal is currently local-only. Proving publication
+means reading the remote ref, the mutation runner runs every Git command with
+`protocol.allow=never`, and the URL it accepts must resolve locally — so a
+checkout whose `origin` is an ordinary `https://` or `ssh://` remote is refused
+with `GDS_WORKSPACE_REMOVE_UNSAFE`, carrying the message `network Git mutation
+is disabled before the live provider stage`. That is the offline stance of this
+runner, not a property of the checkout, and the error names the runner rather
+than the cause. Until the live provider stage lands, a device-local retirement
+gathers the same evidence directly: clean status, `@{u}` neither ahead nor
+behind, no stashes, no commits reachable only locally, and no tags the remote
+does not have.
+
 ## Portfolio planning
 
 ```text

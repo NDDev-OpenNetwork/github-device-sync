@@ -50,6 +50,17 @@ implies GDS materializes there.
    outside every declared `workspace_root`, no placement finding
    (`GDS_WORKSPACE_PLACEMENT_DRIFT`, `GDS_WORKSPACE_ROOT_NOT_READY`) is produced
    and no bogus `expected_path` is computed.
+
+   The accepted finding is not free, and this decision did not foresee its
+   price. The complete relationship index requires an anchor on **every**
+   boundary under the root it analyses, so a single external checkout under
+   `${HOME}/Developer` makes `gds repository delete` unusable for every
+   repository in the tree, not only for the external one. Narrowing
+   `--inventory-root` past the external root is the documented escape: the
+   planner stores the root it analysed as `analysis_root` and the apply path
+   reuses exactly that, so the narrowed scope is bound into the plan and the
+   approval. Narrow it only with independent evidence that the subject is a
+   leaf — no relationship and no consumer naming it in the full index.
 5. Promotion out of `external` is an explicit estate change: it requires a new
    owner, an installation that can observe the account, and a selector — that
    is, transfer or adoption of the repository, never a local move alone.
