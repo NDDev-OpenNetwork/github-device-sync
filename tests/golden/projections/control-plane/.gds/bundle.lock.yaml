@@ -2,21 +2,21 @@
 schema_version: 1
 
 bundle:
-  version: "0.8.0-dev"
+  version: "0.9.0-dev"
   release_sequence: 0
   channel: "development"
   source_tree_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000001"
-  digest: "sha256:620a284abd424fa8e2d34d77447d2435f300b6c3c69016f447fbe479b5db655f"
+  digest: "sha256:edb83f3728b0140850112f684b8670f549673c956138a662d7340fbfb7919a1d"
 
 projection:
-  input_digest: "sha256:e84c2faf42161d5add82c4bc06c3eee103666c005a0a5aceb0b65c847d6540b3"
-  output_digest: "sha256:bb74d9a03b3bc47b4d64a5fe867411a5f6169df675dac966bde4bbb30da20432"
+  input_digest: "sha256:7f3b1e56e111087f4c02c3a1c64a00f861a2b7c5277a75bd5b5a9f0274b0a160"
+  output_digest: "sha256:3b243072b989b07d73c937f29058ae875b77d9b6137a12d680c651cdee64a641"
   files:
     - path: ".claude/CLAUDE.md"
-      digest: "sha256:366c3a922c8ffbd400cbe9d20fc90b406f48297e8587dfbab065c283bcb72a50"
+      digest: "sha256:13f462bb47c2e7fdb9e501525449a211873f4b5927b38e3d7ee914e6fa696506"
     - path: ".gds/compiled-policy.json"
-      digest: "sha256:24850d3c840160a5bef16753424da983b1e220984e2457fd22ee03ed278f1f1b"
+      digest: "sha256:64ed5ad10366bc3623c5820f388b2bda6d6096d7fe09f3f990c79f51651bc9a4"
     - path: ".github/workflows/gds-ci.yml"
-      digest: "sha256:53508157fc79a84cd4dff76f4842ff87c63fd166f6e8c21f58f71c51bba8494e"
+      digest: "sha256:ded5c465477bdb9e99d4518f41b1423819e300fc328202a780e20221cc4ecdb9"
     - path: "AGENTS.md"
-      digest: "sha256:51fb1fdab45861132eeedaa45d5f63acc499cac525362308946c6d60cd746e91"
+      digest: "sha256:df504a377e3c6649592fb3e78ce48439a427a3cbc1dabd983718a1927e563aff"
