@@ -10,5 +10,4 @@ defaults:
   rollout_ring: "standard"
 
 classification:
-  fork_portfolio: "portfolio:forks"
   source_portfolio: "portfolio:organization-projects"

@@ -6,7 +6,6 @@ selector:
 
 match:
   owner: "owner:guild"
-  fork: false
 
 assign:
   management_mode: "observe-only"

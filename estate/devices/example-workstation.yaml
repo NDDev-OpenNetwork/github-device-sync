@@ -17,7 +17,6 @@ device:
 workspace_roots:
   organization: "${HOME}/Developer/organization"
   personal: "${HOME}/Developer/personal"
-  forks: "${HOME}/Developer/forks"
 
 materialization:
   default_mode: "absent"
@@ -27,9 +26,6 @@ materialization:
       mode: "active"
     - selector: "portfolio:personal-projects"
       workspace_root: "personal"
-      mode: "active"
-    - selector: "portfolio:forks"
-      workspace_root: "forks"
       mode: "active"
 
 harnesses:

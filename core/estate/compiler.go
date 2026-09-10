@@ -85,11 +85,12 @@ func Compile(
 			assignment.RolloutRing = selected.Assign.RolloutRing
 			assignment.MatchedSelector = selected.Selector.ID
 		} else {
-			if repository.Fork {
-				assignment.Portfolios = []string{owner.Classification.ForkPortfolio}
-			} else {
-				assignment.Portfolios = []string{owner.Classification.SourcePortfolio}
-			}
+			// A repository belongs to the account that holds it. Whether GitHub
+			// calls it a fork is a property of how it was created, not of who
+			// is responsible for it, and it used to send unmatched forks to a
+			// portfolio of their own. Owner classification is now the single
+			// fallback; `fork_portfolio` is deprecated and no longer read.
+			assignment.Portfolios = []string{owner.Classification.SourcePortfolio}
 		}
 		sort.Strings(assignment.Portfolios)
 		sort.Strings(assignment.PolicyProfiles)
@@ -119,9 +120,6 @@ func matchedSelectors(selectors []Selector, ownerID string, repository ObservedR
 		}
 		if len(selector.Match.NamePrefixes) != 0 &&
 			!matchesAnyNamePrefix(repository.Name, selector.Match.NamePrefixes) {
-			continue
-		}
-		if selector.Match.Fork != nil && *selector.Match.Fork != repository.Fork {
 			continue
 		}
 		if selector.Match.Archived != nil && *selector.Match.Archived != repository.Archived {

@@ -17,7 +17,7 @@ func TestCanonicalEstateTreePasses(t *testing.T) {
 	summary, findings := set.ValidateEstateTree(repositoryRoot(t))
 	if len(findings) != 0 || summary.Installations != 5 || summary.Mutations != 4 ||
 		summary.Owners != 5 ||
-		summary.Selectors != 9 || summary.Devices != 3 {
+		summary.Selectors != 7 || summary.Devices != 3 {
 		t.Fatalf("summary=%#v findings=%#v", summary, findings)
 	}
 }
@@ -58,13 +58,13 @@ func TestEstateTreeRejectsCanonicalSelectorPortfolioMismatch(t *testing.T) {
 	sourceRoot := repositoryRoot(t)
 	copyEstateTree(t, filepath.Join(sourceRoot, "estate"), filepath.Join(root, "estate"))
 	copyEstateTree(t, filepath.Join(sourceRoot, "policies"), filepath.Join(root, "policies"))
-	selectorPath := filepath.Join(root, "estate", "selectors", "personal-forks.yaml")
+	selectorPath := filepath.Join(root, "estate", "selectors", "guild-sources.yaml")
 	raw, err := os.ReadFile(selectorPath)
 	if err != nil {
 		t.Fatal(err)
 	}
 	raw = []byte(strings.Replace(
-		string(raw), "portfolio:forks", "portfolio:personal-servers", 1,
+		string(raw), "portfolio:organization-projects", "portfolio:servers", 1,
 	))
 	if err := os.WriteFile(selectorPath, raw, 0o600); err != nil {
 		t.Fatal(err)
@@ -87,7 +87,7 @@ func TestEstateTreeRejectsUnknownSelectorOwner(t *testing.T) {
 	sourceRoot := repositoryRoot(t)
 	copyEstateTree(t, filepath.Join(sourceRoot, "estate"), filepath.Join(root, "estate"))
 	copyEstateTree(t, filepath.Join(sourceRoot, "policies"), filepath.Join(root, "policies"))
-	selectorPath := filepath.Join(root, "estate", "selectors", "personal-forks.yaml")
+	selectorPath := filepath.Join(root, "estate", "selectors", "personal-sources.yaml")
 	raw, err := os.ReadFile(selectorPath)
 	if err != nil {
 		t.Fatal(err)
@@ -318,7 +318,7 @@ func TestEstateTreeRejectsPolicyReferencesThatResolveToNothing(t *testing.T) {
 		},
 		{
 			name: "portfolio",
-			old:  `    - "portfolio:forks"`,
+			old:  `    - "portfolio:servers"`,
 			new:  `    - "portfolio:no-selector-assigns-this"`,
 			code: "GDS_ESTATE_POLICY_PORTFOLIO_MISSING",
 		},

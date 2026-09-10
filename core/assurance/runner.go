@@ -89,10 +89,15 @@ func Run(ctx context.Context, options Options, schemas *validation.Set) (Report,
 			len(compiled.Repositories), findingCodes(findings),
 		)
 	}
-	forkAssignments := countForkAssignments(compiled)
+	// Forks are no longer a classification of their own, so the invariant is
+	// no longer "N repositories landed in a fork portfolio" — a count that
+	// would now be zero forever and prove nothing. What must hold is that a
+	// fork is classified exactly like any other repository of its account:
+	// matched by a selector and carrying a portfolio.
+	forkAssignments := countClassifiedForks(fixtures, compiled)
 	if forkAssignments != options.ForkCount {
 		return Report{}, fmt.Errorf(
-			"fork assignment mismatch: got %d want %d", forkAssignments, options.ForkCount,
+			"classified fork mismatch: got %d want %d", forkAssignments, options.ForkCount,
 		)
 	}
 
@@ -267,13 +272,24 @@ func resolveRoot(path string) (string, error) {
 	return filepath.Clean(resolved), nil
 }
 
-func countForkAssignments(inventory estate.CompiledInventory) int {
-	count := 0
+func countClassifiedForks(
+	fixtures []fixtureRepository,
+	inventory estate.CompiledInventory,
+) int {
+	assignments := make(map[int64]estate.Assignment, len(inventory.Repositories))
 	for _, assignment := range inventory.Repositories {
-		if assignment.MatchedSelector == "personal-forks" ||
-			assignment.MatchedSelector == "organization-forks" {
-			count++
+		assignments[assignment.ProviderID] = assignment
+	}
+	count := 0
+	for _, fixture := range fixtures {
+		if !fixture.Observed.Fork {
+			continue
 		}
+		assignment, found := assignments[fixture.Observed.ProviderID]
+		if !found || assignment.MatchedSelector == "" || len(assignment.Portfolios) == 0 {
+			continue
+		}
+		count++
 	}
 	return count
 }

@@ -6,7 +6,6 @@ selector:
 
 match:
   owner: "owner:example-user"
-  fork: false
   visibility:
     - "public"
     - "private"

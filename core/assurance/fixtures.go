@@ -54,10 +54,10 @@ func (fixtureAudit) Record(
 
 func buildFixtureRepositories(options Options) []fixtureRepository {
 	result := make([]fixtureRepository, 0, options.RepositoryCount)
-	// Forks are restricted to owners that carry explicit fork selectors in the
-	// canonical estate (personal and organization); the other organization
-	// installations have no fork selector, so a fork owned there would compile
-	// unassigned.
+	// Two owners carry the fork half of the fixture. The restriction used to
+	// be forced — only these two had fork selectors — and is now only a stable
+	// distribution the bounded-evidence counts are calibrated against. A fork
+	// is classified by the account that holds it, like any other repository.
 	forkOwners := []string{"example-user", "example-org"}
 	sourceOwners := []string{"example-user", "example-org", "example-media", "NDDev-OpenNetwork"}
 	for index := 0; index < options.RepositoryCount; index++ {

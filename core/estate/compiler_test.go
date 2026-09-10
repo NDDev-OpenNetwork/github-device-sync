@@ -16,7 +16,7 @@ func TestLoadCanonicalControlledMutationEstate(t *testing.T) {
 	if config.Root.Rollout.MutationMode != "pull-request" ||
 		config.Root.Discovery.DefaultManagementMode != "observe-only" ||
 		len(config.Installations) != 5 || len(config.Mutations) != 4 ||
-		len(config.Owners) != 5 || len(config.Selectors) != 9 {
+		len(config.Owners) != 5 || len(config.Selectors) != 7 {
 		t.Fatalf("config = %#v", config)
 	}
 }
@@ -40,7 +40,6 @@ func TestCompileTwoThousandRepositoriesAndForksDeterministically(t *testing.T) {
 	if len(findings) != 0 || len(compiled.Repositories) != 2000 {
 		t.Fatalf("repositories=%d findings=%#v", len(compiled.Repositories), findings)
 	}
-	forks := 0
 	managed := 0
 	for index, assignment := range compiled.Repositories {
 		if assignment.ProviderID != int64(index+1000) ||
@@ -55,16 +54,22 @@ func TestCompileTwoThousandRepositoriesAndForksDeterministically(t *testing.T) {
 		} else if assignment.ManagementMode != "observe-only" {
 			t.Fatalf("observe-only assignment[%d] = %#v", index, assignment)
 		}
-		if assignment.MatchedSelector == "personal-forks" ||
-			assignment.MatchedSelector == "organization-forks" {
-			forks++
+		// Half the observations are forks. None of them is classified as
+		// one: a repository belongs to the account that holds it, so a fork
+		// lands in exactly the selector its non-fork sibling would.
+		if assignment.Owner == "example-user" && assignment.MatchedSelector != "personal-sources" {
+			t.Fatalf("personal assignment[%d] = %#v", index, assignment)
+		}
+		if assignment.Owner == "example-org" && assignment.MatchedSelector != "organization-sources" {
+			t.Fatalf("organization assignment[%d] = %#v", index, assignment)
 		}
 	}
-	if forks != 1000 {
-		t.Fatalf("fork assignments = %d, want 1000", forks)
-	}
-	if managed != 500 {
-		t.Fatalf("managed assignments = %d, want 500", managed)
+	// Every organization repository is managed now, forks included. That is
+	// the consequence of dropping fork classification: a managed account
+	// manages everything it holds, and a fork stops being a way to sit
+	// outside that. Half of these observations are forks.
+	if managed != 1000 {
+		t.Fatalf("managed assignments = %d, want 1000", managed)
 	}
 
 	for left, right := 0, len(repositories)-1; left < right; left, right = left+1, right-1 {
@@ -81,7 +86,7 @@ func TestCompileTwoThousandRepositoriesAndForksDeterministically(t *testing.T) {
 func TestCompileRejectsSelectorConflictAndUnknownOwner(t *testing.T) {
 	t.Parallel()
 	config := loadCanonical(t)
-	conflict := organizationForksSelector(t, config)
+	conflict := organizationSourcesSelector(t, config)
 	conflict.Selector.ID = "conflicting-selector"
 	config.Selectors = append(config.Selectors, conflict)
 	_, findings := Compile(config, []ObservedRepository{{
@@ -147,8 +152,9 @@ func TestCompileRoutesServerRepositoriesByNamePrefix(t *testing.T) {
 		len(got.Portfolios) != 1 || got.Portfolios[0] != "portfolio:servers" {
 		t.Fatalf("personal server repository = %#v", got)
 	}
-	if got := byID[13]; got.MatchedSelector != "organization-forks" ||
-		!containsString(got.Portfolios, "portfolio:forks") {
+	// The name prefix decides, and being a fork no longer overrides it.
+	if got := byID[13]; got.MatchedSelector != "organization-servers" ||
+		!containsString(got.Portfolios, "portfolio:servers") {
 		t.Fatalf("server-named organization fork repository = %#v", got)
 	}
 }
@@ -196,13 +202,13 @@ func TestCompilePreservesArchivedObservation(t *testing.T) {
 	}
 }
 
-func organizationForksSelector(t *testing.T, config Config) Selector {
+func organizationSourcesSelector(t *testing.T, config Config) Selector {
 	t.Helper()
 	for _, selector := range config.Selectors {
-		if selector.Selector.ID == "organization-forks" {
+		if selector.Selector.ID == "organization-sources" {
 			return selector
 		}
 	}
-	t.Fatalf("organization-forks selector not found in %#v", config.Selectors)
+	t.Fatalf("organization-sources selector not found in %#v", config.Selectors)
 	return Selector{}
 }

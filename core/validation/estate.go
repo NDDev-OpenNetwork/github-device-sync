@@ -176,7 +176,7 @@ func (set *Set) ValidateEstateTree(root string) (EstateSummary, []domain.Finding
 	}
 
 	ownerByID := map[string]estateDocument{}
-	ownerPortfolio := map[string]map[bool]string{}
+	ownerPortfolio := map[string]string{}
 	for _, document := range owners {
 		identity := nestedObject(document.value, "owner")
 		id := stringField(identity, "id")
@@ -211,10 +211,7 @@ func (set *Set) ValidateEstateTree(root string) (EstateSummary, []domain.Finding
 			})
 		}
 		classification := nestedObject(document.value, "classification")
-		ownerPortfolio[id] = map[bool]string{
-			false: stringField(classification, "source_portfolio"),
-			true:  stringField(classification, "fork_portfolio"),
-		}
+		ownerPortfolio[id] = stringField(classification, "source_portfolio")
 	}
 
 	selectorIDs := map[string]estateDocument{}
@@ -237,7 +234,6 @@ func (set *Set) ValidateEstateTree(root string) (EstateSummary, []domain.Finding
 			})
 			continue
 		}
-		fork, hasFork := match["fork"].(bool)
 		for _, rawProfile := range arrayField(nestedObject(document.value, "assign"), "policy_profiles") {
 			profile, _ := rawProfile.(string)
 			if _, found := policyByID[profile]; !found {
@@ -248,10 +244,15 @@ func (set *Set) ValidateEstateTree(root string) (EstateSummary, []domain.Finding
 				})
 			}
 		}
-		if !hasFork || selectorHasSpecializedMatch(match) {
+		// A selector that narrows by name, visibility or lifecycle is
+		// deliberately routing a subset elsewhere. Every other selector is the
+		// owner's general one and must assign the portfolio the owner declares.
+		// This rule used to be keyed on `match.fork` being present, which meant
+		// dropping that field would have silently retired the check.
+		if selectorHasSpecializedMatch(match) {
 			continue
 		}
-		expectedPortfolio := ownerPortfolio[ownerID][fork]
+		expectedPortfolio := ownerPortfolio[ownerID]
 		assigned := arrayField(nestedObject(document.value, "assign"), "portfolios")
 		if !stringArrayContains(assigned, expectedPortfolio) {
 			findings = append(findings, domain.Finding{
