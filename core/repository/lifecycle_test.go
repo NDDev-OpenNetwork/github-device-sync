@@ -2,10 +2,13 @@ package repository
 
 import (
 	"reflect"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/domain"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/operations"
+	"github.com/NDDev-OpenNetwork/github-device-sync/core/validation"
 )
 
 func TestValidateRenamePreservesStableIdentityAndAliasHistory(t *testing.T) {
@@ -156,5 +159,59 @@ func TestDeleteParametersRejectANonStringAcceptedLoss(t *testing.T) {
 		Parameters: parameters,
 	}); err == nil {
 		t.Fatal("a non-string accepted loss must not decode into a preservation declaration")
+	}
+}
+
+// The plan schema refuses unknown keys under `repository_provider`, so a new
+// transition field is only real once the schema admits it. A delete plan
+// carrying accepted losses is exactly the shape that shipped broken: the Go
+// round trip passed while `gds repository delete --plan` failed with
+// GDS_PLAN_INVALID, because nothing validated the parameters against the
+// schema that governs them.
+func TestDeleteParametersValidateAgainstThePlanSchema(t *testing.T) {
+	current := lifecycleAnchor()
+	current.Repository.Lifecycle = "archived"
+	transition, findings := ValidateDelete(current)
+	if len(findings) != 0 {
+		t.Fatalf("findings=%#v", findings)
+	}
+	transition.MutationCapabilityID = "mutation:github-personal"
+	transition.ExpectedProviderDigest = "sha256:" + strings.Repeat("a", 64)
+	transition.AnalysisRoot = "/verified-estate"
+	transition.PreservedIdentities = []string{
+		"commits:unpushed", "ref:refs/tags/v0.6.10", "review-threads",
+		"worktree:/verified-estate/example", "branch:task/one",
+		"pull-request:7", "issue:11",
+	}
+	plan, err := operations.NewPlan(
+		"plan_01ABCDEFGHJKMNPQRSTVWXYZ01", time.Unix(1_800_000_000, 0).UTC(),
+		time.Unix(1_800_000_900, 0).UTC(),
+		operations.PlanInput{
+			Operation: "delete-repository",
+			Actor:     operations.Actor{Type: "agent-session", SessionID: "schema-test-session"},
+			Preconditions: []operations.Precondition{{
+				RepositoryID:   transition.RepositoryID,
+				HeadOID:        strings.Repeat("b", 40),
+				ManifestDigest: "sha256:" + strings.Repeat("c", 64),
+				PolicyDigest:   "sha256:" + strings.Repeat("d", 64),
+			}},
+			Steps: []operations.Step{{
+				StepID: "delete-provider-repository", RepositoryID: transition.RepositoryID,
+				Action: ProviderLifecycleAction, RequiresApproval: true,
+				Compensation: operations.Compensation{Mode: "manual"},
+				Parameters:   Parameters(transition),
+			}},
+			ApprovalClass: "delete-github-repository",
+		},
+	)
+	if err != nil {
+		t.Fatalf("NewPlan: %v", err)
+	}
+	schemas, err := validation.NewSchemaSet()
+	if err != nil {
+		t.Fatalf("NewSchemaSet: %v", err)
+	}
+	if planFindings := plan.Validate(schemas); len(planFindings) != 0 {
+		t.Fatalf("plan findings = %#v", planFindings)
 	}
 }
