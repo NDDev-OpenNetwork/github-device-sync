@@ -36,6 +36,13 @@ type ProviderTransition struct {
 	TargetName             string `json:"target_name"`
 	TargetLifecycle        string `json:"target_lifecycle"`
 	AnalysisRoot           string `json:"analysis_root,omitempty"`
+	// PreservedIdentities is the exact set of retirement identities the
+	// operator accepted losing when the plan was built. It lives on the
+	// transition, and therefore inside the plan parameters and the plan
+	// digest, because the apply path has to rebuild the same retirement
+	// evidence the approver saw. Recomputing it from apply-time flags would
+	// let an approved plan be applied against a different declaration.
+	PreservedIdentities []string `json:"preserved_identities,omitempty"`
 }
 
 func ValidateDelete(current domain.RepositoryAnchor) (ProviderTransition, []domain.Finding) {
@@ -76,6 +83,13 @@ func Parameters(transition ProviderTransition) map[string]any {
 	if transition.AnalysisRoot != "" {
 		parameters["analysis_root"] = transition.AnalysisRoot
 	}
+	if len(transition.PreservedIdentities) != 0 {
+		identities := make([]any, 0, len(transition.PreservedIdentities))
+		for _, identity := range transition.PreservedIdentities {
+			identities = append(identities, identity)
+		}
+		parameters["preserved_identities"] = identities
+	}
 	return map[string]any{"repository_provider": parameters}
 }
 
@@ -102,6 +116,15 @@ func StepTransition(step operations.Step) (ProviderTransition, error) {
 	result.TargetName, _ = raw["target_name"].(string)
 	result.TargetLifecycle, _ = raw["target_lifecycle"].(string)
 	result.AnalysisRoot, _ = raw["analysis_root"].(string)
+	if identities, ok := raw["preserved_identities"].([]any); ok {
+		for _, identity := range identities {
+			value, valid := identity.(string)
+			if !valid || value == "" {
+				return ProviderTransition{}, errors.New("repository provider parameters are invalid")
+			}
+			result.PreservedIdentities = append(result.PreservedIdentities, value)
+		}
+	}
 	if (result.Operation != RenameOperation && result.Operation != TransferOperation &&
 		result.Operation != ArchiveOperation && result.Operation != DeleteOperation) ||
 		result.ProviderRepositoryID < 1 || result.CurrentInstallation == "" || result.CurrentOwner == "" ||

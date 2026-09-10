@@ -115,3 +115,46 @@ func assertTransitionFinding(t *testing.T, findings []domain.Finding, code strin
 	}
 	t.Fatalf("missing %s in %#v", code, findings)
 }
+
+func TestDeletePlanCarriesTheAcceptedLossesThroughItsParameters(t *testing.T) {
+	current := lifecycleAnchor()
+	current.Repository.Lifecycle = "archived"
+	transition, findings := ValidateDelete(current)
+	if len(findings) != 0 {
+		t.Fatalf("findings=%#v", findings)
+	}
+	// What the operator accepted losing is part of what the approver signs, so
+	// it has to survive into the stored plan: the apply path rebuilds the
+	// retirement evidence from it, and an empty set makes every accepted loss
+	// read as blocking again.
+	transition.AnalysisRoot = "/verified-estate"
+	transition.PreservedIdentities = []string{"commits:unpushed", "ref:refs/tags/v0.6.10"}
+	decoded, err := StepTransition(operations.Step{
+		RepositoryID: transition.RepositoryID, Action: ProviderLifecycleAction,
+		Parameters: Parameters(transition),
+	})
+	if err != nil || !reflect.DeepEqual(decoded, transition) {
+		t.Fatalf("decoded=%#v transition=%#v err=%v", decoded, transition, err)
+	}
+}
+
+func TestDeleteParametersRejectANonStringAcceptedLoss(t *testing.T) {
+	current := lifecycleAnchor()
+	current.Repository.Lifecycle = "archived"
+	transition, findings := ValidateDelete(current)
+	if len(findings) != 0 {
+		t.Fatalf("findings=%#v", findings)
+	}
+	parameters := Parameters(transition)
+	provider, ok := parameters["repository_provider"].(map[string]any)
+	if !ok {
+		t.Fatalf("parameters=%#v", parameters)
+	}
+	provider["preserved_identities"] = []any{"commits:unpushed", 7}
+	if _, err := StepTransition(operations.Step{
+		RepositoryID: transition.RepositoryID, Action: ProviderLifecycleAction,
+		Parameters: parameters,
+	}); err == nil {
+		t.Fatal("a non-string accepted loss must not decode into a preservation declaration")
+	}
+}
