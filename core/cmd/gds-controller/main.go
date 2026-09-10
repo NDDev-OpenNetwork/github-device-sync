@@ -25,7 +25,7 @@ import (
 
 // version is the development default; the release builder stamps the exact
 // tag via -X main.version. The -dev suffix keeps an unstamped binary honest.
-var version = "0.8.0-dev"
+var version = "0.9.0-dev"
 
 func main() {
 	ctx, stop := signal.NotifyContext(
