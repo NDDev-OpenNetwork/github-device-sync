@@ -730,7 +730,18 @@
         "target_owner": {"$ref": "common.schema.json#/$defs/githubOwner"},
         "target_name": {"$ref": "common.schema.json#/$defs/repositoryName"},
         "target_lifecycle": {"$ref": "common.schema.json#/$defs/lifecycle"},
-        "analysis_root": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^/"}
+        "analysis_root": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^/"},
+        "preserved_identities": {
+          "type": "array",
+          "uniqueItems": true,
+          "maxItems": 1000,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512,
+            "pattern": "^(commits:unpushed|review-threads|(worktree|ref|branch|pull-request|issue):.+)$"
+          }
+        }
       },
       "allOf": [
         {
