@@ -89,6 +89,31 @@ type repositoryDeleteObserver struct {
 	transition      repositoryworkflow.ProviderTransition
 }
 
+// newRepositoryDeleteObserver is the single construction site for the delete
+// precondition observer. Planning and apply both go through it because they
+// drifted apart once already: the apply path was built without the retirement
+// reader and without the preserved set, so every remote collection read as
+// unknown and every accepted loss read as blocking. `Retirable` was then false
+// forever, which the engine surfaced as GDS_STALE_PLAN with an empty mismatch
+// list — a failed observation wearing the name of a state change. Both inputs
+// now come from the transition, which the plan stores and the approval signs.
+func (services *Services) newRepositoryDeleteObserver(
+	root string,
+	transition repositoryworkflow.ProviderTransition,
+	options RepositoryDeleteOptions,
+	reader repositoryworkflow.ProviderReader,
+) repositoryDeleteObserver {
+	return repositoryDeleteObserver{
+		services: services, root: root, inventoryRoot: transition.AnalysisRoot,
+		maxDepth: options.MaxDepth, maxRepositories: options.MaxRepositories,
+		concurrency: options.Concurrency,
+		reader:      reader,
+		retirement:  retirementReaderFor(reader),
+		preserve:    transition.PreservedIdentities,
+		transition:  transition,
+	}
+}
+
 func (observer repositoryDeleteObserver) Observe(
 	ctx context.Context,
 	repositoryID string,
@@ -229,15 +254,10 @@ func (services *Services) PlanRepositoryDelete(
 		return domain.InternalError(command, err)
 	}
 	engine := operations.NewDefaultEngine(
-		store, services.Schemas, repositoryDeleteObserver{
-			services: services, root: current.root, inventoryRoot: current.transition.AnalysisRoot,
-			maxDepth: options.MaxDepth, maxRepositories: options.MaxRepositories,
-			concurrency: options.Concurrency,
-			reader:      providerRuntime.readers[current.transition.CurrentInstallation],
-			retirement:  retirementReaderFor(providerRuntime.readers[current.transition.CurrentInstallation]),
-			preserve:    options.PreserveIdentities,
-			transition:  current.transition,
-		}, nil, options.DeviceID, options.SessionID)
+		store, services.Schemas, services.newRepositoryDeleteObserver(
+			current.root, current.transition, options,
+			providerRuntime.readers[current.transition.CurrentInstallation],
+		), nil, options.DeviceID, options.SessionID)
 	engine.Now = services.Now
 	if err := engine.PutPlan(ctx, plan); err != nil {
 		return operationFailureEnvelope(command, err)
@@ -336,12 +356,10 @@ func (services *Services) applyRepositoryDelete(
 		return githubMutationRuntimeError(command, err)
 	}
 	handler := &repositoryworkflow.ProviderHandler{Readers: providerRuntime.readers, Writer: writer}
-	observer := repositoryDeleteObserver{
-		services: services, root: current.root, inventoryRoot: transition.AnalysisRoot,
-		maxDepth: options.MaxDepth, maxRepositories: options.MaxRepositories,
-		concurrency: options.Concurrency,
-		reader:      providerRuntime.readers[transition.CurrentInstallation], transition: transition,
-	}
+	observer := services.newRepositoryDeleteObserver(
+		current.root, transition, options,
+		providerRuntime.readers[transition.CurrentInstallation],
+	)
 	engine := operations.NewDefaultEngine(
 		store, services.Schemas, observer,
 		map[string]operations.ActionHandler{repositoryworkflow.ProviderLifecycleAction: handler},
@@ -446,6 +464,7 @@ func (services *Services) repositoryDeleteContext(
 		return repositoryDeleteContext{}, []domain.Finding{*finding}
 	}
 	transition.AnalysisRoot = physicalInventoryRoot
+	transition.PreservedIdentities = append([]string(nil), options.PreserveIdentities...)
 	index, indexFindings := services.completeRelationshipIndex(ctx, DiscoveryOptions{
 		Root: physicalInventoryRoot, MaxDepth: options.MaxDepth,
 		MaxRepositories: options.MaxRepositories, Concurrency: options.Concurrency,

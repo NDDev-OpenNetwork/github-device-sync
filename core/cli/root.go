@@ -2269,10 +2269,11 @@ func (executor *executor) repositoryDeleteCommand() *cobra.Command {
 					})
 				}
 				if !plan && (child.Flags().Changed("inventory-root") ||
-					child.Flags().Changed("confirm-repository-id") || child.Flags().Changed("confirm-provider-id")) {
+					child.Flags().Changed("confirm-repository-id") ||
+					child.Flags().Changed("confirm-provider-id") || child.Flags().Changed("preserve")) {
 					return domain.NewEnvelope("gds repository delete", domain.ExitInput, nil, domain.Finding{
 						Code: "GDS_REPOSITORY_DELETE_INPUT_CONFLICT", Severity: domain.SeverityHigh,
-						Message: "Inventory and confirmation values are planning inputs and cannot alter a stored plan.",
+						Message: "Inventory, confirmation and preservation values are planning inputs and cannot alter a stored plan.",
 					})
 				}
 				switch {
