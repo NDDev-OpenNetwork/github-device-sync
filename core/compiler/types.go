@@ -12,7 +12,7 @@ import (
 // policy-owner checkout. It tracks the current release line with a -dev
 // suffix so a development bundle is dated honestly; the development channel
 // field, not this string, is what classifies the bundle.
-const DevelopmentBundleVersion = "0.9.1-dev"
+const DevelopmentBundleVersion = "0.9.2-dev"
 
 type PolicySource struct {
 	SchemaVersion int               `json:"schema_version"`

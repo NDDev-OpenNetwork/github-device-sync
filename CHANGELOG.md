@@ -5,6 +5,16 @@ Versioning.
 
 ## [Unreleased]
 
+## [0.9.2] - 2026-09-12
+
+- Add a public, exact-attempt harness evidence producer that rejects private
+  source identities, stale/foreign/duplicate jobs and unsupported signer
+  authority. Preserve independent key validity and bind expiry to real runtime
+  age instead of renewing old CI evidence at packaging time.
+- Repair capability-aware governance, managed-to-observed policy overrides,
+  public source-register ownership and consuming-estate bootstrap boundaries.
+  Provider-only discovery no longer invents missing-anchor findings.
+
 - Honor explicit estate selection for governance policy compilation and local
   comparison, retaining authority checks and the same root during apply.
 
