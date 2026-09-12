@@ -20,7 +20,11 @@ __pycache__/
 # make the worktree dirty for the assurance gate's RequireCleanWorktree check.
 /gds
 
-# Serena policy lives in the tracked .serena/.gitignore file.
+# Serena runtime state is device-local; authored project/memory files stay visible.
+/.serena/.*
+/.serena/cache/
+/.serena/logs/
+/.serena/project.local.yml
 .zcode/
 
 # Device-local harness runtime output: adapter lock files and the installed

@@ -218,13 +218,13 @@ func (services *Services) VerifySourceVerification(
 	if err != nil {
 		return operationFailureEnvelope("gds source mark-verified verify", err)
 	}
-	root, anchor, findings := services.policyInputs(ctx, path)
+	root, anchor, findings := services.projectionPolicyInputs(ctx, path)
 	if len(findings) != 0 {
 		return domain.NewEnvelope(
 			"gds source mark-verified verify", classifyFindings(findings), nil, findings...,
 		)
 	}
-	if finding := requireControlPlaneRole(anchor); finding != nil {
+	if finding := requireSourceOwnerRole(anchor); finding != nil {
 		return domain.NewEnvelope(
 			"gds source mark-verified verify", domain.ExitPolicy, nil, *finding,
 		)
@@ -265,11 +265,14 @@ func (services *Services) sourceVerificationContext(
 	approved *source.VerificationSpec,
 	requireReproducible bool,
 ) (sourceVerificationContext, []domain.Finding) {
-	root, anchor, findings := services.policyInputs(ctx, path)
+	// Source review, like self-projection, writes only the repository-owned
+	// register. A registered private estate must not replace a public module's
+	// source boundary; provider and cross-repository operations stay separate.
+	root, anchor, findings := services.projectionPolicyInputs(ctx, path)
 	if len(findings) != 0 {
 		return sourceVerificationContext{}, findings
 	}
-	if finding := requireControlPlaneRole(anchor); finding != nil {
+	if finding := requireSourceOwnerRole(anchor); finding != nil {
 		return sourceVerificationContext{}, []domain.Finding{*finding}
 	}
 	compiled := services.Compiler.CompileDirectory(root, anchor, compiler.DevelopmentBundleVersion)
@@ -375,15 +378,16 @@ func (services *Services) sourceVerificationContext(
 	}, nil
 }
 
-func requireControlPlaneRole(anchor domain.RepositoryAnchor) *domain.Finding {
+func requireSourceOwnerRole(anchor domain.RepositoryAnchor) *domain.Finding {
 	for _, role := range anchor.Repository.Roles {
-		if role == "control-plane" {
+		if role == "control-plane" ||
+			(role == "module" && anchor.Classification.VisibilityContract == "public") {
 			return nil
 		}
 	}
 	return &domain.Finding{
-		Code: "GDS_CONTROL_PLANE_ROLE_REQUIRED", Severity: domain.SeverityHigh,
-		Message:  "Source verification mutations are restricted to the GDS control-plane repository.",
+		Code: "GDS_SOURCE_OWNER_ROLE_REQUIRED", Severity: domain.SeverityHigh,
+		Message:  "Source verification requires the control plane or public module that owns the register.",
 		Evidence: map[string]any{"repository_id": anchor.Repository.ID},
 	}
 }

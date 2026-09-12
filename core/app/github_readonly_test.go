@@ -67,7 +67,7 @@ func TestGitHubInventoryAndReconciliationUseLiveReadOnlyRuntime(t *testing.T) {
 	}
 	planData, ok := plan.Data.(ReconciliationPlanData)
 	if !ok || len(planData.Result.Inventory.Repositories) != 5 ||
-		len(planData.Result.Drift) != 5 || len(planData.ExternalMutations) != 0 {
+		len(planData.Result.Drift) != 0 || len(planData.ExternalMutations) != 0 {
 		t.Fatalf("plan data=%#v", plan.Data)
 	}
 	summary := services.ReportEstateSummary(context.Background(), root, GitHubReadOptions{
@@ -77,8 +77,8 @@ func TestGitHubInventoryAndReconciliationUseLiveReadOnlyRuntime(t *testing.T) {
 	if summary.ExitClass != domain.ExitSuccess || !ok || summaryData.Repositories != 5 ||
 		summaryData.ManagementModes["observe-only"] != 3 ||
 		summaryData.ManagementModes["managed"] != 2 ||
-		summaryData.IdentityStates["unassigned"] != 5 ||
-		summaryData.DriftByClass["identity"] != 5 {
+		summaryData.IdentityStates["not-observed"] != 5 ||
+		summaryData.DriftByClass["identity"] != 0 {
 		t.Fatalf("summary=%#v", summary)
 	}
 	coverage := services.GitHubCoverage(context.Background(), root, GitHubCoverageOptions{

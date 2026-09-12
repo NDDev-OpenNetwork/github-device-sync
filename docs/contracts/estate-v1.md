@@ -62,11 +62,17 @@ The compiler:
 - applies the unique highest-priority selector;
 - rejects equal-priority selector ambiguity;
 - emits deterministic provider-ID order;
-- keeps GDS identity `unassigned` until repository onboarding proves an anchor.
+- reports GDS identity `not-observed` when only provider metadata was read.
+  Listing a repository cannot prove whether its GDS anchor exists. Inventory
+  reconciliation therefore does not manufacture identity drift or an onboarding
+  request for every listed repository; use an actual anchor/workspace audit to
+  establish that fact. Historical `unassigned` assignments remain readable and
+  retain their original JSON representation for signed audit verification.
 
-Fork lifecycle identity outranks name categories. The current `server-*`
-selectors therefore explicitly require `fork: false`; a server-named fork is
-classified by the fork selector. Organization and personal server portfolios
+Repositories are classified by their owning account. The legacy `match.fork`
+and `classification.fork_portfolio` fields remain readable for compatibility
+but do not select a separate portfolio. Archive and name-specific selectors
+retain their own priority. Organization and personal server portfolios
 use distinct device workspace roots so their filesystem placement remains
 injective even when owners contain repositories with the same name.
 

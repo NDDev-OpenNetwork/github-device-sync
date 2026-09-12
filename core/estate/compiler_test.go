@@ -43,7 +43,7 @@ func TestCompileTwoThousandRepositoriesAndForksDeterministically(t *testing.T) {
 	managed := 0
 	for index, assignment := range compiled.Repositories {
 		if assignment.ProviderID != int64(index+1000) ||
-			assignment.MatchedSelector == "" || assignment.IdentityState != "unassigned" {
+			assignment.MatchedSelector == "" || assignment.IdentityState != "not-observed" {
 			t.Fatalf("assignment[%d] = %#v", index, assignment)
 		}
 		if assignment.MatchedSelector == "organization-sources" {

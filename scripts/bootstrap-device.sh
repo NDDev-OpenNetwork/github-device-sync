@@ -44,6 +44,7 @@ set -euo pipefail
 # ----------------------------- paths -----------------------------
 SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 ROOT=$(CDPATH='' cd -- "$SCRIPT_DIR/.." && pwd)
+SOURCE_ROOT="$ROOT"
 
 # Pinned toolchain (the security floor enforced by validate_go_core.sh).
 GO_VERSION="1.26.7"
@@ -73,7 +74,7 @@ yaml_get() {
   local file="$1" path="$2"
   awk -v path="$path" '
     function strip(s){ sub(/^[ \t]+/,"",s); sub(/[ \t]+$/,"",s); return s }
-    BEGIN { depth=split(path,p,"."); for(i=1;i<=depth;i++) want[i]=p[i] }
+    BEGIN { ctr=0; depth=split(path,p,"."); for(i=1;i<=depth;i++) want[i]=p[i] }
     {
       line=$0; sub(/#.*/,"",line)
       if (line ~ /^[ \t]*$/) next
@@ -130,21 +131,22 @@ sha256_file() {
 }
 
 source_build_dirty() {
-  [ -n "$(git -C "$ROOT" status --porcelain --untracked-files=all -- core go.mod go.sum)" ]
+  [ -n "$(git -C "$SOURCE_ROOT" status --porcelain --untracked-files=all -- core go.mod go.sum)" ]
 }
 
 source_build_version() {
   local tag base revision dirty_suffix=""
-  tag=$(git -C "$ROOT" describe --tags --match 'gds-v[0-9]*' --abbrev=0 2>/dev/null || true)
+  tag=$(git -C "$SOURCE_ROOT" describe --tags --match 'gds-v[0-9]*' --abbrev=0 2>/dev/null || true)
   base=${tag#gds-v}
   [ -n "$base" ] || base="0.1.0-dev"
-  revision=$(git -C "$ROOT" rev-parse --short=12 HEAD)
+  revision=$(git -C "$SOURCE_ROOT" rev-parse --short=12 HEAD)
   source_build_dirty && dirty_suffix=".dirty"
   printf '%s+source.%s%s\n' "$base" "$revision" "$dirty_suffix"
 }
 
 # ----------------------------- args -----------------------------
 DEVICE_PATH=""
+ESTATE_ROOT=""
 APPLY=0
 PHASE_ONLY=""
 FROM_PHASE=""
@@ -171,6 +173,8 @@ Phase control (optional):
   --from-phase <N>       resume starting at phase N
 
 Other:
+  --estate-root <path>   consuming control plane; engine and OS bootstrap must
+                        match its declared gitlinks (default: source root)
   --source-build-version print the deterministic source-build version and exit
   -h, --help             show this help
 EOF
@@ -179,6 +183,7 @@ EOF
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --device) DEVICE_PATH="${2:?--device requires a path}"; shift 2;;
+    --estate-root) ESTATE_ROOT="${2:?--estate-root requires a path}"; shift 2;;
     --apply) APPLY=1; shift;;
     --plan) APPLY=0; shift;;
     --approval-ref) die "--approval-ref is removed: one reference cannot authorize multiple exact plans";;
@@ -203,7 +208,42 @@ if [ "$APPLY" -eq 1 ]; then
   esac
 fi
 
-# Resolve a relative device path against the repo root.
+# Keep the source/build boundary separate from the consuming estate. A copied
+# script or an unpinned module must not select a different engine or installer.
+require_pinned_module() {
+  local module_root="$1" relative mode expected stage ignored actual declared
+  case "$module_root" in
+    "$ROOT"/*) relative=${module_root#"$ROOT"/} ;;
+    *) die "module is outside the selected estate: $module_root" ;;
+  esac
+  declared=0
+  while read -r ignored actual; do
+    [ "$actual" != "$relative" ] || declared=1
+  done < <(git -C "$ROOT" config -f .gitmodules --get-regexp '^submodule\..*\.path$' || true)
+  [ "$declared" -eq 1 ] || die "module is not declared in estate .gitmodules: $relative"
+  read -r mode expected stage ignored < <(git -C "$ROOT" ls-files --stage -- "$relative") ||
+    die "module has no estate gitlink: $relative"
+  [ "$mode" = 160000 ] && [ "$stage" = 0 ] || die "module has no unambiguous estate gitlink: $relative"
+  actual=$(git -C "$module_root" rev-parse HEAD)
+  [ "$actual" = "$expected" ] || die "module checkout differs from estate gitlink: $relative"
+  [ -z "$(git -C "$module_root" status --porcelain --untracked-files=all)" ] ||
+    die "module checkout has uncommitted changes: $relative"
+}
+
+if [ -n "$ESTATE_ROOT" ]; then
+  ROOT=$(CDPATH='' cd -- "$ESTATE_ROOT" && pwd -P)
+  [ "$(git -C "$ROOT" rev-parse --show-toplevel)" = "$ROOT" ] || die "estate root must be a Git repository root"
+  [ -f "$ROOT/.gds/repository.yaml" ] || die "estate repository anchor is missing"
+  if [ "$ROOT" != "$SOURCE_ROOT" ]; then
+    require_pinned_module "$SOURCE_ROOT"
+    bootstrap_root=$(CDPATH='' cd -- "$ROOT/modules/macos-ubuntu-bootstrap" && pwd -P)
+    require_pinned_module "$bootstrap_root"
+  fi
+  BOOTSTRAP_SCRIPT="${ROOT}/modules/macos-ubuntu-bootstrap/scripts/bootstrap.sh"
+  DEVICE_INTEGRITY="${ROOT}/modules/macos-ubuntu-bootstrap/scripts/device_integrity.py"
+fi
+
+# Resolve a relative device path against the selected control-plane root.
 [[ "$DEVICE_PATH" = /* ]] || DEVICE_PATH="$ROOT/$DEVICE_PATH"
 [ -f "$DEVICE_PATH" ] || die "device descriptor not found: $DEVICE_PATH"
 
@@ -389,7 +429,7 @@ phase_1() {
     mkdir -p "$(dirname "$GDS_BIN_TARGET")"
     local candidate
     candidate=$(mktemp "${GDS_BIN_TARGET}.tmp.XXXXXX")
-    if ! (cd "$ROOT" && go build -trimpath \
+    if ! (cd "$SOURCE_ROOT" && go build -trimpath \
       -ldflags "-X github.com/NDDev-OpenNetwork/github-device-sync/core/cli.Version=${expected_version}" \
       -o "$candidate" ./core/cmd/gds); then
       rm -f -- "$candidate"
