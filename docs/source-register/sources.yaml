@@ -516,8 +516,8 @@ sources:
     authority: official-source-repository
     url: https://github.com/cli/cli/releases/download/v2.97.0/gh_2.97.0_checksums.txt
     volatility: high
-    verified_at: "2026-08-10"
-    next_review: "2026-09-10"
+    verified_at: "2026-09-11"
+    next_review: "2026-10-11"
     status: release-checksums-verified-runtime-not-proven
     content_digest: sha256:61905c69ec8660f310814ec98395cdd0c2d07aabf024c597ec45813984a02334
     governs:
@@ -589,10 +589,10 @@ sources:
     authority: official
     url: https://docs.github.com/en/rest/repos/repos?apiVersion=2026-03-10
     volatility: high
-    verified_at: "2026-08-10"
-    next_review: "2026-09-10"
+    verified_at: "2026-09-11"
+    next_review: "2026-10-11"
     status: current-docs-verified-runtime-observed
-    content_digest: sha256:60ea96392c5aa8d65c6c3aac84ea6c4b0fef23a56f6bf5bce631afc85d59a913
+    content_digest: sha256:a53d404d83b90a79de207067fba2d18f9b316ab527326f98ef5cc16c11021c23
     governs:
       - github.immutable-releases-observation
       - github.immutable-releases-mutation
