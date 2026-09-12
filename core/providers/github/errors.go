@@ -2,6 +2,7 @@ package github
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -13,6 +14,7 @@ type ErrorKind string
 const (
 	ErrorAuthentication         ErrorKind = "authentication"
 	ErrorAuthorization          ErrorKind = "authorization"
+	ErrorCapabilityUnavailable  ErrorKind = "capability-unavailable"
 	ErrorPermissionContract     ErrorKind = "permission-contract"
 	ErrorNotFoundOrInaccessible ErrorKind = "not-found-or-inaccessible"
 	ErrorRateLimited            ErrorKind = "rate-limited"
@@ -77,6 +79,8 @@ func classifyStatus(status int, body []byte, meta ResponseMeta) ErrorKind {
 		return ErrorAuthentication
 	case status == 403 && (meta.RetryAfter > 0 || (meta.Rate.Known && meta.Rate.Remaining == 0) || isSecondaryRateLimitBody(body)):
 		return ErrorRateLimited
+	case status == 403 && isPlanRestrictionBody(body):
+		return ErrorCapabilityUnavailable
 	case status == 403:
 		return ErrorAuthorization
 	case status == 404:
@@ -92,6 +96,17 @@ func classifyStatus(status int, body []byte, meta ResponseMeta) ErrorKind {
 	default:
 		return ErrorResponse
 	}
+}
+
+// Recognize the provider's explicit product restriction, never an arbitrary
+// 403, which may instead mean revoked access or a secondary rate limit. The
+// response body stays private; only a bounded classification leaves the client.
+func isPlanRestrictionBody(body []byte) bool {
+	var response struct {
+		Message string `json:"message"`
+	}
+	return json.Unmarshal(body, &response) == nil && response.Message ==
+		"Upgrade to GitHub Pro or make this repository public to enable this feature."
 }
 
 // isSecondaryRateLimitBody reports whether the response body indicates a

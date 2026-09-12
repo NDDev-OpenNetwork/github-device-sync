@@ -23,6 +23,7 @@ type StableSnapshot struct {
 	Workflow          githubprovider.WorkflowPermissions         `json:"workflow"`
 	ImmutableReleases githubprovider.ImmutableReleases           `json:"immutable_releases"`
 	Rulesets          []githubprovider.RulesetSummary            `json:"rulesets"`
+	Unavailable       map[string]string                          `json:"unavailable,omitempty"`
 }
 
 type StableRepository struct {
@@ -40,6 +41,13 @@ type StableRepository struct {
 }
 
 func Stabilize(snapshot githubprovider.GovernanceSnapshot) StableSnapshot {
+	var unavailable map[string]string
+	if len(snapshot.Unavailable) != 0 {
+		unavailable = make(map[string]string, len(snapshot.Unavailable))
+		for path, reason := range snapshot.Unavailable {
+			unavailable[path] = reason
+		}
+	}
 	rulesets := append([]githubprovider.RulesetSummary(nil), snapshot.Rulesets...)
 	sort.Slice(rulesets, func(left, right int) bool { return rulesets[left].ID < rulesets[right].ID })
 	features := make(map[string]string, len(snapshot.Repository.Security.Features))
@@ -67,7 +75,7 @@ func Stabilize(snapshot githubprovider.GovernanceSnapshot) StableSnapshot {
 		},
 		Actions: snapshot.Actions, SelectedActions: selected,
 		Workflow: snapshot.Workflow, ImmutableReleases: snapshot.ImmutableReleases,
-		Rulesets: rulesets,
+		Rulesets: rulesets, Unavailable: unavailable,
 	}
 }
 
@@ -85,6 +93,7 @@ type FieldResult struct {
 	Status     string `json:"status"`
 	Desired    any    `json:"desired,omitempty"`
 	Observed   any    `json:"observed,omitempty"`
+	Reason     string `json:"reason,omitempty"`
 }
 
 type Result struct {
@@ -152,6 +161,10 @@ func Compare(
 		default:
 			entry.Status = "invalid-policy"
 		}
+		if reason := snapshot.Unavailable[field.path]; reason != "" &&
+			(management == "managed" || management == "observed") {
+			entry.Status, entry.Reason, entry.Observed = "unavailable", reason, nil
+		}
 		result.Counts[entry.Status]++
 		result.Fields = append(result.Fields, entry)
 	}
@@ -163,6 +176,8 @@ func Compare(
 		result.Status = "invalid-policy"
 	case result.Counts["drift"] != 0:
 		result.Status = "drift"
+	case result.Counts["unavailable"] != 0:
+		result.Status = "partially-observed"
 	case result.Counts["compliant"] != 0:
 		result.Status = "compliant"
 	case result.Counts["observed"] != 0 || result.Counts["ignored"] != 0:

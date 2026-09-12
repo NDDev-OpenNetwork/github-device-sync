@@ -130,6 +130,7 @@ type GovernanceSnapshot struct {
 	Workflow          WorkflowPermissions         `json:"workflow"`
 	ImmutableReleases ImmutableReleases           `json:"immutable_releases"`
 	Rulesets          []RulesetSummary            `json:"rulesets"`
+	Unavailable       map[string]string           `json:"unavailable,omitempty"`
 	Permissions       PermissionEvidence          `json:"permissions"`
 	ObservedAt        time.Time                   `json:"observed_at"`
 	Rate              Rate                        `json:"rate"`
