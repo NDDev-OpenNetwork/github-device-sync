@@ -1,10 +1,10 @@
 <!--
 GENERATED FILE - DO NOT EDIT DIRECTLY
 generator: gds
-bundle: 0.9.1-dev
+bundle: 0.9.2-dev
 source-tree-digest: sha256:0000000000000000000000000000000000000000000000000000000000000001
-input-digest: sha256:9fe54c9615e38ddd5aec99af5fc13ef6a7c3df59f2f2e5ced3362ed3d8cb073a
-output-digest: sha256:f402433dd79a1789a472f0cad5fe5bc508256376151e4a8201b153a7370e8631
+input-digest: sha256:b9052163aaad9f10df40e7fc38afc0834b977cd2f33539573b21e08998fbee42
+output-digest: sha256:f1d598ee621024cb9518737f49c775aec0d01b16f7ecf137804a9a53bbf0c352
 edit-source:
   - .gds/repository.yaml
   - policies/base/repository-default.yaml
@@ -67,6 +67,6 @@ GDS is the public engine for a multi-owner GitHub estate. It loads an external e
 
 ## Facts
 
-- Repository `repo_01M0EZ7TB3KNXNSP78Z8M64WXG`, roles `control-plane`, bundle `0.9.1-dev`.
+- Repository `repo_01M0EZ7TB3KNXNSP78Z8M64WXG`, roles `control-plane`, bundle `0.9.2-dev`.
 - Canonical inputs: `.gds/repository.yaml`; compiled result: `.gds/compiled-policy.json`.
 - Visibility `public`, data `public`.

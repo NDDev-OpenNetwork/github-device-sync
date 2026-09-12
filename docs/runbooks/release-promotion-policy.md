@@ -92,3 +92,37 @@ checks, nonreproducible artifacts, missing/mismatched attestations or SBOM,
 stale/incomplete required harness evidence, conflicting sequence/tag identity,
 unapproved provider writes, or a consumer target lacking its required trust and
 acceptance evidence. Keep failures and missing evidence explicit.
+
+## Public harness-evidence producer
+
+`scripts/produce-harness-evidence.py` turns fresh, exact public setup-system
+runs into signed active-seven records. The caller provides configuration,
+GDS profile root, a private signing key and an independently maintained public
+signer policy:
+
+```bash
+scripts/produce-harness-evidence.py --config "$PRODUCER_CONFIG" \
+  --gds-root "$GDS_SOURCE_ROOT" --private-key "$SIGNING_KEY" \
+  --signer-policy "$SIGNER_POLICY" --output "$NEW_EVIDENCE_DIRECTORY"
+```
+
+The producer's identity is the clean, published public repository containing
+that script, at the configured ref. It never uses a private caller's current
+working directory as producer authority. Every observed harness repository
+must also be public. Private estate identity, topology and credentials do not
+enter public release verification inputs.
+
+A successful run is bound to its exact attempt and all six unique native jobs;
+each job must name that run and source commit and have completed within 72
+hours. Packaging cannot renew the runtime proof: expiry is bounded by the
+oldest real job completion plus 72 hours, the packaging window and the existing
+signer's key validity. `generated_at` records packaging time; the signed suite
+digest includes the execution timestamps. The observation report retains those
+timestamps for diagnosis.
+
+The producer selects an existing active signer with both evidence roles and
+checks the private key against its public key. It does not invent roles, issue
+a new key or extend key validity. Its output trust policy preserves that
+independent policy and adds only exact public producer/module anchors. Review
+and pin this exact output policy before dispatch; do not treat a producer's
+self-consistency as independent verification by the GDS release builder.
