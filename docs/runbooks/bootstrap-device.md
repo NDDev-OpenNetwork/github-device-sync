@@ -76,7 +76,7 @@ Verifies the host OS/arch, the control-plane root, the bootstrap submodule, and
 
 ### Phase 1 — seed Go + build gds
 
-Installs the pinned Go toolchain (`go1.26.7`, the security floor) into
+Installs the pinned Go toolchain (`go1.27.1`, the security floor) into
 `~/sdk/go<version>` (the `GOTOOLCHAIN` pattern) and builds the `gds` CLI from
 the control-plane source into `~/.local/bin/gds`. The source build carries the
 nearest release version plus the exact source commit (for example,
@@ -165,6 +165,22 @@ modules/github-device-sync/scripts/bootstrap-device.sh --estate-root . \
 # Combined phase-3 apply is intentionally rejected.
 ```
 
+For an already-approved release lifecycle plan, pass its exact identity inputs
+to the helper. It supplies those inputs to apply, then verifies the stored
+operation without replaying release paths or rollback selectors:
+
+```bash
+scripts/gds-exact-apply.sh --plan-id <plan-id> --approval-file <approval.json> \
+  --state-path <db> --device-id <id> --session-id <id> -- \
+  gds --json release install --install-root <root> \
+  --release-directory <release> --evidence-directory <evidence> \
+  --trust-policy <independent-trust-policy>
+```
+
+The same rule applies to upgrade, rollback, and remove. Harness lifecycle
+verification retains its harness and target selectors. Failure in enable,
+apply, or verify stops the sequence and never reports a successful result.
+
 At the end the orchestrator prints the `export PATH` line to add the Go
 toolchain. It does **not** edit `~/.bashrc` silently.
 
@@ -202,14 +218,14 @@ mutation.
 
 ## Status
 
-- macOS `arm64`: locally rehearsable through `seed-clean-device.md`.
-- Ubuntu `24.04`/`26.04`: **`NOT_PROVEN`** until produced on a real device
-  (completion plan residual #8; stage `C9`). The `example-user-ubuntu-1` device
-  is the first concrete Linux rehearsal; its observed evidence closes part of
-  that residual but does not by itself accept Linux consumer execution. Its
-  device integrity receipt verifies `PROVEN` against the current contract,
-  proving the runtime/tool layer is reproducible on Linux even though the full
-  release-bound production path is not yet exercised.
+- The source bootstrap pins reviewed Go archives for Linux and macOS, on
+  amd64 and arm64. Go 1.27 requires macOS 13 or later.
+- Use `seed-clean-device.md` for release-bound initialization. Availability
+  of a platform binary and a passing source build do not certify a new device;
+  verify its OS receipt, independent release trust, exact installation, GitHub
+  access, selected harnesses, and doctor result on that device.
+- Device-specific rehearsal and acceptance records belong to the consuming
+  estate. An example descriptor is not a live acceptance result.
 - Source-build phase 1 is a development/canary path and is not a release
   artifact. A hosted release remains the production boundary.
 

@@ -3,9 +3,9 @@ set -euo pipefail
 
 ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 MODE=full
-MINIMUM_SECURE_GO_VERSION=go1.26.7
-RELEASE_GO_VERSION=${GDS_RELEASE_GO_VERSION:-go1.26.7}
-GOVULNCHECK_VERSION=v1.6.0
+MINIMUM_SECURE_GO_VERSION=go1.27.1
+RELEASE_GO_VERSION=${GDS_RELEASE_GO_VERSION:-go1.27.1}
+GOVULNCHECK_VERSION=v1.8.0
 
 case "${1:-}" in
   --quick) MODE=quick; shift ;;

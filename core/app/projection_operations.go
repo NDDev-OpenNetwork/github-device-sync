@@ -139,20 +139,6 @@ func (services *Services) PlanRepositoryProjection(
 		Plan: plan, StatePath: statePath, Candidate: current.candidate,
 	})
 	envelope.Scope["repository_id"] = current.repositoryID
-	// A lock generated over uncommitted sources binds worktree content: the
-	// moment those files are committed, the canonical source digest moves and
-	// the freshly applied lock reads as GDS_CONTEXT_POLICY_SOURCE_DIGEST_
-	// MISMATCH. That cost two regenerate round-trips in one day before it was
-	// named. The plan still works -- a deliberate worktree materialization is
-	// legitimate -- so this is a warning at the one moment an operator reads
-	// findings, not a refusal.
-	if status, statusErr := services.Git.InspectStatus(ctx, current.root); statusErr == nil &&
-		status.Changes.Staged+status.Changes.Unstaged+status.Changes.Conflicted > 0 {
-		envelope.Findings = append(envelope.Findings, domain.Finding{
-			Code: "GDS_PROJECTION_SOURCES_UNCOMMITTED", Severity: domain.SeverityMedium,
-			Message: "Tracked sources are uncommitted: a lock applied from this plan will mismatch the canonical source digest once they are committed. Commit first, then plan, then apply.",
-		})
-	}
 	return envelope
 }
 
@@ -305,11 +291,9 @@ func (services *Services) projectionOperationContext(
 	if err != nil {
 		return projectionContext{}, []domain.Finding{dependencyFinding(path, err)}
 	}
-	if _, err := services.Git.CommittedSourceOID(
-		ctx, repositoryInfo.WorktreeRoot, []string{".gds/repository.yaml"},
-	); err != nil {
-		return projectionContext{}, []domain.Finding{dependencyFinding(path, err)}
-	}
+	// The exact manifest bytes are bound below by ManifestDigest, and the
+	// observer rechecks them before apply. Requiring an earlier anchor commit
+	// would prevent an anchor edit and its projections from landing atomically.
 	if !source.released() {
 		// Trace metadata only; see the equivalent note in services.go. An
 		// uncommitted canonical source must not block generation, because that

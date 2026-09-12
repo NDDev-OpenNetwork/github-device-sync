@@ -77,11 +77,11 @@ git:
 
 ci:
   profile: "go"
-  go_version: "1.26.7"
+  go_version: "1.27.1"
   build_command: "go build -trimpath ./core/cmd/gds"
   test_command: "go test ./..."
   timeout_minutes: 30
-  workflow_ref: "NDDev-OpenNetwork/ci-workflows/.github/workflows/go-ci.yml@bc9c7919de1c39d947a8709a92856925051bae05"
+  workflow_ref: "NDDev-OpenNetwork/ci-workflows/.github/workflows/go-ci.yml@3e703970f2dfe8587dd3667c1a61c79b3d1ba0f2"
   # A public repository, so GitHub-hosted runners are unmetered and a fork's
   # pull request cannot reach anything of ours. Self-hosted hardware here would
   # turn a fork PR into remote code execution on it.
@@ -109,8 +109,8 @@ verification:
     - "test"
     - "build"
   required_contexts:
-    - "GDS fast / go (1.26.7)"
-    - "GDS PR required / go (1.26.7)"
+    - "GDS fast / go (1.27.1)"
+    - "GDS PR required / go (1.27.1)"
 
 agent:
   context_profile: "project-default"
