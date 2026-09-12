@@ -70,7 +70,11 @@ func (client *Client) GetRepositoryGovernance(
 	appendMeta(repositoryMeta)
 	snapshot.Rulesets, repositoryMeta, err = client.getRulesets(ctx, base)
 	if err != nil {
-		return GovernanceSnapshot{}, err
+		var apiError *APIError
+		if !errors.As(err, &apiError) || apiError.Kind != ErrorCapabilityUnavailable {
+			return GovernanceSnapshot{}, err
+		}
+		snapshot.Unavailable = map[string]string{"github.rulesets": "plan-restricted"}
 	}
 	appendMeta(repositoryMeta)
 	return snapshot, nil

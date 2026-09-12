@@ -328,6 +328,23 @@ func (state *mergeState) setLeaf(
 	}
 	setPath(state.effective, parts, value)
 	state.replaceProvenance(parts, value, provenanceFor(source, "set"))
+	// Observed/ignored contracts do not have a desired value. Moving a higher
+	// tier away from managed must remove the inherited value and its provenance,
+	// rather than leave a schema-invalid hybrid behind. An explicit value in
+	// this same source is still processed and rejected by schema validation.
+	if len(parts) > 2 && parts[0] == "github" && parts[len(parts)-1] == "management" &&
+		(value == "observed" || value == "ignored") {
+		parent, exists := lookupPath(state.effective, parts[:len(parts)-1])
+		if contract, ok := parent.(map[string]any); exists && ok {
+			delete(contract, "value")
+			pointer := jsonPointer(append(append([]string{}, parts[:len(parts)-1]...), "value"))
+			for existing := range state.provenance {
+				if existing == pointer || strings.HasPrefix(existing, pointer+"/") {
+					delete(state.provenance, existing)
+				}
+			}
+		}
+	}
 }
 
 func (state *mergeState) replaceProvenance(parts []string, value any, provenance Provenance) {

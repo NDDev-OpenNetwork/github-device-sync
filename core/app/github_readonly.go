@@ -400,6 +400,9 @@ func githubReadError(command string, installationID string, err error) domain.En
 		case githubprovider.ErrorPermissionContract:
 			class, code = domain.ExitSecurity, "GDS_GITHUB_PERMISSION_CONTRACT_MISMATCH"
 			message = "Effective GitHub App permissions do not exactly match canonical estate intent."
+		case githubprovider.ErrorCapabilityUnavailable:
+			class, code = domain.ExitPolicy, "GDS_GITHUB_CAPABILITY_UNAVAILABLE"
+			message = "The GitHub plan does not provide the requested capability."
 		case githubprovider.ErrorRateLimited, githubprovider.ErrorTransient:
 			class, code = domain.ExitProviderTransient, "GDS_GITHUB_PROVIDER_TRANSIENT"
 			message = "GitHub could not provide current inventory because of a transient provider condition."

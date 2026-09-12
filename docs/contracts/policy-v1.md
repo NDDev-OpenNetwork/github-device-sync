@@ -59,12 +59,29 @@ appearance.
 
 Repository GitHub governance is declared under `apply.github`. Each setting is
 explicitly `managed`, `observed`, or `ignored`; only `managed` carries a
-desired value. Selected Actions are one atomic contract containing
+desired value. A later `observed` or `ignored` management override removes the
+inherited desired value and its leaf provenance. A source that explicitly
+supplies a value with either mode is still invalid. Selected Actions are one atomic contract containing
 `github_owned_allowed`, `verified_allowed`, and the complete normalized
 pattern allowlist. `github.releases.immutable` controls repository-level
 immutable-release enablement; owner enforcement is observed provider state and
 cannot be weakened by repository policy. The read-only governance comparator
 never turns observed or ignored evidence into a remediation target.
+
+Provider capabilities can be unavailable independently of repository access.
+The explicit GitHub plan restriction on the rulesets endpoint produces
+`unavailable["github.rulesets"] = "plan-restricted"` in the snapshot. The
+comparator reports that field as `unavailable`, not as an empty or compliant
+ruleset set, while retaining available repository settings. With no other drift,
+the overall result is `partially-observed`. Available managed fields can still
+be planned and exactly verified; an unavailable managed field refuses the
+mutation plan. Ordinary authorization errors, malformed responses and rate
+limits continue to fail closed.
+
+Availability is part of the stable optimistic-concurrency evidence digest.
+Absent availability metadata is omitted, preserving historical digests for
+fully observed snapshots. A product/permission change between plan and apply
+therefore cannot reuse an observation with a different capability boundary.
 
 Policy-source references are not part of schema v1, so cycles are not
 representable. If references are added later, cycle detection becomes a schema

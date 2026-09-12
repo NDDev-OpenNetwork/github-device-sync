@@ -46,6 +46,12 @@ func BuildRemediation(
 	if comparison.Status == "invalid-policy" || comparison.PolicyDigest == "" {
 		return Remediation{}, errors.New("GitHub governance remediation requires one valid compiled policy")
 	}
+	for _, field := range comparison.Fields {
+		if field.Management == "managed" &&
+			(field.Status == "unavailable" || snapshot.Unavailable[field.Path] != "") {
+			return Remediation{}, fmt.Errorf("managed governance field %s is unavailable; no mutation can be planned", field.Path)
+		}
+	}
 	initialDigest, err := EvidenceDigest(snapshot)
 	if err != nil {
 		return Remediation{}, err
