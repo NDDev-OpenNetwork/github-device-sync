@@ -3,9 +3,9 @@ set -euo pipefail
 
 ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 MODE=full
-MINIMUM_SECURE_GO_VERSION=go1.26.7
-RELEASE_GO_VERSION=${GDS_RELEASE_GO_VERSION:-go1.26.7}
-GOVULNCHECK_VERSION=v1.6.0
+MINIMUM_SECURE_GO_VERSION=go1.27.1
+RELEASE_GO_VERSION=${GDS_RELEASE_GO_VERSION:-go1.27.1}
+GOVULNCHECK_VERSION=v1.8.0
 
 case "${1:-}" in
   --quick) MODE=quick; shift ;;
@@ -67,7 +67,10 @@ fi
 BUILD_DIR=$(mktemp -d "${TMPDIR:-/tmp}/gds-build.XXXXXX")
 trap 'rm -rf -- "$BUILD_DIR"' EXIT INT TERM
 
-UNFORMATTED=$(gofmt -l core schemas/embed.go)
+# GOTOOLCHAIN selects `go`, but does not replace a separate `gofmt` on PATH.
+# Use the formatter shipped with the exact toolchain this gate just verified.
+GOFMT="$(go env GOROOT)/bin/gofmt"
+UNFORMATTED=$("$GOFMT" -l core schemas/embed.go)
 if [ -n "$UNFORMATTED" ]; then
   printf 'gofmt required for:\n%s\n' "$UNFORMATTED" >&2
   exit 2

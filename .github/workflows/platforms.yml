@@ -35,9 +35,8 @@ jobs:
     # `macos-latest` is Apple Silicon, so it covers darwin/arm64. `ubuntu-24.04-arm`
     # covers linux/arm64. Both are standard hosted runners and unmetered on public
     # repositories; macOS-XL and larger runners are billed even here and are not used.
-    # darwin/amd64 stays uncovered: it needs `macos-13`, the last Intel image, whose
-    # retirement is already announced — worth adding only if that target is still
-    # shipped when this is next revisited.
+    # Standard Intel macOS runners remain available as macos-15-intel. Together
+    # with the main Linux X64 workflow these jobs execute all four shipped targets.
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 20
@@ -51,6 +50,8 @@ jobs:
             runner: macos-latest
           - name: linux-arm64
             runner: ubuntu-24.04-arm
+          - name: darwin-amd64
+            runner: macos-15-intel
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

@@ -47,7 +47,7 @@ ROOT=$(CDPATH='' cd -- "$SCRIPT_DIR/.." && pwd)
 SOURCE_ROOT="$ROOT"
 
 # Pinned toolchain (the security floor enforced by validate_go_core.sh).
-GO_VERSION="1.26.7"
+GO_VERSION="1.27.1"
 SDK_ROOT="${HOME}/sdk"
 GO_HOME="${SDK_ROOT}/go${GO_VERSION}"
 GDS_BIN_TARGET="${HOME}/.local/bin/gds"
@@ -386,15 +386,19 @@ phase_1() {
     goarch=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
     tarball="go${GO_VERSION}.${goos}-${goarch}.tar.gz"
     case "${goos}-${goarch}" in
-      linux-amd64) expected_sha="ffb5f8de10c62550dfddab66b36b57030721e0a44a3218e9e1181d7b59f121ca" ;;
-      linux-arm64) expected_sha="5a4ec883379d51ee9ce1040d5e87f8d35e20387574dd8c947feb01eabc3c1b37" ;;
-      darwin-arm64) expected_sha="020a1e8224811be75163e920bc77e0926a1390a6aeea19bdcf23f74b9d749f6d" ;;
+      linux-amd64) expected_sha="63d339f0da5ab53635a56f2490a7984dfe12dfcff22ad749f63edaf590168445" ;;
+      linux-arm64) expected_sha="3450b45a3f9ee8568792736a5c5e70a1f2e9b36c35a8f74958c03e51d7d92bec" ;;
+      darwin-amd64) expected_sha="8f8f52c6649542cf027bbc9b9c68d1ec042f9f34808a40413f0b8b3f66f3caa4" ;;
+      darwin-arm64) expected_sha="ee215d57e0ec269c60cc9ceca68e6bda321ba9ee5afe24f4b0988703c2d87d12" ;;
       *) die "no reviewed Go ${GO_VERSION} archive digest for ${goos}-${goarch}" ;;
     esac
     local url="https://go.dev/dl/${tarball}"
     info "Downloading ${url}"
     local tmp; tmp=$(mktemp)
-    wget -nv -O "$tmp" "$url"
+    if ! wget -nv -O "$tmp" "$url"; then
+      rm -f -- "$tmp"
+      die "Go ${GO_VERSION} archive download failed"
+    fi
     local observed_sha
     if command -v sha256sum >/dev/null 2>&1; then
       observed_sha=$(sha256sum "$tmp" | awk '{print $1}')

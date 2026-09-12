@@ -30,6 +30,9 @@ func TestCleanupPendingStopsLaterLanesInSource(t *testing.T) {
 }
 
 func TestFailedRemoveWorktreeDoesNotDeleteWorkspace(t *testing.T) {
+	// Production must retain a checkout whose removal was not proven. Keep that
+	// deliberately retained fixture inside the test's own temporary lifetime.
+	t.Setenv("TMPDIR", t.TempDir())
 	root, oid := moduleVerifyRepository(t)
 	runner, err := gitprovider.NewMutationRunner()
 	if err != nil {
@@ -59,6 +62,10 @@ func TestFailedRemoveWorktreeDoesNotDeleteWorkspace(t *testing.T) {
 	}
 	if !foundCleanup {
 		t.Fatalf("cleanup finding missing: %#v", findings)
+	}
+	retained, err := filepath.Glob(filepath.Join(os.TempDir(), "gds-module-verify-*", "checkout", "fixture.txt"))
+	if err != nil || len(retained) != 1 {
+		t.Fatalf("failed cleanup did not preserve the workspace: %v, %v", retained, err)
 	}
 }
 

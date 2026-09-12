@@ -22,7 +22,7 @@ import (
 // Version is the development default; a release build overrides it with the
 // exact tag via -X. It carries the -dev suffix so an unstamped binary can
 // never claim to be a released one.
-var Version = "0.9.2-dev"
+var Version = "0.9.3-dev"
 
 type options struct {
 	json    bool

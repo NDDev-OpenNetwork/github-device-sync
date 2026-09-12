@@ -37,8 +37,8 @@ topology.
 ## Local development
 
 ```bash
-GOTOOLCHAIN=go1.26.7 go build -trimpath -o /tmp/gds ./core/cmd/gds
-GOTOOLCHAIN=go1.26.7 go build -trimpath -o /tmp/gds-codex-runtime-driver \
+GOTOOLCHAIN=go1.27.1 go build -trimpath -o /tmp/gds ./core/cmd/gds
+GOTOOLCHAIN=go1.27.1 go build -trimpath -o /tmp/gds-codex-runtime-driver \
   ./core/cmd/gds-codex-runtime-driver
 /tmp/gds --json context
 /tmp/gds --json status

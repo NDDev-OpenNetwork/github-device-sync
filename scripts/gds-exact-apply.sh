@@ -32,6 +32,29 @@ command=("$@")
 gds_bin="${command[0]}"
 command -v jq >/dev/null 2>&1 || die "jq is required"
 
+# Release verification takes its identity from the stored operation. Replaying
+# the install/upgrade/rollback inputs is explicitly rejected by the native CLI.
+# Other lifecycle commands still need their selectors (for example --harness).
+verify_command=("${command[@]}")
+for ((command_index = 1; command_index + 1 < ${#command[@]}; command_index++)); do
+  if [ "${command[command_index]}" = release ]; then
+    case "${command[command_index + 1]}" in
+      install|upgrade|rollback|remove)
+        verify_command=()
+        for ((index = 0; index < ${#command[@]}; index++)); do
+          case "${command[index]}" in
+            --install-root|--release-directory|--evidence-directory|--trust-policy|--target-release-key|--rollback-authorization)
+              ((index + 1 < ${#command[@]})) || die "missing value for ${command[index]}"
+              index=$((index + 1)) ;;
+            --install-root=*|--release-directory=*|--evidence-directory=*|--trust-policy=*|--target-release-key=*|--rollback-authorization=*) ;;
+            *) verify_command+=("${command[index]}") ;;
+          esac
+        done
+        break ;;
+    esac
+  fi
+done
+
 "$gds_bin" --json operation enable "$plan_id" \
   --state-path "$state_path" --approval-file "$approval_file" \
   --device-id "$device_id" --session-id "$session_id" |
@@ -41,7 +64,7 @@ apply_output=$("${command[@]}" --apply "$plan_id" --approval-ref "$approval_file
   --state-path "$state_path" --device-id "$device_id" --session-id "$session_id")
 operation_id=$(printf '%s' "$apply_output" | jq -er 'select(.result == "succeeded") | .operation_id')
 
-"${command[@]}" --verify "$operation_id" --state-path "$state_path" \
+"${verify_command[@]}" --verify "$operation_id" --state-path "$state_path" \
   --device-id "$device_id" --session-id "$session_id" |
   jq -e '.result == "succeeded"' >/dev/null
 

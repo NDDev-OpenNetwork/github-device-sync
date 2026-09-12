@@ -1,11 +1,9 @@
 # GDS immutable bundle release v1 contract
 
-Status: local build, verification, installation, rollback, and removal contracts
-implemented. The repository is private and owned by the example-org
-organization, so artifact attestation is available. Hosted attestation and
-publication are proven: `gds-v0.1.0` (source commit `bace996`) was built,
-attested, and published on 2026-07-24T10:11:01Z. Consumer adoption, canary
-rollout, and Linux consumer execution remain NOT_PROVEN (see "Not proven").
+Status: build, verification, installation, upgrade, rollback, and removal
+contracts are implemented. This public engine produces portable releases;
+each consuming estate owns device acceptance and rollout evidence. The assets
+and workflow run attached to an exact release establish its publication state.
 
 ## Portable source boundary
 
@@ -27,11 +25,14 @@ markers, and unexpected executable content fail closed.
 ## Reproducible release unit
 
 `gds-release-builder` requires a fully tracked clean Git worktree, exact source
-ref resolving to `HEAD`, Go `1.26.7`, read-only modules, CGO disabled, portable
+ref resolving to `HEAD`, Go `1.27.1`, read-only modules, CGO disabled, portable
 CPU baselines, and an isolated build environment without ambient credentials or
 Git configuration. Stable and frozen channels require
 `refs/tags/gds-v<version>`; canary accepts only `refs/heads/main` or that exact
 tag.
+
+The Darwin binaries require macOS 13 or later, matching Go 1.27's supported
+platform baseline. Linux and Darwin each retain amd64 and arm64 targets.
 
 The builder obtains the same process-wide `core/gitauthority` used by runtime
 Git providers before source inspection and retains it through private fetch,
@@ -246,23 +247,18 @@ own trusted root — and the hosting provider adds nothing to that. The earlier
 rule that releases must be GitHub-hosted made the estate's own builds
 un-installable and has been removed.
 
-The control-plane repository is private and owned by the example-org
-organization, so the hosted `actions/attest` steps are an available release
-path. An ad hoc signing key or a workflow that silently omits attestations is
-still not an accepted fallback. A change of repository visibility or ownership
-re-opens the trust-boundary decision before the next dispatch.
+The public release workflow uses `actions/attest`. An ad hoc signing key or a
+workflow that omits attestations is not an accepted fallback. A change of
+repository visibility or ownership requires renewed verification of the exact
+consumer trust policy before dispatch.
 
-## Proven
+## Publication and acceptance evidence
 
-- one live GitHub Actions run of the release workflow per channel: run
-  `30046936069` (canary, `refs/heads/main`, 2026-07-23) and run `30064955206`
-  (stable, `refs/tags/gds-v0.1.0`, 2026-07-24);
-- hosted `actions/attest` provenance over the five checksummed release files
-  and an SPDX SBOM attestation over the bundle artifact;
-- external artifact publication: the six-file release directory is attached to
-  the `gds-v0.1.0` GitHub Release. From the workflow revision that followed that
-  tag, publication also attaches the offline evidence directory to the same
-release, so a release and its evidence are one durable artifact set.
+A current release attaches the six-file release unit and its three offline
+verification inputs to the same GitHub Release. Download all assets into a
+staging directory, then split release files, offline evidence, and auxiliary
+build results as described in `docs/runbooks/seed-clean-device.md`. Auxiliary
+result JSON belongs to neither verifier input directory.
 
 A tag-triggered build, attestation, or publication failure is retained as a
 GitHub prerelease with `release-failure-envelope.json`. The schema binds the
@@ -271,22 +267,9 @@ failed job names, and an initially null `superseded_by`. A later accepted
 release may name the failed tag as superseded; failed tags are never rewritten
 or silently deleted.
 
-## Not proven
-
-- durable retention of the offline evidence directory for `gds-v0.1.0`
-  specifically: that tag predates the evidence attachment, so its evidence
-  exists only as the producing run's workflow artifact under a 30-day retention
-  window. Later releases attach it. Because the release and its evidence are
-  then published together, a consumer must download into a staging directory
-  and split the assets into the two consumer inputs: the release directory
-  accepts exactly six entries and the evidence directory exactly the three
-  required inputs (`docs/runbooks/seed-clean-device.md`, step 2b). Auxiliary
-  result JSON published alongside the evidence belongs to neither input;
-- GitHub-enforced release immutability: the published release is not marked
-  with GitHub's immutable-releases flag, so release-asset immutability rests on
-  this contract's digest/envelope/sequence binding, not on the provider;
-- consumer-side verification of the published artifact on a clean device;
-- Linux consumer execution of install/upgrade/rollback/remove;
-- canary repository adoption, merge, rollback, or broad rollout.
-
-Those remain external mutation boundaries and require separate exact approval.
+Provider-enforced immutability must be read from the exact GitHub Release;
+digest, envelope, and sequence checks remain mandatory. A successful published
+build does not prove installation on a particular device, repository adoption,
+or a broad rollout. Each consuming estate records those results separately.
+Historical releases that predate durable offline attachments retain their
+original evidence limits; this contract does not retroactively certify them.
