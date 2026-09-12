@@ -6,7 +6,7 @@ This runbook documents the single entry point that brings a new device through
 the three GDS mutation boundaries in order:
 
 ```text
-OS bootstrap  ->  seed (Go toolchain + gds)  ->  control-plane staged commands
+preflight -> source seed -> optional OS bootstrap -> control-plane plans
 ```
 
 The entry point is `scripts/bootstrap-device.sh`, a phased orchestrator that
@@ -14,6 +14,21 @@ reads a device descriptor (`estate/devices/<device>.yaml`) and derives the
 `macos-ubuntu-bootstrap` OS-installer flags from the descriptor's optional
 `class:` block, so the device intent and the OS installer it drives cannot
 disagree.
+
+The public engine and private consumer are separate Git roots. When the engine
+is consumed as a gitlink, run it from the estate with an explicit root:
+
+```bash
+modules/github-device-sync/scripts/bootstrap-device.sh \
+  --estate-root . --device estate/devices/<device>.yaml --phase 0 --plan
+```
+
+The script proves that its engine checkout and the sibling OS bootstrap checkout
+match declared estate gitlinks and have no uncommitted changes. Device paths,
+registration and runtime configuration resolve against the selected estate;
+source version and Go builds resolve against the engine. The default source-root
+mode remains available for standalone development layouts. Do not create a
+second standalone copy of an already-consumed module.
 
 It is the wrapper over the canonical, lower-level runbooks:
 
@@ -78,8 +93,12 @@ it, and use the verified binary. Source-build is the development/canary path.
 
 ### Phase 2 — OS bootstrap
 
-**This phase requires interactive sudo.** The agent cannot enter the password.
-Present the exact command to the owner and wait for confirmation.
+Privileged operations use the OS installer's existing sudo/PolicyKit route.
+If it requests an interactive password, the owner enters it directly; never
+collect or pipe that password. Existing authorized passwordless sudo does not
+require a second confirmation. Review the plan before applying an installer to
+an already-provisioned desktop so its existing session and managed tools are
+preserved.
 
 Invokes
 `bash modules/macos-ubuntu-bootstrap/scripts/bootstrap.sh --platform <p> --profile <p> [--gui|--no-gui] [--docker-mode <m>] [--apply|--plan]`
@@ -87,28 +106,23 @@ with flags derived from the descriptor's `class:` block. This installs dev
 tools, language hosts (Node/uv/Bun), selected harness CLIs, and the browser layer. It never
 installs `gds`. Use `--plan` (default) for a dry-run first.
 
-On Ubuntu desktop (`profile: desktop`, `gui: enabled`), the OS bootstrap also
-calls `scripts/ubuntu/desktop.sh`, which:
-- moves the GNOME dock to the bottom (macOS-style);
-- adds a Russian keyboard layout with Alt+Shift toggle;
-- installs BrowserOS (open-source agentic browser, `.deb`);
-- removes the stock snap + apt Firefox completely.
+Desktop contents and exact artifact versions belong to the selected
+`macos-ubuntu-bootstrap` contract, including its Google Chrome GUI choice.
+There is no BrowserOS/CloakBrowser provisioning prerequisite in this GDS path.
+Each OS operation remains plan-aware and independently verifiable.
 
-Each desktop step is independent and idempotent; sudo is refreshed per-step.
+From the selected estate root, apply only the separately reviewed OS phase:
 
-**Exact command for the owner (Ubuntu desktop example):**
 ```bash
-cd ~/Developer/control-plane/github-device-sync
-scripts/bootstrap-device.sh --device estate/devices/example-user-ubuntu-1.yaml --apply --from-phase 2
+modules/github-device-sync/scripts/bootstrap-device.sh \
+  --estate-root . --device estate/devices/<device>.yaml --phase 2 --apply
 ```
-The script prompts for sudo and runs to completion. If a step fails on expired
-sudo, re-running resumes from the failed phase.
 
 ### Phase 3 — control-plane staged
 
-Each step keeps its own plan/approval/apply/verify. The orchestrator extracts
-plan and operation ids from the JSON envelopes and threads them through. These
-steps do **not** require sudo.
+Each step keeps its own plan/approval/apply/verify. The orchestrator reports
+plans and diagnostics; it does not combine their writes or approvals. These
+steps do not require sudo.
 
 - **3a release install** (release mode only) — skipped when bootstrapping from
   source, since there is no release directory. In release mode, set
@@ -138,10 +152,12 @@ steps do **not** require sudo.
 
 ```bash
 # Plan the whole bootstrap (read-only)
-scripts/bootstrap-device.sh --device estate/devices/<device>.yaml --plan
+modules/github-device-sync/scripts/bootstrap-device.sh --estate-root . \
+  --device estate/devices/<device>.yaml --plan
 
 # Apply only installer phases 0-2
-scripts/bootstrap-device.sh --device estate/devices/<device>.yaml --phase 1 --apply
+modules/github-device-sync/scripts/bootstrap-device.sh --estate-root . \
+  --device estate/devices/<device>.yaml --phase 1 --apply
 
 # Phase 3: run each printed plan command, sign its exact digest, then use
 # scripts/gds-exact-apply.sh for the separate enable/apply/verify sequence.
@@ -154,9 +170,10 @@ toolchain. It does **not** edit `~/.bashrc` silently.
 
 ## Device integrity receipt
 
-After a successful apply, phase 3d rebuilds and verifies a device integrity
-receipt — a canonical-JSON snapshot that binds the device to the contract it
-was bootstrapped against. The receipt lives at
+The OS installer owns the device integrity receipt after its verification
+passes. Combined phase-3 apply is disabled, so the read-only phase 3d does not
+create that receipt. A receipt is a canonical-JSON snapshot binding the device
+to the OS contract actually verified. The receipt lives at
 `~/.local/share/rldyour/device-receipt.json` (mode `0600`), mirroring the
 architecture of the browser runtime receipt.
 

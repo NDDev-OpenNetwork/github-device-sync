@@ -46,7 +46,9 @@ func Compile(
 		seenProviderIDs[repository.ProviderID] = struct{}{}
 		assignment := Assignment{
 			ProviderID: repository.ProviderID, Owner: repository.Owner, Name: repository.Name,
-			Archived: repository.Archived, IdentityState: "unassigned",
+			// Provider listing does not observe a GDS anchor. Unknown identity
+			// is not proof that an already-onboarded repository lacks one.
+			Archived: repository.Archived, IdentityState: "not-observed",
 			ManagementMode: config.Root.Discovery.DefaultManagementMode,
 			RolloutRing:    config.Root.Rollout.DefaultRing,
 		}

@@ -1,29 +1,33 @@
 # GDS source register
 
-This directory records volatile external facts that affect GDS implementation
-or compatibility. Official documentation, source repositories, release pages,
-and local runtime evidence are evidence; they do not authorize mutations.
+`docs/source-register/sources.yaml` records volatile official facts used by the
+engine, schemas and release verifier. Documentation and runtime observations
+are evidence; they do not authorize a mutation or establish device acceptance.
 
-`sources.yaml` is the current bootstrap register. A dedicated source-register
-schema, freshness command, content-change detector, and release gate belong to
-the source-maintenance phase. Until then, missing content digests are
-`NOT_PROVEN`, not implied verification.
+The source schema, freshness classifier, content-change detector, exact review
+transaction and release freshness gate are implemented:
 
-The currently installed `go1.26.4` toolchain is explicitly development-only.
-The register pins `go1.26.7` as the current release builder because official
-Go advisories identify security fixes in that release. The full Go validation
-gate fails closed until the exact registered builder is available.
+```bash
+gds source status --json
+gds source check --id <registered-source-id> --json
+gds source mark-verified --help
+```
 
-Phase 05 adds current official Codex instruction, skill, plugin, and hook pages
-plus the Agent Skills specification and quality guidance. Those sources prove
-documented contracts only. The Codex profile remains provisional until an exact
-runtime version passes isolated discovery, invocation, hook, and visibility
-tests.
+Run review transactions in the repository that owns this register. A public
+module uses its own source/policy root even when a private estate is registered;
+it does not acquire control-plane authority over that estate. A private control
+plane can review its own register. Other repository roles fail with
+`GDS_SOURCE_OWNER_ROLE_REQUIRED`. Plans still bind the exact source, committed
+Git identity, semantic review evidence and approval; apply and verify retain
+those same boundaries.
 
-Phase 10 adds official capability sources for the exact owner-selected harness
-set. `antigravity-cli` is the single Google CLI identity. Its workspace-native
-instruction and skill surfaces are `AGENTS.md` and `.agents/skills`; the vendor
-global configuration directory is only a product locator. Current Cursor docs
-and changelog cover CLI Agent Skills, while the installed MiMo Code runtime
-provides bounded skill-discovery inspection. No profile becomes `supported`
-from documentation or binary presence alone.
+Review the actual governed claims before changing `verified_at`, `next_review`,
+status or content digest. Changed bytes alone neither invalidate a claim nor
+prove it remains true. Missing digests and unavailable official representations
+remain explicit. The release builder and toolchain security floor are pinned
+in this register and validated by `scripts/validate_go_core.sh`; a workstation's
+installed version is not a public product fact.
+
+Harness documentation establishes documented interfaces only. Runtime support
+and stable-release active-seven evidence require their own exact, fresh tests
+and signed producer records, as described in the release lifecycle runbook.

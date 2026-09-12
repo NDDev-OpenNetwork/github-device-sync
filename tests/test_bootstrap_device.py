@@ -191,3 +191,77 @@ def test_phase_three_combined_apply_is_removed() -> None:
     )
     assert result.returncode != 0
     assert "exact per-plan approve, enable, apply, and verify" in result.stderr
+
+
+def test_embedded_bootstrap_binds_both_modules_to_the_selected_estate(tmp_path: Path) -> None:
+    """The real Git graph must bind the source and sibling installer before use."""
+    import shutil
+
+    def git(path: Path, *args: str) -> str:
+        return subprocess.check_output(
+            ["git", "-c", "protocol.file.allow=always", "-c", "commit.gpgsign=false",
+             "-c", "user.name=Example", "-c", "user.email=example@example.invalid",
+             "-C", str(path), *args], text=True, stderr=subprocess.DEVNULL,
+        ).strip()
+
+    sources = tmp_path / "sources"
+    engine = sources / "engine"
+    installer = sources / "installer"
+    estate = tmp_path / "estate with spaces"
+    for repository in (engine, installer, estate):
+        repository.mkdir(parents=True)
+        git(repository, "init", "-b", "main")
+    (engine / "scripts").mkdir()
+    shutil.copy2(BOOTSTRAP, engine / "scripts/bootstrap-device.sh")
+    git(engine, "add", "scripts")
+    git(engine, "commit", "-m", "test: seed engine")
+    (installer / "scripts").mkdir()
+    (installer / "scripts/bootstrap.sh").write_text("#!/bin/sh\nexit 0\n")
+    git(installer, "add", "scripts")
+    git(installer, "commit", "-m", "test: seed installer")
+    (estate / ".gds").mkdir()
+    (estate / ".gds/repository.yaml").write_text("repository:\n  id: example-estate\n")
+    (estate / "estate/devices").mkdir(parents=True)
+    device = estate / "estate/devices/example.yaml"
+    device.write_text(
+        "device:\n  id: example-device\n  name: example\n  os: linux\n"
+        "  architecture: x86_64\n  class:\n    profile: desktop-builds\n"
+        "    gui: enabled\n    docker_mode: rootful\n"
+    )
+    git(estate, "submodule", "add", str(engine), "modules/github-device-sync")
+    git(estate, "submodule", "add", str(installer), "modules/macos-ubuntu-bootstrap")
+    git(estate, "add", ".gds", "estate", ".gitmodules", "modules")
+    git(estate, "commit", "-m", "test: pin estate")
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    fake_gh = fake_bin / "gh"
+    fake_gh.write_text("#!/bin/sh\nexit 1\n")
+    fake_gh.chmod(0o755)
+    env = {**os.environ, "PATH": str(fake_bin) + os.pathsep + os.environ["PATH"]}
+    embedded = estate / "modules/github-device-sync/scripts/bootstrap-device.sh"
+    command = [str(embedded), "--estate-root", str(estate), "--device",
+               "estate/devices/example.yaml", "--phase", "0", "--plan"]
+    before = git(estate, "status", "--porcelain")
+    result = subprocess.run(command, env=env, capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert f"control-plane root: {estate}" in result.stdout
+    assert "OS installer present" in result.stdout
+    assert git(estate, "status", "--porcelain") == before == ""
+
+    # Source identity comes from the engine, not the consuming estate commit.
+    version = subprocess.check_output(
+        [str(embedded), "--estate-root", str(estate), "--source-build-version"],
+        env=env, text=True,
+    ).strip()
+    assert "+source." + git(estate / "modules/github-device-sync", "rev-parse", "--short=12", "HEAD") in version
+
+    installed_source = estate / "modules/macos-ubuntu-bootstrap"
+    (installed_source / "scripts/bootstrap.sh").write_text("#!/bin/sh\nexit 7\n")
+    result = subprocess.run(command, env=env, capture_output=True, text=True)
+    assert result.returncode != 0
+    assert "uncommitted changes" in result.stdout + result.stderr
+    git(installed_source, "add", "scripts/bootstrap.sh")
+    git(installed_source, "commit", "-m", "test: unpublished installer revision")
+    result = subprocess.run(command, env=env, capture_output=True, text=True)
+    assert result.returncode != 0
+    assert "differs from estate gitlink" in result.stdout + result.stderr

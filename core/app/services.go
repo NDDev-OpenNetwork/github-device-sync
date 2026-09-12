@@ -414,8 +414,8 @@ func (services *Services) policyInputsWithEstateRoot(
 	return root, anchor, nil
 }
 
-// projectionPolicyInputs permits a public module to render only its own local
-// projections from policy sources shipped in that same public tree. It does
+// projectionPolicyInputs resolves repository-owned projections and source
+// verification against policy sources shipped in that same public tree. It does
 // not make the module an estate authority: every provider, workspace and
 // cross-repository operation continues to use policyInputs and therefore
 // requires a verified external control-plane. The compiler independently

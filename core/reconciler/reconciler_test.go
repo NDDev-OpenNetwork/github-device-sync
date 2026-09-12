@@ -56,11 +56,16 @@ func TestReconcileAllCompilesFiveInstallationsAndTwoThousandRepositories(t *test
 		},
 	}).ReconcileAll(context.Background())
 	if len(result.Findings) != 0 || len(result.Inventory.Repositories) != 2000 ||
-		len(result.Installations) != 5 || len(result.Drift) != 2000 {
+		len(result.Installations) != 5 || len(result.Drift) != 0 {
 		t.Fatalf(
 			"repositories=%d installations=%#v drift=%d findings=%#v",
 			len(result.Inventory.Repositories), result.Installations, len(result.Drift), result.Findings,
 		)
+	}
+	for _, repository := range result.Inventory.Repositories {
+		if repository.IdentityState != "not-observed" {
+			t.Fatalf("listing invented anchor evidence: %#v", repository)
+		}
 	}
 }
 
