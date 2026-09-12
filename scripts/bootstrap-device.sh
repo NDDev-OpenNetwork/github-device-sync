@@ -211,19 +211,20 @@ fi
 # Keep the source/build boundary separate from the consuming estate. A copied
 # script or an unpinned module must not select a different engine or installer.
 require_pinned_module() {
-  local module_root="$1" relative mode expected stage ignored actual declared
+  local module_root="$1" relative mode expected stage recorded actual declared
   case "$module_root" in
     "$ROOT"/*) relative=${module_root#"$ROOT"/} ;;
     *) die "module is outside the selected estate: $module_root" ;;
   esac
   declared=0
-  while read -r ignored actual; do
+  while read -r recorded actual; do
     [ "$actual" != "$relative" ] || declared=1
   done < <(git -C "$ROOT" config -f .gitmodules --get-regexp '^submodule\..*\.path$' || true)
   [ "$declared" -eq 1 ] || die "module is not declared in estate .gitmodules: $relative"
-  read -r mode expected stage ignored < <(git -C "$ROOT" ls-files --stage -- "$relative") ||
+  read -r mode expected stage recorded < <(git -C "$ROOT" ls-files --stage -- "$relative") ||
     die "module has no estate gitlink: $relative"
-  [ "$mode" = 160000 ] && [ "$stage" = 0 ] || die "module has no unambiguous estate gitlink: $relative"
+  [ "$mode" = 160000 ] && [ "$stage" = 0 ] && [ "$recorded" = "$relative" ] ||
+    die "module has no unambiguous estate gitlink: $relative"
   actual=$(git -C "$module_root" rev-parse HEAD)
   [ "$actual" = "$expected" ] || die "module checkout differs from estate gitlink: $relative"
   [ -z "$(git -C "$module_root" status --porcelain --untracked-files=all)" ] ||
