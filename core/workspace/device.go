@@ -173,12 +173,12 @@ func ResolvePlacement(
 	}
 	if len(matches) == 0 {
 		return Placement{
-				DeviceID: descriptor.Device.ID, RepositoryID: anchor.Repository.ID,
-				Mode: descriptor.Materialization.DefaultMode,
-			}, []domain.Finding{workspaceFinding(
-				"GDS_WORKSPACE_PLACEMENT_NOT_SELECTED",
-				"Repository does not match a device materialization assignment.", anchor.Repository.ID,
-			)}
+			DeviceID: descriptor.Device.ID, RepositoryID: anchor.Repository.ID,
+			Mode: descriptor.Materialization.DefaultMode,
+		}, []domain.Finding{workspaceFinding(
+			"GDS_WORKSPACE_PLACEMENT_NOT_SELECTED",
+			"Repository does not match a device materialization assignment.", anchor.Repository.ID,
+		)}
 	}
 	if len(matches) != 1 {
 		return Placement{}, []domain.Finding{workspaceFinding(
