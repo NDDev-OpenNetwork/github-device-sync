@@ -23,3 +23,9 @@ harnesses:
 
 state:
   path: "${XDG_STATE_HOME}/github-device-sync"
+
+repositories:
+  - provider: "example-organization/.github"
+    workspace_root: "organization"
+    path: "organization/.github"
+    materialization: "checkout"
