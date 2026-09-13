@@ -320,7 +320,8 @@ func (adapter *profileAdapter) PlanInstall(
 		return AdapterPlan{Harness: adapter.ID()}, findings
 	}
 	for _, file := range inspection.Files {
-		if file.State != "missing" {
+		expected := adapterFileMap(candidate.Files)[file.Path]
+		if file.State != "missing" && (file.State != "regular" || file.Digest != expected.Digest || !ownedByOtherAdapter(targetRoot, adapter.ID(), file.Path, file.Digest)) {
 			return AdapterPlan{Harness: adapter.ID()}, []domain.Finding{harnessFinding(
 				"GDS_HARNESS_INSTALL_COLLISION",
 				"Install refuses to replace an existing managed-path candidate; use update or resolve the collision.",
@@ -386,6 +387,17 @@ func (adapter *profileAdapter) PlanRemove(
 	if len(findings) != 0 {
 		return AdapterPlan{Harness: adapter.ID()}, findings
 	}
+	keptFiles := make([]AdapterFile, 0, len(candidate.Files))
+	keptContents := map[string][]byte{}
+	for _, file := range candidate.Files {
+		if ownedByOtherAdapter(targetRoot, adapter.ID(), file.Path, file.Digest) {
+			continue
+		}
+		keptFiles = append(keptFiles, file)
+		keptContents[file.Path] = candidate.contents[file.Path]
+	}
+	candidate.Files = keptFiles
+	candidate.contents = keptContents
 	return adapter.buildPlan("remove", targetRoot, "", candidate, AdapterCandidate{}, inspection.Fingerprint)
 }
 
@@ -409,6 +421,15 @@ func (adapter *profileAdapter) planTransition(
 	}
 	previousPaths := adapterFileMap(previous.Files)
 	desiredPaths := adapterFileMap(desired.Files)
+	for _, file := range desired.Files {
+		if otherDigest, owned := otherAdapterDigest(targetRoot, adapter.ID(), file.Path); owned && otherDigest != file.Digest {
+			return AdapterPlan{Harness: adapter.ID()}, []domain.Finding{harnessFinding(
+				"GDS_HARNESS_UPDATE_COLLISION",
+				"Transition would change a path still owned by another installed adapter.",
+				map[string]any{"harness": adapter.ID(), "path": file.Path},
+			)}
+		}
+	}
 	for _, file := range inspection.Files {
 		if _, wasManaged := previousPaths[file.Path]; wasManaged {
 			continue
@@ -495,6 +516,37 @@ func adapterFileMap(files []AdapterFile) map[string]AdapterFile {
 		result[file.Path] = file
 	}
 	return result
+}
+
+func ownedByOtherAdapter(targetRoot, currentHarness, targetPath, digest string) bool {
+	otherDigest, found := otherAdapterDigest(targetRoot, currentHarness, targetPath)
+	return found && otherDigest == digest
+}
+
+func otherAdapterDigest(targetRoot, currentHarness, targetPath string) (string, bool) {
+	entries, err := os.ReadDir(filepath.Join(targetRoot, ".gds", "harness"))
+	if err != nil {
+		return "", false
+	}
+	for _, entry := range entries {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".lock.json") {
+			continue
+		}
+		raw, err := os.ReadFile(filepath.Join(targetRoot, ".gds", "harness", entry.Name()))
+		if err != nil || len(raw) > maxAdapterSourceBytes {
+			continue
+		}
+		var lock adapterLock
+		if json.Unmarshal(raw, &lock) != nil || lock.Harness == currentHarness {
+			continue
+		}
+		for _, file := range lock.Files {
+			if file.Path == targetPath {
+				return file.Digest, true
+			}
+		}
+	}
+	return "", false
 }
 
 func (adapter *profileAdapter) inspectCandidate(

@@ -213,6 +213,22 @@ func TestDetectTargetCollisionsFindsTwoSelectedClaimingOnePath(t *testing.T) {
 	}
 }
 
+func TestDetectTargetContentCollisionsPermitsIdenticalCanonicalBytes(t *testing.T) {
+	shared := AdapterFile{Path: ".agents/skills/review/SKILL.md", Digest: "sha256:same"}
+	if got := DetectTargetContentCollisions(map[string][]AdapterFile{
+		"antigravity": {shared}, "codex": {shared},
+	}); len(got) != 0 {
+		t.Fatalf("identical canonical bytes must be shareable: %+v", got)
+	}
+	changed := shared
+	changed.Digest = "sha256:different"
+	if got := DetectTargetContentCollisions(map[string][]AdapterFile{
+		"antigravity": {shared}, "codex": {changed},
+	}); len(got) != 1 || got[0].Path != shared.Path {
+		t.Fatalf("different bytes at one path must collide: %+v", got)
+	}
+}
+
 // Nothing is installed on an empty target root, so a check that only asks
 // "is this path already taken" reports no conflict. Desired-state comparison is
 // what makes the empty-root case detectable at all.
