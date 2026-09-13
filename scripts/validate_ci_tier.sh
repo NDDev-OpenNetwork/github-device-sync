@@ -46,7 +46,9 @@ case "$TIER" in
     scripts/validate_go_core.sh
     run_python_contracts
     run_python_tests
-    scripts/validate_assurance.sh
+    # validate_go_core.sh already ran the complete race suite. Keep the
+    # integrated assurance scenario without executing that same suite twice.
+    scripts/validate_assurance.sh --skip-tests
     ;;
   release)
     scripts/validate_release.sh
