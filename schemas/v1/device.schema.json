@@ -51,22 +51,23 @@
           "additionalProperties": false,
           "properties": {
             "profile": {
-              "description": "desktop = a workstation (LSP/agents only); desktop-builds = a workstation with local Docker (local-dev-with-builds); server = a headless container-execution host.",
+              "description": "desktop = a workstation (LSP/agents only); desktop-builds = a workstation with local Docker; desktop-server = an amd64 Linux remote GUI workstation reached through a private tunnel; server = a headless container-execution host.",
               "enum": [
                 "desktop",
                 "desktop-builds",
+                "desktop-server",
                 "server"
               ]
             },
             "gui": {
-              "description": "Whether the device runs a GUI session. The server profile is always disabled.",
+              "description": "Whether the device runs a GUI session. desktop-server is always enabled and server is always disabled.",
               "enum": [
                 "enabled",
                 "disabled"
               ]
             },
             "docker_mode": {
-              "description": "Local Docker posture. desktop permits only none; desktop-builds requires rootful; server permits none/rootful/rootless. macOS never installs local Docker.",
+              "description": "Local Docker posture. desktop and desktop-server permit only none; desktop-builds requires rootful; server permits none/rootful/rootless. macOS never installs local Docker.",
               "enum": [
                 "none",
                 "rootful",
@@ -74,15 +75,16 @@
               ]
             },
             "execution_policy": {
-              "description": "source-lsp-only for desktop; local-dev-with-builds for desktop-builds; container-execution-only for server.",
+              "description": "source-lsp-only for desktop; local-dev-with-builds for desktop-builds; interactive-desktop-server for desktop-server; container-execution-only for server.",
               "enum": [
                 "source-lsp-only",
                 "local-dev-with-builds",
+                "interactive-desktop-server",
                 "container-execution-only"
               ]
             },
             "hardening": {
-              "description": "Server-only hardening toggles. Permitted only when profile is server.",
+              "description": "Server-baseline hardening toggles. Permitted when profile is server or desktop-server.",
               "type": "object",
               "additionalProperties": false,
               "properties": {

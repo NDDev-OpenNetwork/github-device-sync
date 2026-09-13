@@ -49,11 +49,11 @@ mirrored from `modules/macos-ubuntu-bootstrap/config/rldyour-contract.json`:
 
 | Field | Values | Notes |
 |---|---|---|
-| `profile` | `desktop` \| `desktop-builds` \| `server` | LSP-only workstation vs build workstation with Docker vs headless container host |
-| `gui` | `enabled` \| `disabled` | server is always `disabled` |
-| `docker_mode` | `none` \| `rootful` \| `rootless` | desktop requires `none`; desktop-builds requires `rootful`; macOS never installs Docker |
-| `execution_policy` | `source-lsp-only` \| `local-dev-with-builds` \| `container-execution-only` | must match profile |
-| `hardening.{ssh,ufw,fail2ban}` | `true` \| `false` | server only |
+| `profile` | `desktop` \| `desktop-builds` \| `desktop-server` \| `server` | LSP-only, local-build, tunneled remote-GUI, or headless-server host |
+| `gui` | `enabled` \| `disabled` | desktop-server is always `enabled`; server is always `disabled` |
+| `docker_mode` | `none` \| `rootful` \| `rootless` | desktop and desktop-server require `none`; desktop-builds requires `rootful`; macOS never installs Docker |
+| `execution_policy` | `source-lsp-only` \| `local-dev-with-builds` \| `interactive-desktop-server` \| `container-execution-only` | must match profile |
+| `hardening.{ssh,ufw,fail2ban}` | `true` \| `false` | server-baseline profiles only |
 
 Cross-field rules are enforced by the schema validator
 (`GDS_DEVICE_CLASS_*` findings), mirroring the rules in
