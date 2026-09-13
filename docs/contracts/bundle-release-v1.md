@@ -118,6 +118,12 @@ The independent local `bundle-trust.yaml` binds:
 - the exact GitHub CLI version and extracted executable digest for every
   supported release target (`darwin`/`linux` × `amd64`/`arm64`).
 
+The signed harness-evidence input is decoded and checked before the expensive
+release gates. Its independent repository pin accepts 64 lowercase SHA-256 hex
+digits with an optional `sha256:` prefix; missing, malformed, or mismatched pins
+fail before building. A supplied policy never authorizes its own digest.
+The release builder separately verifies the signed records and their freshness.
+
 The trusted-root digest is obtained and reviewed out of band. A trusted root
 delivered beside an attestation is not self-authenticating. Producer CI and the
 consumer both compare it with the independent local pin before using it.
