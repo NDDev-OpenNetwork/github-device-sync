@@ -182,7 +182,7 @@
           "provider": {
             "description": "Provider slug, `owner/name`.",
             "type": "string",
-            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*/[A-Za-z0-9][A-Za-z0-9._-]*$"
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*/[A-Za-z0-9._-]+$"
           },
           "workspace_root": {
             "description": "Key of the `workspace_roots` entry this checkout sits under. Absent for an out-of-estate checkout, which by ADR 0025 has no declared root.",
