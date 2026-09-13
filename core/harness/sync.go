@@ -68,6 +68,39 @@ type TargetCollision struct {
 	Harnesses []string `json:"harnesses"`
 }
 
+// DetectTargetContentCollisions permits two adapters to co-own one canonical
+// path only when they render exactly the same bytes. Each adapter still keeps
+// its own lock, so presence and lifecycle remain independently observable.
+func DetectTargetContentCollisions(claims map[string][]AdapterFile) []TargetCollision {
+	type claim struct{ harness, digest string }
+	owners := map[string][]claim{}
+	for id, files := range claims {
+		for _, file := range files {
+			owners[file.Path] = append(owners[file.Path], claim{id, file.Digest})
+		}
+	}
+	collisions := []TargetCollision{}
+	for target, values := range owners {
+		if len(values) < 2 {
+			continue
+		}
+		digest := values[0].digest
+		harnesses := []string{}
+		for _, value := range values {
+			harnesses = append(harnesses, value.harness)
+			if value.digest != digest {
+				digest = ""
+			}
+		}
+		if digest == "" {
+			sort.Strings(harnesses)
+			collisions = append(collisions, TargetCollision{Path: target, Harnesses: harnesses})
+		}
+	}
+	sort.Slice(collisions, func(left, right int) bool { return collisions[left].Path < collisions[right].Path })
+	return collisions
+}
+
 // DetectTargetCollisions reports the target paths that more than one selected
 // harness claims.
 //

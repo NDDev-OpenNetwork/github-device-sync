@@ -70,7 +70,7 @@ func (services *Services) ReconcileDeviceHarnesses(
 	// What each selected harness *wants* to own, independent of what the target
 	// currently holds. Two selected harnesses that share a skill root collide on
 	// an empty root too, where no on-disk evidence of the conflict exists yet.
-	claims := map[string][]string{}
+	claims := map[string][]harness.AdapterFile{}
 	for _, id := range harness.CanonicalIDs {
 		// A selected harness that cannot be rendered is a hard error: the device
 		// cannot converge on it. An unselected one is skipped instead, so an
@@ -129,21 +129,30 @@ func (services *Services) ReconcileDeviceHarnesses(
 		// target root. Say so here, while the command is still read-only, rather
 		// than let the owner discover it half-way through a mutating run.
 		if wanted[id] {
-			owned := make([]string, 0, len(inspection.Files))
-			for _, file := range inspection.Files {
+			owned := make([]harness.AdapterFile, 0, len(inspection.Files))
+			candidate, candidateFindings := adapter.Render(request)
+			if len(candidateFindings) != 0 {
+				return domain.NewEnvelope(command, classifyFindings(candidateFindings), nil, candidateFindings...)
+			}
+			for _, file := range candidate.Files {
 				if file.Path != lockPath {
-					owned = append(owned, file.Path)
+					owned = append(owned, file)
 				}
 			}
 			claims[id] = owned
-		}
-		if wanted[id] && !present {
-			for _, file := range inspection.Files {
-				if file.Path != lockPath && file.State != "missing" {
-					collisions = append(collisions, map[string]any{
-						"harness": id, "path": file.Path,
-					})
-					break
+			if !present {
+				desiredFiles := map[string]string{}
+				for _, file := range candidate.Files {
+					desiredFiles[file.Path] = file.Digest
+				}
+				for _, file := range inspection.Files {
+					if file.Path != lockPath && file.State != "missing" &&
+						(file.State != "regular" || file.Digest != desiredFiles[file.Path]) {
+						collisions = append(collisions, map[string]any{
+							"harness": id, "path": file.Path,
+						})
+						break
+					}
 				}
 			}
 		}
@@ -160,7 +169,7 @@ func (services *Services) ReconcileDeviceHarnesses(
 	// a path something else already owns; `shared` is two selected harnesses
 	// wanting the same path, which is true before either is installed and is the
 	// only one an empty target root can show.
-	shared := harness.DetectTargetCollisions(claims)
+	shared := harness.DetectTargetContentCollisions(claims)
 	if len(collisions) != 0 || len(shared) != 0 {
 		planFindings = append(planFindings, domain.Finding{
 			Code: "GDS_HARNESS_TARGET_COLLISION", Severity: domain.SeverityHigh,

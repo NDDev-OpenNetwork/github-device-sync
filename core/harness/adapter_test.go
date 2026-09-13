@@ -186,6 +186,43 @@ func TestAdapterMaterializeVerifyAndRemoveLifecycle(t *testing.T) {
 	}
 }
 
+func TestAdapterInstallAndRemovePreserveIdenticalSharedSkills(t *testing.T) {
+	root, _ := filepath.Abs(filepath.Join("..", ".."))
+	schemas, err := validation.NewSchemaSet()
+	if err != nil {
+		t.Fatal(err)
+	}
+	request := RenderRequest{SkillProfile: "core", Scope: "project"}
+	target := t.TempDir()
+	first, findings := NewAdapter(root, "antigravity", schemas)
+	if len(findings) != 0 {
+		t.Fatalf("first adapter: %+v", findings)
+	}
+	firstCandidate, findings := first.Render(request)
+	if len(findings) != 0 {
+		t.Fatalf("first render: %+v", findings)
+	}
+	installAdapterTestCandidate(t, target, firstCandidate)
+	second, findings := NewAdapter(root, "codex", schemas)
+	if len(findings) != 0 {
+		t.Fatalf("second adapter: %+v", findings)
+	}
+	secondPlan, findings := second.PlanInstall(target, request)
+	if len(findings) != 0 {
+		t.Fatalf("shared install refused: %+v", findings)
+	}
+	installAdapterTestCandidate(t, target, secondPlan.candidate)
+	removePlan, findings := second.PlanRemove(target, request)
+	if len(findings) != 0 {
+		t.Fatalf("shared remove plan: %+v", findings)
+	}
+	for _, file := range removePlan.Files {
+		if strings.HasPrefix(file.Path, ".agents/skills/") && ownedByOtherAdapter(target, "codex", file.Path, file.Digest) {
+			t.Fatalf("remove still owns shared file %s", file.Path)
+		}
+	}
+}
+
 func TestAdapterRemoveBlocksManualDrift(t *testing.T) {
 	root, _ := filepath.Abs(filepath.Join("..", ".."))
 	schemas, err := validation.NewSchemaSet()
