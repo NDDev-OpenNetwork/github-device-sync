@@ -76,7 +76,7 @@ func TestDeclaredSuccessCannotLeaveBackgroundWriter(t *testing.T) {
 	assertTestChildStopped(t, pid)
 }
 
-func TestDeclaredTimeoutDoesNotClaimSetsidChildren(t *testing.T) {
+func TestDeclaredCancellationDoesNotClaimSetsidChildren(t *testing.T) {
 	// Process-group cleanup is not ownership of setsid/Docker-daemon children.
 	// Darwin images have no util-linux `setsid(1)`; python3.os.setsid is the
 	// same syscall on linux and darwin.
@@ -93,16 +93,25 @@ func TestDeclaredTimeoutDoesNotClaimSetsidChildren(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(dir, "setsid_child.py"), []byte(child), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	report := runDeclaredCommand(
-		context.Background(),
-		dir,
-		"python3 setsid_child.py & wait",
-		350*time.Millisecond,
-	)
+	// Interpreter startup is outside the behavior under test. Wait for the
+	// child to enter its new session before exercising cancellation; a short
+	// launch deadline can otherwise kill Python before the child exists.
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	done := make(chan CommandReport, 1)
+	go func() {
+		done <- runDeclaredCommand(ctx, dir, "python3 setsid_child.py & wait", 30*time.Second)
+	}()
 	pid := readOwnedTestChild(t, dir)
 	defer stopOwnedTestChild(pid)
-	if report.Status == "passed" {
-		t.Fatalf("setsid child made the parent look finished: %#v", report)
+	cancel()
+	select {
+	case report := <-done:
+		if report.Status == "passed" {
+			t.Fatalf("setsid child made the parent look finished: %#v", report)
+		}
+	case <-time.After(6 * time.Second):
+		t.Fatal("setsid parent cancellation did not settle")
 	}
 	b, err := exec.Command("ps", "-o", "stat=", "-p", strconv.Itoa(pid)).Output()
 	if err != nil || strings.TrimSpace(string(b)) == "" || strings.HasPrefix(strings.TrimSpace(string(b)), "Z") {
@@ -112,7 +121,7 @@ func TestDeclaredTimeoutDoesNotClaimSetsidChildren(t *testing.T) {
 
 func readOwnedTestChild(t *testing.T, dir string) int {
 	t.Helper()
-	deadline := time.Now().Add(3 * time.Second)
+	deadline := time.Now().Add(10 * time.Second)
 	for time.Now().Before(deadline) {
 		b, err := os.ReadFile(filepath.Join(dir, "child.pid"))
 		if err == nil {

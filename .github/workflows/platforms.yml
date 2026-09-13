@@ -67,4 +67,7 @@ jobs:
       - name: go build
         run: go build -trimpath ./core/cmd/gds
       - name: go test
-        run: go test ./...
+        # The integration package can exceed Go's default 10m aggregate
+        # budget on Intel runners. Per-operation deadlines remain intact;
+        # the suite and the enclosing job both keep explicit upper bounds.
+        run: go test -timeout=15m ./...
