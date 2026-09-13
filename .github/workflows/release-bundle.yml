@@ -77,16 +77,6 @@ jobs:
           go-version: "1.27.1"
           cache: true
 
-      - name: Run release gates
-        shell: bash
-        env:
-          GDS_TEST_PYTHON: ${{ runner.temp }}/gds-release-python/bin/python
-        run: |
-          python3 -m venv "${GDS_TEST_PYTHON%/bin/python}"
-          export PATH="${GDS_TEST_PYTHON%/python}:$PATH"
-          "$GDS_TEST_PYTHON" -m pip install --quiet --require-hashes -r requirements/test.txt
-          scripts/validate_release.sh
-
       - name: Materialize bounded signed harness evidence input
         id: harness-evidence
         shell: bash
@@ -99,18 +89,41 @@ jobs:
             echo "arguments=" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          [ -n "$HARNESS_EVIDENCE_BUNDLE_BASE64" ]
-          [ -n "$HARNESS_EVIDENCE_TRUST_POLICY_BASE64" ]
-          [ -n "$HARNESS_EVIDENCE_TRUST_POLICY_DIGEST" ]
+          if [ -z "$HARNESS_EVIDENCE_BUNDLE_BASE64" ] || [ -z "$HARNESS_EVIDENCE_TRUST_POLICY_BASE64" ]; then
+            echo "Signed harness evidence archive and trust policy must be supplied together" >&2
+            exit 1
+          fi
+          expected_digest="${HARNESS_EVIDENCE_TRUST_POLICY_DIGEST#sha256:}"
+          [[ "$expected_digest" =~ ^[0-9a-f]{64}$ ]] || {
+            echo "HARNESS_EVIDENCE_TRUST_POLICY_DIGEST must be an independent SHA-256 pin (64 lowercase hex digits, optionally prefixed with sha256:)" >&2
+            exit 1
+          }
           install -d -m 0700 "$EVIDENCE_INPUT_ROOT"
           printf '%s' "$HARNESS_EVIDENCE_BUNDLE_BASE64" | base64 --decode > "$EVIDENCE_INPUT_ROOT/evidence.tar.gz"
           printf '%s' "$HARNESS_EVIDENCE_TRUST_POLICY_BASE64" | base64 --decode > "$EVIDENCE_INPUT_ROOT/trust.json"
-          test "sha256:$(sha256sum "$EVIDENCE_INPUT_ROOT/trust.json" | cut -d' ' -f1)" = "$HARNESS_EVIDENCE_TRUST_POLICY_DIGEST"
-          go run ./core/cmd/gds-release-builder \
+          actual_digest="$(sha256sum "$EVIDENCE_INPUT_ROOT/trust.json" | cut -d' ' -f1)"
+          if [ "$actual_digest" != "$expected_digest" ]; then
+            echo "Harness evidence trust policy does not match the independent repository pin" >&2
+            exit 1
+          fi
+          if ! go run ./core/cmd/gds-release-builder \
             --extract-harness-evidence-archive "$EVIDENCE_INPUT_ROOT/evidence.tar.gz" \
             --extract-harness-evidence-destination "$EVIDENCE_INPUT_ROOT/records" \
-            > "$RUNNER_TEMP/gds-harness-evidence-materialization.json"
+            > "$RUNNER_TEMP/gds-harness-evidence-materialization.json"; then
+            cat "$RUNNER_TEMP/gds-harness-evidence-materialization.json" >&2
+            exit 1
+          fi
           echo "arguments=--harness-evidence-directory $EVIDENCE_INPUT_ROOT/records --harness-evidence-trust-policy $EVIDENCE_INPUT_ROOT/trust.json" >> "$GITHUB_OUTPUT"
+
+      - name: Run release gates
+        shell: bash
+        env:
+          GDS_TEST_PYTHON: ${{ runner.temp }}/gds-release-python/bin/python
+        run: |
+          python3 -m venv "${GDS_TEST_PYTHON%/bin/python}"
+          export PATH="${GDS_TEST_PYTHON%/python}:$PATH"
+          "$GDS_TEST_PYTHON" -m pip install --quiet --require-hashes -r requirements/test.txt
+          scripts/validate_release.sh
 
       - name: Build and independently verify release unit
         env:
