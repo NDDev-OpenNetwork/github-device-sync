@@ -477,6 +477,7 @@ func deviceFindings(source string, object map[string]any) []domain.Finding {
 var deviceClassExecutionPolicies = map[string]string{
 	"desktop":        "source-lsp-only",
 	"desktop-builds": "local-dev-with-builds",
+	"desktop-server": "interactive-desktop-server",
 	"server":         "container-execution-only",
 }
 
@@ -531,6 +532,23 @@ func deviceClassFindings(source string, object map[string]any) []domain.Finding 
 			"The desktop-builds profile requires docker_mode rootful.",
 			map[string]any{"profile": profile, "docker_mode": dockerMode})
 	}
+	if profile == "desktop-server" {
+		if osName != "linux" || (device["architecture"] != "x86_64" && device["architecture"] != "") {
+			rule("GDS_DEVICE_CLASS_DESKTOP_SERVER_PLATFORM",
+				"The desktop-server profile requires Linux x86_64.",
+				map[string]any{"profile": profile, "os": osName, "architecture": device["architecture"]})
+		}
+		if gui != "" && gui != "enabled" {
+			rule("GDS_DEVICE_CLASS_DESKTOP_SERVER_GUI",
+				"The desktop-server profile requires gui enabled.",
+				map[string]any{"profile": profile, "gui": gui})
+		}
+		if dockerMode != "" && dockerMode != "none" {
+			rule("GDS_DEVICE_CLASS_DESKTOP_SERVER_DOCKER",
+				"The desktop-server profile defaults to no local Docker; docker_mode must be none.",
+				map[string]any{"profile": profile, "docker_mode": dockerMode})
+		}
+	}
 	// execution_policy, when declared, must match the profile. The mapping is the
 	// macos-ubuntu-bootstrap targets block, mirrored here so a device descriptor
 	// and the OS installer it drives cannot disagree.
@@ -542,11 +560,11 @@ func deviceClassFindings(source string, object map[string]any) []domain.Finding 
 				map[string]any{"profile": profile, "execution_policy": executionPolicy, "expected": expected})
 		}
 	}
-	// Hardening toggles are server-only.
-	if hasHardening && profile != "" && profile != "server" {
+	// Hardening toggles belong to profiles that compose the server baseline.
+	if hasHardening && profile != "" && profile != "server" && profile != "desktop-server" {
 		if hardeningMap, ok := hardening.(map[string]any); ok && len(hardeningMap) > 0 {
 			rule("GDS_DEVICE_CLASS_HARDENING_PROFILE",
-				"Device class hardening is only permitted with the server profile.",
+				"Device class hardening is only permitted with a server-baseline profile.",
 				map[string]any{"profile": profile, "hardening": hardening})
 		}
 	}
