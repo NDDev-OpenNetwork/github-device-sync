@@ -36,6 +36,7 @@ command -v jq >/dev/null 2>&1 || die "jq is required"
 # the install/upgrade/rollback inputs is explicitly rejected by the native CLI.
 # Other lifecycle commands still need their selectors (for example --harness).
 verify_command=("${command[@]}")
+apply_command=("${command[@]}")
 for ((command_index = 1; command_index + 1 < ${#command[@]}; command_index++)); do
   if [ "${command[command_index]}" = release ]; then
     case "${command[command_index + 1]}" in
@@ -53,6 +54,21 @@ for ((command_index = 1; command_index + 1 < ${#command[@]}; command_index++)); 
         break ;;
     esac
   fi
+  if [ "${command[command_index]}" = workspace ] &&
+    [ "${command[command_index + 1]}" = register-estate ]; then
+    apply_command=()
+    for ((index = 0; index < ${#command[@]}; index++)); do
+      case "${command[index]}" in
+        --estate-root|--registration-path)
+          ((index + 1 < ${#command[@]})) || die "missing value for ${command[index]}"
+          index=$((index + 1)) ;;
+        --estate-root=*|--registration-path=*) ;;
+        *) apply_command+=("${command[index]}") ;;
+      esac
+    done
+    verify_command=("${apply_command[@]}")
+    break
+  fi
 done
 
 "$gds_bin" --json operation enable "$plan_id" \
@@ -60,7 +76,7 @@ done
   --device-id "$device_id" --session-id "$session_id" |
   jq -e '.result == "succeeded" and .data.status == "active"' >/dev/null
 
-apply_output=$("${command[@]}" --apply "$plan_id" --approval-ref "$approval_file" \
+apply_output=$("${apply_command[@]}" --apply "$plan_id" --approval-ref "$approval_file" \
   --state-path "$state_path" --device-id "$device_id" --session-id "$session_id")
 operation_id=$(printf '%s' "$apply_output" | jq -er 'select(.result == "succeeded") | .operation_id')
 

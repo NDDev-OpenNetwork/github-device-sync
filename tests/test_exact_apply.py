@@ -69,6 +69,24 @@ def test_harness_selectors_and_literal_arguments_survive_verification(tmp_path: 
     assert "--approval-ref" not in calls[2]
 
 
+@pytest.mark.parametrize("equals", [False, True])
+def test_workspace_registration_drops_planning_only_inputs_for_apply_and_verify(
+    tmp_path: Path, equals: bool,
+) -> None:
+    estate = str(tmp_path / "estate with spaces")
+    registration = str(tmp_path / "config with spaces" / "registration.json")
+    inputs = {"estate-root": estate, "registration-path": registration}
+    flags = [arg for name, value in inputs.items()
+             for arg in ([f"--{name}={value}"] if equals else [f"--{name}", value])]
+    base = ["workspace", "register-estate", *flags]
+    result, calls = run_helper(tmp_path, base)
+    assert result.returncode == 0, result.stderr
+    assert calls[1][1:3] == calls[2][1:3] == ["workspace", "register-estate"]
+    for call in calls[1:]:
+        assert all(arg.split("=", 1)[0] not in {"--estate-root", "--registration-path"}
+                   for arg in call)
+
+
 @pytest.mark.parametrize("operation", ["install", "upgrade", "rollback", "remove"])
 @pytest.mark.parametrize("equals", [False, True])
 def test_release_verification_uses_stored_identity_with_native_cli(
