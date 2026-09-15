@@ -187,6 +187,10 @@ the descriptor's intent and the OS installer it drives cannot disagree. The
 profile/OS consistency and never mutate configuration. The phased bootstrap seam
 that consumes this block is documented in `docs/runbooks/bootstrap-device.md`.
 
+`gds context` binds the device-local locator `device_id` to exactly one
+`estate/devices/*.yaml` as `context.device` (including `class`). A missing
+locator omits the field; context never infers a device from hostname or cwd.
+
 No validator fixes configuration automatically.
 
 Changing a device workspace-root mapping updates desired placement only. GDS

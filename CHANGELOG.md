@@ -5,6 +5,8 @@ Versioning.
 
 ## [Unreleased]
 
+## [0.9.5] - 2026-09-15
+
 - Surface the registered device and its `class` (`profile`/`gui`/`docker_mode`/
   `execution_policy`) on `gds context` from the device-local locator bound to
   exactly one `estate/devices/*.yaml`. `gds-orient` reads `context.device`
@@ -21,6 +23,18 @@ Versioning.
   escaped-child startup before cancellation.
 - Record extra-approval false on `main` and pin reusable workflows to current
   module mains.
+
+## [0.9.4] - 2026-09-13
+
+- Validate release evidence before the expensive build gates.
+- Run the full race suite once per release gate.
+
+## [0.9.3] - 2026-09-13
+
+- Make device onboarding consistent and refresh the release toolchain.
+- Validate formatting with the selected Go toolchain.
+- Cover Intel macOS and consume the reviewed workflow library.
+- Refresh generated fixtures and portable Python dependency locks.
 
 ## [0.9.2] - 2026-09-12
 

@@ -73,6 +73,9 @@ seed Go toolchain + `gds` build, and the control-plane staged commands in
 order, with plan/apply gates at each boundary. See
 `docs/runbooks/bootstrap-device.md` for the seam.
 
+`gds context --json` reports `context.device` when the device-local locator
+binds a descriptor.
+
 ## Verification
 
 ```bash

@@ -60,6 +60,10 @@ Cross-field rules are enforced by the schema validator
 `modules/macos-ubuntu-bootstrap/scripts/bootstrap.sh`. A descriptor that omits
 `class:` stays valid and defaults to desktop.
 
+`gds context` binds the device-local locator `device_id` to exactly one
+`estate/devices/*.yaml` as `context.device` (including `class`). A missing
+locator omits the field; context never infers a device from hostname or cwd.
+
 The bootstrap contract also defines the execution seam between classes. A
 `desktop` may run an explicit command on a separately provisioned `server`
 through `modules/macos-ubuntu-bootstrap/scripts/remote-exec.sh`; both
