@@ -283,9 +283,9 @@ append_hardening_flags() {
   HARDEN_SSH=$(yaml_get "$DEVICE_PATH" "device.class.hardening.ssh" || true)
   HARDEN_UFW=$(yaml_get "$DEVICE_PATH" "device.class.hardening.ufw" || true)
   HARDEN_F2B=$(yaml_get "$DEVICE_PATH" "device.class.hardening.fail2ban" || true)
-  [ "${HARDEN_SSH:-}" = "true" ] && OS_ARGS+=("--harden-ssh")
-  [ "${HARDEN_UFW:-}" = "true" ] && OS_ARGS+=("--enable-ufw")
-  [ "${HARDEN_F2B:-}" = "true" ] && OS_ARGS+=("--with-fail2ban")
+  if [ "${HARDEN_SSH:-}" = "true" ]; then OS_ARGS+=("--harden-ssh"); fi
+  if [ "${HARDEN_UFW:-}" = "true" ]; then OS_ARGS+=("--enable-ufw"); fi
+  if [ "${HARDEN_F2B:-}" = "true" ]; then OS_ARGS+=("--with-fail2ban"); fi
 }
 case "$PROFILE" in
   desktop)
