@@ -293,6 +293,19 @@ func TestResolveEstateUsesDeviceLocalRegistration(t *testing.T) {
 	if len(resolveFindings) != 0 || !result.Estate.Registered || result.Estate.Root != expectedRoot {
 		t.Fatalf("estate = %#v, findings = %#v", result.Estate, resolveFindings)
 	}
+	writeContextDeviceDescriptor(t, root, "device_01JEXAMPZ00000000000000000", "desktop-server", "rootful")
+	resolveDevice(resolver, &result, &resolveFindings)
+	if len(resolveFindings) != 0 || result.Device == nil {
+		t.Fatalf("device = %#v, findings = %#v", result.Device, resolveFindings)
+	}
+	if result.Device.ID != "device_01JEXAMPZ00000000000000000" ||
+		result.Device.Class == nil ||
+		result.Device.Class.Profile != "desktop-server" ||
+		result.Device.Class.DockerMode != "rootful" ||
+		result.Device.Class.GUI != "enabled" ||
+		result.Device.Class.ExecutionPolicy != "interactive-desktop-server" {
+		t.Fatalf("device = %#v", result.Device)
+	}
 }
 
 func TestResolveEstateRejectsRegistrationAnchorDrift(t *testing.T) {
@@ -334,6 +347,107 @@ func TestResolveEstateRejectsRegistrationAnchorDrift(t *testing.T) {
 	resolveEstate(resolver, &result, &resolveFindings)
 	if result.Estate.Registered || !hasFinding(resolveFindings, "GDS_CONTEXT_ESTATE_NOT_REGISTERED") {
 		t.Fatalf("estate = %#v, findings = %#v", result.Estate, resolveFindings)
+	}
+}
+
+func TestResolveDeviceFromControlPlaneSelfAndLocator(t *testing.T) {
+	root := writeTestControlPlaneAnchor(t)
+	writeContextDeviceDescriptor(t, root, "device_01JEXAMPZ00000000000000000", "desktop-server", "rootful")
+	configHome := t.TempDir()
+	schemas, err := validation.NewSchemaSet()
+	if err != nil {
+		t.Fatal(err)
+	}
+	anchorEvidence, err := anchor.Observe(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	candidate, findings := estateregistry.NewCandidate(
+		"device_01JEXAMPZ00000000000000000",
+		"repo_01M0EZ7TB3KNXNSP78Z8M64WXG",
+		root,
+		anchorEvidence.File.ContentDigest,
+		schemas,
+	)
+	if len(findings) != 0 {
+		t.Fatal(findings)
+	}
+	registrationPath := filepath.Join(configHome, "github-device-sync", estateregistry.FileName)
+	if err := os.MkdirAll(filepath.Dir(registrationPath), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(registrationPath, candidate.Raw, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	resolver := &Resolver{
+		manifests: manifest.NewLoader(schemas), schemas: schemas,
+		getenv: func(key string) string {
+			if key == "XDG_CONFIG_HOME" {
+				return configHome
+			}
+			return ""
+		},
+		userHome: func() (string, error) { return t.TempDir(), nil },
+	}
+	result := Context{
+		Repository: RepositoryContext{Roles: []string{"control-plane"}},
+		Workspace:  WorkspaceContext{GitWorktreeRoot: root},
+	}
+	resolveFindings := []domain.Finding{}
+	resolveEstate(resolver, &result, &resolveFindings)
+	resolveDevice(resolver, &result, &resolveFindings)
+	if len(resolveFindings) != 0 || !result.Estate.Registered || result.Device == nil {
+		t.Fatalf("estate = %#v, device = %#v, findings = %#v", result.Estate, result.Device, resolveFindings)
+	}
+	if result.Device.Class.Profile != "desktop-server" || result.Device.Class.DockerMode != "rootful" {
+		t.Fatalf("device = %#v", result.Device)
+	}
+}
+
+func TestResolveDeviceMissingDescriptor(t *testing.T) {
+	root := writeTestControlPlaneAnchor(t)
+	configHome := t.TempDir()
+	schemas, err := validation.NewSchemaSet()
+	if err != nil {
+		t.Fatal(err)
+	}
+	anchorEvidence, err := anchor.Observe(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	candidate, findings := estateregistry.NewCandidate(
+		"device_01JEXAMPZ00000000000000000",
+		"repo_01M0EZ7TB3KNXNSP78Z8M64WXG",
+		root,
+		anchorEvidence.File.ContentDigest,
+		schemas,
+	)
+	if len(findings) != 0 {
+		t.Fatal(findings)
+	}
+	registrationPath := filepath.Join(configHome, "github-device-sync", estateregistry.FileName)
+	if err := os.MkdirAll(filepath.Dir(registrationPath), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(registrationPath, candidate.Raw, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	resolver := &Resolver{
+		manifests: manifest.NewLoader(schemas), schemas: schemas,
+		getenv: func(key string) string {
+			if key == "XDG_CONFIG_HOME" {
+				return configHome
+			}
+			return ""
+		},
+		userHome: func() (string, error) { return t.TempDir(), nil },
+	}
+	result := Context{Repository: RepositoryContext{ID: "repo_01JEXAMPZ0000000000000000B"}}
+	resolveFindings := []domain.Finding{}
+	resolveEstate(resolver, &result, &resolveFindings)
+	resolveDevice(resolver, &result, &resolveFindings)
+	if result.Device != nil || !hasFinding(resolveFindings, "GDS_CONTEXT_DEVICE_DESCRIPTOR_MISSING") {
+		t.Fatalf("device = %#v, findings = %#v", result.Device, resolveFindings)
 	}
 }
 
@@ -398,6 +512,51 @@ func copyContextFixture(t *testing.T, sourceRoot string, targetRoot string) {
 func projectionGoldenRoot(t *testing.T) string {
 	t.Helper()
 	return filepath.Join(repositoryRoot(t), "tests", "golden", "projections", "control-plane")
+}
+
+func writeContextDeviceDescriptor(t *testing.T, root string, deviceID string, profile string, dockerMode string) {
+	t.Helper()
+	execution := map[string]string{
+		"desktop":        "source-lsp-only",
+		"desktop-builds": "local-dev-with-builds",
+		"desktop-server": "interactive-desktop-server",
+		"server":         "container-execution-only",
+	}[profile]
+	gui := "enabled"
+	if profile == "server" {
+		gui = "disabled"
+	}
+	body := fmt.Sprintf(`schema_version: 1
+device:
+  id: %q
+  name: "example-context-device"
+  os: "linux"
+  architecture: "x86_64"
+  class:
+    profile: %q
+    gui: %q
+    docker_mode: %q
+    execution_policy: %q
+workspace_roots:
+  projects: "${HOME}/Developer/projects"
+materialization:
+  default_mode: "absent"
+  include:
+    - selector: "portfolio:organization-projects"
+      workspace_root: "projects"
+      mode: "active"
+harnesses:
+  - "codex"
+state:
+  path: "${XDG_STATE_HOME}/github-device-sync"
+`, deviceID, profile, gui, dockerMode, execution)
+	path := filepath.Join(root, "estate", "devices", "example-context-device.yaml")
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func writeTestControlPlaneAnchor(t *testing.T) string {

@@ -5,6 +5,10 @@ Versioning.
 
 ## [Unreleased]
 
+- Surface the registered device and its `class` (`profile`/`gui`/`docker_mode`/
+  `execution_policy`) on `gds context` from the device-local locator bound to
+  exactly one `estate/devices/*.yaml`. `gds-orient` reads `context.device`
+  instead of inferring the host.
 - Add the `desktop-server` device class: Linux x86_64, GUI required, Docker
   none|rootful|rootless (default none). The bootstrap orchestrator forwards
   `docker_mode` and server-baseline hardening flags. Name it in `gds-orient`

@@ -21,6 +21,7 @@ import (
 	gitprovider "github.com/NDDev-OpenNetwork/github-device-sync/core/providers/git"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/serialization"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/validation"
+	"github.com/NDDev-OpenNetwork/github-device-sync/core/workspace"
 )
 
 type Resolver struct {
@@ -46,6 +47,7 @@ type Context struct {
 	Repository   RepositoryContext    `json:"repository"`
 	Mode         ModeContext          `json:"mode"`
 	Estate       EstateContext        `json:"estate"`
+	Device       *DeviceContext       `json:"device,omitempty"`
 	Policy       PolicyContext        `json:"policy"`
 	Agent        AgentContext         `json:"agent"`
 	Boundaries   []BoundaryContext    `json:"boundaries"`
@@ -75,6 +77,19 @@ type ModeContext struct {
 type EstateContext struct {
 	Registered bool   `json:"registered"`
 	Root       string `json:"root,omitempty"`
+}
+
+// DeviceContext is the device descriptor bound by the device-local estate
+// locator. It is omitted when no locator exists or the locator does not
+// name a descriptor under the proven estate root. Context never infers a
+// device from hostname, cwd, or the first yaml in estate/devices.
+type DeviceContext struct {
+	ID           string                 `json:"id"`
+	Name         string                 `json:"name,omitempty"`
+	OS           string                 `json:"os,omitempty"`
+	Architecture string                 `json:"architecture,omitempty"`
+	Path         string                 `json:"path"`
+	Class        *workspace.DeviceClass `json:"class,omitempty"`
 }
 
 type PolicyContext struct {
@@ -248,6 +263,7 @@ func (resolver *Resolver) Resolve(ctx context.Context, path string) Outcome {
 	}
 
 	resolveEstate(resolver, &result, &findings)
+	resolveDevice(resolver, &result, &findings)
 	policyFindingCount := len(findings)
 	document := resolveAppliedPolicy(resolver, &result, &findings, info.WorktreeRoot)
 	if document != nil && repositoryAnchor != nil && result.Policy.Digest != "" &&
@@ -573,6 +589,134 @@ func resolveEstate(resolver *Resolver, result *Context, findings *[]domain.Findi
 		return
 	}
 	result.Estate = EstateContext{Registered: true, Root: root}
+}
+
+func resolveDevice(resolver *Resolver, result *Context, findings *[]domain.Finding) {
+	if !result.Estate.Registered || result.Estate.Root == "" {
+		return
+	}
+	deviceID := lookupRegisteredDeviceID(resolver, result, findings)
+	if deviceID == "" {
+		return
+	}
+	matches := []string{}
+	pattern := filepath.Join(result.Estate.Root, "estate", "devices", "*.yaml")
+	paths, err := filepath.Glob(pattern)
+	if err != nil {
+		*findings = append(*findings, domain.Finding{
+			Code:     "GDS_CONTEXT_DEVICE_DESCRIPTOR_UNREADABLE",
+			Severity: domain.SeverityHigh,
+			Message:  "Cannot enumerate device descriptors for the registered device.",
+			Evidence: map[string]any{"pattern": pattern, "error": err.Error()},
+		})
+		return
+	}
+	for _, path := range paths {
+		if peekDeviceID(path) != deviceID {
+			continue
+		}
+		matches = append(matches, path)
+	}
+	if len(matches) == 0 {
+		*findings = append(*findings, domain.Finding{
+			Code:     "GDS_CONTEXT_DEVICE_DESCRIPTOR_MISSING",
+			Severity: domain.SeverityHigh,
+			Message:  "Registered device_id has no matching estate/devices descriptor.",
+			Evidence: map[string]any{"device_id": deviceID, "estate_root": result.Estate.Root},
+		})
+		return
+	}
+	if len(matches) != 1 {
+		*findings = append(*findings, domain.Finding{
+			Code:     "GDS_CONTEXT_DEVICE_DESCRIPTOR_AMBIGUOUS",
+			Severity: domain.SeverityHigh,
+			Message:  "Registered device_id matches more than one estate/devices descriptor.",
+			Evidence: map[string]any{"device_id": deviceID, "paths": matches},
+		})
+		return
+	}
+	descriptor, deviceFindings := workspace.LoadDevice(matches[0], resolver.schemas)
+	if len(deviceFindings) != 0 {
+		*findings = append(*findings, deviceFindings...)
+		return
+	}
+	result.Device = &DeviceContext{
+		ID:           descriptor.Device.ID,
+		Name:         descriptor.Device.Name,
+		OS:           descriptor.Device.OS,
+		Architecture: descriptor.Device.Architecture,
+		Path:         matches[0],
+		Class:        descriptor.Device.Class,
+	}
+}
+
+func lookupRegisteredDeviceID(resolver *Resolver, result *Context, findings *[]domain.Finding) string {
+	registrationPath, err := estateregistry.DefaultPath(resolver.getenv, resolver.userHome)
+	if err != nil {
+		return ""
+	}
+	if _, err := os.Lstat(registrationPath); errors.Is(err, os.ErrNotExist) {
+		return ""
+	} else if err != nil {
+		*findings = append(*findings, domain.Finding{
+			Code:     "GDS_CONTEXT_DEVICE_NOT_PROVEN",
+			Severity: domain.SeverityMedium,
+			Message:  fmt.Sprintf("Device-local estate registration cannot be inspected: %v", err),
+			Evidence: map[string]any{"registration_path": registrationPath},
+		})
+		return ""
+	}
+	registration, registrationFindings := estateregistry.Load(registrationPath, resolver.schemas)
+	if len(registrationFindings) != 0 {
+		*findings = append(*findings, domain.Finding{
+			Code:     "GDS_CONTEXT_DEVICE_NOT_PROVEN",
+			Severity: domain.SeverityMedium,
+			Message:  "Device-local estate registration cannot bind a device descriptor.",
+			Evidence: map[string]any{"registration_path": registrationPath},
+		})
+		return ""
+	}
+	if !samePhysicalPath(registration.Document.Estate.Root, result.Estate.Root) {
+		*findings = append(*findings, domain.Finding{
+			Code:     "GDS_CONTEXT_DEVICE_LOCATOR_ROOT_MISMATCH",
+			Severity: domain.SeverityMedium,
+			Message:  "Device-local estate registration does not name the proven estate root.",
+			Evidence: map[string]any{
+				"registration_path": registrationPath,
+				"registered_root":   registration.Document.Estate.Root,
+				"estate_root":       result.Estate.Root,
+			},
+		})
+		return ""
+	}
+	return registration.Document.DeviceID
+}
+
+func peekDeviceID(path string) string {
+	value, err := serialization.DecodeFile(path)
+	if err != nil {
+		return ""
+	}
+	object, _ := value.(map[string]any)
+	device, _ := object["device"].(map[string]any)
+	id, _ := device["id"].(string)
+	return id
+}
+
+func samePhysicalPath(left string, right string) bool {
+	resolve := func(path string) (string, bool) {
+		if path == "" {
+			return "", false
+		}
+		physical, err := filepath.EvalSymlinks(path)
+		if err != nil {
+			return filepath.Clean(path), true
+		}
+		return filepath.Clean(physical), true
+	}
+	a, aOK := resolve(left)
+	b, bOK := resolve(right)
+	return aOK && bOK && a == b
 }
 
 func resolveDirectory(path string) (string, error) {

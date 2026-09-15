@@ -87,6 +87,7 @@ Resolves:
 - repository anchor and stable identity;
 - standalone or embedded-submodule mode;
 - trusted estate root when proven;
+- registered device identity and class when the locator binds a descriptor;
 - bundle-lock presence;
 - skill profile routing;
 - independent mutation boundaries.

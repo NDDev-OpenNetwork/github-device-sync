@@ -46,6 +46,14 @@ contains only:
 - canonical physical `root`;
 - exact repository-anchor digest.
 
+After the estate root is proven, `gds context` binds that `device_id` to
+exactly one `estate/devices/*.yaml` under the proven root and reports it as
+`context.device` (including optional `class`). Missing locator omits the
+field. A locator whose root is not the proven estate is
+`GDS_CONTEXT_DEVICE_LOCATOR_ROOT_MISMATCH`. A `device_id` with no matching
+descriptor is `GDS_CONTEXT_DEVICE_DESCRIPTOR_MISSING`. Context never infers
+a device from hostname, cwd, or the first yaml in the directory.
+
 Resolution rejects missing, symlinked, oversized, malformed, identity-drifted,
 role-drifted, moved, or anchor-drifted registrations. Missing registration is
 `NOT_PROVEN`, never an implicit fallback to directory ancestry.

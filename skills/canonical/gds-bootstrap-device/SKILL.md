@@ -58,7 +58,9 @@ terminal, then wait for confirmation before continuing.
    The script prompts for sudo and handles the rest. Desktop customization
    (`scripts/ubuntu/desktop.sh`) is called automatically for GUI-enabled
    `desktop` and `desktop-server` profiles; each step is independent and
-   idempotent.
+   idempotent. `desktop-server` also forwards declared `docker_mode`
+   (default `none`; `rootful` and `rootless` are explicit installer
+   choices) and optional server-baseline hardening flags.
 
 2. **Harness module installs (phase 2, inside OS bootstrap)** may install deb
    packages (e.g. ZCode). The OS bootstrap script prompts for sudo once and

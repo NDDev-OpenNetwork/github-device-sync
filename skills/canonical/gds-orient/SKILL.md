@@ -38,12 +38,14 @@ provider state.
 1. Run `gds context --json` from the current directory.
 2. If needed, run `gds status --json` for local Git evidence.
 3. Explain the stable repository identity, roles, mode, mutation boundaries,
-   effective policy evidence, and selected skill profiles. When the resolved
-   device declares a `class:` block (profile/gui/docker_mode/execution_policy),
-   surface it too: the class tells whether this is a `desktop`,
-   `desktop-builds`, tunneled `desktop-server`, or headless `server` host
-   and which execution policy governs builds, and it selects the OS-installer
-   flags the phased bootstrap drives.
+   effective policy evidence, and selected skill profiles. When
+   `context.device` is present, surface it: `id`/`name`/`os`/`architecture`
+   and, when `context.device.class` is set, whether this is a `desktop`,
+   `desktop-builds`, tunneled `desktop-server`, or headless `server` host,
+   which `docker_mode` it declared, and which execution policy governs
+   builds. That class also selects the OS-installer flags the phased
+   bootstrap drives. Do not infer a device from hostname or cwd when the
+   field is omitted.
 4. Route the user to the smallest applicable workflow.
 
 ## Stop conditions
@@ -82,5 +84,7 @@ by the schema validator (`GDS_DEVICE_CLASS_*`): `desktop` permits only
 permits `none|rootful|rootless` (default `none`) with `gui: enabled`, and
 `server` is always `gui: disabled`. The phased bootstrap orchestrator that
 consumes the class is `scripts/bootstrap-device.sh`; see
-`docs/runbooks/bootstrap-device.md` for the seam. Otherwise no additional
-runtime reference is required; use current structured `gds` output.
+`docs/runbooks/bootstrap-device.md` for the seam. `gds context --json` binds
+`device` from the device-local estate locator (`device_id`) to exactly one
+`estate/devices/*.yaml` under the proven estate root. Agents must not invent
+a device when that object is absent.
