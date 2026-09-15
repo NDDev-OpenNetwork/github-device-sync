@@ -1,9 +1,9 @@
 schema_version: 1
 
-# A third device, and the only one that may run containers. Device class is not
-# decoration: it decides what an agent harness is allowed to do here, so a
-# build host and a laptop are described separately even when the estate they
-# see is identical.
+# A Linux workstation that may run local containers. desktop-builds is the
+# GUI-optional build host; desktop-server is the tunneled remote GUI host that
+# can also take an explicit Docker mode. Device class decides what an agent
+# harness is allowed to do here.
 device:
   id: "device_01JEXAMPZ00000000000000002"
   name: "example-user-ubuntu-1"

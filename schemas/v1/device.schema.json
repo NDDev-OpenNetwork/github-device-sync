@@ -67,7 +67,7 @@
               ]
             },
             "docker_mode": {
-              "description": "Local Docker posture. desktop and desktop-server permit only none; desktop-builds requires rootful; server permits none/rootful/rootless. macOS never installs local Docker.",
+              "description": "Local Docker posture. desktop permits only none; desktop-builds requires rootful; desktop-server and server permit none/rootful/rootless (desktop-server defaults to none). macOS never installs local Docker.",
               "enum": [
                 "none",
                 "rootful",

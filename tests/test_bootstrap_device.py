@@ -47,6 +47,14 @@ def test_source_build_never_accepts_a_merely_runnable_binary() -> None:
     assert "if ! source_build_dirty" in script
 
 
+def test_orchestrator_forwards_class_docker_mode() -> None:
+    script = BOOTSTRAP.read_text(encoding="utf-8")
+    assert 'desktop-server)' in script
+    assert 'OS_ARGS+=("--docker-mode" "${CLASS_DOCKER:-none}")' in script
+    assert 'OS_ARGS+=("--docker-mode" "${CLASS_DOCKER:-rootful}")' in script
+    assert "append_hardening_flags" in script
+
+
 def test_seed_go_verifies_the_physical_toolchain_without_auto_selection() -> None:
     script = BOOTSTRAP.read_text(encoding="utf-8")
 

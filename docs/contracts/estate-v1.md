@@ -179,7 +179,7 @@ submodule-consistency rule above applies only to devices that carry an
 inventory; there is nothing for an absent one to contradict.
 
 A device descriptor may declare an optional `class:` block
-(`profile`/`gui`/`docker_mode`/`execution_policy`, plus server-only `hardening`)
+(`profile`/`gui`/`docker_mode`/`execution_policy`, plus server-baseline `hardening`)
 whose vocabulary mirrors the `modules/macos-ubuntu-bootstrap` targets block, so
 the descriptor's intent and the OS installer it drives cannot disagree. The
 `GDS_DEVICE_CLASS_*` rules (for example `GDS_DEVICE_CLASS_MACOS_CONFLICT`,

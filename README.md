@@ -65,9 +65,9 @@ validated against their Git-reported superproject and typed
 top-level placement drift.
 
 A device descriptor may declare an optional `class:` block
-(`profile: desktop|server`, `gui`, `docker_mode`, `execution_policy`, and
-server-only `hardening`) so the device intent and the OS installer it drives
-cannot disagree. The phased bootstrap orchestrator
+(`profile: desktop|desktop-builds|desktop-server|server`, `gui`, `docker_mode`,
+`execution_policy`, and server-baseline `hardening`) so the device intent and
+the OS installer it drives cannot disagree. The phased bootstrap orchestrator
 `scripts/bootstrap-device.sh` reads the class and drives the OS bootstrap, the
 seed Go toolchain + `gds` build, and the control-plane staged commands in
 order, with plan/apply gates at each boundary. See

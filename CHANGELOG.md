@@ -5,6 +5,10 @@ Versioning.
 
 ## [Unreleased]
 
+- Align the desktop-server device class with macos-ubuntu-bootstrap: Docker
+  may be none, rootful, or rootless. The bootstrap orchestrator forwards the
+  declared docker_mode and server-baseline hardening flags.
+
 ## [0.9.2] - 2026-09-12
 
 - Add a public, exact-attempt harness evidence producer that rejects private
