@@ -99,15 +99,20 @@ func TestDeviceClassAcceptsDesktopServer(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	value := deviceClassFixture(t, map[string]any{
-		"profile":          "desktop-server",
-		"gui":              "enabled",
-		"docker_mode":      "none",
-		"execution_policy": "interactive-desktop-server",
-		"hardening":        map[string]any{"ssh": true, "ufw": true, "fail2ban": true},
-	})
-	if findings := set.Validate("device", value, "test"); len(findings) != 0 {
-		t.Fatalf("expected no findings, got %#v", findings)
+	for _, dockerMode := range []string{"none", "rootful", "rootless"} {
+		t.Run(dockerMode, func(t *testing.T) {
+			t.Parallel()
+			value := deviceClassFixture(t, map[string]any{
+				"profile":          "desktop-server",
+				"gui":              "enabled",
+				"docker_mode":      dockerMode,
+				"execution_policy": "interactive-desktop-server",
+				"hardening":        map[string]any{"ssh": true, "ufw": true, "fail2ban": true},
+			})
+			if findings := set.Validate("device", value, "test"); len(findings) != 0 {
+				t.Fatalf("expected no findings, got %#v", findings)
+			}
+		})
 	}
 }
 
@@ -195,14 +200,6 @@ func TestDeviceClassRules(t *testing.T) {
 				"execution_policy": "interactive-desktop-server",
 			},
 			wantCode: "GDS_DEVICE_CLASS_DESKTOP_SERVER_GUI",
-		},
-		{
-			name: "desktop-server with docker", osName: "linux",
-			class: map[string]any{
-				"profile": "desktop-server", "gui": "enabled", "docker_mode": "rootful",
-				"execution_policy": "interactive-desktop-server",
-			},
-			wantCode: "GDS_DEVICE_CLASS_DESKTOP_SERVER_DOCKER",
 		},
 		{
 			name: "desktop-server on macos", osName: "macos",

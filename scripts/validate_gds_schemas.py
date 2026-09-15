@@ -572,11 +572,46 @@ def _semantic_findings(schema_name: str, instance: Any, path: Path) -> list[Find
                         {"path": str(path), "profile": profile, "docker_mode": docker_mode},
                     )
                 )
+            if profile == "desktop-server":
+                architecture = device.get("architecture")
+                if os_name != "linux" or (architecture not in (None, "", "x86_64")):
+                    findings.append(
+                        Finding(
+                            "GDS_DEVICE_CLASS_DESKTOP_SERVER_PLATFORM",
+                            "high",
+                            "The desktop-server profile requires Linux x86_64.",
+                            {
+                                "path": str(path),
+                                "profile": profile,
+                                "os": os_name,
+                                "architecture": architecture,
+                            },
+                        )
+                    )
+                if gui and gui != "enabled":
+                    findings.append(
+                        Finding(
+                            "GDS_DEVICE_CLASS_DESKTOP_SERVER_GUI",
+                            "high",
+                            "The desktop-server profile requires gui enabled.",
+                            {"path": str(path), "profile": profile, "gui": gui},
+                        )
+                    )
+                if docker_mode and docker_mode not in {"none", "rootful", "rootless"}:
+                    findings.append(
+                        Finding(
+                            "GDS_DEVICE_CLASS_DESKTOP_SERVER_DOCKER",
+                            "high",
+                            "The desktop-server profile permits docker_mode none, rootful, or rootless.",
+                            {"path": str(path), "profile": profile, "docker_mode": docker_mode},
+                        )
+                    )
             # execution_policy, when declared, must match the profile.
             if execution_policy and profile:
                 _POLICY_MAP = {
                     "desktop": "source-lsp-only",
                     "desktop-builds": "local-dev-with-builds",
+                    "desktop-server": "interactive-desktop-server",
                     "server": "container-execution-only",
                 }
                 expected = _POLICY_MAP.get(profile)
@@ -599,13 +634,13 @@ def _semantic_findings(schema_name: str, instance: Any, path: Path) -> list[Find
                 isinstance(hardening, Mapping)
                 and hardening
                 and profile
-                and profile != "server"
+                and profile not in {"server", "desktop-server"}
             ):
                 findings.append(
                     Finding(
                         "GDS_DEVICE_CLASS_HARDENING_PROFILE",
                         "high",
-                        "Device class hardening is only permitted with the server profile.",
+                        "Device class hardening is only permitted with a server-baseline profile.",
                         {"path": str(path), "profile": profile, "hardening": hardening},
                     )
                 )

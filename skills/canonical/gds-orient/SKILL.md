@@ -72,14 +72,15 @@ anchoring, materializing, or reclassifying it.
 
 The optional `class:` block on a device descriptor
 (`estate/devices/<device>.yaml`) expresses device-class intent —
-`profile: desktop|desktop-builds|server`, `gui: enabled|disabled`,
+`profile: desktop|desktop-builds|desktop-server|server`, `gui: enabled|disabled`,
 `docker_mode: none|rootful|rootless`, and
-`execution_policy: source-lsp-only|local-dev-with-builds|container-execution-only`.
+`execution_policy: source-lsp-only|local-dev-with-builds|interactive-desktop-server|container-execution-only`.
 It mirrors the `macos-ubuntu-bootstrap` targets block so the device descriptor
 and the OS installer it drives cannot disagree. Cross-field rules are enforced
 by the schema validator (`GDS_DEVICE_CLASS_*`): `desktop` permits only
-`docker_mode: none`, `desktop-builds` requires `rootful`, and `server` is
-always `gui: disabled`. The phased bootstrap orchestrator that consumes the
-class is `scripts/bootstrap-device.sh`; see
+`docker_mode: none`, `desktop-builds` requires `rootful`, `desktop-server`
+permits `none|rootful|rootless` (default `none`) with `gui: enabled`, and
+`server` is always `gui: disabled`. The phased bootstrap orchestrator that
+consumes the class is `scripts/bootstrap-device.sh`; see
 `docs/runbooks/bootstrap-device.md` for the seam. Otherwise no additional
 runtime reference is required; use current structured `gds` output.

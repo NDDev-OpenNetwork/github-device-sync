@@ -422,6 +422,12 @@
       "valid": true
     },
     {
+      "id": "valid-device-class-desktop-server",
+      "schema": "device",
+      "path": "valid-device-class-desktop-server.yaml",
+      "valid": true
+    },
+    {
       "id": "invalid-device-class-server-gui",
       "schema": "device",
       "path": "invalid-device-class-server-gui.yaml",

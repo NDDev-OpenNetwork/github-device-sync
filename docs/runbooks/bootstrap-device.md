@@ -51,7 +51,7 @@ mirrored from `modules/macos-ubuntu-bootstrap/config/rldyour-contract.json`:
 |---|---|---|
 | `profile` | `desktop` \| `desktop-builds` \| `desktop-server` \| `server` | LSP-only, local-build, tunneled remote-GUI, or headless-server host |
 | `gui` | `enabled` \| `disabled` | desktop-server is always `enabled`; server is always `disabled` |
-| `docker_mode` | `none` \| `rootful` \| `rootless` | desktop and desktop-server require `none`; desktop-builds requires `rootful`; macOS never installs Docker |
+| `docker_mode` | `none` \| `rootful` \| `rootless` | desktop requires `none`; desktop-builds requires `rootful`; desktop-server and server permit all three (desktop-server defaults to `none`); macOS never installs Docker |
 | `execution_policy` | `source-lsp-only` \| `local-dev-with-builds` \| `interactive-desktop-server` \| `container-execution-only` | must match profile |
 | `hardening.{ssh,ufw,fail2ban}` | `true` \| `false` | server-baseline profiles only |
 

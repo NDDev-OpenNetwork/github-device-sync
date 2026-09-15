@@ -273,23 +273,38 @@ esac
 # declared, default to desktop so the orchestrator never infers a server.
 PROFILE="${CLASS_PROFILE:-desktop}"
 OS_ARGS=("--platform" "$PLATFORM" "--profile" "$PROFILE")
-if [ "$PROFILE" = "desktop" ]; then
-  case "${CLASS_GUI:-enabled}" in
+append_gui_flag() {
+  case "${CLASS_GUI:-$1}" in
     enabled) OS_ARGS+=("--gui");;
     disabled) OS_ARGS+=("--no-gui");;
   esac
-fi
-if [ "$PROFILE" = "server" ]; then
-  # server is always headless; docker_mode defaults to rootful per contract.
-  OS_ARGS+=("--no-gui" "--docker-mode" "${CLASS_DOCKER:-rootful}")
-  # Server-only hardening toggles, if declared.
+}
+append_hardening_flags() {
   HARDEN_SSH=$(yaml_get "$DEVICE_PATH" "device.class.hardening.ssh" || true)
   HARDEN_UFW=$(yaml_get "$DEVICE_PATH" "device.class.hardening.ufw" || true)
   HARDEN_F2B=$(yaml_get "$DEVICE_PATH" "device.class.hardening.fail2ban" || true)
   [ "${HARDEN_SSH:-}" = "true" ] && OS_ARGS+=("--harden-ssh")
   [ "${HARDEN_UFW:-}" = "true" ] && OS_ARGS+=("--enable-ufw")
   [ "${HARDEN_F2B:-}" = "true" ] && OS_ARGS+=("--with-fail2ban")
-fi
+}
+case "$PROFILE" in
+  desktop)
+    append_gui_flag enabled
+    ;;
+  desktop-builds)
+    append_gui_flag enabled
+    OS_ARGS+=("--docker-mode" "${CLASS_DOCKER:-rootful}")
+    ;;
+  desktop-server)
+    append_gui_flag enabled
+    OS_ARGS+=("--docker-mode" "${CLASS_DOCKER:-none}")
+    append_hardening_flags
+    ;;
+  server)
+    OS_ARGS+=("--no-gui" "--docker-mode" "${CLASS_DOCKER:-rootful}")
+    append_hardening_flags
+    ;;
+esac
 
 run_phase() {
   local n="$1"

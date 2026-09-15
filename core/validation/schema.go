@@ -543,9 +543,12 @@ func deviceClassFindings(source string, object map[string]any) []domain.Finding 
 				"The desktop-server profile requires gui enabled.",
 				map[string]any{"profile": profile, "gui": gui})
 		}
-		if dockerMode != "" && dockerMode != "none" {
+		// desktop-server defaults to none in the bootstrap contract, but
+		// rootful and rootless are explicit installer choices — the same
+		// set server accepts. Do not collapse that into desktop-builds.
+		if dockerMode != "" && dockerMode != "none" && dockerMode != "rootful" && dockerMode != "rootless" {
 			rule("GDS_DEVICE_CLASS_DESKTOP_SERVER_DOCKER",
-				"The desktop-server profile defaults to no local Docker; docker_mode must be none.",
+				"The desktop-server profile permits docker_mode none, rootful, or rootless.",
 				map[string]any{"profile": profile, "docker_mode": dockerMode})
 		}
 	}
