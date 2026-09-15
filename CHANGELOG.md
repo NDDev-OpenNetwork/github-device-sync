@@ -8,6 +8,8 @@ Versioning.
 - Align the desktop-server device class with macos-ubuntu-bootstrap: Docker
   may be none, rootful, or rootless. The bootstrap orchestrator forwards the
   declared docker_mode and server-baseline hardening flags.
+- Keep `append_hardening_flags` `set -e` safe when ssh/ufw/fail2ban are unset,
+  so desktop-server apply does not exit before phase 0.
 
 ## [0.9.2] - 2026-09-12
 

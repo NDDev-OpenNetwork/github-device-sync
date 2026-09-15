@@ -53,6 +53,9 @@ def test_orchestrator_forwards_class_docker_mode() -> None:
     assert 'OS_ARGS+=("--docker-mode" "${CLASS_DOCKER:-none}")' in script
     assert 'OS_ARGS+=("--docker-mode" "${CLASS_DOCKER:-rootful}")' in script
     assert "append_hardening_flags" in script
+    # `cmd && append` is not `set -e` safe as the last statement of a case arm.
+    assert 'if [ "${HARDEN_SSH:-}" = "true" ]; then OS_ARGS+=("--harden-ssh"); fi' in script
+    assert '] && OS_ARGS+=("--harden-ssh")' not in script
 
 
 def test_seed_go_verifies_the_physical_toolchain_without_auto_selection() -> None:
@@ -255,6 +258,28 @@ def test_embedded_bootstrap_binds_both_modules_to_the_selected_estate(tmp_path: 
     assert f"control-plane root: {estate}" in result.stdout
     assert "OS installer present" in result.stdout
     assert git(estate, "status", "--porcelain") == before == ""
+
+    # desktop-server with no hardening must not trip `set -e` on the flag
+    # appender. Phase 2 --plan prints the derived installer argv.
+    device.write_text(
+        "device:\n  id: example-device\n  name: example\n  os: linux\n"
+        "  architecture: x86_64\n  class:\n    profile: desktop-server\n"
+        "    gui: enabled\n    docker_mode: rootful\n"
+        "    execution_policy: interactive-desktop-server\n"
+    )
+    desktop_server = subprocess.run(
+        [str(embedded), "--estate-root", str(estate), "--device",
+         "estate/devices/example.yaml", "--phase", "2", "--plan"],
+        env=env, capture_output=True, text=True,
+    )
+    assert desktop_server.returncode == 0, desktop_server.stdout + desktop_server.stderr
+    assert "--profile desktop-server" in desktop_server.stdout
+    assert "--docker-mode rootful" in desktop_server.stdout
+    device.write_text(
+        "device:\n  id: example-device\n  name: example\n  os: linux\n"
+        "  architecture: x86_64\n  class:\n    profile: desktop-builds\n"
+        "    gui: enabled\n    docker_mode: rootful\n"
+    )
 
     # Source identity comes from the engine, not the consuming estate commit.
     version = subprocess.check_output(
