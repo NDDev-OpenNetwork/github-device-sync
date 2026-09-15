@@ -149,10 +149,11 @@ func TestDeviceClassAcceptsAbsent(t *testing.T) {
 func TestDeviceClassRules(t *testing.T) {
 	t.Parallel()
 	cases := []struct {
-		name     string
-		osName   string
-		class    map[string]any
-		wantCode string
+		name         string
+		osName       string
+		architecture string
+		class        map[string]any
+		wantCode     string
 	}{
 		{
 			name: "server with gui enabled", osName: "linux",
@@ -217,6 +218,14 @@ func TestDeviceClassRules(t *testing.T) {
 			},
 			wantCode: "GDS_DEVICE_CLASS_HARDENING_PROFILE",
 		},
+		{
+			name: "desktop-server on linux arm64", osName: "linux", architecture: "arm64",
+			class: map[string]any{
+				"profile": "desktop-server", "gui": "enabled", "docker_mode": "none",
+				"execution_policy": "interactive-desktop-server",
+			},
+			wantCode: "GDS_DEVICE_CLASS_DESKTOP_SERVER_PLATFORM",
+		},
 	}
 	set, err := NewSchemaSet()
 	if err != nil {
@@ -228,6 +237,9 @@ func TestDeviceClassRules(t *testing.T) {
 			value := deviceClassFixture(t, tc.class)
 			device := value["device"].(map[string]any)
 			device["os"] = tc.osName
+			if tc.architecture != "" {
+				device["architecture"] = tc.architecture
+			}
 			findings := set.Validate("device", value, "test")
 			if !findCode(t, findings, tc.wantCode) {
 				t.Fatalf("expected finding %s, got %#v", tc.wantCode, findings)
@@ -253,6 +265,67 @@ device:
     gui: enabled
     docker_mode: none
     execution_policy: source-lsp-only
+workspace_roots:
+  control-plane: "${HOME}/Developer/control-plane"
+materialization:
+  default_mode: absent
+  include:
+    - selector: "portfolio:estate-control-plane"
+      workspace_root: control-plane
+      mode: active
+harnesses: [codex]
+state:
+  path: "${XDG_STATE_HOME}/github-device-sync"
+`)
+	value, err := serialization.Decode("device.yaml", yaml)
+	if err != nil {
+		t.Fatal(err)
+	}
+	set, err := NewSchemaSet()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if findings := set.Validate("device", value, "test"); len(findings) != 0 {
+		t.Fatalf("expected no findings, got %#v", findings)
+	}
+}
+
+// TestDeviceClassContractParity is the lock that schema.go claims exists:
+// profile -> execution_policy must match macos-ubuntu-bootstrap
+// config/rldyour-contract.json targets.ubuntu.profiles (and macos.desktop).
+func TestDeviceClassContractParity(t *testing.T) {
+	t.Parallel()
+	want := map[string]string{
+		"desktop":        "source-lsp-only",
+		"desktop-builds": "local-dev-with-builds",
+		"desktop-server": "interactive-desktop-server",
+		"server":         "container-execution-only",
+	}
+	if len(deviceClassExecutionPolicies) != len(want) {
+		t.Fatalf("deviceClassExecutionPolicies = %#v, want %#v", deviceClassExecutionPolicies, want)
+	}
+	for profile, policy := range want {
+		if deviceClassExecutionPolicies[profile] != policy {
+			t.Fatalf("profile %s: execution_policy = %q, want %q",
+				profile, deviceClassExecutionPolicies[profile], policy)
+		}
+	}
+}
+
+func TestDeviceClassRoundTripsDesktopServerRootful(t *testing.T) {
+	t.Parallel()
+	yaml := []byte(`
+schema_version: 1
+device:
+  id: device_0Q0MPJ4Z2ENZ97XWETRESKZGTH
+  name: example-user-test
+  os: linux
+  architecture: x86_64
+  class:
+    profile: desktop-server
+    gui: enabled
+    docker_mode: rootful
+    execution_policy: interactive-desktop-server
 workspace_roots:
   control-plane: "${HOME}/Developer/control-plane"
 materialization:
