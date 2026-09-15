@@ -47,6 +47,15 @@ def test_source_build_never_accepts_a_merely_runnable_binary() -> None:
     assert "if ! source_build_dirty" in script
 
 
+def test_orient_skill_names_desktop_server_in_the_workflow() -> None:
+    skill = (ROOT / "skills/canonical/gds-orient/SKILL.md").read_text(encoding="utf-8")
+    assert "tunneled `desktop-server`, or headless `server`" in skill
+    bootstrap = (ROOT / "skills/canonical/gds-bootstrap-device/SKILL.md").read_text(
+        encoding="utf-8"
+    )
+    assert "`desktop` and `desktop-server` profiles" in bootstrap
+
+
 def test_orchestrator_forwards_class_docker_mode() -> None:
     script = BOOTSTRAP.read_text(encoding="utf-8")
     assert 'desktop-server)' in script

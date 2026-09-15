@@ -41,9 +41,9 @@ provider state.
    effective policy evidence, and selected skill profiles. When the resolved
    device declares a `class:` block (profile/gui/docker_mode/execution_policy),
    surface it too: the class tells whether this is a `desktop`,
-   `desktop-builds`, or headless `server` host and which execution policy
-   governs builds, and it selects the OS-installer flags the phased bootstrap
-   drives.
+   `desktop-builds`, tunneled `desktop-server`, or headless `server` host
+   and which execution policy governs builds, and it selects the OS-installer
+   flags the phased bootstrap drives.
 4. Route the user to the smallest applicable workflow.
 
 ## Stop conditions

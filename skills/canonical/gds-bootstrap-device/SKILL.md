@@ -50,14 +50,15 @@ cannot enter it. Present these steps as exact commands the owner runs in a
 terminal, then wait for confirmation before continuing.
 
 1. **OS bootstrap (phase 2)** installs system packages via apt and (on
-   desktop) configures GNOME, keyboard, BrowserOS, and removes stock Firefox.
-   The owner runs:
+   `desktop` / `desktop-server`) configures GNOME, keyboard, BrowserOS, and
+   removes stock Firefox. The owner runs:
    ```
    scripts/bootstrap-device.sh --device estate/devices/<device>.yaml --apply --from-phase 2
    ```
    The script prompts for sudo and handles the rest. Desktop customization
-   (`scripts/ubuntu/desktop.sh`) is called automatically for the `desktop`
-   profile with `gui: enabled`; each step is independent and idempotent.
+   (`scripts/ubuntu/desktop.sh`) is called automatically for GUI-enabled
+   `desktop` and `desktop-server` profiles; each step is independent and
+   idempotent.
 
 2. **Harness module installs (phase 2, inside OS bootstrap)** may install deb
    packages (e.g. ZCode). The OS bootstrap script prompts for sudo once and

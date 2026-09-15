@@ -5,11 +5,18 @@ Versioning.
 
 ## [Unreleased]
 
-- Align the desktop-server device class with macos-ubuntu-bootstrap: Docker
-  may be none, rootful, or rootless. The bootstrap orchestrator forwards the
-  declared docker_mode and server-baseline hardening flags.
+- Add the `desktop-server` device class: Linux x86_64, GUI required, Docker
+  none|rootful|rootless (default none). The bootstrap orchestrator forwards
+  `docker_mode` and server-baseline hardening flags. Name it in `gds-orient`
+  and `gds-bootstrap-device` the same way the schema already does.
 - Keep `append_hardening_flags` `set -e` safe when ssh/ufw/fail2ban are unset,
   so desktop-server apply does not exit before phase 0.
+- Allow identical shared harness projections and dot-prefixed repository names.
+- Strip registration planning inputs from operations payloads.
+- Bound native integration suites inside the platform job budget and wait for
+  escaped-child startup before cancellation.
+- Record extra-approval false on `main` and pin reusable workflows to current
+  module mains.
 
 ## [0.9.2] - 2026-09-12
 
