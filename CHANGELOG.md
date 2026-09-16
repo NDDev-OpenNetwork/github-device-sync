@@ -5,6 +5,13 @@ Versioning.
 
 ## [Unreleased]
 
+## [0.9.6] - 2026-09-16
+
+- Cut 0.9.6 as the next published bundle after `gds-v0.9.5`, which remains a
+  source tag whose GitHub Release has no bundle assets.
+- Keep the 0.9.5 `desktop-server` class and `gds context` `context.device`
+  binding.
+
 ## [0.9.5] - 2026-09-15
 
 - Surface the registered device and its `class` (`profile`/`gui`/`docker_mode`/
