@@ -278,6 +278,7 @@ func VerifyDirectory(directory string, schemas *validation.Set) (DirectoryVerifi
 		SchemaVersion: domain.SchemaVersion, Status: "verified", Version: envelope.BundleVersion,
 		ReleaseSequence: envelope.ReleaseSequence,
 		SourceCommit:    envelope.SourceCommit, SourceRef: envelope.SourceRef,
+		TriggerRef:     envelope.TriggerRef,
 		ArtifactName:   artifactName,
 		ArtifactDigest: envelope.ArtifactDigest, ManifestDigest: envelope.ManifestDigest,
 		SBOMDigest: digestBytes(contents[releaseSBOMName]), Reproducible: true, Files: files,

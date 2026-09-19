@@ -35,6 +35,9 @@
     "source_ref": {
       "$ref": "common.schema.json#/$defs/sourceRef"
     },
+    "trigger_ref": {
+      "$ref": "common.schema.json#/$defs/sourceRef"
+    },
     "executable_files": {
       "type": "integer",
       "minimum": 0

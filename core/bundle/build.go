@@ -122,15 +122,24 @@ func Build(
 	if err != nil {
 		return Candidate{}, []domain.Finding{bundleFinding("GDS_BUNDLE_ARCHIVE_FAILED", err)}
 	}
+	// The attestation binds the ref the release run was triggered on, not the
+	// release boundary tag the build checked out. When the resolve step creates
+	// the tag inside the same run those differ, and the identity digest must
+	// cover the ref the signer will actually record.
+	attestationRef := options.SourceRef
+	if options.TriggerRef != "" {
+		attestationRef = options.TriggerRef
+	}
 	identityDigest := digestJSON(map[string]any{
 		"owner": trust.Source.Owner, "repository": trust.Source.Repository,
-		"workflow": options.Workflow, "ref": options.SourceRef,
+		"workflow": options.Workflow, "ref": attestationRef,
 		"source_commit": options.SourceCommit,
 	})
 	envelope := ReleaseEnvelope{
 		SchemaVersion: domain.SchemaVersion, BundleVersion: options.BundleVersion,
 		ReleaseSequence: options.ReleaseSequence,
 		SourceCommit:    options.SourceCommit, SourceRef: options.SourceRef,
+		TriggerRef:      options.TriggerRef,
 		ExecutableFiles: executableFiles,
 		ManifestDigest:  digest(manifestBytes), ArtifactDigest: digest(artifact),
 		ExpectedAttestationIdentityDigest: identityDigest,
@@ -325,7 +334,8 @@ func writeArchive(files []sourceFile, manifest []byte) ([]byte, error) {
 func validateBuildOptions(options BuildOptions, trust TrustPolicy) *domain.Finding {
 	if options.ReleaseSequence < trust.Release.MinimumReleaseSequence ||
 		!contains(trust.Source.AllowedWorkflows, options.Workflow) ||
-		!allowedRef(trust.Source.AllowedRefs, options.SourceRef) {
+		!allowedRef(trust.Source.AllowedRefs, options.SourceRef) ||
+		(options.TriggerRef != "" && !allowedRef(trust.Source.AllowedRefs, options.TriggerRef)) {
 		finding := bundleFinding(
 			"GDS_BUNDLE_BUILD_POLICY_BLOCKED",
 			fmt.Errorf("release sequence, workflow, or ref is outside trust policy"),

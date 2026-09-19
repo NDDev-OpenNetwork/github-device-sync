@@ -110,10 +110,17 @@ func (verifier Verifier) Verify(
 			"GDS_RELEASE_TRUSTED_ROOT_NOT_PROVEN", "Offline trusted root does not match the independent local trust policy.",
 		)}
 	}
+	// The attestation binds the ref the release run was triggered on; when the
+	// release tag is created inside that same run the envelope records it
+	// separately and it is the ref the verifier must demand.
+	attestationRef := directory.SourceRef
+	if directory.TriggerRef != "" {
+		attestationRef = directory.TriggerRef
+	}
 	evidence, err := verifier.Attestations.Verify(ctx, AttestationRequest{
 		ReleaseDirectory: request.ReleaseDirectory, EvidenceDirectory: request.EvidenceDirectory,
 		ArtifactName: directory.ArtifactName, ArtifactDigest: directory.ArtifactDigest,
-		SourceCommit: directory.SourceCommit, SourceRef: directory.SourceRef,
+		SourceCommit: directory.SourceCommit, SourceRef: attestationRef,
 		SourceOwner: trust.Source.Owner, SourceRepository: trust.Source.Repository,
 		Workflow: trust.Source.AllowedWorkflows[0],
 	})

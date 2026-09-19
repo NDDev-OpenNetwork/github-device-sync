@@ -84,12 +84,16 @@ type SupplyChain struct {
 }
 
 type ReleaseEnvelope struct {
-	SchemaVersion                     int    `json:"schema_version"`
-	BundleVersion                     string `json:"bundle_version"`
-	ReleaseSequence                   int    `json:"release_sequence"`
-	Channel                           string `json:"channel,omitempty"`
-	SourceCommit                      string `json:"source_commit"`
-	SourceRef                         string `json:"source_ref"`
+	SchemaVersion   int    `json:"schema_version"`
+	BundleVersion   string `json:"bundle_version"`
+	ReleaseSequence int    `json:"release_sequence"`
+	Channel         string `json:"channel,omitempty"`
+	SourceCommit    string `json:"source_commit"`
+	SourceRef       string `json:"source_ref"`
+	// TriggerRef records the ref the release run was triggered on, which is
+	// the ref the provenance attestation cryptographically binds. It differs
+	// from SourceRef whenever the release tag is created inside the same run.
+	TriggerRef                        string `json:"trigger_ref,omitempty"`
 	ExecutableFiles                   int    `json:"executable_files"`
 	ManifestDigest                    string `json:"manifest_digest"`
 	ArtifactDigest                    string `json:"artifact_digest"`
@@ -103,6 +107,7 @@ type BuildOptions struct {
 	MinimumCLIVersion string
 	Workflow          string
 	SourceRef         string
+	TriggerRef        string
 	TrackedSources    []string
 	AdditionalFiles   []AdditionalFile
 }

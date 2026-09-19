@@ -28,10 +28,17 @@ func Verify(
 			"GDS_BUNDLE_ATTESTATION_INVALID", "Artifact provenance or digest was not verified.",
 		))
 	}
+	// The attestation binds the ref the run was triggered on; when the release
+	// tag is created inside that same run, TriggerRef is the only ref the
+	// signer could have recorded.
+	expectedRef := envelope.SourceRef
+	if envelope.TriggerRef != "" {
+		expectedRef = envelope.TriggerRef
+	}
 	if evidence.SourceOwner != trust.Source.Owner ||
 		evidence.SourceRepository != trust.Source.Repository ||
 		!contains(trust.Source.AllowedWorkflows, evidence.Workflow) ||
-		!allowedRef(trust.Source.AllowedRefs, evidence.SourceRef) || evidence.SourceRef != envelope.SourceRef ||
+		!allowedRef(trust.Source.AllowedRefs, evidence.SourceRef) || evidence.SourceRef != expectedRef ||
 		evidence.SourceCommit != envelope.SourceCommit {
 		findings = append(findings, verificationFinding(
 			"GDS_BUNDLE_ATTESTATION_IDENTITY_MISMATCH",

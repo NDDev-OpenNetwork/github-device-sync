@@ -176,6 +176,7 @@ jobs:
             --sequence "$RELEASE_SEQUENCE" \
             --minimum-cli-version "$MINIMUM_CLI_VERSION" \
             --source-ref "refs/tags/$RELEASE_TAG" \
+            --trigger-ref "$GITHUB_REF" \
             --go-binary "$GO_BINARY" \
             > "$RUNNER_TEMP/gds-release-result.json"
           go run ./core/cmd/gds-release-builder \
@@ -395,10 +396,11 @@ jobs:
             --arg version "$RELEASE_VERSION" \
             --argjson sequence "$RELEASE_SEQUENCE" \
             --arg commit "$GITHUB_SHA" \
-            --arg ref "$GITHUB_REF" \
+            --arg ref "refs/tags/$RELEASE_TAG" \
+            --arg trigger "$GITHUB_REF" \
             --argjson run_id "$GITHUB_RUN_ID" \
             --slurpfile failed "$failed_jobs" \
-            '{schema_version:1,status:"failed",bundle_version:$version,release_sequence:$sequence,source_commit:$commit,source_ref:$ref,workflow_run_id:$run_id,failed_jobs:$failed[0],superseded_by:null}' \
+            '{schema_version:1,status:"failed",bundle_version:$version,release_sequence:$sequence,source_commit:$commit,source_ref:$ref,trigger_ref:$trigger,workflow_run_id:$run_id,failed_jobs:$failed[0],superseded_by:null}' \
             > "$envelope"
           if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$RELEASE_TAG" "$envelope" --repo "$GITHUB_REPOSITORY"

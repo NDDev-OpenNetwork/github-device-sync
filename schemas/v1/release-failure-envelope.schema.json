@@ -23,6 +23,7 @@
     "channel": {"enum": ["canary", "stable", "frozen"]},
     "source_commit": {"$ref": "common.schema.json#/$defs/sourceCommit"},
     "source_ref": {"$ref": "common.schema.json#/$defs/sourceRef"},
+    "trigger_ref": {"$ref": "common.schema.json#/$defs/sourceRef"},
     "workflow_run_id": {"type": "integer", "minimum": 1},
     "failed_jobs": {
       "type": "array",
