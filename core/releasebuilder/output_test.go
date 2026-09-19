@@ -148,23 +148,21 @@ func TestRemoveReleaseOutputIfSameRefusesForeignDirectory(t *testing.T) {
 }
 
 func TestValidateReleaseRef(t *testing.T) {
-	accepted := []struct{ ref, version, channel string }{
-		{"refs/heads/main", "1.2.3-canary.1", "canary"},
-		{"refs/tags/gds-v1.2.3", "1.2.3", "stable"},
-		{"refs/tags/gds-v1.2.3", "1.2.3", "frozen"},
+	accepted := []struct{ ref, version string }{
+		{"refs/tags/gds-v1.2.3", "1.2.3"},
 	}
 	for _, value := range accepted {
-		if err := validateReleaseRef(value.ref, value.version, value.channel); err != nil {
+		if err := validateReleaseRef(value.ref, value.version); err != nil {
 			t.Fatalf("accepted ref rejected: %+v: %v", value, err)
 		}
 	}
-	rejected := []struct{ ref, version, channel string }{
-		{"refs/heads/main", "1.2.3", "stable"},
-		{"refs/heads/feature", "1.2.3-canary.1", "canary"},
-		{"refs/tags/gds-v1.2.2", "1.2.3", "stable"},
+	rejected := []struct{ ref, version string }{
+		{"refs/heads/main", "1.2.3"},
+		{"refs/heads/feature", "1.2.3-canary.1"},
+		{"refs/tags/gds-v1.2.2", "1.2.3"},
 	}
 	for _, value := range rejected {
-		if err := validateReleaseRef(value.ref, value.version, value.channel); err == nil {
+		if err := validateReleaseRef(value.ref, value.version); err == nil {
 			t.Fatalf("unsafe ref accepted: %+v", value)
 		}
 	}
@@ -272,13 +270,12 @@ verification:
 			},
 		},
 	}
-	request := Request{Version: "1.2.3", ReleaseSequence: 7, Channel: "canary", MinimumCLIVersion: "1.2.3"}
+	request := Request{Version: "1.2.3", ReleaseSequence: 7, MinimumCLIVersion: "1.2.3"}
 	candidate, findings := bundle.Build(root, bundle.BuildOptions{
-		BundleVersion: "1.2.3", ReleaseSequence: 7, Channel: "canary",
+		BundleVersion: "1.2.3", ReleaseSequence: 7,
 		SourceCommit: source.Commit, MinimumCLIVersion: "1.2.3",
 		Workflow: trust.Source.AllowedWorkflows[0], SourceRef: source.Ref,
-		TrackedSources:             tracked,
-		HarnessEvidenceProvisional: true,
+		TrackedSources: tracked,
 		AdditionalFiles: []bundle.AdditionalFile{
 			{Path: "bin/linux/amd64/gds", Content: binary, Mode: "0755"},
 			{Path: "sbom/gds.spdx.json", Content: sbom, Mode: "0644"},

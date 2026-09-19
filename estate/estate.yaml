@@ -10,7 +10,6 @@ schema_version: 1
 estate:
   id: "estate_01JEXAMPZ00000000000000000"
   name: "example-estate"
-  default_bundle_channel: "stable"
 
 installations:
   - "installation:github-personal"

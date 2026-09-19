@@ -19,7 +19,7 @@
     "bundle": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["version", "release_sequence", "channel", "artifact_digest", "manifest_digest"],
+      "required": ["version", "release_sequence", "artifact_digest", "manifest_digest"],
       "properties": {
         "version": {
           "$ref": "common.schema.json#/$defs/semanticVersion"

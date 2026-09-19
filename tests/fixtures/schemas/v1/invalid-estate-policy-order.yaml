@@ -2,7 +2,6 @@ schema_version: 1
 estate:
   id: "estate_01KX7BV07RHD6KRA4Z4J0KCHGS"
   name: "example-estate"
-  default_bundle_channel: "stable"
 installations: ["installation:github-personal"]
 mutation_capabilities: ["mutation:github-personal"]
 policy_order:

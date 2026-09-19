@@ -18,7 +18,7 @@ func Verify(
 	now time.Time,
 ) (VerificationResult, []domain.Finding) {
 	findings := []domain.Finding{}
-	if !contains(trust.Release.AllowedChannels, envelope.Channel) {
+	if envelope.Channel != "" && !contains(trust.Release.AllowedChannels, envelope.Channel) {
 		findings = append(findings, verificationFinding(
 			"GDS_BUNDLE_CHANNEL_BLOCKED", "Bundle channel is outside the consumer trust policy.",
 		))

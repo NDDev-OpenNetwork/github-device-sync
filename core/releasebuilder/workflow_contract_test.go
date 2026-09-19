@@ -93,11 +93,10 @@ func TestHostedReleaseWorkflowUsesOutputOutsideSourceRoot(t *testing.T) {
 		`> "$RELEASE_OUTPUT_ROOT/attestation-subjects.sha256"`,
 		`path: ${{ runner.temp }}/gds-release-output`,
 		`${{ runner.temp }}/gds-release-output/release-evidence`,
-		`HARNESS_EVIDENCE_TRUST_POLICY_DIGEST: ${{ vars.HARNESS_EVIDENCE_TRUST_POLICY_DIGEST }}`,
-		`stable/frozen requires signed active-seven harness evidence`,
-		`--harness-evidence-directory $EVIDENCE_INPUT_ROOT/records`,
-		`RELEASE_SEQUENCE: ${{ inputs.release_sequence }}`,
-		`canary) release_flags=(--prerelease) ;;`,
+		`RELEASE_SEQUENCE: ${{ needs.resolve.outputs.sequence }}`,
+		`--source-ref "refs/tags/$RELEASE_TAG"`,
+		`ref: ${{ needs.resolve.outputs.tag }}`,
+		`--latest`,
 		`name: Record failed release evidence`,
 		`release-failure-envelope.json`,
 		`superseded_by:null`,
@@ -106,8 +105,19 @@ func TestHostedReleaseWorkflowUsesOutputOutsideSourceRoot(t *testing.T) {
 			t.Fatalf("hosted workflow is missing output contract %q", required)
 		}
 	}
-	if strings.Contains(content, "RELEASE_SEQUENCE: ${{ github.run_number }}") {
-		t.Fatal("release sequence regressed to repository-local workflow run numbering")
+	for _, forbidden := range []string{
+		`inputs.channel`,
+		`CHANNEL`,
+		`harness_evidence`,
+		`HARNESS_EVIDENCE`,
+		`--channel`,
+		`--prerelease`,
+		"RELEASE_SEQUENCE: ${{ github.run_number }}",
+		"RELEASE_SEQUENCE: ${{ inputs.release_sequence }}",
+	} {
+		if strings.Contains(content, forbidden) {
+			t.Fatalf("hosted workflow still carries retired release input %q", forbidden)
+		}
 	}
 	if strings.Contains(content, `$GITHUB_WORKSPACE/$RELEASE_DIRECTORY`) {
 		t.Fatal("hosted workflow still writes release output beneath the source root")
@@ -120,7 +130,7 @@ func TestHostedReleaseWorkflowUsesOutputOutsideSourceRoot(t *testing.T) {
 	outputParent := t.TempDir()
 	_, output, err := validateRequest(Request{
 		Root: repositoryRoot, OutputDirectory: filepath.Join(outputParent, "release"),
-		Version: "1.2.3", ReleaseSequence: 1, Channel: "canary", MinimumCLIVersion: "1.0.0",
+		Version: "1.2.3", ReleaseSequence: 1, MinimumCLIVersion: "1.0.0",
 	})
 	if err != nil {
 		t.Fatalf("workflow-equivalent output rejected by builder: %v", err)

@@ -21,16 +21,13 @@
     "estate": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "name", "default_bundle_channel"],
+      "required": ["id", "name"],
       "properties": {
         "id": {
           "$ref": "common.schema.json#/$defs/estateId"
         },
         "name": {
           "$ref": "common.schema.json#/$defs/kebabId"
-        },
-        "default_bundle_channel": {
-          "enum": ["canary", "stable", "frozen"]
         }
       }
     },

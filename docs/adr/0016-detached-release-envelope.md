@@ -2,6 +2,8 @@
 
 Status: Accepted
 
+Superseded in part by: ADR 0038 (the envelope's `channel` binding only)
+
 Date: 2026-07-11
 
 ## Context

@@ -8,7 +8,6 @@
     "schema_version",
     "bundle_version",
     "release_sequence",
-    "channel",
     "source_commit",
     "source_ref",
     "minimum_cli_version",
@@ -16,7 +15,6 @@
     "policy_digest",
     "skill_set_digest",
     "harness_profiles_digest",
-    "harness_evidence_provisional",
     "files",
     "supply_chain"
   ],
@@ -32,7 +30,8 @@
       "minimum": 1
     },
     "channel": {
-      "enum": ["canary", "stable", "frozen"]
+      "enum": ["canary", "stable", "frozen"],
+      "deprecated": true
     },
     "source_commit": {
       "$ref": "common.schema.json#/$defs/sourceCommit"
@@ -98,16 +97,5 @@
         }
       }
     }
-  },
-  "allOf": [{
-    "if": {"properties": {"channel": {"enum": ["stable", "frozen"]}}},
-    "then": {
-      "required": ["harness_evidence_manifest_digest"],
-      "properties": {"harness_evidence_provisional": {"const": false}}
-    },
-    "else": {
-      "if": {"properties": {"harness_evidence_provisional": {"const": false}}},
-      "then": {"required": ["harness_evidence_manifest_digest"]}
-    }
-  }]
+  }
 }

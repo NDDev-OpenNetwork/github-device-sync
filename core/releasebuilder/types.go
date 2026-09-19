@@ -17,17 +17,13 @@ func defaultTargets() []Target {
 }
 
 type Request struct {
-	Root                          string
-	OutputDirectory               string
-	Version                       string
-	ReleaseSequence               int
-	Channel                       string
-	MinimumCLIVersion             string
-	SourceRef                     string
-	GoBinary                      string
-	HarnessEvidenceManifestDigest string
-	HarnessEvidenceDirectory      string
-	HarnessEvidenceTrustPolicy    string
+	Root              string
+	OutputDirectory   string
+	Version           string
+	ReleaseSequence   int
+	MinimumCLIVersion string
+	SourceRef         string
+	GoBinary          string
 }
 
 type Source struct {
@@ -46,7 +42,6 @@ type Result struct {
 	SchemaVersion   int          `json:"schema_version"`
 	Version         string       `json:"version"`
 	ReleaseSequence int          `json:"release_sequence"`
-	Channel         string       `json:"channel"`
 	Source          Source       `json:"source"`
 	GoVersion       string       `json:"go_version"`
 	GitVersion      string       `json:"git_version"`
@@ -65,7 +60,6 @@ type DirectoryVerification struct {
 	Status          string       `json:"status"`
 	Version         string       `json:"version"`
 	ReleaseSequence int          `json:"release_sequence"`
-	Channel         string       `json:"channel"`
 	SourceCommit    string       `json:"source_commit"`
 	SourceRef       string       `json:"source_ref"`
 	ArtifactName    string       `json:"artifact_name"`

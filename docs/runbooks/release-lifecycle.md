@@ -24,23 +24,21 @@ out-of-band source.
 
 ## Hosted workflow preconditions
 
-Do not dispatch `.github/workflows/release-bundle.yml` until both conditions are
-proven:
+`.github/workflows/release-bundle.yml` runs automatically on every push to
+`main`. Before relying on it, prove:
 
 - `scripts/validate_release.sh` passes;
-- `stable` and `frozen` receive an isolated signed evidence archive for exactly
-  `antigravity-cli`, `claude-code`, `codex`, `cursor-cli`, `grok-build`,
-  `opencode`, and `pi`, plus its public
-  trust policy;
-- repository variable `HARNESS_EVIDENCE_TRUST_POLICY_DIGEST` pins the exact
-  `sha256:` digest of that independently distributed public trust policy;
 - the repository visibility and active GitHub plan support artifact
   attestations.
 
-The dispatch must provide an explicit `release_sequence` greater than every
-sequence already accepted in the consumer ledger. Repository transfer or
-republication never resets that ledger, and `github.run_number` is local to one
-workflow lineage, so it is not a release sequence.
+The privileged resolve job reads the latest published `release-envelope.json`
+through the GitHub API — never by checking out candidate source — derives the
+next patch version and the next monotonic release sequence, refuses
+non-monotonic or already-tagged identities, and creates the exact
+`refs/tags/gds-v<version>` ref. The unprivileged build job then checks out
+that tag, so the built identity is the tagged identity. The sequence ledger is
+never reset by a repository transfer or republication, and `github.run_number`
+is local to one workflow lineage, so it is not a release sequence.
 
 The whole release chain runs on GitHub-hosted runners. The unprivileged build
 job executes the exact source and release gates with `contents: read`; a
@@ -55,26 +53,25 @@ attestations for public repositories; private/internal attestations require
 GitHub Enterprise Cloud. A permission such as `id-token: write` does not establish
 plan eligibility. See [GitHub artifact attestation availability](https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations).
 
-Canary may omit active-seven evidence only as explicitly provisional and cannot
-auto-promote. Stable/frozen require an exact version tag and verify the aggregate
-signature, every isolated record, anchored module/root identity, GDS profile and
-bridge digests, freshness (maximum 72 hours), and the complete active set. This
-gate is enforced independently of individual `runtime_tests.required` profile
-settings. Only signed records and public trust material enter workflow inputs;
-private signing keys never do.
+Every release builds from its exact `refs/tags/gds-v<version>` tag. Harness
+evidence — the signed active-seven record set with aggregate signature,
+anchored module/root identity, profile and bridge digests, and bounded
+freshness — is a separately produced estate and runtime signal. It gates
+adoption decisions, not publication: it never enters release workflow inputs,
+and private signing keys never leave their approved stores.
 
-The evidence producer is independently managed. Its deterministic flat archive
-is encoded in `harness_evidence_bundle_base64`; the independently distributed
-public policy is encoded in `harness_evidence_trust_policy_base64`. The policy
-identity needs both `harness-evidence` and `harness-evidence-aggregate` roles.
-Before dispatch, decode both into a temporary directory and exercise the local
-`gds-release-builder` against the exact target source/tag and evidence. Producer
-self-consistency is not a substitute for compatibility with the GDS verifier.
+The evidence producer is independently managed and its output is consumed by
+estate adoption flows, not by the release workflow. Its deterministic flat
+archive and its independently distributed public trust policy are produced and
+signed outside CI; the policy identity needs both `harness-evidence` and
+`harness-evidence-aggregate` roles. Producer self-consistency is not a
+substitute for compatibility with the GDS verifier — exercise the consumer
+verification path against the produced archive before relying on it.
 
 Published releases and past workflow runs are historical evidence. They do not
-prove that a new source commit, sequence, channel or active-seven record set is
-eligible, and do not authorize a later publication. Bind publication approval to
-the concrete release identity through checkpoint `A5`.
+prove that a new source commit, sequence or active-seven record set is
+eligible, and do not authorize a later publication. Bind publication approval
+to the concrete release identity through checkpoint `A5`.
 
 ## Read-only verification
 

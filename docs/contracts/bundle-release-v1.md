@@ -27,9 +27,8 @@ markers, and unexpected executable content fail closed.
 `gds-release-builder` requires a fully tracked clean Git worktree, exact source
 ref resolving to `HEAD`, Go `1.27.1`, read-only modules, CGO disabled, portable
 CPU baselines, and an isolated build environment without ambient credentials or
-Git configuration. Stable and frozen channels require
-`refs/tags/gds-v<version>`; canary accepts only `refs/heads/main` or that exact
-tag.
+Git configuration. Every release requires the exact `refs/tags/gds-v<version>`
+source ref; the release workflow creates that tag before the build runs.
 
 The Darwin binaries require macOS 13 or later, matching Go 1.27's supported
 platform baseline. Linux and Darwin each retain amd64 and arm64 targets.
@@ -71,8 +70,8 @@ bundle-trust.yaml
 SHA256SUMS
 ```
 
-Identical source, version, sequence, channel, toolchain, and ref produce
-byte-identical output. Tracked outputs contain no wall-clock timestamp.
+Identical source, version, sequence, toolchain, and ref produce byte-identical
+output. Tracked outputs contain no wall-clock timestamp.
 
 Publication of that directory is atomic and identity-checked. Staged files are
 renamed onto the destination, and any failure after that commit point rolls the
@@ -100,7 +99,7 @@ from full portable-bundle completeness.
 ## Detached identity
 
 ADR 0016 defines the non-self-referential layers. The detached envelope binds
-artifact digest, manifest digest, version, monotonic sequence, channel, source
+artifact digest, manifest digest, version, monotonic sequence, source
 commit, exact source ref, executable count, and expected attestation identity.
 The six-file directory verifier rejects any missing, extra, symlinked, renamed,
 oversized, or digest-mismatched member.
@@ -111,7 +110,7 @@ The independent local `bundle-trust.yaml` binds:
 
 - source owner and repository;
 - one exact workflow and allowed refs;
-- channels and minimum release sequence;
+- minimum release sequence;
 - mandatory provenance and executable SBOM attestations;
 - mandatory offline evidence;
 - the exact SHA-256 digest of `trusted-root.jsonl`;
@@ -268,7 +267,7 @@ result JSON belongs to neither verifier input directory.
 
 A tag-triggered build, attestation, or publication failure is retained as a
 GitHub prerelease with `release-failure-envelope.json`. The schema binds the
-attempted version, monotonic sequence, channel, source commit/ref, workflow run,
+attempted version, monotonic sequence, source commit/ref, workflow run,
 failed job names, and an initially null `superseded_by`. A later accepted
 release may name the failed tag as superseded; failed tags are never rewritten
 or silently deleted.

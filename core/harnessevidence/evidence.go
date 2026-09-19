@@ -76,14 +76,16 @@ type ManifestEntry struct {
 }
 
 type ManifestPayload struct {
-	SchemaVersion  int             `json:"schema_version"`
-	ManifestID     string          `json:"manifest_id"`
-	HarnessRootSHA string          `json:"harness_root_sha"`
-	Channel        string          `json:"channel"`
-	GeneratedAt    time.Time       `json:"generated_at"`
-	ExpiresAt      time.Time       `json:"expires_at"`
-	ActorID        string          `json:"actor_id"`
-	Evidence       []ManifestEntry `json:"evidence"`
+	SchemaVersion  int    `json:"schema_version"`
+	ManifestID     string `json:"manifest_id"`
+	HarnessRootSHA string `json:"harness_root_sha"`
+	// Channel is retained only so payloads signed while the field existed
+	// still re-digest to their recorded manifest digest. New manifests omit it.
+	Channel     string          `json:"channel,omitempty"`
+	GeneratedAt time.Time       `json:"generated_at"`
+	ExpiresAt   time.Time       `json:"expires_at"`
+	ActorID     string          `json:"actor_id"`
+	Evidence    []ManifestEntry `json:"evidence"`
 }
 
 type Manifest struct {
@@ -93,7 +95,6 @@ type Manifest struct {
 }
 
 type Expectation struct {
-	Channel            string
 	HarnessRootSHA     string
 	ModuleSHAs         map[string]string
 	ExecutableVersions map[string]string
@@ -103,14 +104,6 @@ type Expectation struct {
 }
 
 type Verifier struct{ Trust trust.Verifier }
-
-type GateResult struct {
-	Channel     string   `json:"channel"`
-	Status      string   `json:"status"`
-	Provisional bool     `json:"provisional"`
-	Missing     []string `json:"missing"`
-	AutoPromote bool     `json:"auto_promote"`
-}
 
 func (verifier Verifier) Verify(record Record, expected Expectation) error {
 	p := record.Payload
@@ -138,10 +131,9 @@ func (verifier Verifier) VerifyManifest(manifest Manifest, records []Record, exp
 	if err != nil || digest != manifest.ManifestDigest {
 		return errors.New("harness evidence manifest digest mismatch")
 	}
-	if p.SchemaVersion != 1 || p.HarnessRootSHA != expected.HarnessRootSHA || p.Channel != expected.Channel ||
+	if p.SchemaVersion != 1 || p.HarnessRootSHA != expected.HarnessRootSHA ||
 		p.GeneratedAt.After(expected.Now) || !expected.Now.Before(p.ExpiresAt) ||
-		!p.ExpiresAt.After(p.GeneratedAt) || p.ExpiresAt.Sub(p.GeneratedAt) > 72*time.Hour ||
-		(p.Channel != "canary" && p.Channel != "stable" && p.Channel != "frozen") {
+		!p.ExpiresAt.After(p.GeneratedAt) || p.ExpiresAt.Sub(p.GeneratedAt) > 72*time.Hour {
 		return errors.New("harness evidence manifest identity is invalid")
 	}
 	if err := verifier.Trust.Verify("gds-harness-runtime-manifest/v1", p.ActorID, "harness-evidence-aggregate", p.GeneratedAt, p, manifest.Signature); err != nil {
@@ -170,59 +162,4 @@ func (verifier Verifier) VerifyManifest(manifest Manifest, records []Record, exp
 		}
 	}
 	return nil
-}
-
-// EvaluateChannel applies release-channel semantics. Canary may carry an
-// explicitly provisional subset, but it can never auto-promote. Stable and
-// frozen require the exact signed active-seven closure.
-func (verifier Verifier) EvaluateChannel(manifest Manifest, records []Record, expected Expectation) (GateResult, error) {
-	if expected.Channel == "stable" || expected.Channel == "frozen" {
-		if err := verifier.VerifyManifest(manifest, records, expected); err != nil {
-			return GateResult{}, err
-		}
-		return GateResult{Channel: expected.Channel, Status: "pass"}, nil
-	}
-	if expected.Channel != "canary" || manifest.Payload.Channel != "canary" {
-		return GateResult{}, errors.New("release channel is invalid")
-	}
-	// Prove the aggregate identity even when its evidence list is incomplete.
-	p := manifest.Payload
-	digest, err := canonicaljson.Digest(p)
-	if err != nil || digest != manifest.ManifestDigest || p.HarnessRootSHA != expected.HarnessRootSHA ||
-		p.GeneratedAt.After(expected.Now) || !expected.Now.Before(p.ExpiresAt) ||
-		!p.ExpiresAt.After(p.GeneratedAt) || p.ExpiresAt.Sub(p.GeneratedAt) > 72*time.Hour {
-		return GateResult{}, errors.New("canary harness manifest identity is invalid")
-	}
-	if err := verifier.Trust.Verify("gds-harness-runtime-manifest/v1", p.ActorID, "harness-evidence-aggregate", p.GeneratedAt, p, manifest.Signature); err != nil {
-		return GateResult{}, err
-	}
-	byID := map[string]Record{}
-	for _, record := range records {
-		if _, duplicate := byID[record.Payload.HarnessID]; duplicate {
-			return GateResult{}, errors.New("canary repeats isolated harness evidence")
-		}
-		byID[record.Payload.HarnessID] = record
-	}
-	listed := map[string]string{}
-	for _, entry := range p.Evidence {
-		if !slices.Contains(ActiveHarnesses, entry.HarnessID) || listed[entry.HarnessID] != "" {
-			return GateResult{}, errors.New("canary manifest contains duplicate or non-active harness identity")
-		}
-		listed[entry.HarnessID] = entry.EvidenceDigest
-	}
-	missing := []string{}
-	for _, id := range ActiveHarnesses {
-		record, found := byID[id]
-		if !found || listed[id] == "" {
-			missing = append(missing, id)
-			continue
-		}
-		if listed[id] != record.EvidenceDigest {
-			return GateResult{}, fmt.Errorf("canary manifest digest differs for %s", id)
-		}
-		if err := verifier.Verify(record, expected); err != nil {
-			return GateResult{}, fmt.Errorf("verify canary %s evidence: %w", id, err)
-		}
-	}
-	return GateResult{Channel: "canary", Status: "provisional", Provisional: true, Missing: missing, AutoPromote: false}, nil
 }

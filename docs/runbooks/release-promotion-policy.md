@@ -17,38 +17,39 @@ or installed runtime.
 
 The public GDS engine selects `release.mode: bundle`. A release binds:
 
-- a clean exact source commit and permitted source ref;
-- SemVer, channel and a monotonic release sequence;
+- a clean exact source commit and the exact `refs/tags/gds-v<version>` ref;
+- SemVer and a monotonic release sequence;
 - the supported Go toolchain and pinned dependency inputs;
 - byte-identical builds and the exact six-file release directory;
 - artifact digests, SPDX SBOM and Sigstore provenance;
-- independently distributed consumer trust and offline verification material;
-- signed active-seven harness evidence when the channel requires it.
+- independently distributed consumer trust and offline verification material.
 
 The sequence must exceed the applicable consumer acceptance floor. A repository
 transfer, workflow run number, version label or fresh tag does not reset that
 floor. Conflicting published identities must not be overwritten.
 
-## Channel requirements
+## Release requirements
 
-| Channel | Source ref | Harness evidence | Meaning |
-| --- | --- | --- | --- |
-| canary | `refs/heads/main` or exact `refs/tags/gds-v<version>` | May be absent only as provisional | Candidate for bounded evaluation; no automatic promotion |
-| stable | Exact `refs/tags/gds-v<version>` | Signed complete active-seven set | Nonprovisional release; consumer acceptance is still separate |
-| frozen | Exact `refs/tags/gds-v<version>` | Signed complete active-seven set | Immutable identity retained under the consumer's rollback policy |
+There are no release channels (ADR 0038). Every published release has the same
+requirements:
 
-The builder verifies `antigravity-cli`, `claude-code`, `codex`, `cursor-cli`,
-`grok-build`, `opencode` and `pi`, including aggregate/record signatures, anchored
-producer/module identities, profile and bridge digests, and at most 72-hour
-freshness. Individual profile flags do not waive stable/frozen aggregate proof.
-`HARNESS_EVIDENCE_TRUST_POLICY_DIGEST` binds the workflow input to its independent
-public trust policy. See `core/releasebuilder/harness_evidence.go` and
-`core/harnessevidence` for the executable contract.
+| Requirement | Value |
+| --- | --- |
+| Source ref | Exact `refs/tags/gds-v<version>`, created by the resolve job before the build |
+| Sequence | Strictly greater than the latest published envelope |
+| Identity | Version, sequence, artifact and manifest digests, source commit and ref, attestation identity |
+
+Harness evidence is a separate estate and runtime signal, not a release input.
+The signed active-seven record set — `antigravity-cli`, `claude-code`, `codex`,
+`cursor-cli`, `grok-build`, `opencode` and `pi` with aggregate and record
+signatures, anchored producer/module identities, profile and bridge digests,
+and at most 72-hour freshness — is produced and verified by the adoption path
+(see `core/harnessevidence` and `core/app/module_release_evidence.go`), never
+by `gds-release-builder`.
 
 Publishing an immutable artifact does not install it. A consumer's rollout
-policy decides eligible channels/rings, canary and rollback evidence, and later
-promotion. It must not treat a provisional canary as a verified stable release
-or mutate a published artifact to change its channel.
+policy decides rings, canary cohorts and rollback evidence, and later
+promotion. A published artifact is final: nothing mutates it after release.
 
 ## Publication and installation
 
@@ -58,9 +59,8 @@ Use the existing owner authorization and signed operation contract; a previous
 release or this runbook does not independently authorize a new provider write.
 
 Before publication, require `scripts/validate_release.sh`, the builder's
-independent rebuild and directory verification, and the target channel's signed
-evidence. Build, attest and publish run on GitHub-hosted runners with separate
-permissions. The repository is public; do not infer private attestation support
+independent rebuild and directory verification. Build, attest and publish run
+on GitHub-hosted runners with separate permissions. The repository is public; do not infer private attestation support
 from OIDC permissions alone. [GitHub documents the availability boundary](https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations).
 
 Before installation, `gds release verify` must succeed against independent local

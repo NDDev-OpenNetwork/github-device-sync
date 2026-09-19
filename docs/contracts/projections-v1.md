@@ -67,9 +67,9 @@ pull-request merge result. A positive fixed depth is not an accepted substitute:
 the number of source-equivalent commits between the merge and the lock author is
 unbounded.
 
-Development locks use channel `development` and sequence `0`. Canary, stable,
-or frozen locks require a positive sequence and attestation identity digest.
-The development lock is test evidence, not a released immutable bundle.
+Development locks use sequence `0`. A released lock requires a positive
+sequence and attestation identity digest. The development lock is test
+evidence, not a released immutable bundle.
 
 Standalone public modules consume released policy without copying its source
 tree into every repository:
@@ -85,7 +85,7 @@ Both inputs are required together. GDS verifies the complete archive against
 the detached envelope and embedded schemas, materializes only policy, schema,
 template and public exception inputs in an owned temporary directory, and
 requires the executing binary's embedded templates to match the release. The
-resulting lock records release version, sequence, channel, artifact digest,
+resulting lock records release version, sequence, artifact digest,
 content-set digest and attestation identity. Plan/apply/verify require the same
 two immutable input paths so precondition re-observation cannot change source.
 Private targets cannot use this standalone boundary.

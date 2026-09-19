@@ -51,9 +51,8 @@ type MutationGates struct {
 }
 
 type Estate struct {
-	ID                   string `json:"id"`
-	Name                 string `json:"name"`
-	DefaultBundleChannel string `json:"default_bundle_channel"`
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 type Rollout struct {

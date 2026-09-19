@@ -5,6 +5,29 @@ Versioning.
 
 ## [Unreleased]
 
+- Remove release channels from the release pipeline (ADR 0038). Bundle
+  manifests, release envelopes, locks, rollout documents and trust policy no
+  longer carry or require `channel`; the fields remain optional for decoding
+  documents produced while the field existed, and a legacy channel is still
+  checked against a consumer policy that lists it.
+- Classify bundles by `release_sequence` alone: `0` is a development
+  projection, `>= 1` is a release. Development locks no longer record a
+  `development` channel.
+- Require every release build to come from the exact
+  `refs/tags/gds-v<version>` ref. The release workflow now runs on pushes to
+  `main`: a privileged resolve job derives the next patch version and
+  monotonic sequence from the latest published envelope over the GitHub API
+  without checking out candidate source, creates the tag, and hands the exact
+  identity to the unprivileged build job.
+- Drop harness evidence from the release builder's inputs and from
+  `bundle.Build` gating. Harness evidence stays a separately produced and
+  verified estate/runtime signal in `core/harnessevidence` and the module
+  release evidence path; it no longer decides whether an artifact may be
+  published.
+- Remove `default_bundle_channel` from the estate schema and the example
+  estate, and remove the `--channel` flag and evidence inputs from
+  `gds-release-builder` and the release-candidate command.
+
 ## [0.9.7] - 2026-09-19
 
 - Skip hidden directories during workspace discovery so tool-state and

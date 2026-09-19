@@ -233,10 +233,10 @@ func TestGenerateRepositoryConsumesVerifiedReleasedBundle(t *testing.T) {
 		t.Fatal(err)
 	}
 	candidate, findings := bundle.Build(source, bundle.BuildOptions{
-		BundleVersion: "9.0.0", ReleaseSequence: 900, Channel: "canary",
+		BundleVersion: "9.0.0", ReleaseSequence: 900,
 		SourceCommit: sourceCommit, MinimumCLIVersion: "9.0.0",
 		Workflow: ".github/workflows/release-bundle.yml", SourceRef: "refs/heads/main",
-		TrackedSources: tracked, HarnessEvidenceProvisional: true,
+		TrackedSources: tracked,
 	}, bundle.TrustPolicy{
 		SchemaVersion: 1, TrustDomain: "gds-release",
 		Source: bundle.TrustSource{Owner: "NDDev-OpenNetwork", Repository: "github-device-sync",
@@ -282,7 +282,7 @@ func TestGenerateRepositoryConsumesVerifiedReleasedBundle(t *testing.T) {
 	data := result.Data.(map[string]any)
 	released := data["bundle"].(map[string]any)
 	if released["version"] != "9.0.0" || released["release_sequence"] != float64(900) ||
-		released["channel"] != "canary" || released["digest"] != candidate.Envelope.ArtifactDigest {
+		released["channel"] != nil || released["digest"] != candidate.Envelope.ArtifactDigest {
 		t.Fatalf("released bundle identity = %#v", released)
 	}
 }

@@ -8,6 +8,7 @@ clause stops being normative.
 
 | ADR | Title | Status | Supersedes | Superseded by |
 |---|---|---|---|---|
+| [0038](0038-release-identity-carries-no-channel.md) | Release identity carries no channel | Accepted | ADR 0016 | — |
 | [0037](0037-seven-harnesses-one-per-setup-system.md) | Seven harnesses, one per setup system | Accepted | ADR 0011 | — |
 | [0036](0036-harness-identity-follows-the-consumer.md) | Harness identity follows the consumer contract | Accepted | — | — |
 | [0035](0035-agent-first-explicit-control-plane.md) | Agent-first explicit control plane and evidence-bound mutation | Accepted | — | — |
@@ -27,7 +28,7 @@ clause stops being normative.
 | [0020](0020-single-controller-runtime-and-retention.md) | Single-controller runtime, loopback ingress, and retention | Accepted | — | — |
 | [0019](0019-portable-secret-references-and-device-runtime.md) | Portable secret references and device-local GitHub runtime | Accepted | — | — |
 | [0018](0018-device-workspaces-and-metadata-repository-retirement.md) | Use device workspaces instead of metadata repositories | Accepted | — | ADR 0027, ADR 0032 (in part) |
-| [0016](0016-detached-release-envelope.md) | Bind release artifacts with a detached envelope | Accepted | — | — |
+| [0016](0016-detached-release-envelope.md) | Bind release artifacts with a detached envelope | Accepted | — | ADR 0038 (in part) |
 | [0015](0015-projection-digest-layers.md) | Separate projection body, file, and aggregate digests | Accepted | — | — |
 | [0014](0014-go-production-core.md) | Implement the production GDS core in Go | Accepted | — | — |
 | [0013](0013-canary-and-wave-rollouts.md) | Roll out immutable changes through canaries and waves | Accepted | — | — |

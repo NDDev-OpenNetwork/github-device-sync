@@ -100,17 +100,15 @@ func Build(
 	}
 	manifest := Manifest{
 		SchemaVersion: domain.SchemaVersion, BundleVersion: options.BundleVersion,
-		ReleaseSequence: options.ReleaseSequence, Channel: options.Channel,
-		SourceCommit: options.SourceCommit, SourceRef: options.SourceRef,
-		MinimumCLIVersion:             options.MinimumCLIVersion,
-		ContentSetDigest:              digestJSON(records),
-		PolicyDigest:                  subsetDigest(records, "policies/"),
-		SkillSetDigest:                subsetDigest(records, "skills/"),
-		HarnessProfilesDigest:         subsetDigest(records, "harnesses/"),
-		HarnessEvidenceManifestDigest: options.HarnessEvidenceManifestDigest,
-		HarnessEvidenceProvisional:    options.HarnessEvidenceProvisional,
-		Files:                         records,
-		SupplyChain:                   SupplyChain{AttestationRequired: true, SBOMRequiredForExecutables: true},
+		ReleaseSequence: options.ReleaseSequence,
+		SourceCommit:    options.SourceCommit, SourceRef: options.SourceRef,
+		MinimumCLIVersion:     options.MinimumCLIVersion,
+		ContentSetDigest:      digestJSON(records),
+		PolicyDigest:          subsetDigest(records, "policies/"),
+		SkillSetDigest:        subsetDigest(records, "skills/"),
+		HarnessProfilesDigest: subsetDigest(records, "harnesses/"),
+		Files:                 records,
+		SupplyChain:           SupplyChain{AttestationRequired: true, SBOMRequiredForExecutables: true},
 	}
 	manifestBytes, err := json.MarshalIndent(manifest, "", "  ")
 	if err != nil {
@@ -131,8 +129,8 @@ func Build(
 	})
 	envelope := ReleaseEnvelope{
 		SchemaVersion: domain.SchemaVersion, BundleVersion: options.BundleVersion,
-		ReleaseSequence: options.ReleaseSequence, Channel: options.Channel,
-		SourceCommit: options.SourceCommit, SourceRef: options.SourceRef,
+		ReleaseSequence: options.ReleaseSequence,
+		SourceCommit:    options.SourceCommit, SourceRef: options.SourceRef,
 		ExecutableFiles: executableFiles,
 		ManifestDigest:  digest(manifestBytes), ArtifactDigest: digest(artifact),
 		ExpectedAttestationIdentityDigest: identityDigest,
@@ -326,22 +324,12 @@ func writeArchive(files []sourceFile, manifest []byte) ([]byte, error) {
 
 func validateBuildOptions(options BuildOptions, trust TrustPolicy) *domain.Finding {
 	if options.ReleaseSequence < trust.Release.MinimumReleaseSequence ||
-		!contains(trust.Release.AllowedChannels, options.Channel) ||
 		!contains(trust.Source.AllowedWorkflows, options.Workflow) ||
 		!allowedRef(trust.Source.AllowedRefs, options.SourceRef) {
 		finding := bundleFinding(
 			"GDS_BUNDLE_BUILD_POLICY_BLOCKED",
-			fmt.Errorf("release sequence, channel, workflow, or ref is outside trust policy"),
+			fmt.Errorf("release sequence, workflow, or ref is outside trust policy"),
 		)
-		return &finding
-	}
-	if (options.Channel == "stable" || options.Channel == "frozen") &&
-		(options.HarnessEvidenceManifestDigest == "" || options.HarnessEvidenceProvisional) {
-		finding := bundleFinding("GDS_HARNESS_EVIDENCE_REQUIRED", fmt.Errorf("stable and frozen releases require exact non-provisional harness evidence"))
-		return &finding
-	}
-	if options.Channel == "canary" && !options.HarnessEvidenceProvisional && options.HarnessEvidenceManifestDigest == "" {
-		finding := bundleFinding("GDS_HARNESS_EVIDENCE_IDENTITY_MISSING", fmt.Errorf("non-provisional canary requires a bound harness evidence manifest"))
 		return &finding
 	}
 	return nil

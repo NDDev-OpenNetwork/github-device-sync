@@ -347,11 +347,10 @@ func testTrust() TrustPolicy {
 
 func testBuildOptions(root string) BuildOptions {
 	return BuildOptions{
-		BundleVersion: "1.0.0", ReleaseSequence: 1, Channel: "canary",
+		BundleVersion: "1.0.0", ReleaseSequence: 1,
 		SourceCommit: testSourceCommit, MinimumCLIVersion: "1.0.0",
 		Workflow: ".github/workflows/release-bundle.yml", SourceRef: "refs/heads/main",
-		TrackedSources:             fixtureTrackedSources(root),
-		HarnessEvidenceProvisional: true,
+		TrackedSources: fixtureTrackedSources(root),
 	}
 }
 

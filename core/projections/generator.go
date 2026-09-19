@@ -197,7 +197,7 @@ func (generator *Generator) DevelopmentBundleFromSourceCommit(
 	}
 	return Bundle{
 		Version: compiler.DevelopmentBundleVersion, ReleaseSequence: 0,
-		Channel: "development", SourceCommit: sourceCommit, Digest: digest,
+		SourceCommit: sourceCommit, Digest: digest,
 	}, nil
 }
 
@@ -251,7 +251,7 @@ func (generator *Generator) DevelopmentBundle(
 	}
 	return Bundle{
 		Version: compiler.DevelopmentBundleVersion, ReleaseSequence: 0,
-		Channel: "development", SourceCommit: sourceCommit,
+		SourceCommit:     sourceCommit,
 		SourceTreeDigest: sourceTreeDigest, Digest: digest,
 	}, nil
 }
@@ -556,7 +556,6 @@ func renderLockYAML(document lockDocument) []byte {
 	output.WriteString("bundle:\n")
 	writeYAMLString(&output, 2, "version", document.Bundle.Version)
 	output.WriteString(fmt.Sprintf("  release_sequence: %d\n", document.Bundle.ReleaseSequence))
-	writeYAMLString(&output, 2, "channel", document.Bundle.Channel)
 	// A content-addressed lock does not record the commit at all. Writing it
 	// made the lock its own moving target: re-rendering after the commit that
 	// carried it produced different bytes, so the lock went stale against

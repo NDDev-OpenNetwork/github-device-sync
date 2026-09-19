@@ -198,12 +198,11 @@ verification:
 		bundle.AdditionalFile{Path: "trust/bundle-trust.yaml", Content: trustRaw, Mode: "0644"},
 	)
 	candidate, findings := bundle.Build(root, bundle.BuildOptions{
-		BundleVersion: version, ReleaseSequence: sequence, Channel: "stable",
+		BundleVersion: version, ReleaseSequence: sequence,
 		SourceCommit: strings.Repeat("a", 40), SourceRef: "refs/tags/gds-v" + version,
 		MinimumCLIVersion: "1.0.0", Workflow: trust.Source.AllowedWorkflows[0],
-		HarnessEvidenceManifestDigest: "sha256:" + strings.Repeat("e", 64),
-		TrackedSources:                []string{"skills/registry.yaml"},
-		AdditionalFiles:               additional,
+		TrackedSources:  []string{"skills/registry.yaml"},
+		AdditionalFiles: additional,
 	}, trust, schemas)
 	if len(findings) != 0 {
 		t.Fatalf("bundle findings: %+v", findings)

@@ -32,7 +32,7 @@ class FeedbackContractTests(unittest.TestCase):
 
     def test_reusable_reference_is_immutable(self):
         text = CALLER.read_text()
-        self.assertRegex(text, r"uses: NDDev-OpenNetwork/github-actions/\.github/workflows/ci-feedback\.yml@[0-9a-f]{40}(?: +# commit:[0-9a-f]{40})?\n")
+        self.assertRegex(text, r"uses: NDDev-OpenNetwork/ci-workflows/\.github/workflows/ci-feedback\.yml@[0-9a-f]{40}(?: +# commit:[0-9a-f]{40})?\n")
         self.assertNotIn("@main", text)
 
     def test_no_project_execution_or_secret_inheritance(self):

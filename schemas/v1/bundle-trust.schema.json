@@ -45,7 +45,7 @@
     "release": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["minimum_release_sequence", "allowed_channels"],
+      "required": ["minimum_release_sequence"],
       "properties": {
         "minimum_release_sequence": {
           "type": "integer",

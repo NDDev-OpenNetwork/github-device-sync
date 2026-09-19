@@ -32,7 +32,7 @@ type InstallRecord struct {
 	ReleaseKey                string `json:"release_key"`
 	BundleVersion             string `json:"bundle_version"`
 	ReleaseSequence           int    `json:"release_sequence"`
-	Channel                   string `json:"channel"`
+	Channel                   string `json:"channel,omitempty"`
 	ArtifactDigest            string `json:"artifact_digest"`
 	ManifestDigest            string `json:"manifest_digest"`
 	AttestationIdentityDigest string `json:"attestation_identity_digest"`

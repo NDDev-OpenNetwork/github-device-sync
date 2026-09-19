@@ -47,7 +47,7 @@ type Manifest struct {
 	SchemaVersion                 int          `json:"schema_version"`
 	BundleVersion                 string       `json:"bundle_version"`
 	ReleaseSequence               int          `json:"release_sequence"`
-	Channel                       string       `json:"channel"`
+	Channel                       string       `json:"channel,omitempty"`
 	SourceCommit                  string       `json:"source_commit"`
 	SourceRef                     string       `json:"source_ref"`
 	MinimumCLIVersion             string       `json:"minimum_cli_version"`
@@ -56,7 +56,7 @@ type Manifest struct {
 	SkillSetDigest                string       `json:"skill_set_digest"`
 	HarnessProfilesDigest         string       `json:"harness_profiles_digest"`
 	HarnessEvidenceManifestDigest string       `json:"harness_evidence_manifest_digest,omitempty"`
-	HarnessEvidenceProvisional    bool         `json:"harness_evidence_provisional"`
+	HarnessEvidenceProvisional    bool         `json:"harness_evidence_provisional,omitempty"`
 	Files                         []FileRecord `json:"files"`
 	SupplyChain                   SupplyChain  `json:"supply_chain"`
 }
@@ -87,7 +87,7 @@ type ReleaseEnvelope struct {
 	SchemaVersion                     int    `json:"schema_version"`
 	BundleVersion                     string `json:"bundle_version"`
 	ReleaseSequence                   int    `json:"release_sequence"`
-	Channel                           string `json:"channel"`
+	Channel                           string `json:"channel,omitempty"`
 	SourceCommit                      string `json:"source_commit"`
 	SourceRef                         string `json:"source_ref"`
 	ExecutableFiles                   int    `json:"executable_files"`
@@ -97,17 +97,14 @@ type ReleaseEnvelope struct {
 }
 
 type BuildOptions struct {
-	BundleVersion                 string
-	ReleaseSequence               int
-	Channel                       string
-	SourceCommit                  string
-	MinimumCLIVersion             string
-	Workflow                      string
-	SourceRef                     string
-	TrackedSources                []string
-	AdditionalFiles               []AdditionalFile
-	HarnessEvidenceManifestDigest string
-	HarnessEvidenceProvisional    bool
+	BundleVersion     string
+	ReleaseSequence   int
+	SourceCommit      string
+	MinimumCLIVersion string
+	Workflow          string
+	SourceRef         string
+	TrackedSources    []string
+	AdditionalFiles   []AdditionalFile
 }
 
 type AdditionalFile struct {
