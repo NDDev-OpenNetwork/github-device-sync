@@ -105,7 +105,6 @@ type StateInspectionData struct {
 type ReleaseCandidateOptions struct {
 	BundleVersion     string
 	ReleaseSequence   int
-	Channel           string
 	MinimumCLIVersion string
 }
 
@@ -591,14 +590,10 @@ func (services *Services) BuildReleaseCandidate(
 	sourceRef := "refs/heads/" + status.Branch.Name
 	candidate, findings := bundle.Build(info.WorktreeRoot, bundle.BuildOptions{
 		BundleVersion: options.BundleVersion, ReleaseSequence: options.ReleaseSequence,
-		Channel: options.Channel, SourceCommit: status.Head.OID,
+		SourceCommit:      status.Head.OID,
 		MinimumCLIVersion: options.MinimumCLIVersion,
 		Workflow:          trust.Source.AllowedWorkflows[0], SourceRef: sourceRef,
-		// The candidate command has no evidence input surface and performs no
-		// publication. Its canary is therefore explicitly provisional; the hosted
-		// stable/frozen builder still requires the signed active-seven manifest.
-		HarnessEvidenceProvisional: options.Channel == "canary",
-		TrackedSources:             trackedSources,
+		TrackedSources: trackedSources,
 	}, trust, services.Schemas)
 	if len(findings) != 0 {
 		return domain.NewEnvelope(

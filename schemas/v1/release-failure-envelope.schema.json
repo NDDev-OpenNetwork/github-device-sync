@@ -9,7 +9,6 @@
     "status",
     "bundle_version",
     "release_sequence",
-    "channel",
     "source_commit",
     "source_ref",
     "workflow_run_id",

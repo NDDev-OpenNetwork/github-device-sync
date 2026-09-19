@@ -21,7 +21,7 @@ func TestIsolatedEvidenceAndAggregateRequireExactActiveSeven(t *testing.T) {
 			ValidFrom: now.Add(-time.Hour), ValidUntil: now.Add(7 * 24 * time.Hour), Status: "active",
 		}},
 	}}}}
-	expected := Expectation{Channel: "stable", HarnessRootSHA: "root-sha", Now: now,
+	expected := Expectation{HarnessRootSHA: "root-sha", Now: now,
 		ModuleSHAs: map[string]string{}, ExecutableVersions: map[string]string{},
 		ProfileDigests: map[string]string{}, BridgeDigests: map[string]string{}}
 	records := make([]Record, 0, len(ActiveHarnesses))
@@ -42,7 +42,7 @@ func TestIsolatedEvidenceAndAggregateRequireExactActiveSeven(t *testing.T) {
 		records = append(records, record)
 		entries = append(entries, ManifestEntry{HarnessID: id, EvidenceDigest: digest})
 	}
-	payload := ManifestPayload{SchemaVersion: 1, ManifestID: "manifest-1", HarnessRootSHA: "root-sha", Channel: "stable",
+	payload := ManifestPayload{SchemaVersion: 1, ManifestID: "manifest-1", HarnessRootSHA: "root-sha",
 		GeneratedAt: now.Add(-30 * time.Minute), ExpiresAt: now.Add(24 * time.Hour), ActorID: "nddev-harness-release", Evidence: entries}
 	digest, _ := canonicaljson.Digest(payload)
 	manifest := Manifest{Payload: payload, ManifestDigest: digest, Signature: sign(t, private, "gds-harness-runtime-manifest/v1", payload)}

@@ -56,8 +56,8 @@ func releaseOutputFiles(
 	files[releaseChecksumsName] = checksums
 	return Result{
 		SchemaVersion: domain.SchemaVersion, Version: request.Version,
-		ReleaseSequence: request.ReleaseSequence, Channel: request.Channel,
-		Source: source, GoVersion: goVersion,
+		ReleaseSequence: request.ReleaseSequence,
+		Source:          source, GoVersion: goVersion,
 		GitVersion: gitIdentity.Version, GitDigest: gitIdentity.Digest, ArtifactName: artifactName,
 		ArtifactDigest: candidate.Envelope.ArtifactDigest,
 		ManifestDigest: candidate.Envelope.ManifestDigest,
@@ -276,8 +276,8 @@ func VerifyDirectory(directory string, schemas *validation.Set) (DirectoryVerifi
 	}
 	return DirectoryVerification{
 		SchemaVersion: domain.SchemaVersion, Status: "verified", Version: envelope.BundleVersion,
-		ReleaseSequence: envelope.ReleaseSequence, Channel: envelope.Channel,
-		SourceCommit: envelope.SourceCommit, SourceRef: envelope.SourceRef,
+		ReleaseSequence: envelope.ReleaseSequence,
+		SourceCommit:    envelope.SourceCommit, SourceRef: envelope.SourceRef,
 		ArtifactName:   artifactName,
 		ArtifactDigest: envelope.ArtifactDigest, ManifestDigest: envelope.ManifestDigest,
 		SBOMDigest: digestBytes(contents[releaseSBOMName]), Reproducible: true, Files: files,

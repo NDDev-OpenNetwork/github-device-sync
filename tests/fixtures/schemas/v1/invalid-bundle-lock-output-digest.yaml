@@ -3,7 +3,6 @@ schema_version: 1
 bundle:
   version: "0.1.0-dev"
   release_sequence: 0
-  channel: "development"
   source_commit: "0123456789abcdef0123456789abcdef01234567"
   digest: "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 

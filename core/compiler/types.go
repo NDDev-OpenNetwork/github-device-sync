@@ -10,8 +10,8 @@ import (
 
 // DevelopmentBundleVersion stamps bundles compiled from policy sources on a
 // policy-owner checkout. It tracks the current release line with a -dev
-// suffix so a development bundle is dated honestly; the development channel
-// field, not this string, is what classifies the bundle.
+// suffix so a development bundle is dated honestly; a zero release sequence,
+// not this string, is what classifies the bundle.
 const DevelopmentBundleVersion = "0.9.7-dev"
 
 type PolicySource struct {

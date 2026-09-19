@@ -10,7 +10,6 @@
     "release_key",
     "bundle_version",
     "release_sequence",
-    "channel",
     "artifact_digest",
     "manifest_digest",
     "attestation_identity_digest",

@@ -39,10 +39,6 @@ func Build(ctx context.Context, request Request, schemas *validation.Set) (resul
 	if err != nil {
 		return Result{}, err
 	}
-	harnessDigest, harnessProvisional, err := verifyHarnessEvidence(request, root)
-	if err != nil {
-		return Result{}, err
-	}
 	gitAuthority, err := gitauthority.Discover()
 	if err != nil {
 		return Result{}, err
@@ -55,7 +51,7 @@ func Build(ctx context.Context, request Request, schemas *validation.Set) (resul
 	if err != nil {
 		return Result{}, err
 	}
-	if err := validateReleaseRef(source.Ref, request.Version, request.Channel); err != nil {
+	if err := validateReleaseRef(source.Ref, request.Version); err != nil {
 		return Result{}, err
 	}
 	goBinary := request.GoBinary
@@ -120,12 +116,10 @@ func Build(ctx context.Context, request Request, schemas *validation.Set) (resul
 	}
 	options := bundle.BuildOptions{
 		BundleVersion: request.Version, ReleaseSequence: request.ReleaseSequence,
-		Channel: request.Channel, SourceCommit: source.Commit,
+		SourceCommit:      source.Commit,
 		MinimumCLIVersion: request.MinimumCLIVersion,
 		Workflow:          trust.Source.AllowedWorkflows[0], SourceRef: source.Ref,
 		TrackedSources: trackedSources, AdditionalFiles: additional,
-		HarnessEvidenceManifestDigest: harnessDigest,
-		HarnessEvidenceProvisional:    harnessProvisional,
 	}
 	first, findings := bundle.Build(root, options, trust, schemas)
 	if len(findings) != 0 {
@@ -187,11 +181,8 @@ func validateVerifierTargetCoverage(trust bundle.TrustPolicy) error {
 
 func validateRequest(request Request) (string, string, error) {
 	if !semver.Valid(request.Version) || request.ReleaseSequence < 1 ||
-		(request.Channel != "canary" && request.Channel != "stable" && request.Channel != "frozen") ||
-		!semver.Valid(request.MinimumCLIVersion) ||
-		((request.HarnessEvidenceDirectory == "") != (request.HarnessEvidenceTrustPolicy == "")) ||
-		((request.Channel == "stable" || request.Channel == "frozen") && request.HarnessEvidenceDirectory == "") {
-		return "", "", errors.New("release request version, sequence, channel, or CLI floor is invalid")
+		!semver.Valid(request.MinimumCLIVersion) {
+		return "", "", errors.New("release request version, sequence, or CLI floor is invalid")
 	}
 	root, err := filepath.Abs(request.Root)
 	if err != nil {
@@ -306,19 +297,10 @@ func inspectGoVersion(ctx context.Context, root string, goBinary string, home st
 	return fields[2], nil
 }
 
-func validateReleaseRef(ref, version, channel string) error {
+func validateReleaseRef(ref, version string) error {
 	expectedTag := "refs/tags/gds-v" + version
-	if strings.HasPrefix(ref, "refs/tags/") && ref != expectedTag {
-		return errors.New("release tag does not match the requested bundle version")
-	}
-	if channel == "stable" || channel == "frozen" {
-		if ref != expectedTag {
-			return errors.New("stable and frozen releases require the exact version tag")
-		}
-		return nil
-	}
-	if channel == "canary" && ref != "refs/heads/main" && ref != expectedTag {
-		return errors.New("canary releases require main or the exact version tag")
+	if ref != expectedTag {
+		return errors.New("releases require the exact version tag")
 	}
 	return nil
 }

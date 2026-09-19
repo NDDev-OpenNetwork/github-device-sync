@@ -202,7 +202,7 @@ func TestCanonicalPolicyProverRejectsCommittedSelfConsistentReplacement(t *testi
 func TestCanonicalPolicyProverRejectsUncommittedReleasedProjection(t *testing.T) {
 	resolver := newTestResolver(t)
 	document := bundleLockDocument{}
-	document.Bundle.Channel = "stable"
+	document.Bundle.ReleaseSequence = 1
 	document.Bundle.Version = "1.0.0"
 	findings := resolver.prover.Verify(
 		context.Background(), t.TempDir(), t.TempDir(), domain.RepositoryAnchor{}, document,
@@ -234,7 +234,7 @@ func TestCanonicalPolicyProverAcceptsCommittedReleasedProjectionIdentity(t *test
 	runContextGit(t, root, "add", "--all")
 	runContextGit(t, root, "commit", "--quiet", "-m", "released projection")
 	document := bundleLockDocument{}
-	document.Bundle.Channel = "stable"
+	document.Bundle.ReleaseSequence = 1
 	document.Bundle.Version = "1.0.0"
 	anchor := domain.RepositoryAnchor{
 		Repository:     domain.RepositoryIdentity{Roles: []string{"module"}},

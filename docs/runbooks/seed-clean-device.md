@@ -12,7 +12,7 @@ intent or user credentials. The OS bootstrap does not install GDS.
 ## Select immutable inputs
 
 The owner supplies the estate repository and exact commit, device descriptor,
-release version/sequence/channel, independent consumer trust policy, canonical
+release version/sequence, independent consumer trust policy, canonical
 installation/state paths and a trusted seed verifier. Use the device's declared
 profile: Ubuntu GUI build work uses desktop-builds; headless server and macOS
 desktop profiles have different Docker and execution contracts.

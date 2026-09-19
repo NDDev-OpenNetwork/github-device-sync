@@ -8,7 +8,6 @@
     "schema_version",
     "bundle_version",
     "release_sequence",
-    "channel",
     "source_commit",
     "source_ref",
     "executable_files",

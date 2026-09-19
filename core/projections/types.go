@@ -10,7 +10,9 @@ import (
 type Bundle struct {
 	Version         string `json:"version"`
 	ReleaseSequence int    `json:"release_sequence"`
-	Channel         string `json:"channel"`
+	// Channel is accepted while decoding legacy v1 locks and manifests; it is
+	// never written and is not part of bundle identity.
+	Channel string `json:"channel,omitempty"`
 	// SourceCommit is trace metadata: it records which commit carried the
 	// canonical sources when the bundle was generated. It is deliberately not
 	// part of the bundle identity, because a commit cannot contain its own SHA
@@ -30,7 +32,6 @@ type Bundle struct {
 type BundleIdentity struct {
 	Version                   string `json:"version"`
 	ReleaseSequence           int    `json:"release_sequence"`
-	Channel                   string `json:"channel"`
 	SourceTreeDigest          string `json:"source_tree_digest,omitempty"`
 	Digest                    string `json:"digest"`
 	AttestationIdentityDigest string `json:"attestation_identity_digest,omitempty"`
@@ -39,8 +40,8 @@ type BundleIdentity struct {
 func (bundle Bundle) Identity() BundleIdentity {
 	return BundleIdentity{
 		Version: bundle.Version, ReleaseSequence: bundle.ReleaseSequence,
-		Channel: bundle.Channel, SourceTreeDigest: bundle.SourceTreeDigest,
-		Digest: bundle.Digest, AttestationIdentityDigest: bundle.AttestationIdentityDigest,
+		SourceTreeDigest: bundle.SourceTreeDigest,
+		Digest:           bundle.Digest, AttestationIdentityDigest: bundle.AttestationIdentityDigest,
 	}
 }
 

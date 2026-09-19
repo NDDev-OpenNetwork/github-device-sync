@@ -36,11 +36,8 @@ func run(ctx context.Context, arguments []string, stdout, stderr io.Writer) int 
 	flags.StringVar(&request.OutputDirectory, "output", "", "new release output directory")
 	flags.StringVar(&request.Version, "version", "", "release SemVer without a v prefix")
 	flags.IntVar(&request.ReleaseSequence, "sequence", 0, "monotonic release sequence")
-	flags.StringVar(&request.Channel, "channel", "canary", "canary, stable, or frozen")
 	flags.StringVar(&request.MinimumCLIVersion, "minimum-cli-version", "", "minimum compatible CLI SemVer")
 	flags.StringVar(&request.SourceRef, "source-ref", "", "exact refs/heads/* or refs/tags/* source ref")
-	flags.StringVar(&request.HarnessEvidenceDirectory, "harness-evidence-directory", "", "directory containing manifest.json and isolated active-harness records")
-	flags.StringVar(&request.HarnessEvidenceTrustPolicy, "harness-evidence-trust-policy", "", "offline public trust policy for harness evidence")
 	flags.StringVar(
 		&request.GoBinary, "go-binary", "",
 		"absolute Go executable (defaults to the running toolchain GOROOT when available)",

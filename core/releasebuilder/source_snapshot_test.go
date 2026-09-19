@@ -70,10 +70,9 @@ func TestReleaseArtifactUsesInspectedCommitSnapshot(t *testing.T) {
 		},
 	}
 	candidate, findings := bundle.Build(snapshot, bundle.BuildOptions{
-		BundleVersion: "1.2.3-canary.1", ReleaseSequence: 1, Channel: "canary",
+		BundleVersion: "1.2.3", ReleaseSequence: 1,
 		SourceCommit: source.Commit, SourceRef: source.Ref, MinimumCLIVersion: "1.2.3",
 		Workflow: trust.Source.AllowedWorkflows[0], TrackedSources: tracked,
-		HarnessEvidenceProvisional: true,
 	}, trust, schemas)
 	if len(findings) != 0 {
 		t.Fatalf("build snapshot artifact: %+v", findings)
@@ -138,7 +137,7 @@ func TestValidateRequestRejectsOutputInsideSourceRoot(t *testing.T) {
 	})
 	_, _, err := validateRequest(Request{
 		Root: repository, OutputDirectory: filepath.Join(repository, "release-output"),
-		Version: "1.2.3", ReleaseSequence: 1, Channel: "canary",
+		Version: "1.2.3", ReleaseSequence: 1,
 		MinimumCLIVersion: "1.2.3",
 	})
 	if err == nil {

@@ -5,7 +5,6 @@
   "bundle": {
     "version": "1.0.0",
     "release_sequence": 1,
-    "channel": "canary",
     "artifact_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     "manifest_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
   },
@@ -15,7 +14,9 @@
     {
       "id": "canary",
       "ordinal": 0,
-      "repository_ids": ["repo_01J00000000000000000000001"],
+      "repository_ids": [
+        "repo_01J00000000000000000000001"
+      ],
       "status": "pending"
     }
   ],

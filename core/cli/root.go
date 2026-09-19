@@ -965,7 +965,6 @@ func (executor *executor) releaseCommand() *cobra.Command {
 	}
 	candidate.Flags().StringVar(&values.BundleVersion, "version", "", "candidate semantic version")
 	candidate.Flags().IntVar(&values.ReleaseSequence, "sequence", 0, "monotonic release sequence")
-	candidate.Flags().StringVar(&values.Channel, "channel", "canary", "release channel")
 	candidate.Flags().StringVar(
 		&values.MinimumCLIVersion, "minimum-cli-version", "0.1.0", "minimum compatible GDS CLI version",
 	)

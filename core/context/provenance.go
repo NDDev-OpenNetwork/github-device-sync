@@ -68,7 +68,7 @@ func (prover *CanonicalPolicyProver) Verify(
 			err,
 		)}
 	}
-	if document.Bundle.Channel != "development" {
+	if document.Bundle.ReleaseSequence != 0 {
 		// Released candidates can only be produced from an archive that passed
 		// full envelope, manifest and member verification. The committed lock
 		// retains that artifact/content/attestation identity and the exact
@@ -76,13 +76,14 @@ func (prover *CanonicalPolicyProver) Verify(
 		// in every consumer repository.
 		return nil
 	}
-	// The channel alone classifies the bundle. This used to also require the
-	// version to equal the current DevelopmentBundleVersion, which meant that
-	// bumping that constant silently reclassified every not-yet-regenerated
-	// development lock as released and skipped its source verification — the
-	// opposite of what a version bump should do. A development bundle carrying
-	// an older dev version is still a development bundle and is verified as
-	// one.
+	// A zero release sequence alone classifies the bundle as development: the
+	// release builder rejects sequence < 1, so no published bundle can carry
+	// it. This used to also require the version to equal the current
+	// DevelopmentBundleVersion, which meant that bumping that constant
+	// silently reclassified every not-yet-regenerated development lock as
+	// released and skipped its source verification — the opposite of what a
+	// version bump should do. A development bundle carrying an older dev
+	// version is still a development bundle and is verified as one.
 	if estateRoot == "" {
 		return []domain.Finding{policyProvenanceFinding(
 			"GDS_CONTEXT_POLICY_ESTATE_NOT_PROVEN",
@@ -185,7 +186,6 @@ func (prover *CanonicalPolicyProver) Verify(
 	// legitimately differ, which is the whole point.
 	if bundle.Version != document.Bundle.Version ||
 		bundle.ReleaseSequence != document.Bundle.ReleaseSequence ||
-		bundle.Channel != document.Bundle.Channel ||
 		bundle.Digest != document.Bundle.Digest {
 		return []domain.Finding{{
 			Code:     "GDS_CONTEXT_POLICY_BUNDLE_MISMATCH",

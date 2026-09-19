@@ -19,7 +19,6 @@
       "required": [
         "version",
         "release_sequence",
-        "channel",
         "digest"
       ],
       "properties": {
@@ -55,27 +54,18 @@
         {
           "if": {
             "properties": {
-              "channel": {
-                "enum": [
-                  "canary",
-                  "stable",
-                  "frozen"
-                ]
+              "release_sequence": {
+                "minimum": 1
               }
             },
             "required": [
-              "channel"
+              "release_sequence"
             ]
           },
           "then": {
             "required": [
               "attestation_identity_digest"
-            ],
-            "properties": {
-              "release_sequence": {
-                "minimum": 1
-              }
-            }
+            ]
           }
         }
       ]

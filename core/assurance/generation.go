@@ -238,7 +238,7 @@ func exerciseRollout(
 		RolloutID: "rollout_01J00000000000000000000000", CreatedAt: now,
 		Envelope: bundle.ReleaseEnvelope{
 			SchemaVersion: domain.SchemaVersion, BundleVersion: "1.0.0", ReleaseSequence: 1,
-			Channel: "canary", SourceCommit: "0123456789abcdef0123456789abcdef01234567",
+			SourceCommit:   "0123456789abcdef0123456789abcdef01234567",
 			ManifestDigest: digestFixture("manifest", 0),
 			ArtifactDigest: digestFixture("artifact", 0),
 		},
