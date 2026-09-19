@@ -168,7 +168,11 @@ func (runner *MutationRunner) observeCheckoutForQuarantine(
 		status.Worktrees[0].Locked || status.Worktrees[0].Prunable {
 		return CheckoutQuarantineEvidence{}, errors.New("checkout is not clean, current, and exclusive")
 	}
-	remoteURL, err := runner.validatedPushURL(ctx, physical, "origin")
+	// Quarantine only reads the remote (ls-remote below) to prove the checkout's
+	// commits are published; it never pushes. The fetch-side URL is therefore
+	// the right one to observe and network transports are allowed — the
+	// mutation-only gate (validatedPushURL) does not apply to a read.
+	_, remoteURL, err := runner.validatedRemoteURL(ctx, physical, "origin")
 	if err != nil {
 		return CheckoutQuarantineEvidence{}, err
 	}
