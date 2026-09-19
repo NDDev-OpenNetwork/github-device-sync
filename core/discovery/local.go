@@ -306,9 +306,15 @@ func pathDepth(relative string) int {
 }
 
 func excludedDirectory(name string) bool {
+	// Hidden directories other than a repository's own .git boundary are tool
+	// state, caches, or generated fixtures (".tmp", ".idea", ".venv", ...) —
+	// never portfolio checkouts. Scanning them manufactures anchor findings
+	// for synthetic trees and burns time on ignored content.
+	if name != ".git" && strings.HasPrefix(name, ".") {
+		return true
+	}
 	switch name {
-	case ".cache", ".idea", ".pytest_cache", ".ruff_cache", ".tox", ".venv",
-		"__pycache__", "node_modules", "target", "vendor":
+	case "__pycache__", "node_modules", "target", "vendor":
 		return true
 	default:
 		return false
