@@ -362,7 +362,10 @@ func (runner *MutationRunner) observeRemoteRef(
 ) (string, error) {
 	result, err := runner.runWithEnvironment(
 		ctx, root, map[int]struct{}{0: {}}, nil,
-		"-c", "protocol.allow=never", "-c", "protocol.file.allow=always",
+		"-c", "protocol.allow=never",
+		"-c", "protocol.file.allow=always",
+		"-c", "protocol.https.allow=always",
+		"-c", "protocol.ssh.allow=always",
 		"ls-remote", "--refs", remoteURL, remoteRef,
 	)
 	if err != nil {

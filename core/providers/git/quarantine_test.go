@@ -3,6 +3,7 @@ package git
 import (
 	"context"
 	"crypto/sha256"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -73,5 +74,47 @@ func TestQuarantineCheckoutPreservesDirtyRepository(t *testing.T) {
 	}
 	if content, err := os.ReadFile(filepath.Join(fixture.client, "dirty.txt")); err != nil || string(content) != "preserve\n" {
 		t.Fatalf("dirty work changed: %q %v", content, err)
+	}
+}
+
+func TestQuarantineRemoteValidationAdmitsNetworkTransportsForReadOnlyObservation(t *testing.T) {
+	client, _ := mutationRepository(t)
+	runFetchGit(t, client, "remote", "add", "origin", "git@github.com:example/repository.git")
+	runner, err := NewMutationRunner()
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, url, err := runner.validatedRemoteURL(context.Background(), client, "origin")
+	if err != nil {
+		t.Fatalf("read-only observation must admit the fetch URL: %v", err)
+	}
+	if url != "git@github.com:example/repository.git" {
+		t.Fatalf("url=%q", url)
+	}
+	if _, err := runner.validatedPushURL(context.Background(), client, "origin"); !errors.Is(err, ErrNetworkMutationDisabled) {
+		t.Fatalf("push URL must remain mutation-gated: %v", err)
+	}
+}
+
+func TestQuarantineCheckoutNetworkRemoteFailsAtObservationNotAtTheMutationGate(t *testing.T) {
+	fixture := fastForwardFixture(t)
+	runFetchGit(t, fixture.client, "remote", "set-url", "origin", "ssh://127.0.0.1:1/repository.git")
+	head := stringsTrim(runFetchGit(t, fixture.client, "rev-parse", "HEAD"))
+	workspaceRoot := filepath.Dir(fixture.client)
+	stateRoot := t.TempDir()
+	quarantine := filepath.Join(stateRoot, "quarantine", "checkouts", "repo_fixture", head)
+	runner, err := NewMutationRunner()
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = runner.QuarantineCheckout(
+		context.Background(), workspaceRoot, fixture.client, stateRoot, quarantine,
+		head, "refs/heads/main", fmt.Sprintf("sha256:%x", sha256.Sum256([]byte("x"))),
+	)
+	if err == nil {
+		t.Fatal("an unreachable remote must fail the observation")
+	}
+	if errors.Is(err, ErrNetworkMutationDisabled) {
+		t.Fatalf("read-only remote observation must not hit the mutation gate: %v", err)
 	}
 }
