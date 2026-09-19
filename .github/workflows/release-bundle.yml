@@ -47,7 +47,7 @@ jobs:
           mapfile -t tags < <(
             gh api "repos/$GITHUB_REPOSITORY/tags?per_page=100" --paginate --jq '.[].name' \
               | grep -x 'gds-v[0-9]*\.[0-9]*\.[0-9]*' \
-              | sort -t. -k1.6nr -k2nr -k3nr
+              | sort -t. -k1.6,1nr -k2,2nr -k3,3nr
           )
           if [ "${#tags[@]}" -eq 0 ]; then
             echo "No gds-v* tag exists; the first automatic release requires one published baseline" >&2
@@ -90,9 +90,17 @@ jobs:
             next_version="$(awk -F. -v v="$previous_version" 'BEGIN{split(v,p,"."); printf "%d.%d.%d", p[1], p[2], p[3]+1}')"
           fi
           # Monotonicity is structural, not assumed: the new identity must be
-          # strictly greater than the release it follows.
-          highest="$(printf '%s\n' "$previous_version" "$next_version" | sort -t. -k1n -k2n -k3n | tail -1)"
-          if [ "$highest" != "$next_version" ] || [ "$next_version" = "$previous_version" ]; then
+          # strictly greater than the release it follows. Compare components
+          # numerically -- sort -n reads "9.10" as the float 9.1, which orders
+          # a double-digit patch below its predecessor.
+          if ! awk -F. -v a="$previous_version" -v b="$next_version" 'BEGIN{
+              split(a, x, "."); split(b, y, ".");
+              for (i = 1; i <= 3; i++) {
+                if (y[i] + 0 > x[i] + 0) exit 0;
+                if (y[i] + 0 < x[i] + 0) exit 1;
+              }
+              exit 1
+            }'; then
             echo "next version $next_version is not greater than $previous_version" >&2
             exit 1
           fi
