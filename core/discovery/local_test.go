@@ -193,7 +193,12 @@ func TestDiscoverAcceptsIdentityPinnedBySuperprojectAndCheckedOutStandalone(t *t
 
 func TestDiscoverSkipsHiddenDirectoryTrees(t *testing.T) {
 	t.Parallel()
-	root := t.TempDir()
+	// Boundaries are reported canonicalized: on macOS t.TempDir() lives under
+	// /var, which is a symlink to /private/var.
+	root, err := filepath.EvalSymlinks(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
 	plain := filepath.Join(root, "plain")
 	fixture := filepath.Join(root, ".tmp", "native-linux", "fixture-repo")
 	for _, path := range []string{plain, fixture} {
