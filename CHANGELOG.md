@@ -5,6 +5,15 @@ Versioning.
 
 ## [Unreleased]
 
+## [0.9.7] - 2026-09-19
+
+- Skip hidden directories during workspace discovery so tool-state and
+  fixture trees such as `.tmp/` no longer manufacture anchor findings;
+  `.git` stays the discoverable boundary.
+- Observe quarantine remotes read-only through the fetch URL so checkout
+  quarantine plans work for SSH/HTTPS remotes while network pushes remain
+  gated behind `validatedPushURL`.
+
 ## [0.9.6] - 2026-09-16
 
 - Cut 0.9.6 as the next published bundle after `gds-v0.9.5`, which remains a
