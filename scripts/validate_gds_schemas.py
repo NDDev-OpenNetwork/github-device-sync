@@ -104,6 +104,7 @@ SCHEMA_FILES = {
     "field-ownership": "field-ownership.schema.json",
     "freshness-policy": "freshness-policy.schema.json",
     "device-evidence": "device-evidence.schema.json",
+    "session-evidence": "session-evidence.schema.json",
     "delegated-harness-evidence": "delegated-harness-evidence.schema.json",
     "harness-runtime-manifest": "harness-runtime-manifest.schema.json",
     "plan": "plan.schema.json",

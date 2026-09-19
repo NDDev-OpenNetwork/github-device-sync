@@ -141,7 +141,8 @@ func (executor *executor) rootCommand() *cobra.Command {
 	)
 	commands := map[string]*cobra.Command{
 		"context": executor.contextCommand(), "session": executor.sessionCommand(),
-		"sync": executor.syncCommand(), "handoff": executor.handoffCommand(),
+		"evidence": executor.evidenceCommand(),
+		"sync":     executor.syncCommand(), "handoff": executor.handoffCommand(),
 		"complete": executor.completeCommand(), "status": executor.statusCommand(),
 		"discover": executor.discoverCommand(), "inventory": executor.inventoryCommand(),
 		"validate": executor.validateCommand(), "doctor": executor.doctorCommand(),
@@ -386,6 +387,52 @@ func (executor *executor) sessionCommand() *cobra.Command {
 	start.Flags().StringVar(&options.Refresh, "refresh", "none", "non-integrating remote refresh: none or origin")
 	start.Flags().StringVar(&options.StatePath, "state-path", "", "local GDS state database path for durable refresh evidence")
 	command.AddCommand(start)
+	return command
+}
+
+func (executor *executor) evidenceCommand() *cobra.Command {
+	record := app.SessionEvidenceRecordOptions{}
+	verifyFile := ""
+	verifyTrustPolicy := ""
+	command := &cobra.Command{
+		Use:   "evidence",
+		Short: "Record and verify repo-scoped agent session evidence",
+		Args:  cobra.NoArgs,
+	}
+	recordCommand := &cobra.Command{
+		Use:   "record",
+		Short: "Capture the repository boundary into a signed session evidence artifact",
+		Args:  cobra.NoArgs,
+		RunE: func(child *cobra.Command, _ []string) error {
+			record.GDSVersion = Version
+			record.Path = executor.options.cwd
+			return executor.run(child, func(ctx context.Context) domain.Envelope {
+				return executor.services.RecordSessionEvidence(ctx, record)
+			})
+		},
+	}
+	recordCommand.Flags().StringVar(&record.DeviceID, "device-id", "", "canonical device identity")
+	recordCommand.Flags().StringVar(&record.SessionID, "session-id", "", "bounded session identity")
+	recordCommand.Flags().StringVar(&record.HarnessID, "harness", "", "agent harness identifier (codex, claude-code, cursor, grok)")
+	recordCommand.Flags().StringVar(&record.HarnessVersion, "harness-version", "", "declared harness version")
+	recordCommand.Flags().StringVar(&record.ActorID, "actor-id", "", "signing actor identity")
+	recordCommand.Flags().StringVar(&record.KeyID, "key-id", "", "trust-policy key identifier")
+	recordCommand.Flags().StringVar(&record.PrivateKeyPath, "private-key", "", "PKCS#8 Ed25519 private key (mode 0600)")
+	recordCommand.Flags().StringVar(&record.Output, "output", "", "artifact output path (default: device evidence root)")
+	recordCommand.Flags().StringVar(&record.EvidenceRoot, "evidence-root", "", "device session evidence root override")
+	verifyCommand := &cobra.Command{
+		Use:   "verify",
+		Short: "Independently verify one session evidence artifact",
+		Args:  cobra.NoArgs,
+		RunE: func(child *cobra.Command, _ []string) error {
+			return executor.run(child, func(ctx context.Context) domain.Envelope {
+				return executor.services.VerifySessionEvidence(ctx, verifyFile, verifyTrustPolicy)
+			})
+		},
+	}
+	verifyCommand.Flags().StringVar(&verifyFile, "file", "", "session evidence artifact path")
+	verifyCommand.Flags().StringVar(&verifyTrustPolicy, "trust-policy", "", "trust policy path")
+	command.AddCommand(recordCommand, verifyCommand)
 	return command
 }
 

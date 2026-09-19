@@ -234,6 +234,31 @@ strictly bounded, explicitly requested remote-tracking ref refresh, records
 local ref mutation, detects forced updates by ancestry, and never integrates
 the current branch or changes worktree/index content.
 
+### `gds evidence record`
+
+Captures the current repository boundary into a signed session evidence
+artifact: the `.gds/repository.yaml` identity, HEAD and upstream position,
+change counts and changed paths, and every Git module inside the boundary with
+its gitlink and checked-out OID. The artifact is private — it names
+working-tree paths — so it is written under the device state root
+(`--evidence-root`, default
+`${XDG_STATE_HOME:-$HOME/.local/state}/github-device-sync/session-evidence/`),
+mode `0600`, never into the repository. Each record links the newest prior
+artifact for the same repository through `previous_evidence_digest`. Signing
+requires `--device-id`, `--session-id`, `--harness`, `--actor-id`, `--key-id`
+and a PKCS#8 Ed25519 `--private-key`; the signature domain is
+`gds-session-evidence/v1` and the required trust role is `session-evidence`.
+The artifact records observed state; it does not prove the named session
+produced that state or that the work was correct.
+
+### `gds evidence verify --file <artifact> --trust-policy <path>`
+
+Independently verifies one artifact: strict decode, embedded schema, canonical
+payload digest, Ed25519 signature under the supplied trust policy, and
+structural invariants (required identity fields, sorted paths, unique
+submodule paths). Verification needs only the artifact and the policy — not
+the recording session, harness, or repository.
+
 ### `gds state initialize --plan|--apply <digest>|--verify <digest>`
 
 Uses a deterministic self-hosting lifecycle plan because the operational state

@@ -5,6 +5,17 @@ Versioning.
 
 ## [Unreleased]
 
+- Add `gds evidence record` and `gds evidence verify`: repo-scoped session
+  evidence for the repository the agent ran in, including every Git module
+  inside its boundary. `record` binds the `.gds/repository.yaml` identity,
+  HEAD/upstream position, change counts and changed paths, and per-submodule
+  gitlink/checked-out OIDs into a canonical artifact signed with Ed25519 under
+  the `gds-session-evidence/v1` domain (`session-evidence` trust role), links
+  it to the previous artifact for the same repository, and writes it under the
+  device state root with mode `0600` — never into the repository. `verify`
+  checks the embedded schema, canonical digest, signature and structural
+  invariants without the recording session, harness or repository. New schema
+  `session-evidence` with valid and invalid fixtures.
 - Remove release channels from the release pipeline (ADR 0038). Bundle
   manifests, release envelopes, locks, rollout documents and trust policy no
   longer carry or require `channel`; the fields remain optional for decoding

@@ -167,7 +167,7 @@ runtime, authorization, policy, and kill-switch checks.
 | Capability | Support | Runtime | Policy | Registered command carriers |
 |---|---|---|---|---|
 | `provider_observation` | `implemented` | `configuration-required` | `read-only` | `github`, `reconcile`, `repository` |
-| `mutations` | `implemented` | `configuration-required` | `explicit-approval` | `complete`, `fork`, `generate`, `git`, `github`, `handoff`, `harness`, `memory`, `module`, `operation`, `portfolio`, `recover`, `release`, `repository`, `rollout`, `session`, `source`, `state`, `sync`, `workspace` |
+| `mutations` | `implemented` | `configuration-required` | `explicit-approval` | `complete`, `evidence`, `fork`, `generate`, `git`, `github`, `handoff`, `harness`, `memory`, `module`, `operation`, `portfolio`, `recover`, `release`, `repository`, `rollout`, `session`, `source`, `state`, `sync`, `workspace` |
 <!-- gds-capability-registry:end -->
 
 Handlers are registered per command and per immutable plan; there is no global

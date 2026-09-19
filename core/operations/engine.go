@@ -265,13 +265,30 @@ func (engine *Engine) apply(
 			return ApplyResult{}, err
 		}
 		enablement, enableErr := engine.Store.GetPlanEnablement(ctx, "enablement:"+signed.ApprovalID)
-		if enableErr != nil || enablement.Status != "active" || enablement.PlanID != plan.PlanID ||
-			enablement.PlanDigest != plan.PlanDigest || enablement.ApprovalID != signed.ApprovalID ||
-			enablement.ApprovalDigest != signedDigest || enablement.DeviceID != engine.DeviceID ||
-			enablement.SessionID != engine.SessionID || !enablement.ExpiresAt.After(now) {
+		enablementProblem := ""
+		switch {
+		case enableErr != nil:
+			enablementProblem = "no enablement exists for this approval"
+		case enablement.Status != "active":
+			enablementProblem = fmt.Sprintf("enablement is %q, not active", enablement.Status)
+		case enablement.PlanID != plan.PlanID || enablement.PlanDigest != plan.PlanDigest:
+			enablementProblem = "enablement is bound to a different plan"
+		case enablement.ApprovalID != signed.ApprovalID || enablement.ApprovalDigest != signedDigest:
+			enablementProblem = "enablement is bound to a different approval"
+		case enablement.DeviceID != engine.DeviceID:
+			enablementProblem = "enablement is bound to a different device"
+		case enablement.SessionID != engine.SessionID:
+			enablementProblem = fmt.Sprintf(
+				"enablement is bound to session %q, but apply uses session %q; re-run enable and apply with the same --session-id",
+				enablement.SessionID, engine.SessionID)
+		case !enablement.ExpiresAt.After(now):
+			enablementProblem = "enablement has expired"
+		}
+		if enablementProblem != "" {
 			return ApplyResult{PlanID: planID, Status: "planned"}, newError(
 				"GDS_PLAN_ENABLEMENT_REQUIRED", domain.ExitApproval,
-				"Create a separate active one-shot enablement for this exact signed plan before apply.", enableErr,
+				"Apply requires an active one-shot enablement bound to this exact plan, approval, device and session: "+enablementProblem+".",
+				enableErr,
 			)
 		}
 	}
