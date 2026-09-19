@@ -712,7 +712,7 @@ func (services *Services) Discover(
 	class := classifyFindings(result.Findings)
 	return domain.NewEnvelope("gds discover", class, map[string]any{
 		"root": result.Root, "boundaries": result.Boundaries,
-		"count": len(result.Boundaries), "provider_observation": "not-implemented",
+		"count": len(result.Boundaries), "provider_observation": "not-performed",
 	}, result.Findings...)
 }
 
