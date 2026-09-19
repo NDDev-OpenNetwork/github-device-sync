@@ -119,6 +119,7 @@ func Build(ctx context.Context, request Request, schemas *validation.Set) (resul
 		SourceCommit:      source.Commit,
 		MinimumCLIVersion: request.MinimumCLIVersion,
 		Workflow:          trust.Source.AllowedWorkflows[0], SourceRef: source.Ref,
+		TriggerRef:     request.TriggerRef,
 		TrackedSources: trackedSources, AdditionalFiles: additional,
 	}
 	first, findings := bundle.Build(root, options, trust, schemas)

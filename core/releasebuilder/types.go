@@ -23,7 +23,10 @@ type Request struct {
 	ReleaseSequence   int
 	MinimumCLIVersion string
 	SourceRef         string
-	GoBinary          string
+	// TriggerRef is the ref the release run was triggered on; the provenance
+	// attestation binds it rather than the release tag created in the same run.
+	TriggerRef string
+	GoBinary   string
 }
 
 type Source struct {
@@ -62,6 +65,7 @@ type DirectoryVerification struct {
 	ReleaseSequence int          `json:"release_sequence"`
 	SourceCommit    string       `json:"source_commit"`
 	SourceRef       string       `json:"source_ref"`
+	TriggerRef      string       `json:"trigger_ref,omitempty"`
 	ArtifactName    string       `json:"artifact_name"`
 	ArtifactDigest  string       `json:"artifact_digest"`
 	ManifestDigest  string       `json:"manifest_digest"`

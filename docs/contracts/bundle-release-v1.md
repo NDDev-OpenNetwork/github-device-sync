@@ -101,6 +101,10 @@ from full portable-bundle completeness.
 ADR 0016 defines the non-self-referential layers. The detached envelope binds
 artifact digest, manifest digest, version, monotonic sequence, source
 commit, exact source ref, executable count, and expected attestation identity.
+When the release tag is created inside the same run that builds the artifact,
+the attestation binds the run's trigger ref rather than the tag; the envelope
+records that ref as `trigger_ref` and the expected attestation identity digest
+is computed over it.
 The six-file directory verifier rejects any missing, extra, symlinked, renamed,
 oversized, or digest-mismatched member.
 

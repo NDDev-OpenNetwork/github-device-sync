@@ -95,6 +95,7 @@ func TestHostedReleaseWorkflowUsesOutputOutsideSourceRoot(t *testing.T) {
 		`${{ runner.temp }}/gds-release-output/release-evidence`,
 		`RELEASE_SEQUENCE: ${{ needs.resolve.outputs.sequence }}`,
 		`--source-ref "refs/tags/$RELEASE_TAG"`,
+		`--trigger-ref "$GITHUB_REF"`,
 		`ref: ${{ needs.resolve.outputs.tag }}`,
 		`--latest`,
 		`name: Record failed release evidence`,
