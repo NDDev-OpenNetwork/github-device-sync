@@ -514,6 +514,8 @@
       "path": "invalid-bundle-manifest-oversized-file.json",
       "valid": false,
       "expected_code": "GDS_INSTANCE_INVALID"
-    }
+    },
+    {"id":"valid-session-evidence","schema":"session-evidence","path":"valid-session-evidence.json","valid":true},
+    {"id":"invalid-session-evidence-missing-fields","schema":"session-evidence","path":"invalid-session-evidence-missing-fields.json","valid":false,"expected_code":"GDS_INSTANCE_INVALID"}
   ]
 }

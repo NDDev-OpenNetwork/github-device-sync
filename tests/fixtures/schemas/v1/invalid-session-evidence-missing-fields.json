@@ -1,0 +1,47 @@
+{
+  "payload": {
+    "schema_version": 1,
+    "evidence_id": "sev_01KEXAMPLE000000000000000000",
+    "repository_id": "repository:example-engine",
+    "repository_name": "example-engine",
+    "device_id": "device:example-device",
+    "harness_id": "codex",
+    "harness_version": "0.1.0",
+    "actor_id": "owner:example-owner",
+    "observed_at": "2026-09-21T12:00:00Z",
+    "gds_version": "0.9.9",
+    "baseline": {
+      "head_oid": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "head_mode": "branch",
+      "branch": "main",
+      "upstream": "origin/main",
+      "upstream_state": "present",
+      "ahead": 0,
+      "behind": 0,
+      "diverged": false,
+      "staged": 0,
+      "unstaged": 0,
+      "untracked": 0,
+      "conflicted": 0,
+      "classification": "clean",
+      "changed_paths": [
+        "README.md",
+        "core/app/session_evidence.go"
+      ],
+      "submodules": [
+        {
+          "path": "modules/example",
+          "gitlink_oid": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
+          "current_oid": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
+          "worktree_state": "clean"
+        }
+      ]
+    }
+  },
+  "evidence_digest": "sha256:76101a505aeff87372e76e93edecfdf565fdb4f1cb8d6a4d12979a7f62c273f3",
+  "signature": {
+    "algorithm": "ed25519",
+    "key_id": "example-session-key",
+    "value": "40B-zrgQVnTsjwzo77qwdIuXGzAEYEMf_CHV30VhH7107_K4yJ0RoefnnUgBbvMOW0Jqcr0qK-_BwRdNXAc0BQ"
+  }
+}

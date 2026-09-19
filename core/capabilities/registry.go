@@ -35,6 +35,7 @@ type Definition struct {
 var rootCommandNames = []string{
 	"context",
 	"session",
+	"evidence",
 	"sync",
 	"handoff",
 	"complete",
@@ -84,7 +85,7 @@ var definitions = []Definition{
 			Policy:  "explicit-approval",
 		},
 		CommandCarriers: []string{
-			"complete", "fork", "generate", "git", "github", "handoff", "harness",
+			"complete", "evidence", "fork", "generate", "git", "github", "handoff", "harness",
 			"memory", "module", "operation", "portfolio", "recover", "release",
 			"repository", "rollout", "session", "source", "state", "sync", "workspace",
 		},

@@ -45,6 +45,7 @@ import (
 type Services struct {
 	Schemas                           *validation.Set
 	Git                               *gitprovider.Runner
+	Manifests                         *manifest.Loader
 	GitMutations                      *gitprovider.MutationRunner
 	Context                           *contextresolver.Resolver
 	Discovery                         *discovery.Local
@@ -138,6 +139,7 @@ func NewServices(clock inventory.Clock) (*Services, error) {
 	return &Services{
 		Schemas:      schemas,
 		Git:          git,
+		Manifests:    manifests,
 		GitMutations: gitMutations,
 		Context:      contextresolver.NewResolver(git, manifests, schemas, policyProver),
 		Discovery:    localDiscovery,
