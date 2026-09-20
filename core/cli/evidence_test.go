@@ -163,3 +163,41 @@ func TestEvidenceVerifyRejectsTamperedArtifact(t *testing.T) {
 		t.Fatalf("tampered artifact verified: %#v", verifyEnvelope.Data)
 	}
 }
+
+func TestEvidenceRecordRefusesUnbornHead(t *testing.T) {
+	disableGitFixtureMaintenance(t)
+	client := filepath.Join(t.TempDir(), "unborn")
+	if err := os.MkdirAll(filepath.Join(client, ".gds"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	runSessionGit(t, client, "init", "-q", "-b", "main")
+	anchor, err := os.ReadFile(filepath.Join(
+		repositoryRoot(t), "tests", "fixtures", "schemas", "v1", "valid-repository.yaml",
+	))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(client, ".gds", "repository.yaml"), anchor, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	keyPath, _ := writeSessionKeyPair(t)
+	evidenceRoot := filepath.Join(t.TempDir(), "session-evidence")
+
+	exitCode, envelope, _ := executeJSON(t, recordArgs(client, keyPath, evidenceRoot)...)
+	if exitCode == 0 {
+		t.Fatalf("record succeeded on unborn HEAD: %#v", envelope.Data)
+	}
+	found := false
+	for _, finding := range envelope.Findings {
+		if finding.Code == "GDS_SESSION_EVIDENCE_BASELINE_UNAVAILABLE" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("expected baseline-unavailable finding: %#v", envelope.Findings)
+	}
+	entries, err := filepath.Glob(filepath.Join(evidenceRoot, "*", "*.json"))
+	if err != nil || len(entries) != 0 {
+		t.Fatalf("unverifiable artifact written: %v %v", entries, err)
+	}
+}

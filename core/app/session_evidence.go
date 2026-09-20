@@ -89,6 +89,11 @@ func (services *Services) RecordSessionEvidence(
 	if err != nil {
 		return envelopeForError(command, info.WorktreeRoot, err)
 	}
+	if status.Head.OID == "" {
+		return fail("GDS_SESSION_EVIDENCE_BASELINE_UNAVAILABLE",
+			"The repository has no commit to bind as evidence baseline; record after the first commit.",
+			map[string]any{"head_mode": status.Head.Mode})
+	}
 	topology, err := services.Git.InspectTopology(ctx, info.WorktreeRoot)
 	if err != nil {
 		return envelopeForError(command, info.WorktreeRoot, err)
@@ -311,7 +316,29 @@ func writeSessionEvidenceArtifact(path string, artifact sessionevidence.Artifact
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(path, append(raw, '\n'), 0o600)
+	temporary, err := os.CreateTemp(filepath.Dir(path), ".evidence-*.tmp")
+	if err != nil {
+		return fmt.Errorf("create session evidence temporary file: %w", err)
+	}
+	if err := temporary.Chmod(0o600); err != nil {
+		temporary.Close()
+		os.Remove(temporary.Name())
+		return fmt.Errorf("secure session evidence temporary file: %w", err)
+	}
+	if _, err := temporary.Write(append(raw, '\n')); err != nil {
+		temporary.Close()
+		os.Remove(temporary.Name())
+		return fmt.Errorf("write session evidence artifact: %w", err)
+	}
+	if err := temporary.Close(); err != nil {
+		os.Remove(temporary.Name())
+		return fmt.Errorf("close session evidence artifact: %w", err)
+	}
+	if err := os.Rename(temporary.Name(), path); err != nil {
+		os.Remove(temporary.Name())
+		return fmt.Errorf("publish session evidence artifact: %w", err)
+	}
+	return nil
 }
 
 // latestSessionEvidenceDigest links each artifact to the newest previously
