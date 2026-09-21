@@ -3,12 +3,12 @@ module github.com/NDDev-OpenNetwork/github-device-sync
 go 1.27.1
 
 require (
-	github.com/NDDev-OpenNetwork/agent-runtime v0.1.2
+	github.com/NDDev-OpenNetwork/agent-runtime v0.1.7
 	github.com/dlclark/regexp2 v1.12.0
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.3
 	github.com/spf13/cobra v1.10.2
 	go.yaml.in/yaml/v4 v4.0.0-rc.6
-	modernc.org/sqlite v1.58.0
+	modernc.org/sqlite v1.59.0
 )
 
 require (

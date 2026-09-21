@@ -5,6 +5,12 @@ Versioning.
 
 ## [Unreleased]
 
+- Converge the ci-workflows reusable callers on the signed 0.1.26 tag
+  (`a7b90bd`); the `gds-ci` projection pin moves through its canonical
+  `ci.workflow_ref` input.
+- Raise `agent-runtime` to v0.1.7 and `modernc.org/sqlite` to v1.59.0.
+- Recompile the hash-locked Python test requirements: rpds-py 2026.6.3,
+  packaging 26.3, pygments 2.21.0.
 - Add `gds evidence record` and `gds evidence verify`: repo-scoped session
   evidence for the repository the agent ran in, including every Git module
   inside its boundary. `record` binds the `.gds/repository.yaml` identity,
