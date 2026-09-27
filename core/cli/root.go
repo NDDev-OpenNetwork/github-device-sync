@@ -2839,11 +2839,16 @@ func (executor *executor) doctorCommand() *cobra.Command {
 }
 
 // laneCommandTimeout is the default deadline for commands that execute another
-// repository's declared verification lanes rather than reading state. Two
-// minutes is right for a read and far too short for a command that runs a
-// module's test suite twice -- once to plan, once to re-observe before the
-// mutation -- which is how a working `module update-pin` came to look broken.
-const laneCommandTimeout = 20 * time.Minute
+// repository's declared verification lanes rather than reading state. An
+// update-pin apply runs the module's suite twice -- once to plan, once to
+// re-observe before the mutation -- so this bound must cover two full
+// verification passes plus the mutation itself. Twenty minutes expired
+// mid-verify on a real module and surfaced as GDS_STALE_PLAN, which read as a
+// changed repository rather than a deadline (issue 192). Two hours is not a
+// latency budget: each declared command is bounded individually by the
+// module's verification.timeouts or the per-command default, so this only
+// stops a runaway operation. An explicit --timeout always wins.
+const laneCommandTimeout = 2 * time.Hour
 
 func (executor *executor) run(
 	command *cobra.Command,

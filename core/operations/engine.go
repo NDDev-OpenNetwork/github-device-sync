@@ -213,32 +213,10 @@ func (engine *Engine) apply(
 		return ApplyResult{}, err
 	}
 	now := engine.now()
-	if !plan.ExpiresAt.After(now) {
-		if transitionErr := engine.Store.TransitionPlan(ctx, planID, "planned", "stale"); transitionErr != nil {
-			return ApplyResult{}, newError(
-				"GDS_PLAN_EXPIRY_RECORD_FAILED", domain.ExitInternal,
-				"Expired plan could not be marked stale.", transitionErr,
-			)
-		}
-		return ApplyResult{PlanID: planID, Status: "stale"}, newError(
-			"GDS_PLAN_EXPIRED", domain.ExitStale,
-			"Plan expired before apply and no action handler was called.", nil,
-		)
-	}
-	if plan.RequiresApproval() {
-		if engine.RequireSignedApprovals && signed == nil {
-			return ApplyResult{PlanID: planID, Status: "planned"}, newError(
-				"GDS_SIGNED_APPROVAL_REQUIRED", domain.ExitApproval,
-				"This mutation requires a signed approval bound to the exact plan.", nil,
-			)
-		}
-		if signed == nil && validateApprovalReference(approvalReference) != nil {
-			return ApplyResult{PlanID: planID, Status: "planned"}, newError(
-				"GDS_APPROVAL_REQUIRED", domain.ExitApproval,
-				"This plan requires approval before apply.", nil,
-			)
-		}
-	}
+	// A presented signed approval is verified before any answer is derived
+	// from the journal: a request carrying an invalid signature must fail
+	// closed even when the plan already produced an operation, so the reply
+	// can never read as though that signature authorized something.
 	var signedDigest string
 	if signed != nil {
 		if engine.ApprovalVerifier == nil {
@@ -264,6 +242,58 @@ func (engine *Engine) apply(
 		if err != nil {
 			return ApplyResult{}, err
 		}
+	}
+	// A recorded operation replays before expiry or enablement are consulted:
+	// the mutation (or its refusal) already happened and re-reading the
+	// journal is idempotent. Without this ordering, an applied plan past its
+	// lifetime reports "expired" -- or an expiry-record failure -- instead of
+	// its actual result, and a signed plan can never replay at all because
+	// its one-shot enablement was consumed by the recorded operation.
+	if existing, loadErr := engine.Store.GetOperationByPlan(ctx, planID); loadErr == nil {
+		return engine.replayApply(ctx, existing)
+	} else if !errors.Is(loadErr, state.ErrNotFound) {
+		return ApplyResult{}, newError(
+			"GDS_OPERATION_LOOKUP_FAILED", domain.ExitInternal,
+			"Existing operation state could not be inspected.", loadErr,
+		)
+	}
+	if !plan.ExpiresAt.After(now) {
+		// No operation ever consumed this plan, so its terminal truth is
+		// stale. Write that as durable bookkeeping: it must survive a caller
+		// deadline that died during an earlier re-observation, like every
+		// other terminal journal in this engine, and it must tolerate having
+		// been written already -- an earlier expired apply may have recorded
+		// the same state. Either way the answer to this apply is identical.
+		if record.Status == "planned" || record.Status == "approved" {
+			if transitionErr := engine.Store.TransitionPlan(
+				context.WithoutCancel(ctx), planID, record.Status, "stale",
+			); transitionErr != nil {
+				return ApplyResult{}, newError(
+					"GDS_PLAN_EXPIRY_RECORD_FAILED", domain.ExitInternal,
+					"Expired plan could not be marked stale.", transitionErr,
+				)
+			}
+		}
+		return ApplyResult{PlanID: planID, Status: "stale"}, newError(
+			"GDS_PLAN_EXPIRED", domain.ExitStale,
+			"Plan expired before apply and no action handler was called.", nil,
+		)
+	}
+	if plan.RequiresApproval() {
+		if engine.RequireSignedApprovals && signed == nil {
+			return ApplyResult{PlanID: planID, Status: "planned"}, newError(
+				"GDS_SIGNED_APPROVAL_REQUIRED", domain.ExitApproval,
+				"This mutation requires a signed approval bound to the exact plan.", nil,
+			)
+		}
+		if signed == nil && validateApprovalReference(approvalReference) != nil {
+			return ApplyResult{PlanID: planID, Status: "planned"}, newError(
+				"GDS_APPROVAL_REQUIRED", domain.ExitApproval,
+				"This plan requires approval before apply.", nil,
+			)
+		}
+	}
+	if signed != nil {
 		enablement, enableErr := engine.Store.GetPlanEnablement(ctx, "enablement:"+signed.ApprovalID)
 		enablementProblem := ""
 		switch {
@@ -291,14 +321,6 @@ func (engine *Engine) apply(
 				enableErr,
 			)
 		}
-	}
-	if existing, loadErr := engine.Store.GetOperationByPlan(ctx, planID); loadErr == nil {
-		return engine.replayApply(ctx, existing)
-	} else if !errors.Is(loadErr, state.ErrNotFound) {
-		return ApplyResult{}, newError(
-			"GDS_OPERATION_LOOKUP_FAILED", domain.ExitInternal,
-			"Existing operation state could not be inspected.", loadErr,
-		)
 	}
 	if record.Status != "planned" {
 		return ApplyResult{}, newError(

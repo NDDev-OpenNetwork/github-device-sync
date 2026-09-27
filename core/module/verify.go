@@ -26,6 +26,9 @@ type LaneSelection struct {
 	// lanes need rather than proving anything itself. Its failure is a different
 	// statement: the check could not be attempted, not that the module failed it.
 	Prerequisite bool `json:"prerequisite,omitempty"`
+	// TimeoutSeconds bounds one command in this lane, as the module declared it.
+	// Zero selects the executor's default.
+	TimeoutSeconds int64 `json:"timeout_seconds,omitempty"`
 }
 
 // VerificationPlan is what a single module owes, read from its own anchor.
@@ -56,6 +59,25 @@ func lanesByName(commands domain.VerificationCommands) map[string][]string {
 	}
 }
 
+// timeoutsByName mirrors lanesByName: `verification.timeouts` uses the same
+// lane vocabulary as `verification.commands`, so both mappings live side by
+// side and cannot drift apart unnoticed.
+func timeoutsByName(timeouts domain.VerificationTimeouts) map[string]int64 {
+	return map[string]int64{
+		"bootstrap":     timeouts.Bootstrap,
+		"lint":          timeouts.Lint,
+		"typecheck":     timeouts.Typecheck,
+		"test":          timeouts.Test,
+		"build":         timeouts.Build,
+		"compatibility": timeouts.Compatibility,
+		"package":       timeouts.Package,
+		"fast":          timeouts.Fast,
+		"pr-required":   timeouts.PRRequired,
+		"full":          timeouts.Full,
+		"release":       timeouts.Release,
+	}
+}
+
 // PlanVerification reads what a module declares it owes.
 //
 // A lane named by `verification.required` that carries no commands is reported
@@ -74,6 +96,7 @@ func PlanVerification(
 	}
 	findings := []domain.Finding{}
 	available := lanesByName(anchor.Verification.Commands)
+	timeouts := timeoutsByName(anchor.Verification.Timeouts)
 
 	// `bootstrap` is the one lane `schemas/v1/repository.schema.json` keeps out
 	// of `verification.required`, and until now nothing selected it, so a module
@@ -87,6 +110,7 @@ func PlanVerification(
 	if bootstrap := available["bootstrap"]; len(bootstrap) != 0 {
 		plan.Lanes = append(plan.Lanes, LaneSelection{
 			Lane: "bootstrap", Commands: bootstrap, Prerequisite: true,
+			TimeoutSeconds: timeouts["bootstrap"],
 		})
 	}
 
@@ -138,7 +162,9 @@ func PlanVerification(
 			})
 			continue
 		}
-		plan.Lanes = append(plan.Lanes, LaneSelection{Lane: lane, Commands: commands})
+		plan.Lanes = append(plan.Lanes, LaneSelection{
+			Lane: lane, Commands: commands, TimeoutSeconds: timeouts[lane],
+		})
 	}
 	return plan, findings
 }

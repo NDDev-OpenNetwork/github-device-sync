@@ -6,6 +6,7 @@ import (
 	"errors"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/canonicaljson"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/compiler"
@@ -49,6 +50,10 @@ type ModulePinPlanData struct {
 type modulePinContext struct {
 	assessment  ModulePinAssessment
 	observation operations.Observation
+	// verificationDuration is the measured cost of the module's declared lanes
+	// at the target commit. Apply re-runs the same lanes before mutating, so
+	// the plan's lifetime must account for what it costs to re-prove itself.
+	verificationDuration time.Duration
 }
 
 type modulePinObserver struct {
@@ -97,7 +102,16 @@ func (services *Services) PlanModuleUpdatePin(
 	if err != nil {
 		return domain.InternalError("gds module update-pin plan", err)
 	}
-	plan, err := operations.NewPlan(planID, now, now.Add(projectionPlanLifetime), operations.PlanInput{
+	// The plan must outlive what it costs to re-prove it. Apply runs the same
+	// module verification up to twice -- once before the first mutation and
+	// once per step -- so a wall-clock lifetime sized for a read-only plan
+	// expired mid-verification on real modules (GDS issue 192). Three times
+	// the measured lane cost covers both re-runs plus one retry.
+	lifetime := projectionPlanLifetime
+	if derived := 3*current.verificationDuration + projectionPlanLifetime; derived > lifetime {
+		lifetime = derived
+	}
+	plan, err := operations.NewPlan(planID, now, now.Add(lifetime), operations.PlanInput{
 		Operation: "update-module-pin",
 		Actor:     operations.Actor{Type: "agent-session", SessionID: options.SessionID},
 		Preconditions: []operations.Precondition{{
@@ -372,8 +386,10 @@ func (services *Services) modulePinContext(
 	if len(verificationFindings) != 0 {
 		return modulePinContext{}, verificationFindings
 	}
+	// Zero command timeout: no operator bound exists on this path, so a lane's
+	// declared `verification.timeouts` applies before the engine default.
 	verification, runFindings := services.runModuleLanes(
-		ctx, moduleRoot, verificationPlan, defaultModuleCommandTimeout,
+		ctx, moduleRoot, verificationPlan, 0,
 	)
 	if len(runFindings) != 0 {
 		return modulePinContext{}, runFindings
@@ -409,6 +425,12 @@ func (services *Services) modulePinContext(
 	if err != nil {
 		return modulePinContext{}, []domain.Finding{modulePinFinding("GDS_MODULE_PIN_FINGERPRINT_FAILED", err.Error())}
 	}
+	var verificationDuration time.Duration
+	for _, lane := range verification.Lanes {
+		for _, command := range lane.Commands {
+			verificationDuration += time.Duration(command.DurationMS) * time.Millisecond
+		}
+	}
 	return modulePinContext{
 		assessment: ModulePinAssessment{
 			ConsumerID: consumer.Repository.ID, ModuleID: moduleAnchor.Repository.ID,
@@ -416,6 +438,7 @@ func (services *Services) modulePinContext(
 			GitmodulesName: gitmodulesName, GitlinkPath: submodule.Path,
 			ExpectedOldOID: submodule.GitlinkOID, TargetOID: targetOID, TargetRef: targetRef, Artifact: artifact,
 		},
+		verificationDuration: verificationDuration,
 		observation: operations.Observation{
 			RepositoryID: consumer.Repository.ID, HeadOID: consumerStatus.Head.OID,
 			WorktreeFingerprint: fingerprint, ManifestDigest: consumerManifestDigest,
