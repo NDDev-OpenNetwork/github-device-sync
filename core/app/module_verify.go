@@ -100,10 +100,6 @@ func (services *Services) VerifyModules(
 		paths[submodule.Name] = submodule.Path
 	}
 
-	timeout := options.CommandTimeout
-	if timeout <= 0 {
-		timeout = defaultModuleCommandTimeout
-	}
 	selected := strings.TrimSpace(options.Module)
 	data := ModuleVerifyData{Modules: []ModuleVerification{}}
 	matched := false
@@ -149,7 +145,7 @@ func (services *Services) VerifyModules(
 		if len(plan.Lanes) == 0 {
 			continue
 		}
-		report, runFindings := services.runModuleLanes(ctx, modulePath, plan, timeout)
+		report, runFindings := services.runModuleLanes(ctx, modulePath, plan, options.CommandTimeout)
 		findings = append(findings, runFindings...)
 		data.Modules = append(data.Modules, report)
 	}
@@ -173,11 +169,15 @@ func (services *Services) VerifyModules(
 // module: it never touches their checkout, their branch or their index. It is
 // removed on every path out, including failure, because a stray registration in
 // somebody else's Git store is a worse outcome than an unverified lane.
+// commandTimeout is the operator-chosen bound (zero when unset). An explicit
+// bound wins over the module's declared per-lane `verification.timeouts`,
+// which in turn win over the engine default -- the declaration exists because
+// the module knows its own verification cost better than a global constant.
 func (services *Services) runModuleLanes(
 	ctx context.Context,
 	modulePath string,
 	plan moduleworkflow.VerificationPlan,
-	timeout time.Duration,
+	commandTimeout time.Duration,
 ) (report ModuleVerification, findings []domain.Finding) {
 	report = ModuleVerification{
 		GitmodulesName: plan.GitmodulesName, Path: plan.Path,
@@ -229,11 +229,19 @@ func (services *Services) runModuleLanes(
 	}
 	registered = true
 
+	fallback := commandTimeout
+	if fallback <= 0 {
+		fallback = defaultModuleCommandTimeout
+	}
 	for _, lane := range plan.Lanes {
 		laneReport := LaneReport{Lane: lane.Lane, Commands: []CommandReport{}}
 		failed := false
+		laneTimeout := fallback
+		if commandTimeout <= 0 && lane.TimeoutSeconds > 0 {
+			laneTimeout = time.Duration(lane.TimeoutSeconds) * time.Second
+		}
 		for _, declared := range lane.Commands {
-			result := runDeclaredCommand(ctx, checkout, declared, timeout)
+			result := runDeclaredCommand(ctx, checkout, declared, laneTimeout)
 			laneReport.Commands = append(laneReport.Commands, result)
 			if result.CleanupPending {
 				preserve = true

@@ -319,6 +319,46 @@
             }
           }
         },
+        "timeouts": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Per-lane bound in seconds for how long one declared command may run before it is reported as timed out. Absent or zero selects the engine default.",
+          "properties": {
+            "bootstrap": {
+              "$ref": "#/$defs/laneTimeout"
+            },
+            "lint": {
+              "$ref": "#/$defs/laneTimeout"
+            },
+            "typecheck": {
+              "$ref": "#/$defs/laneTimeout"
+            },
+            "test": {
+              "$ref": "#/$defs/laneTimeout"
+            },
+            "build": {
+              "$ref": "#/$defs/laneTimeout"
+            },
+            "compatibility": {
+              "$ref": "#/$defs/laneTimeout"
+            },
+            "package": {
+              "$ref": "#/$defs/laneTimeout"
+            },
+            "fast": {
+              "$ref": "#/$defs/laneTimeout"
+            },
+            "pr-required": {
+              "$ref": "#/$defs/laneTimeout"
+            },
+            "full": {
+              "$ref": "#/$defs/laneTimeout"
+            },
+            "release": {
+              "$ref": "#/$defs/laneTimeout"
+            }
+          }
+        },
         "required": {
           "type": "array",
           "uniqueItems": true,
@@ -556,6 +596,11 @@
       "items": {
         "$ref": "common.schema.json#/$defs/singleLineCommand"
       }
+    },
+    "laneTimeout": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 86400
     },
     "consumptionType": {
       "description": "How consumers obtain this module. `git-submodule` means a consumer pins it as a gitlink. `runtime-service` means the module is executed from its own repository rather than vendored, which is also the module-side value for a GitHub reusable workflow consumed through `workflow-module-consumer`. A module consumed both ways declares both.",

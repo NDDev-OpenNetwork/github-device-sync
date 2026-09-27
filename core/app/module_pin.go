@@ -372,8 +372,10 @@ func (services *Services) modulePinContext(
 	if len(verificationFindings) != 0 {
 		return modulePinContext{}, verificationFindings
 	}
+	// Zero command timeout: no operator bound exists on this path, so a lane's
+	// declared `verification.timeouts` applies before the engine default.
 	verification, runFindings := services.runModuleLanes(
-		ctx, moduleRoot, verificationPlan, defaultModuleCommandTimeout,
+		ctx, moduleRoot, verificationPlan, 0,
 	)
 	if len(runFindings) != 0 {
 		return modulePinContext{}, runFindings

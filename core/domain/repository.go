@@ -102,6 +102,27 @@ type VerificationPolicy struct {
 	// alternative, inferring a gate from the commands beside it, would produce a
 	// confident answer with nothing behind it.
 	RequiredContexts []string `json:"required_contexts,omitempty" yaml:"required_contexts,omitempty"`
+	// Timeouts bounds how long one declared command in a lane may run before
+	// it is reported as timed out rather than failed, in seconds per lane.
+	// A module knows its own verification cost; without a way to declare it,
+	// a suite that legitimately exceeds the engine default can only flake --
+	// which is exactly what a pinned module's gitlink apply hit when its test
+	// lane re-ran under load. Zero or absent means the engine default.
+	Timeouts VerificationTimeouts `json:"timeouts,omitempty" yaml:"timeouts,omitempty"`
+}
+
+type VerificationTimeouts struct {
+	Bootstrap     int64 `json:"bootstrap,omitempty" yaml:"bootstrap,omitempty"`
+	Lint          int64 `json:"lint,omitempty" yaml:"lint,omitempty"`
+	Typecheck     int64 `json:"typecheck,omitempty" yaml:"typecheck,omitempty"`
+	Test          int64 `json:"test,omitempty" yaml:"test,omitempty"`
+	Build         int64 `json:"build,omitempty" yaml:"build,omitempty"`
+	Compatibility int64 `json:"compatibility,omitempty" yaml:"compatibility,omitempty"`
+	Package       int64 `json:"package,omitempty" yaml:"package,omitempty"`
+	Fast          int64 `json:"fast,omitempty" yaml:"fast,omitempty"`
+	PRRequired    int64 `json:"pr-required,omitempty" yaml:"pr-required,omitempty"`
+	Full          int64 `json:"full,omitempty" yaml:"full,omitempty"`
+	Release       int64 `json:"release,omitempty" yaml:"release,omitempty"`
 }
 
 type VerificationCommands struct {
