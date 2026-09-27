@@ -69,6 +69,14 @@ func TestApplySignedVerifiesAndConsumesExactPlanEnablement(t *testing.T) {
 	if _, err := engine.ApplySigned(context.Background(), plan.PlanID, tampered); err == nil {
 		t.Fatal("tampered signed approval was accepted")
 	}
+	// The enablement is consumed, so a second signed apply cannot authorize a
+	// new mutation -- but the recorded operation must still replay: apply is
+	// idempotent and the journal is the answer, not a fresh authorization.
+	replay, err := engine.ApplySigned(context.Background(), plan.PlanID, record)
+	if err != nil || !replay.IdempotentReplay || replay.OperationID != result.OperationID ||
+		replay.Status != "succeeded" || handler.applyCalls != 1 {
+		t.Fatalf("consumed-enablement replay=%#v err=%v calls=%d", replay, err, handler.applyCalls)
+	}
 }
 
 func (checker *fakeChecker) Observe(_ context.Context, repositoryID string) (Observation, error) {
@@ -623,5 +631,37 @@ func TestExpiredPlanBecomesStaleWithoutOperation(t *testing.T) {
 	}
 	if _, err := store.GetOperationByPlan(context.Background(), plan.PlanID); !errors.Is(err, state.ErrNotFound) {
 		t.Fatalf("expired plan created operation: %v", err)
+	}
+	// The first expired apply already recorded the stale mark. A second apply
+	// must report the same expiry, not an internal record failure: the
+	// "planned" -> "stale" transition no longer holds and does not need to.
+	result, err = engine.Apply(context.Background(), plan.PlanID, "approval:owner:expired")
+	operationError(t, err, "GDS_PLAN_EXPIRED", domain.ExitStale)
+	if result.Status != "stale" || handler.applyCalls != 0 {
+		t.Fatalf("already-stale plan replayed differently: %+v calls=%d", result, handler.applyCalls)
+	}
+}
+
+func TestExpiredPlanWithOperationReplaysRecordedResult(t *testing.T) {
+	engine, store, _, handler, plan := testEngine(t)
+	result, err := engine.Apply(context.Background(), plan.PlanID, "approval:owner:complete")
+	if err != nil || result.Status != "succeeded" || handler.applyCalls != 1 {
+		t.Fatalf("initial apply failed: %#v err=%v", result, err)
+	}
+	// Once an operation exists, expiry cannot rewrite history: re-applying
+	// the same plan after its lifetime must replay the recorded result, not
+	// report expiry or a stale-plan conflict.
+	engine.Now = func() time.Time { return plan.ExpiresAt.Add(time.Hour) }
+	replay, err := engine.Apply(context.Background(), plan.PlanID, "approval:owner:complete")
+	if err != nil {
+		t.Fatalf("expired applied plan did not replay: %v", err)
+	}
+	if !replay.IdempotentReplay || replay.OperationID != result.OperationID ||
+		replay.Status != "succeeded" || handler.applyCalls != 1 {
+		t.Fatalf("expired applied plan replayed incorrectly: %+v calls=%d", replay, handler.applyCalls)
+	}
+	record, err := store.GetPlan(context.Background(), plan.PlanID)
+	if err != nil || record.Status != "succeeded" {
+		t.Fatalf("replay of expired applied plan changed plan state: %#v err=%v", record, err)
 	}
 }
