@@ -36,6 +36,48 @@ type PreconditionChecker interface {
 	Observe(context.Context, string) (Observation, error)
 }
 
+// ObservationFailure carries stable finding codes across a failed
+// re-observation. The journal may record these codes without persisting
+// arbitrary diagnostics from an external command or provider.
+type ObservationFailure struct {
+	FindingCodes []string
+}
+
+func NewObservationFailure(findings []domain.Finding) *ObservationFailure {
+	seen := make(map[string]struct{}, len(findings))
+	codes := make([]string, 0, len(findings))
+	for _, finding := range findings {
+		if finding.Code == "" {
+			continue
+		}
+		if _, exists := seen[finding.Code]; exists {
+			continue
+		}
+		seen[finding.Code] = struct{}{}
+		codes = append(codes, finding.Code)
+	}
+	sort.Strings(codes)
+	return &ObservationFailure{FindingCodes: codes}
+}
+
+func (failure *ObservationFailure) Error() string {
+	if len(failure.FindingCodes) == 0 {
+		return "precondition observation has no proven finding code"
+	}
+	return "precondition observation findings: " + strings.Join(failure.FindingCodes, ", ")
+}
+
+func preconditionFailureCause(observeErr error) map[string]any {
+	if observeErr == nil {
+		return map[string]any{"kind": "field-mismatch"}
+	}
+	var findingError *ObservationFailure
+	if errors.As(observeErr, &findingError) {
+		return map[string]any{"kind": "observation-findings", "finding_codes": findingError.FindingCodes}
+	}
+	return map[string]any{"kind": "observation-error"}
+}
+
 type ApplyEvidence struct {
 	Before any `json:"before,omitempty"`
 	After  any `json:"after,omitempty"`
@@ -458,7 +500,7 @@ func (engine *Engine) apply(
 		}
 		_, _ = engine.Store.AppendEvent(
 			ctx, operationID, planID, "", "preconditions-stale", engine.now(),
-			map[string]any{"mismatches": mismatches},
+			map[string]any{"mismatches": mismatches, "cause": preconditionFailureCause(observeErr)},
 		)
 		return engine.blockBeforeMutation(
 			ctx, plan, operationID, locks, "GDS_STALE_PLAN",
@@ -499,6 +541,7 @@ func (engine *Engine) apply(
 					map[string]any{
 						"repository_id": step.RepositoryID,
 						"mismatches":    mismatches,
+						"cause":         preconditionFailureCause(observeErr),
 					},
 				)
 				return engine.blockOnStepPreconditionDrift(

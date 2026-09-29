@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -82,6 +83,20 @@ func TestDeclaredCommandDoesNotInheritControllerEstateSelection(t *testing.T) {
 		`test -z "${GDS_ESTATE_ROOT+x}" && test "$GDS_MODULE_TEST_VALUE" = preserved`, 30*time.Second)
 	if report.Status != "passed" {
 		t.Fatalf("controller selection leaked into module: %#v", report)
+	}
+}
+
+func TestDeclaredCommandDoesNotInheritHostGitConfiguration(t *testing.T) {
+	config := t.TempDir() + "/gitconfig"
+	if err := os.WriteFile(config, []byte("[core]\n\tfsmonitor = true\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("GIT_CONFIG_GLOBAL", config)
+	t.Setenv("GIT_CONFIG_NOSYSTEM", "0")
+	report := runDeclaredCommand(context.Background(), t.TempDir(),
+		`test "$(git config --global --get core.fsmonitor || :)" = "" && test "$GIT_CONFIG_NOSYSTEM" = 1`, 30*time.Second)
+	if report.Status != "passed" {
+		t.Fatalf("host Git configuration leaked into module lane: %#v", report)
 	}
 }
 

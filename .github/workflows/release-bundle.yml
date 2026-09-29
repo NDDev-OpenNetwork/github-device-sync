@@ -83,17 +83,32 @@ jobs:
           previous_sequence="$(jq -r '.release_sequence' "$work/release-envelope.json")"
           previous_floor="$(jq -r '.minimum_cli_version' "$work/manifest.json")"
           [[ "$previous_sequence" =~ ^[0-9]+$ ]] || { echo "previous release sequence is not an integer" >&2; exit 1; }
-          previous_version="${previous#gds-v}"
+          # Failed releases keep their tag and sequence. Read the latest tag's
+          # success or failure envelope so the next merge never reuses either
+          # immutable identity (for example, failed 0.9.17 / sequence 72).
+          if [ "$latest_tag" = "$previous" ]; then
+            latest_sequence="$previous_sequence"
+          elif gh release download "$latest_tag" --repo "$GITHUB_REPOSITORY" \
+            -p release-failure-envelope.json --dir "$work" --clobber >/dev/null 2>&1; then
+            latest_sequence="$(jq -r '.release_sequence' "$work/release-failure-envelope.json")"
+            test "$(jq -r '.bundle_version' "$work/release-failure-envelope.json")" = "${latest_tag#gds-v}"
+          else
+            echo "Latest tag $latest_tag has no success or failure release envelope" >&2
+            exit 1
+          fi
+          [[ "$latest_sequence" =~ ^[0-9]+$ ]] || { echo "latest release sequence is not an integer" >&2; exit 1; }
+          [ "$latest_sequence" -ge "$previous_sequence" ] || { echo "latest release sequence regressed" >&2; exit 1; }
+          latest_version="${latest_tag#gds-v}"
           if [ -n "$VERSION_OVERRIDE" ]; then
             next_version="$VERSION_OVERRIDE"
           else
-            next_version="$(awk -F. -v v="$previous_version" 'BEGIN{split(v,p,"."); printf "%d.%d.%d", p[1], p[2], p[3]+1}')"
+            next_version="$(awk -F. -v v="$latest_version" 'BEGIN{split(v,p,"."); printf "%d.%d.%d", p[1], p[2], p[3]+1}')"
           fi
           # Monotonicity is structural, not assumed: the new identity must be
           # strictly greater than the release it follows. Compare components
           # numerically -- sort -n reads "9.10" as the float 9.1, which orders
           # a double-digit patch below its predecessor.
-          if ! awk -F. -v a="$previous_version" -v b="$next_version" 'BEGIN{
+          if ! awk -F. -v a="$latest_version" -v b="$next_version" 'BEGIN{
               split(a, x, "."); split(b, y, ".");
               for (i = 1; i <= 3; i++) {
                 if (y[i] + 0 > x[i] + 0) exit 0;
@@ -101,10 +116,10 @@ jobs:
               }
               exit 1
             }'; then
-            echo "next version $next_version is not greater than $previous_version" >&2
+            echo "next version $next_version is not greater than $latest_version" >&2
             exit 1
           fi
-          next_sequence=$((previous_sequence + 1))
+          next_sequence=$((latest_sequence + 1))
           next_tag="gds-v$next_version"
           if gh api "repos/$GITHUB_REPOSITORY/git/refs/tags/$next_tag" >/dev/null 2>&1; then
             echo "tag $next_tag already exists" >&2

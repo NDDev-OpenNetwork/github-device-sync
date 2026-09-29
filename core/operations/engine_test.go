@@ -24,6 +24,7 @@ import (
 type fakeChecker struct {
 	observations map[string]Observation
 	err          error
+	failAt       int
 	calls        int
 }
 
@@ -81,7 +82,7 @@ func TestApplySignedVerifiesAndConsumesExactPlanEnablement(t *testing.T) {
 
 func (checker *fakeChecker) Observe(_ context.Context, repositoryID string) (Observation, error) {
 	checker.calls++
-	if checker.err != nil {
+	if checker.err != nil && (checker.failAt == 0 || checker.calls == checker.failAt) {
 		return Observation{}, checker.err
 	}
 	return checker.observations[repositoryID], nil
@@ -273,6 +274,62 @@ func TestApplyRejectsStalePlanBeforeHandler(t *testing.T) {
 	}
 	if _, err := store.GetLock(context.Background(), "repository", observed.RepositoryID); !errors.Is(err, state.ErrNotFound) {
 		t.Fatalf("stale operation retained lock: %v", err)
+	}
+}
+
+func TestApplyJournalsTypedObservationCauseWithoutRawDiagnostics(t *testing.T) {
+	for _, trial := range []struct {
+		name      string
+		failAt    int
+		eventType string
+	}{
+		{"before-mutation", 1, "preconditions-stale"},
+		{"before-step", 2, "step-preconditions-stale"},
+	} {
+		t.Run(trial.name, func(t *testing.T) {
+			engine, store, checker, handler, plan := testEngine(t)
+			checker.failAt = trial.failAt
+			checker.err = fmt.Errorf("private diagnostic: %w", NewObservationFailure([]domain.Finding{
+				{Code: "GDS_MODULE_PIN_LANE_FAILED"},
+				{Code: "GDS_MODULE_PIN_SOURCE_NOT_PROVEN"},
+				{Code: "GDS_MODULE_PIN_LANE_FAILED"},
+			}))
+			result, err := engine.Apply(context.Background(), plan.PlanID, "approval:owner:cause")
+			operationError(t, err, "GDS_STALE_PLAN", domain.ExitStale)
+			if result.MutationAttempted || handler.applyCalls != 0 {
+				t.Fatalf("failed observation reached mutation handler: result=%+v calls=%d", result, handler.applyCalls)
+			}
+			events, err := store.ListEvents(context.Background(), result.OperationID)
+			if err != nil {
+				t.Fatal(err)
+			}
+			found := false
+			for _, event := range events {
+				if event.EventType != trial.eventType {
+					continue
+				}
+				found = true
+				if strings.Contains(string(event.Payload), "private diagnostic") {
+					t.Fatalf("journal leaked raw observation error: %s", event.Payload)
+				}
+				var payload struct {
+					Cause struct {
+						Kind         string   `json:"kind"`
+						FindingCodes []string `json:"finding_codes"`
+					} `json:"cause"`
+				}
+				if err := json.Unmarshal(event.Payload, &payload); err != nil {
+					t.Fatal(err)
+				}
+				if payload.Cause.Kind != "observation-findings" ||
+					strings.Join(payload.Cause.FindingCodes, ",") != "GDS_MODULE_PIN_LANE_FAILED,GDS_MODULE_PIN_SOURCE_NOT_PROVEN" {
+					t.Fatalf("journal lost sorted finding codes: %+v", payload.Cause)
+				}
+			}
+			if !found {
+				t.Fatalf("%s event missing", trial.eventType)
+			}
+		})
 	}
 }
 
