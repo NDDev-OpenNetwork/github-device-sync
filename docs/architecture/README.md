@@ -37,9 +37,9 @@ provenance, and rejects equal-priority selector ambiguity.
 
 - **Five GitHub installations**: `example-user` (user), `example-org`,
   `example-media`, `NDDev-OpenNetwork`, and `example-guild`
-  (read-only member, no mutation capability). Four have separate mutation
-  capability declarations
-  with distinct identity and secret locators from their read Installation Apps.
+  (read-only member, no mutation capability). Four carry separate Mutation Apps,
+  declared by mutation capabilities with distinct identity and secret locators
+  from their read Installation Apps.
 - **Three devices**: `example-workstation` (linux/x86_64, desktop),
   `example-user-mac2` (macos/arm64, desktop), and `example-user-ubuntu-1`
   (linux/x86_64, desktop-builds, rootful Docker).
