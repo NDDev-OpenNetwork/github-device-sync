@@ -1,7 +1,8 @@
 # GDS Serena memory v1 contract
 
-Status: Phase 11 provenance validation implemented; current memories are
-verified against committed source inputs.
+Status: provenance validation and read-only candidate generation are
+implemented. The shipped public repository disables Serena memories in its
+anchor and has no tracked `.serena/memories/` set.
 
 ## Role
 
@@ -92,7 +93,7 @@ contract statement rather than an omission.
   claimed assurance is missing, and a repository that keeps memories without
   binding them to sources has not promised to keep any.
 - `enabled: true, provenance_required: true` -- everything above, including
-  `GDS_MEMORY_SET_EMPTY`. This control plane declares this.
+  `GDS_MEMORY_SET_EMPTY`. A consuming estate can declare this.
 
 An anchor that cannot be read falls back to the strictest reading. The opt-out
 has to be stated to take effect; inferring it from a file that failed to parse
@@ -106,32 +107,24 @@ so `gds validate memories` (and the `core/memory` and `core/cli` tests) fail
 until the memory is re-synced. This is expected drift, not a defect. The sync is
 commit-first:
 
-1. Commit the source change. `gds memory generate <name>` resolves the source
-   commit from the committed history and refuses a dirty tree with
+1. Commit the source change. Both candidate commands resolve the source
+   commit from committed history and refuse dirty declared sources with
    `GDS_MEMORY_COMMITTED_SOURCE_NOT_PROVEN`.
-2. Run `gds memory generate <name>`. It preserves the authored body, recomputes
-   the digest and source commit, and emits `generated-unverified` whenever the
-   commit or digest changed. Apply the new `source_commit`, `source_digest`, and
-   a fresh `verified_at` to the frontmatter.
-3. Restore `status: verified` only as a deliberate assertion that the body still
-   describes the current source; add any new stable invariant to the body while
-   re-reading it. The generator never promotes status on its own.
+2. Re-read the authored body against those sources and edit any stale claim.
+   `gds memory generate <name> --json` preserves that body and returns a
+   `generated-unverified` candidate when source provenance changed. It does
+   not write the file or assert that the prose is true.
+3. After reviewing the body, run `gds memory verify <name> --json`. It returns
+   a candidate with current source and body digests, `status: verified`, and a
+   new `verified_at` later than the source commit. Apply the returned
+   `data.content` byte-for-byte to `data.path`; the command never writes it.
+   `bundle_version` is memory metadata and is not the installed CLI version.
 4. Commit the memory update on its own, conventionally as a `docs(memory):`
-   change separate from the source commit.
+   change separate from the source commit. Run `gds memory validate` again.
 
-## Current semantic set
+## Repository selection
 
-```text
-core-bundle-rollout
-core-context-resolution
-core-estate-layout
-core-github-controller
-core-harness-adapters
-core-integrated-assurance
-core-operation-safety
-core-policy-projection
-```
-
-The former numeric memories were retired only after these replacements covered
-their still-valid knowledge. Legacy four-level/container claims that conflict
-with the typed graph model were not copied forward.
+The public GDS example has `agent.serena.enabled: false` and
+`provenance_required: false`, so it owes no memory set. A consuming estate
+chooses its own semantic names and source paths; do not copy an older GDS
+memory list into it.

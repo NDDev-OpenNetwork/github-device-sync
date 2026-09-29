@@ -214,6 +214,15 @@ Validates semantic Serena memory names, strict metadata, committed versus
 working-tree status, required body sections, safe repository-relative sources,
 and deterministic source digests. It reports drift but never rewrites memory.
 
+### `gds memory generate <name>`, `gds memory verify <name>`
+
+Both return a complete read-only candidate for an existing semantic memory
+whose declared sources have been committed. `generate` demotes stale source
+provenance to `generated-unverified`; `verify` stamps `verified` and
+`verified_at` after the caller has reviewed the body against those sources.
+Neither writes the candidate. In JSON output, apply `data.content` to
+`data.path`, then run `gds memory validate`.
+
 ### `gds validate plan --file <path>`
 
 Validates schema, expiry ordering, exact scope/precondition coverage, step

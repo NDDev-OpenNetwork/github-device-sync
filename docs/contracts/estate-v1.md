@@ -1,6 +1,7 @@
 # GDS estate desired-configuration v1 contract
 
-Status: implemented with controlled mutation enabled for managed NDDev sources.
+Status: implemented. The shipped example estate enables controlled mutation
+only for selectors and operation capabilities that explicitly allow it.
 
 ## Source boundary
 
@@ -19,10 +20,9 @@ estate/owners/*.yaml
 estate/selectors/*.yaml
 ```
 
-The current baseline declares four owners: the personal `example-user` account,
-the `example-org` organization, the `example-media` organization, and
-the `example-guild` organization (read-only member, no mutation
-capability). Installation IDs remain logical; their actual GitHub App and
+The shipped example declares five owners: `example-user`, `example-org`,
+`example-media`, `example-guild` (observe-only), and the publisher account
+`NDDev-OpenNetwork`. Installation IDs remain logical; their actual GitHub App and
 provider installation IDs are bound only by a private device-local
 `github-runtime` document, or by the gh-CLI credential variant (ADR 0034).
 Estate secret references are portable `secret:gds/...` identities; they do not
@@ -41,12 +41,12 @@ discovery.default_management_mode = observe-only
 rollout.mutation_mode = pull-request
 ```
 
-The generic NDDev source selector assigns `managed`; every other selector
-remains `observe-only`. Managed does not authorize an automatic write: apply
+The `organization-sources` and `opennetwork-sources` selectors assign
+`managed`; the other shipped selectors assign `observe-only`. Managed does not authorize an automatic write: apply
 also requires an exact immutable plan, signed approval, one-shot enablement,
 fresh compare-and-swap evidence, an operation-scoped mutation capability, a
 private runtime, and the device mutation kill switch. Archive, fork, server,
-guild, personal, and Example-Media selectors remain outside this rollout.
+guild, personal, and example-media selectors remain outside this rollout.
 
 ## Discovery and classification
 
@@ -76,32 +76,18 @@ retain their own priority. Organization and personal server portfolios
 use distinct device workspace roots so their filesystem placement remains
 injective even when owners contain repositories with the same name.
 
-Selector priority bands are conventional:
+The shipped selectors use these priority bands:
 
 - `100` — generic classification (sources, forks);
 - `200` — specialized non-fork overrides (servers, named-prefix families);
-- `300` — state overrides that outrank topology and name (archived).
 
-The `archived` state takes precedence over both fork topology and server name.
-The estate ships a priority-`300` archived selector for every owner whose
-fall-through source portfolio would otherwise misclassify an archived
-repository, so a provider-archived repository resolves to
-`portfolio:archived-projects` regardless of whether it is a fork, a source, or
-a `server-*` superproject:
-
-- `personal-archived` matches `owner:example-user` with `archived: true`;
-- `organization-archived` matches `owner:nddev` with `archived: true`.
-
-A higher band must be distinct from every overlapping selector's priority to
-avoid the equal-priority ambiguity the compiler rejects. The
-`organization-archived` selector is defense-in-depth: no NDDev repository is
-archived on the provider today, but without it a future archived NDDev
-repository would fall through to `portfolio:organization-projects` under
-`organization-sources` instead of `portfolio:archived-projects`. The
-`example-media` and `example-guild` owners do not yet declare an
-archived selector; add one if an archived repository ever appears under those
-owners and would otherwise be misclassified by `example-media-sources`,
-`example-media-servers`, or `guild-sources`.
+There is no archived selector in the shipped example. The compiler preserves
+the provider's `archived` observation, but classification follows the matching
+selector. An estate that defines archival by ownership can assign its archive
+owner to `portfolio:archived-projects` regardless of the provider flag. An
+estate that instead wants provider-archived precedence must declare an
+appropriate higher-priority selector. Equal-priority overlapping matches are
+rejected by the compiler.
 
 ## Monotonic policy fields
 
