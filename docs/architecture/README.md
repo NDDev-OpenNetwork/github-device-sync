@@ -4,7 +4,7 @@ This is the current architecture overview of the `github-device-sync` (gds)
 control plane. It carries no release version in its title deliberately: it
 describes the system as it is now, and a version stamped here goes stale
 silently every time a release ships without an architecture change. Release
-boundaries live in `CHANGELOG.md` and `docs/version-ledger.md`. For the
+boundaries live in `CHANGELOG.md` and release tags. For the
 migration design baseline that preceded the Go implementation, see
 the ADRs in `docs/adr/`.
 
@@ -37,7 +37,8 @@ provenance, and rejects equal-priority selector ambiguity.
 
 - **Five GitHub installations**: `example-user` (user), `example-org`,
   `example-media`, `NDDev-OpenNetwork`, and `example-guild`
-  (read-only member, no mutation capability). Four carry separate Mutation Apps
+  (read-only member, no mutation capability). Four have separate mutation
+  capability declarations
   with distinct identity and secret locators from their read Installation Apps.
 - **Three devices**: `example-workstation` (linux/x86_64, desktop),
   `example-user-mac2` (macos/arm64, desktop), and `example-user-ubuntu-1`
@@ -45,12 +46,14 @@ provenance, and rejects equal-priority selector ambiguity.
 - **Repository visibility**: public. The control-plane repository carries
   `visibility_contract: public` and declares no submodules, so no module
   visibility has to be reconciled against it.
-- **Posture**: `mutation_mode: "pull-request"` for managed NDDev sources;
-  every other selector remains `observe-only`, and every write remains gated by
+- **Posture**: `mutation_mode: "pull-request"`; `organization-sources` and
+  `opennetwork-sources` are managed, while the other shipped selectors remain
+  `observe-only`. Every write remains gated by
   exact signed approval plus one-shot enablement.
-- **Selectors** classify observed repositories by owner, fork flag, name
-  prefix, and archived state into portfolios. Priority bands: `100` generic,
-  `200` specialized non-fork, `300` state override (archived precedence).
+- **Selectors** classify observed repositories by owner, visibility, and name
+  prefix into portfolios. The seven shipped selectors use priorities `100`
+  (sources) and `200` (server-name overrides). The example declares no
+  archived-state selector.
 
 ## Package layout (Go core)
 
@@ -67,7 +70,7 @@ provenance, and rejects equal-priority selector ambiguity.
 | Control-plane service | `state`, `controller`, `reconciler`, `webhooks`, `audit` | SQLite journal, webhook worker, drift reconciler, signed audit snapshots. |
 | Orchestration | `app`, `cli`, `cmd/*` | Use-case wiring, Cobra adapter, seven binaries. |
 
-Six binaries: `gds`, `gds-controller`, `gds-assurance`,
+Seven binaries: `gds`, `gds-controller`, `gds-assurance`,
 `gds-performance-evidence`, `gds-release-builder`, and
 `gds-{claude,codex}-runtime-driver`.
 
