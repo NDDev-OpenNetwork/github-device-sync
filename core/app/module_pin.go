@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"path/filepath"
 	"strings"
 	"time"
@@ -72,7 +73,10 @@ func (observer modulePinObserver) Observe(
 	current, findings := observer.services.modulePinContext(
 		ctx, observer.consumer, observer.module, observer.name, observer.version, observer.runtimeConfig,
 	)
-	if len(findings) != 0 || current.assessment.ConsumerID != repositoryID {
+	if len(findings) != 0 {
+		return operations.Observation{}, fmt.Errorf("module pin precondition findings: %w", operations.NewObservationFailure(findings))
+	}
+	if current.assessment.ConsumerID != repositoryID {
 		return operations.Observation{}, errors.New("module pin precondition is no longer proven")
 	}
 	return current.observation, nil

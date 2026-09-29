@@ -318,12 +318,18 @@ func runDeclaredCommand(
 	// their own source checkout, and must not silently select its consumer's
 	// estate. A declared command can still explicitly select an estate itself.
 	environment := os.Environ()
-	command.Env = make([]string, 0, len(environment))
+	command.Env = make([]string, 0, len(environment)+2)
 	for _, value := range environment {
-		if !strings.HasPrefix(value, "GDS_ESTATE_ROOT=") {
+		if !strings.HasPrefix(value, "GDS_ESTATE_ROOT=") &&
+			!strings.HasPrefix(value, "GIT_CONFIG_GLOBAL=") &&
+			!strings.HasPrefix(value, "GIT_CONFIG_NOSYSTEM=") {
 			command.Env = append(command.Env, value)
 		}
 	}
+	// Verification runs in a throwaway checkout of the pinned gitlink. Host
+	// Git config (notably fsmonitor hooks) can start background processes and
+	// make an otherwise passing lane appear to leave unjoined descendants.
+	command.Env = append(command.Env, "GIT_CONFIG_GLOBAL="+os.DevNull, "GIT_CONFIG_NOSYSTEM=1")
 	// Bound inherited output pipes as well as the command itself.
 	command.WaitDelay = 2 * time.Second
 	diagnostic := &moduleCommandOutput{}
