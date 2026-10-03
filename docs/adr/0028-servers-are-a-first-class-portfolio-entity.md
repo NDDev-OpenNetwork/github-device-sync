@@ -2,6 +2,10 @@
 
 Status: Accepted
 
+Superseded in part by: ADR 0040 (the first-class
+`portfolio:servers` entity; server checkouts still receive the distinct
+`servers-default` policy profile, now matched by `name_prefixes`)
+
 Date: 2026-07-26
 
 ## Context

@@ -5,7 +5,8 @@ Status: Accepted
 Supersedes: the owner-specific `servers` roots described in ADR 0025
 
 Superseded in part by: ADR 0032 (the clause reserving owner-specific roots for
-forks; forks now use one flat root too)
+forks; forks now use one flat root too) and ADR 0040 (the owner-specific
+`servers` portfolio assignment; the flat `servers/` root itself stays)
 
 Date: 2026-07-26
 

@@ -8,7 +8,7 @@ clause stops being normative.
 
 | ADR | Title | Status | Supersedes | Superseded by |
 |---|---|---|---|---|
-| [0040](0040-tenancy-is-the-provider-account.md) | Tenancy is the provider account | Accepted | ADR 0026 (in part), ADR 0028 (in part), ADR 0032 (in part) | — |
+| [0040](0040-tenancy-is-the-provider-account.md) | Tenancy is the provider account | Accepted | — | — |
 | [0039](0039-repo-scoped-session-evidence.md) | Repo-scoped session evidence | Accepted | — | — |
 | [0038](0038-release-identity-carries-no-channel.md) | Release identity carries no channel | Accepted | ADR 0016 | — |
 | [0037](0037-seven-harnesses-one-per-setup-system.md) | Seven harnesses, one per setup system | Accepted | ADR 0011 | — |
@@ -21,7 +21,7 @@ clause stops being normative.
 | [0029](0029-harness-applications-are-out-of-estate-scope.md) | Keep harness application versions out of estate scope | Accepted | — | — |
 | [0028](0028-servers-are-a-first-class-portfolio-entity.md) | Make servers a first-class portfolio entity | Accepted | — | ADR 0040 (in part) |
 | [0027](0027-submodule-repositories-have-no-standalone-checkout.md) | Give a submodule-consumed repository no standalone checkout | Accepted | ADR 0018 | — |
-| [0026](0026-flat-servers-workspace-root.md) | Place every server checkout in one flat servers workspace root | Accepted | ADR 0025 | ADR 0032 (in part), ADR 0040 (in part) |
+| [0026](0026-flat-servers-workspace-root.md) | Place every server checkout in one flat servers workspace root | Accepted | ADR 0025 | ADR 0032, ADR 0040 (in part) |
 | [0025](0025-out-of-estate-external-workspace-root.md) | Keep third-party collaboration checkouts in an out-of-estate external root | Accepted | — | ADR 0026 (in part) |
 | [0024](0024-device-local-estate-registration.md) | Resolve the control plane through a device-local estate registration | Accepted | — | — |
 | [0023](0023-separate-github-mutation-capability.md) | Separate GitHub mutation capability and repository-bound writes | Accepted | — | — |
