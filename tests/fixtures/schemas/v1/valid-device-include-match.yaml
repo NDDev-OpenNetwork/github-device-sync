@@ -1,0 +1,47 @@
+schema_version: 1
+
+device:
+  id: "device_01JEXAMPZ00000000000000004"
+  name: "example-workstation-match"
+  os: "linux"
+  architecture: "x86_64"
+
+workspace_roots:
+  personal: "${HOME}/Developer/personal"
+  organization: "${HOME}/Developer/organization"
+  servers: "${HOME}/Developer/servers"
+
+materialization:
+  default_mode: "absent"
+  include:
+    - match:
+        owner_login: "example-organization"
+        name_prefixes:
+          - "server-"
+        lifecycle:
+          - "active"
+          - "maintenance"
+      workspace_root: "servers"
+      mode: "active"
+    - match:
+        owner_login: "example-organization"
+      workspace_root: "organization"
+      mode: "active"
+    - match:
+        owner_login: "example-user"
+        visibility:
+          - "private"
+      workspace_root: "personal"
+      mode: "active"
+
+harnesses:
+  - "codex"
+
+state:
+  path: "${XDG_STATE_HOME}/github-device-sync"
+
+repositories:
+  - provider: "example-organization/server-example"
+    workspace_root: "servers"
+    path: "servers/server-example"
+    materialization: "checkout"
