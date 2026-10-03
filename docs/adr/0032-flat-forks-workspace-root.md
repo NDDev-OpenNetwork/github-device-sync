@@ -5,6 +5,10 @@ Status: Accepted
 Supersedes: the owner-specific fork placement established in ADR 0018 and
 reaffirmed in ADR 0026
 
+Superseded in part by: ADR 0040 (the dedicated
+`forks` portfolio and its tenant dimension; forks now classify under their
+provider owner like any other repository)
+
 Date: 2026-07-27
 
 ## Context
