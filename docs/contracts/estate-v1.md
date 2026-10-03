@@ -78,7 +78,7 @@ fields remain readable for compatibility but do not select a separate
 portfolio. Archive and name-specific selectors retain their own priority.
 Device placement no longer requires a purpose portfolio at all:
 `materialization.include[].match` selects repositories by provider facts
-(owner login, exact names, name prefixes, visibility contract) with
+(owner login, exact names, name prefixes, visibility contract, lifecycle) with
 first-match-wins ordering, so a `server-` family can span several owners under
 one root while every other repository lands under its owner's root.
 

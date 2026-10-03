@@ -189,6 +189,15 @@
                     "items": {
                       "$ref": "common.schema.json#/$defs/visibility"
                     }
+                  },
+                  "lifecycle": {
+                    "description": "Match repositories by declared lifecycle (for example keep `archived` repositories out of device workspaces).",
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                      "$ref": "common.schema.json#/$defs/lifecycle"
+                    }
                   }
                 }
               },

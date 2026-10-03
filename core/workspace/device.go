@@ -99,6 +99,7 @@ type PlacementMatch struct {
 	Names        []string `json:"names,omitempty"`
 	NamePrefixes []string `json:"name_prefixes,omitempty"`
 	Visibility   []string `json:"visibility,omitempty"`
+	Lifecycle    []string `json:"lifecycle,omitempty"`
 }
 
 func (match PlacementMatch) satisfiedBy(anchor domain.RepositoryAnchor) bool {
@@ -134,6 +135,10 @@ func (match PlacementMatch) satisfiedBy(anchor domain.RepositoryAnchor) bool {
 	}
 	if len(match.Visibility) != 0 &&
 		!contains(match.Visibility, anchor.Classification.VisibilityContract) {
+		return false
+	}
+	if len(match.Lifecycle) != 0 &&
+		!contains(match.Lifecycle, anchor.Repository.Lifecycle) {
 		return false
 	}
 	return true
