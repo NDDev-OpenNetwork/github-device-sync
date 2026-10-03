@@ -1,6 +1,7 @@
 package validation
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -346,6 +347,15 @@ func (set *Set) ValidateEstateTree(root string) (EstateSummary, []domain.Finding
 			assignment, _ := rawAssignment.(map[string]any)
 			selector := stringField(assignment, "selector")
 			workspaceRoot := stringField(assignment, "workspace_root")
+			// Trait-matched includes key on their canonical match content so
+			// several match rules may precede selector rules on one device.
+			if selector == "" {
+				if matchValue, found := assignment["match"]; found {
+					if encoded, err := json.Marshal(matchValue); err == nil {
+						selector = "match:" + string(encoded)
+					}
+				}
+			}
 			if _, duplicate := seenSelectors[selector]; duplicate {
 				findings = append(findings, domain.Finding{
 					Code: "GDS_ESTATE_DEVICE_SELECTOR_DUPLICATE", Severity: domain.SeverityHigh,

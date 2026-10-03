@@ -10,4 +10,4 @@ defaults:
   rollout_ring: "standard"
 
 classification:
-  source_portfolio: "portfolio:organization-projects"
+  source_portfolio: "portfolio:example-media"

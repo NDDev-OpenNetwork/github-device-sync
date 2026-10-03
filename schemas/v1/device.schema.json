@@ -130,13 +130,67 @@
             "type": "object",
             "additionalProperties": false,
             "required": [
-              "selector",
               "workspace_root",
               "mode"
             ],
+            "anyOf": [
+              {
+                "required": [
+                  "selector"
+                ]
+              },
+              {
+                "required": [
+                  "match"
+                ]
+              }
+            ],
             "properties": {
               "selector": {
+                "description": "Portfolio-style membership selector, matched against the repository anchor's classification.portfolios. Kept for compatibility; `match` is the trait-based form.",
                 "$ref": "common.schema.json#/$defs/referenceId"
+              },
+              "match": {
+                "description": "Trait-based placement: evaluated against repository facts (provider owner login, repository name, visibility contract) rather than a label the anchor must carry. Includes are evaluated in order and the first match wins, so a specialized rule (for example `server-` prefixed repositories) belongs before the generic owner rule it narrows.",
+                "type": "object",
+                "additionalProperties": false,
+                "minProperties": 1,
+                "properties": {
+                  "owner_login": {
+                    "description": "Exact provider owner login (GitHub account or organization name). Case-insensitive.",
+                    "$ref": "common.schema.json#/$defs/githubOwner"
+                  },
+                  "names": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100,
+                      "pattern": "^[A-Za-z0-9._-]+$"
+                    }
+                  },
+                  "name_prefixes": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100,
+                      "pattern": "^[A-Za-z0-9._-]+$"
+                    }
+                  },
+                  "visibility": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                      "$ref": "common.schema.json#/$defs/visibility"
+                    }
+                  }
+                }
               },
               "workspace_root": {
                 "$ref": "common.schema.json#/$defs/kebabId"

@@ -44,9 +44,10 @@ required.
 3. If the change moved the repository across owners or portfolios, re-resolve
    selector classification and confirm no `GDS_ESTATE_SELECTOR_CONFLICT`
    arises from the new owner/portfolio combination.
-4. If the repository was archived, confirm it now resolves to
-   `portfolio:archived-projects` under the archived-precedence rule
-   (priority `300`), regardless of prior fork or server classification.
+4. If the repository was archived, confirm it now resolves to the archive
+   owner's tenancy portfolio (e.g. `portfolio:example-archive`) under the
+   archived-precedence rule (priority `300`), regardless of prior fork or
+   server classification.
 5. Regenerate projections with `gds generate repository --plan/--apply` and
    refresh Serena memory digests if any memory source file changed.
 6. Verify provider and local final state.

@@ -69,7 +69,8 @@ priority-band convention: `100` for generic source/fork classification, `200`
 for specialized non-fork overrides (servers, named-prefix families), and `300`
 for state overrides that outrank topology and name (archived). The archived
 state takes precedence over fork topology and the `server-*` name, so a
-provider-archived repository resolves to `portfolio:archived-projects`
+provider-archived repository resolves to the archive tenancy
+(`portfolio:<archive-owner-login>`, e.g. `portfolio:example-archive`)
 regardless of its fork flag or name prefix. See `docs/contracts/estate-v1.md`
 for the full precedence rule.
 

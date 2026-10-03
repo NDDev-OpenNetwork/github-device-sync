@@ -59,6 +59,17 @@
             "$ref": "common.schema.json#/$defs/referenceId"
           }
         },
+        "name_prefixes": {
+          "description": "Match repositories by provider name prefix, case-insensitive. Lets a cross-owner policy reach e.g. every `server-` repository without inventing a portfolio.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "pattern": "^[A-Za-z0-9._-]+$"
+          }
+        },
         "visibility_contract": {
           "type": "array",
           "uniqueItems": true,

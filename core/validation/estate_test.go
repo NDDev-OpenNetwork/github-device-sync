@@ -64,7 +64,7 @@ func TestEstateTreeRejectsCanonicalSelectorPortfolioMismatch(t *testing.T) {
 		t.Fatal(err)
 	}
 	raw = []byte(strings.Replace(
-		string(raw), "portfolio:organization-projects", "portfolio:servers", 1,
+		string(raw), "portfolio:example-guild", "portfolio:servers", 1,
 	))
 	if err := os.WriteFile(selectorPath, raw, 0o600); err != nil {
 		t.Fatal(err)
@@ -318,8 +318,8 @@ func TestEstateTreeRejectsPolicyReferencesThatResolveToNothing(t *testing.T) {
 		},
 		{
 			name: "portfolio",
-			old:  `    - "portfolio:servers"`,
-			new:  `    - "portfolio:no-selector-assigns-this"`,
+			old:  "  name_prefixes:\n    - \"server-\"",
+			new:  "  portfolios:\n    - \"portfolio:no-selector-assigns-this\"",
 			code: "GDS_ESTATE_POLICY_PORTFOLIO_MISSING",
 		},
 	} {

@@ -69,12 +69,18 @@ The compiler:
   establish that fact. Historical `unassigned` assignments remain readable and
   retain their original JSON representation for signed audit verification.
 
-Repositories are classified by their owning account. The legacy `match.fork`
-and `classification.fork_portfolio` fields remain readable for compatibility
-but do not select a separate portfolio. Archive and name-specific selectors
-retain their own priority. Organization and personal server portfolios
-use distinct device workspace roots so their filesystem placement remains
-injective even when owners contain repositories with the same name.
+Repositories are classified by their owning account. The tenancy model is
+exactly the provider account: one personal user account and otherwise
+organizations by their exact provider login; an estate with no need for a
+purpose grouping assigns each repository the owner's tenancy portfolio and
+nothing else. The legacy `match.fork` and `classification.fork_portfolio`
+fields remain readable for compatibility but do not select a separate
+portfolio. Archive and name-specific selectors retain their own priority.
+Device placement no longer requires a purpose portfolio at all:
+`materialization.include[].match` selects repositories by provider facts
+(owner login, exact names, name prefixes, visibility contract) with
+first-match-wins ordering, so a `server-` family can span several owners under
+one root while every other repository lands under its owner's root.
 
 The shipped selectors use these priority bands:
 
@@ -124,9 +130,10 @@ than silently accepted. The compiler enforces these in `monotonicStrength`
   installation for every mutation capability;
 - owner-to-installation existence and account-login agreement;
 - selector-to-owner existence;
-- source/fork selector portfolio agreement with the owner descriptor;
-- unique device portfolio selectors, existing workspace-root references, and
-  no workspace-root reuse across portfolio assignments;
+- selector-to-source-portfolio agreement with the owner descriptor;
+- unique device materialization rules (by selector name or by canonical match
+  content), existing workspace-root references, and no workspace-root reuse
+  across label selectors (trait matches may share a root);
 - non-symlink source documents;
 - that a device inventory recording a consumer checkout also records every
   submodule declared beneath it, and records each with `materialization:

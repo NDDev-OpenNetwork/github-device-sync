@@ -427,15 +427,26 @@ func deviceFindings(source string, object map[string]any) []domain.Finding {
 		assignment, _ := raw.(map[string]any)
 		selector, _ := assignment["selector"].(string)
 		workspaceRoot, _ := assignment["workspace_root"].(string)
-		if selector != "" {
-			if _, duplicate := selectors[selector]; duplicate {
+		// A `match` entry is keyed by its canonical content so two identical
+		// trait rules are still flagged while distinct trait rules may share a
+		// root -- first-match-wins ordering makes that unambiguous.
+		assignmentKey := selector
+		if assignmentKey == "" {
+			if matchValue, found := assignment["match"]; found {
+				if encoded, err := json.Marshal(matchValue); err == nil {
+					assignmentKey = "match:" + string(encoded)
+				}
+			}
+		}
+		if assignmentKey != "" {
+			if _, duplicate := selectors[assignmentKey]; duplicate {
 				findings = append(findings, domain.Finding{
 					Code: "GDS_DEVICE_SELECTOR_DUPLICATE", Severity: domain.SeverityHigh,
 					Message:  "Device materialization selectors must be unique.",
-					Evidence: map[string]any{"source": source, "index": index, "selector": selector},
+					Evidence: map[string]any{"source": source, "index": index, "selector": assignmentKey},
 				})
 			}
-			selectors[selector] = struct{}{}
+			selectors[assignmentKey] = struct{}{}
 		}
 		if workspaceRoot == "" {
 			continue
@@ -446,6 +457,11 @@ func deviceFindings(source string, object map[string]any) []domain.Finding {
 				Message:  "Device materialization assignment references an unknown workspace root.",
 				Evidence: map[string]any{"source": source, "index": index, "workspace_root": workspaceRoot},
 			})
+		}
+		// The one-root-one-selector rule applies to label selectors only; trait
+		// matches are disjoint by construction or ordered by first-match-wins.
+		if selector == "" {
+			continue
 		}
 		if prior, reused := usedRoots[workspaceRoot]; reused && prior != selector {
 			findings = append(findings, domain.Finding{
