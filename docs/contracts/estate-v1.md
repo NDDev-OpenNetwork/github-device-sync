@@ -84,13 +84,14 @@ one root while every other repository lands under its owner's root.
 
 The shipped selectors use these priority bands:
 
-- `100` — generic classification (sources, forks);
-- `200` — specialized non-fork overrides (servers, named-prefix families);
+- `100` — generic per-owner classification (the owner's tenancy portfolio);
+- `200` — specialized overrides matched on repository facts such as name
+  prefixes (the `server-` family in the example estate).
 
 There is no archived selector in the shipped example. The compiler preserves
 the provider's `archived` observation, but classification follows the matching
 selector. An estate that defines archival by ownership can assign its archive
-owner to `portfolio:archived-projects` regardless of the provider flag. An
+owner to that owner's tenancy portfolio regardless of the provider flag. An
 estate that instead wants provider-archived precedence must declare an
 appropriate higher-priority selector. Equal-priority overlapping matches are
 rejected by the compiler.

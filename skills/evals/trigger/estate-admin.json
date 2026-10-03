@@ -1803,7 +1803,7 @@
         {
           "id": "reconcile-provider-change-p08",
           "split": "validation",
-          "query": "A repository was archived on GitHub; make sure it reclassifies to archived-projects and projections regenerate.",
+          "query": "A repository was archived on GitHub; make sure it reclassifies under the archive owner tenancy and projections regenerate.",
           "expected": "gds-reconcile-provider-change",
           "must_not_trigger": [
             "gds-triage-estate-drift",
