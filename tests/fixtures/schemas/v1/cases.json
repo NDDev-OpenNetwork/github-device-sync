@@ -1,16 +1,71 @@
 {
   "schema_version": 1,
   "cases": [
-    {"id":"valid-trust-policy","schema":"trust-policy","path":"valid-trust-policy.yaml","valid":true},
-    {"id":"invalid-trust-policy-secret-key","schema":"trust-policy","path":"invalid-trust-policy-secret-key.yaml","valid":false,"expected_code":"GDS_INSTANCE_INVALID"},
-    {"id":"valid-approval","schema":"approval","path":"valid-approval.json","valid":true},
-    {"id":"invalid-approval-signature","schema":"approval","path":"invalid-approval-signature.json","valid":false,"expected_code":"GDS_INSTANCE_INVALID"},
-    {"id":"valid-plan-enablement","schema":"plan-enablement","path":"valid-plan-enablement.json","valid":true},
-    {"id":"invalid-plan-enablement-partial-consume","schema":"plan-enablement","path":"invalid-plan-enablement-partial-consume.json","valid":false,"expected_code":"GDS_INSTANCE_INVALID"},
-    {"id":"valid-freshness-policy","schema":"freshness-policy","path":"valid-freshness-policy.yaml","valid":true},
-    {"id":"invalid-freshness-cached-mutation","schema":"freshness-policy","path":"invalid-freshness-cached-mutation.yaml","valid":false,"expected_code":"GDS_INSTANCE_INVALID"},
-    {"id":"valid-field-ownership","schema":"field-ownership","path":"valid-field-ownership.json","valid":true},
-    {"id":"invalid-field-ownership-drop-unknown","schema":"field-ownership","path":"invalid-field-ownership-drop-unknown.json","valid":false,"expected_code":"GDS_INSTANCE_INVALID"},
+    {
+      "id": "valid-trust-policy",
+      "schema": "trust-policy",
+      "path": "valid-trust-policy.yaml",
+      "valid": true
+    },
+    {
+      "id": "invalid-trust-policy-secret-key",
+      "schema": "trust-policy",
+      "path": "invalid-trust-policy-secret-key.yaml",
+      "valid": false,
+      "expected_code": "GDS_INSTANCE_INVALID"
+    },
+    {
+      "id": "valid-approval",
+      "schema": "approval",
+      "path": "valid-approval.json",
+      "valid": true
+    },
+    {
+      "id": "invalid-approval-signature",
+      "schema": "approval",
+      "path": "invalid-approval-signature.json",
+      "valid": false,
+      "expected_code": "GDS_INSTANCE_INVALID"
+    },
+    {
+      "id": "valid-plan-enablement",
+      "schema": "plan-enablement",
+      "path": "valid-plan-enablement.json",
+      "valid": true
+    },
+    {
+      "id": "invalid-plan-enablement-partial-consume",
+      "schema": "plan-enablement",
+      "path": "invalid-plan-enablement-partial-consume.json",
+      "valid": false,
+      "expected_code": "GDS_INSTANCE_INVALID"
+    },
+    {
+      "id": "valid-freshness-policy",
+      "schema": "freshness-policy",
+      "path": "valid-freshness-policy.yaml",
+      "valid": true
+    },
+    {
+      "id": "invalid-freshness-cached-mutation",
+      "schema": "freshness-policy",
+      "path": "invalid-freshness-cached-mutation.yaml",
+      "valid": false,
+      "expected_code": "GDS_INSTANCE_INVALID"
+    },
+    {
+      "id": "valid-field-ownership",
+      "schema": "field-ownership",
+      "path": "valid-field-ownership.json",
+      "valid": true
+    },
+    {
+      "id": "invalid-field-ownership-drop-unknown",
+      "schema": "field-ownership",
+      "path": "invalid-field-ownership-drop-unknown.json",
+      "valid": false,
+      "expected_code": "GDS_INSTANCE_INVALID"
+    },
     {
       "id": "valid-assurance-report",
       "schema": "assurance-report",
@@ -274,6 +329,12 @@
       "valid": true
     },
     {
+      "id": "valid-device-include-match",
+      "schema": "device",
+      "path": "valid-device-include-match.yaml",
+      "valid": true
+    },
+    {
       "id": "valid-source-register",
       "schema": "source-register",
       "path": "valid-source-register.yaml",
@@ -515,7 +576,18 @@
       "valid": false,
       "expected_code": "GDS_INSTANCE_INVALID"
     },
-    {"id":"valid-session-evidence","schema":"session-evidence","path":"valid-session-evidence.json","valid":true},
-    {"id":"invalid-session-evidence-missing-fields","schema":"session-evidence","path":"invalid-session-evidence-missing-fields.json","valid":false,"expected_code":"GDS_INSTANCE_INVALID"}
+    {
+      "id": "valid-session-evidence",
+      "schema": "session-evidence",
+      "path": "valid-session-evidence.json",
+      "valid": true
+    },
+    {
+      "id": "invalid-session-evidence-missing-fields",
+      "schema": "session-evidence",
+      "path": "invalid-session-evidence-missing-fields.json",
+      "valid": false,
+      "expected_code": "GDS_INSTANCE_INVALID"
+    }
   ]
 }

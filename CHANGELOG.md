@@ -45,6 +45,23 @@ Versioning.
   estate, and remove the `--channel` flag and evidence inputs from
   `gds-release-builder` and the release-candidate command.
 
+## [0.9.20] - 2026-10-03
+
+- Provider-account tenancy (ADR 0040): a tenant is the provider account — one
+  personal account plus each organization by its exact login. Purpose-named
+  portfolios such as `servers` and `forks` are no longer tenancy axes.
+- `include[].match` in the device schema: repositories are placed by facts —
+  `owner_login`, `names`, `name_prefixes`, `visibility`, `lifecycle` — and the
+  first matching include wins by declaration order. `selector` includes keep
+  working unchanged.
+- `match.name_prefixes` in the policy schema: a policy can match repository
+  names (for example `server-*`) without a synthetic portfolio.
+- `PLACEMENT_AMBIGUOUS` is retired: ordered first-match-wins replaces the
+  ambiguity error.
+- `match.fork` and `fork_portfolio` remain parseable for compatibility but are
+  no longer consulted (ADR 0040); the selector matcher reads owner,
+  name prefixes, lifecycle and visibility only.
+
 ## [0.9.7] - 2026-09-19
 
 - Skip hidden directories during workspace discovery so tool-state and
