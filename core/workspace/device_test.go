@@ -82,6 +82,36 @@ func TestResolvePlacementTraitMatch(t *testing.T) {
 	}
 }
 
+func TestResolvePlacementLifecycleMatch(t *testing.T) {
+	descriptor := testDevice()
+	descriptor.Materialization.Include = []MaterializationAssignment{{
+		Match: &PlacementMatch{
+			OwnerLogin: "example-org",
+			Lifecycle:  []string{"active", "maintenance"},
+		},
+		WorkspaceRoot: "personal", Mode: "active",
+	}}
+	anchor := testWorkspaceAnchor()
+	anchor.Provider.Owner = "example-org"
+	anchor.Repository.Lifecycle = "archived"
+	home := filepath.Join(string(filepath.Separator), "home", "owner")
+	placement, findings := ResolvePlacement(descriptor, anchor, Environment{
+		Home: home, XDGStateHome: filepath.Join(home, ".local", "state"),
+	})
+	if placement.Mode != "absent" || len(findings) != 1 ||
+		findings[0].Code != "GDS_WORKSPACE_PLACEMENT_NOT_SELECTED" {
+		t.Fatalf("placement=%#v findings=%#v", placement, findings)
+	}
+
+	anchor.Repository.Lifecycle = "active"
+	placement, findings = ResolvePlacement(descriptor, anchor, Environment{
+		Home: home, XDGStateHome: filepath.Join(home, ".local", "state"),
+	})
+	if len(findings) != 0 || placement.WorkspaceRoot != filepath.Join(home, "Developer", "personal") {
+		t.Fatalf("placement=%#v findings=%#v", placement, findings)
+	}
+}
+
 func testDevice() DeviceDescriptor {
 	return DeviceDescriptor{
 		SchemaVersion:  1,

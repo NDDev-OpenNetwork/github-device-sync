@@ -34,13 +34,14 @@ That coupling has real costs:
 **A tenant is a provider account — nothing more, nothing else.** One
 personal user account, and otherwise organizations by their exact provider
 login. The model keeps `portfolio:` as the reference namespace but its values
-are tenant names (`portfolio:nddev-it-com`, `portfolio:example-user`), never
+are tenant names (`portfolio:example-org`, `portfolio:example-user`), never
 purpose names.
 
 1. **`materialization.include[].match` places repositories by facts, not
-   labels.** `match.owner_login`, `match.names`, `match.name_prefixes` and
-   `match.visibility` are evaluated against the repository's provider
-   identity and visibility contract. Includes evaluate in declaration order;
+   labels.** `match.owner_login`, `match.names`, `match.name_prefixes`,
+   `match.visibility` and `match.lifecycle` are evaluated against the
+   repository's provider identity, visibility contract and declared
+   lifecycle. Includes evaluate in declaration order;
    the first match wins. `selector` membership placement stays valid for
    compatibility but is no longer the reference mechanism.
 2. **`policy.match.name_prefixes` lets cross-owner policies exist without a
