@@ -10,7 +10,7 @@ match:
 assign:
   management_mode: "observe-only"
   portfolios:
-    - "portfolio:organization-projects"
+    - "portfolio:example-media"
   policy_profiles:
     - "repository-default"
     - "organization-default"

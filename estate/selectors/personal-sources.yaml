@@ -13,7 +13,7 @@ match:
 assign:
   management_mode: "observe-only"
   portfolios:
-    - "portfolio:personal-projects"
+    - "portfolio:example-user"
   policy_profiles:
     - "repository-default"
     - "personal-default"

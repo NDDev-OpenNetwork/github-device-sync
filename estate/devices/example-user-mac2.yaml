@@ -20,7 +20,8 @@ workspace_roots:
 materialization:
   default_mode: "absent"
   include:
-    - selector: "portfolio:personal-projects"
+    - match:
+        owner_login: "example-user"
       workspace_root: "projects"
       mode: "active"
 

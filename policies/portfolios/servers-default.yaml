@@ -1,8 +1,9 @@
 schema_version: 1
 
-# A portfolio-tier policy. Portfolios cut across owners: a server repository is
-# governed the same way whoever owns it, which is exactly what an owner tier
-# cannot express.
+# A cross-owner policy. A `server-` prefixed repository is governed the same
+# way whoever owns it, which is exactly what an owner tier cannot express --
+# name prefixes reach across owner boundaries without inventing a grouping
+# label.
 policy:
   id: "servers-default"
   tier: "portfolio"
@@ -10,8 +11,8 @@ policy:
   distribution: "public"
 
 match:
-  portfolios:
-    - "portfolio:servers"
+  name_prefixes:
+    - "server-"
 
 apply:
   git:

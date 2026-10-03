@@ -141,20 +141,21 @@ func TestCompileRoutesServerRepositoriesByNamePrefix(t *testing.T) {
 		byID[assignment.ProviderID] = assignment
 	}
 	if got := byID[10]; got.MatchedSelector != "organization-servers" ||
-		len(got.Portfolios) != 1 || got.Portfolios[0] != "portfolio:servers" {
+		len(got.Portfolios) != 1 || got.Portfolios[0] != "portfolio:example-org" {
 		t.Fatalf("organization server repository = %#v", got)
 	}
 	if got := byID[11]; got.MatchedSelector != "organization-sources" ||
-		!containsString(got.Portfolios, "portfolio:organization-projects") {
+		!containsString(got.Portfolios, "portfolio:example-org") {
 		t.Fatalf("organization non-server repository = %#v", got)
 	}
 	if got := byID[12]; got.MatchedSelector != "personal-servers" ||
-		len(got.Portfolios) != 1 || got.Portfolios[0] != "portfolio:servers" {
+		len(got.Portfolios) != 1 || got.Portfolios[0] != "portfolio:example-user" {
 		t.Fatalf("personal server repository = %#v", got)
 	}
-	// The name prefix decides, and being a fork no longer overrides it.
+	// The name prefix decides the selector, and being a fork no longer
+	// overrides it; the assigned portfolio stays the owner's tenancy.
 	if got := byID[13]; got.MatchedSelector != "organization-servers" ||
-		!containsString(got.Portfolios, "portfolio:servers") {
+		!containsString(got.Portfolios, "portfolio:example-org") {
 		t.Fatalf("server-named organization fork repository = %#v", got)
 	}
 }

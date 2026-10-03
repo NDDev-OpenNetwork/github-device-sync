@@ -465,6 +465,15 @@ def _semantic_findings(schema_name: str, instance: Any, path: Path) -> list[Find
                 continue
             selector = assignment.get("selector")
             workspace_root = assignment.get("workspace_root")
+            # Trait-matched includes key on canonical match content so several
+            # distinct match rules may share one device; identical rules are
+            # still duplicates.
+            if not isinstance(selector, str) and isinstance(
+                assignment.get("match"), Mapping
+            ):
+                selector = "match:" + json.dumps(
+                    assignment["match"], sort_keys=True
+                )
             if isinstance(selector, str):
                 if selector in selectors:
                     findings.append(
@@ -489,7 +498,11 @@ def _semantic_findings(schema_name: str, instance: Any, path: Path) -> list[Find
                         },
                     )
                 )
-            if isinstance(workspace_root, str) and isinstance(selector, str):
+            # The one-root-one-selector rule covers label selectors only; trait
+            # matches are disjoint by construction or ordered by first match.
+            if isinstance(workspace_root, str) and isinstance(
+                assignment.get("selector"), str
+            ):
                 previous_selector = used_roots.get(workspace_root)
                 if previous_selector is not None and previous_selector != selector:
                     findings.append(

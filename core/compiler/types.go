@@ -35,6 +35,7 @@ type PolicyMatch struct {
 	Owner              string   `json:"owner,omitempty"`
 	Roles              []string `json:"roles,omitempty"`
 	Portfolios         []string `json:"portfolios,omitempty"`
+	NamePrefixes       []string `json:"name_prefixes,omitempty"`
 	VisibilityContract []string `json:"visibility_contract,omitempty"`
 	Lifecycle          []string `json:"lifecycle,omitempty"`
 }

@@ -8,6 +8,7 @@ clause stops being normative.
 
 | ADR | Title | Status | Supersedes | Superseded by |
 |---|---|---|---|---|
+| [0040](0040-tenancy-is-the-provider-account.md) | Tenancy is the provider account | Accepted | — | — |
 | [0039](0039-repo-scoped-session-evidence.md) | Repo-scoped session evidence | Accepted | — | — |
 | [0038](0038-release-identity-carries-no-channel.md) | Release identity carries no channel | Accepted | ADR 0016 | — |
 | [0037](0037-seven-harnesses-one-per-setup-system.md) | Seven harnesses, one per setup system | Accepted | ADR 0011 | — |

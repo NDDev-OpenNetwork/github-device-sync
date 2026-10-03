@@ -21,7 +21,8 @@ workspace_roots:
 materialization:
   default_mode: "absent"
   include:
-    - selector: "portfolio:organization-projects"
+    - match:
+        owner_login: "example-org"
       workspace_root: "projects"
       mode: "active"
 

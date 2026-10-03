@@ -15,7 +15,7 @@ match:
 assign:
   management_mode: "observe-only"
   portfolios:
-    - "portfolio:servers"
+    - "portfolio:example-org"
   policy_profiles:
     - "repository-default"
     - "servers-default"

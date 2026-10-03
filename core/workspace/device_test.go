@@ -24,7 +24,7 @@ func TestResolvePlacementUsesOnePortfolioAssignment(t *testing.T) {
 	}
 }
 
-func TestResolvePlacementRejectsAmbiguousAssignments(t *testing.T) {
+func TestResolvePlacementFirstMatchWins(t *testing.T) {
 	descriptor := testDevice()
 	descriptor.Materialization.Include = append(descriptor.Materialization.Include, MaterializationAssignment{
 		Selector: "portfolio:public-modules", WorkspaceRoot: "personal", Mode: "reference",
@@ -32,11 +32,53 @@ func TestResolvePlacementRejectsAmbiguousAssignments(t *testing.T) {
 	anchor := testWorkspaceAnchor()
 	anchor.Classification.Portfolios = append(anchor.Classification.Portfolios, "portfolio:public-modules")
 	home := filepath.Join(string(filepath.Separator), "home", "owner")
-	_, findings := ResolvePlacement(descriptor, anchor, Environment{
+	placement, findings := ResolvePlacement(descriptor, anchor, Environment{
 		Home: home, XDGStateHome: filepath.Join(home, ".local", "state"),
 	})
-	if len(findings) != 1 || findings[0].Code != "GDS_WORKSPACE_PLACEMENT_AMBIGUOUS" {
+	if len(findings) != 0 {
 		t.Fatalf("findings=%#v", findings)
+	}
+	if placement.Selector != "portfolio:personal-projects" {
+		t.Fatalf("placement=%#v", placement)
+	}
+}
+
+func TestResolvePlacementTraitMatch(t *testing.T) {
+	descriptor := testDevice()
+	descriptor.WorkspaceRoots["servers"] = "${HOME}/Developer/servers"
+	descriptor.Materialization.Include = []MaterializationAssignment{
+		{
+			Match: &PlacementMatch{
+				OwnerLogin:   "Example-Org",
+				NamePrefixes: []string{"server-"},
+			},
+			WorkspaceRoot: "servers", Mode: "active",
+		},
+		{
+			Match:         &PlacementMatch{OwnerLogin: "example-org"},
+			WorkspaceRoot: "personal", Mode: "active",
+		},
+	}
+	anchor := testWorkspaceAnchor()
+	anchor.Provider.Owner = "example-org"
+	anchor.Provider.Name = "server-testbed"
+	home := filepath.Join(string(filepath.Separator), "home", "owner")
+	placement, findings := ResolvePlacement(descriptor, anchor, Environment{
+		Home: home, XDGStateHome: filepath.Join(home, ".local", "state"),
+	})
+	if len(findings) != 0 {
+		t.Fatalf("findings=%#v", findings)
+	}
+	if placement.WorkspaceRoot != filepath.Join(home, "Developer", "servers") {
+		t.Fatalf("placement=%#v", placement)
+	}
+
+	anchor.Provider.Name = "plain-project"
+	placement, findings = ResolvePlacement(descriptor, anchor, Environment{
+		Home: home, XDGStateHome: filepath.Join(home, ".local", "state"),
+	})
+	if len(findings) != 0 || placement.WorkspaceRoot != filepath.Join(home, "Developer", "personal") {
+		t.Fatalf("placement=%#v findings=%#v", placement, findings)
 	}
 }
 

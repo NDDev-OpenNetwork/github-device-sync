@@ -577,6 +577,9 @@ func matchFailure(
 	if len(match.Portfolios) != 0 && !intersects(match.Portfolios, anchor.Classification.Portfolios) {
 		return "repository portfolios do not match"
 	}
+	if len(match.NamePrefixes) != 0 && !nameHasPrefix(anchor.Provider.Name, match.NamePrefixes) {
+		return "repository name does not match"
+	}
 	if len(match.VisibilityContract) != 0 &&
 		!contains(match.VisibilityContract, anchor.Classification.VisibilityContract) {
 		return "visibility contract does not match"
@@ -801,6 +804,16 @@ func intersects(left, right []string) bool {
 func contains(values []string, expected string) bool {
 	for _, value := range values {
 		if value == expected {
+			return true
+		}
+	}
+	return false
+}
+
+func nameHasPrefix(name string, prefixes []string) bool {
+	lowered := strings.ToLower(name)
+	for _, prefix := range prefixes {
+		if strings.HasPrefix(lowered, strings.ToLower(prefix)) {
 			return true
 		}
 	}

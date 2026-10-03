@@ -10,7 +10,7 @@ match:
 assign:
   management_mode: "managed"
   portfolios:
-    - "portfolio:organization-projects"
+    - "portfolio:nddev-opennetwork"
   policy_profiles:
     - "repository-default"
     - "organization-default"

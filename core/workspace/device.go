@@ -84,9 +84,59 @@ type MaterializationPolicy struct {
 }
 
 type MaterializationAssignment struct {
-	Selector      string `json:"selector"`
-	WorkspaceRoot string `json:"workspace_root"`
-	Mode          string `json:"mode"`
+	Selector      string          `json:"selector,omitempty"`
+	Match         *PlacementMatch `json:"match,omitempty"`
+	WorkspaceRoot string          `json:"workspace_root"`
+	Mode          string          `json:"mode"`
+}
+
+// PlacementMatch selects repositories by their own facts -- provider owner
+// login, repository name and visibility contract -- so placement does not
+// depend on a label the anchor must carry. Every declared field must match;
+// an empty field matches nothing by itself but narrows nothing either.
+type PlacementMatch struct {
+	OwnerLogin   string   `json:"owner_login,omitempty"`
+	Names        []string `json:"names,omitempty"`
+	NamePrefixes []string `json:"name_prefixes,omitempty"`
+	Visibility   []string `json:"visibility,omitempty"`
+}
+
+func (match PlacementMatch) satisfiedBy(anchor domain.RepositoryAnchor) bool {
+	if match.OwnerLogin != "" &&
+		!strings.EqualFold(match.OwnerLogin, anchor.Provider.Owner) {
+		return false
+	}
+	if len(match.Names) != 0 {
+		found := false
+		for _, name := range match.Names {
+			if strings.EqualFold(name, anchor.Provider.Name) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return false
+		}
+	}
+	if len(match.NamePrefixes) != 0 {
+		found := false
+		for _, prefix := range match.NamePrefixes {
+			if strings.HasPrefix(
+				strings.ToLower(anchor.Provider.Name), strings.ToLower(prefix),
+			) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return false
+		}
+	}
+	if len(match.Visibility) != 0 &&
+		!contains(match.Visibility, anchor.Classification.VisibilityContract) {
+		return false
+	}
+	return true
 }
 
 type DeviceStatePolicy struct {
@@ -165,13 +215,27 @@ func ResolvePlacement(
 	anchor domain.RepositoryAnchor,
 	environment Environment,
 ) (Placement, []domain.Finding) {
-	matches := make([]MaterializationAssignment, 0, 1)
-	for _, assignment := range descriptor.Materialization.Include {
-		if contains(anchor.Classification.Portfolios, assignment.Selector) {
-			matches = append(matches, assignment)
+	// Includes are evaluated in declaration order and the first matching
+	// assignment wins. A specialized rule therefore precedes the generic rule
+	// it narrows, and a `selector` membership test and a `match` trait test may
+	// coexist in one list without ambiguity findings.
+	var assignment *MaterializationAssignment
+	for index := range descriptor.Materialization.Include {
+		candidate := descriptor.Materialization.Include[index]
+		if candidate.Match != nil {
+			if candidate.Match.satisfiedBy(anchor) {
+				assignment = &descriptor.Materialization.Include[index]
+				break
+			}
+			continue
+		}
+		if candidate.Selector != "" &&
+			contains(anchor.Classification.Portfolios, candidate.Selector) {
+			assignment = &descriptor.Materialization.Include[index]
+			break
 		}
 	}
-	if len(matches) == 0 {
+	if assignment == nil {
 		return Placement{
 			DeviceID: descriptor.Device.ID, RepositoryID: anchor.Repository.ID,
 			Mode: descriptor.Materialization.DefaultMode,
@@ -180,13 +244,6 @@ func ResolvePlacement(
 			"Repository does not match a device materialization assignment.", anchor.Repository.ID,
 		)}
 	}
-	if len(matches) != 1 {
-		return Placement{}, []domain.Finding{workspaceFinding(
-			"GDS_WORKSPACE_PLACEMENT_AMBIGUOUS",
-			"Repository matches more than one device materialization assignment.", anchor.Repository.ID,
-		)}
-	}
-	assignment := matches[0]
 	portableRoot, found := descriptor.WorkspaceRoots[assignment.WorkspaceRoot]
 	if !found {
 		return Placement{}, []domain.Finding{workspaceFinding(

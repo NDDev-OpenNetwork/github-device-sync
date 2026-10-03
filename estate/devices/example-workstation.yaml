@@ -17,14 +17,33 @@ device:
 workspace_roots:
   organization: "${HOME}/Developer/organization"
   personal: "${HOME}/Developer/personal"
+  servers: "${HOME}/Developer/servers"
 
 materialization:
   default_mode: "absent"
+  # Trait-matched placement: repositories land under a root by their provider
+  # facts, not by a label an anchor must carry. Order matters -- the first
+  # matching include wins, so `server-` repositories reach their own root
+  # before the generic owner rules apply.
   include:
-    - selector: "portfolio:organization-projects"
+    - match:
+        owner_login: "example-org"
+        name_prefixes:
+          - "server-"
+      workspace_root: "servers"
+      mode: "active"
+    - match:
+        owner_login: "example-user"
+        name_prefixes:
+          - "server-"
+      workspace_root: "servers"
+      mode: "active"
+    - match:
+        owner_login: "example-org"
       workspace_root: "organization"
       mode: "active"
-    - selector: "portfolio:personal-projects"
+    - match:
+        owner_login: "example-user"
       workspace_root: "personal"
       mode: "active"
 
