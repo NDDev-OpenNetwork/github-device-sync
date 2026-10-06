@@ -277,9 +277,11 @@ func (services *Services) projectionOperationContext(
 	if len(findings) != 0 {
 		return projectionContext{}, findings
 	}
-	compiled := services.Compiler.CompileDirectory(
-		root, anchor, version,
-	)
+	compilePolicy := services.Compiler.CompileDirectory
+	if source.released() {
+		compilePolicy = services.Compiler.CompileReleasedPublicDirectory
+	}
+	compiled := compilePolicy(root, anchor, version)
 	if len(compiled.Findings) != 0 {
 		return projectionContext{}, compiled.Findings
 	}

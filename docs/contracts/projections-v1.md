@@ -91,6 +91,12 @@ content-set digest and attestation identity. Plan/apply/verify require the same
 two immutable input paths so precondition re-observation cannot change source.
 Private targets cannot use this standalone boundary.
 
+Portable released compilation does not require the private estate owner
+register. Profiles without an owner selector can apply; an explicit owner
+selector remains unresolvable and is rejected rather than deriving an identity
+from the GitHub login. A development public project still requires its estate
+owner register, and a corrupt existing register is always rejected.
+
 ## Manual drift
 
 Verification uses `lstat`, rejects symlinks and non-regular files, confines
