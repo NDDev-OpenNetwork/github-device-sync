@@ -260,10 +260,10 @@ func (services *Services) projectionOperationContext(
 			return projectionContext{}, []domain.Finding{dependencyFinding(path, infoErr)}
 		}
 		anchor, findings = manifest.NewLoader(services.Schemas).LoadRepository(repositoryInfo.WorktreeRoot)
-		if len(findings) == 0 && !isPublicModuleProjection(anchor) {
+		if len(findings) == 0 && anchor.Classification.VisibilityContract != "public" {
 			findings = []domain.Finding{{
 				Code: "GDS_PROJECTION_RELEASE_TARGET_INVALID", Severity: domain.SeverityHigh,
-				Message: "Released projection sources are accepted only for public modules.",
+				Message: "Released projection sources are accepted only for public repositories.",
 			}}
 		}
 		var releasedManifest bundle.Manifest

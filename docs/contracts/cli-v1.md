@@ -143,7 +143,8 @@ with leaf provenance. It does not write the compiled document.
 ### `gds generate repository`
 
 `--bundle-archive` and `--release-envelope` select an immutable released
-projection source for a standalone public module. They are an inseparable pair
+projection source for a public repository, including a project without the
+`module` role. They are an inseparable pair
 and apply equally to candidate, check, plan, apply and verify modes. The command
 never fetches a mutable URL and never treats an unverified extracted directory
 as authority.
