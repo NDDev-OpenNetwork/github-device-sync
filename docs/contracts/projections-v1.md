@@ -71,7 +71,8 @@ Development locks use sequence `0`. A released lock requires a positive
 sequence and attestation identity digest. The development lock is test
 evidence, not a released immutable bundle.
 
-Standalone public modules consume released policy without copying its source
+Public repositories, including ordinary projects and standalone modules,
+consume released policy without copying its source
 tree into every repository:
 
 ```bash
