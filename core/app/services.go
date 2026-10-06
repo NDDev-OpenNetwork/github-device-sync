@@ -304,10 +304,10 @@ func (services *Services) GenerateRepository(
 			return envelopeForError("gds generate repository", path, infoErr)
 		}
 		anchor, findings = manifest.NewLoader(services.Schemas).LoadRepository(repositoryInfo.WorktreeRoot)
-		if len(findings) == 0 && !isPublicModuleProjection(anchor) {
+		if len(findings) == 0 && anchor.Classification.VisibilityContract != "public" {
 			findings = []domain.Finding{{
 				Code: "GDS_PROJECTION_RELEASE_TARGET_INVALID", Severity: domain.SeverityHigh,
-				Message: "Released projection sources are accepted only for public modules.",
+				Message: "Released projection sources are accepted only for public repositories.",
 			}}
 		}
 		var releasedManifest bundle.Manifest
@@ -323,9 +323,11 @@ func (services *Services) GenerateRepository(
 			"gds generate repository", classifyFindings(findings), nil, findings...,
 		)
 	}
-	compiled := services.Compiler.CompileDirectory(
-		root, anchor, version,
-	)
+	compilePolicy := services.Compiler.CompileDirectory
+	if options.released() {
+		compilePolicy = services.Compiler.CompileReleasedPublicDirectory
+	}
+	compiled := compilePolicy(root, anchor, version)
 	if len(compiled.Findings) != 0 {
 		return domain.NewEnvelope(
 			"gds generate repository", classifyFindings(compiled.Findings), nil,

@@ -2,12 +2,77 @@ package app
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/NDDev-OpenNetwork/github-device-sync/core/bundle"
 )
+
+func TestReleasedPublicProjectGeneratesFromVerifiedPortableArtifact(t *testing.T) {
+	root := releasedProjectFixture(t, "public")
+	services, err := NewServices(DefaultClock)
+	if err != nil {
+		t.Fatal(err)
+	}
+	engine := appTestRepositoryRoot(t)
+	command := exec.Command("git", "-C", engine, "ls-files", "--",
+		"policies", "schemas/v1", "schemas/migrations", "templates/agents",
+		"templates/github-actions", "templates/harnesses", "skills/canonical",
+		"skills/registry.yaml", "harnesses", "plugins/gds-core",
+		"plugins/gds-estate-admin", "plugins/gds-module")
+	tracked, err := command.Output()
+	if err != nil {
+		t.Fatal(err)
+	}
+	options := bundle.BuildOptions{
+		BundleVersion: "1.0.0", ReleaseSequence: 1,
+		SourceCommit: strings.Repeat("a", 40), MinimumCLIVersion: "0.1.0",
+		Workflow: ".github/workflows/release-bundle.yml", SourceRef: "refs/heads/main",
+		TrackedSources: strings.Fields(string(tracked)),
+	}
+	trust := bundle.TrustPolicy{
+		Source: bundle.TrustSource{Owner: "example-owner", Repository: "example-engine",
+			AllowedWorkflows: []string{options.Workflow}, AllowedRefs: []string{options.SourceRef}},
+		Release: bundle.TrustRelease{MinimumReleaseSequence: 1},
+	}
+	candidate, findings := bundle.Build(engine, options, trust, services.Schemas)
+	if len(findings) != 0 {
+		t.Fatalf("synthetic release build: %#v", findings)
+	}
+	directory := t.TempDir()
+	archive := filepath.Join(directory, "bundle.tar.gz")
+	envelope := filepath.Join(directory, "release-envelope.json")
+	raw, err := json.Marshal(candidate.Envelope)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(archive, candidate.Artifact, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(envelope, raw, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	source := ProjectionSourceOptions{BundleArchive: archive, ReleaseEnvelope: envelope}
+	t.Run("operation-plan-inputs", func(t *testing.T) {
+		resolved, findings := services.projectionOperationContext(context.Background(), root, source)
+		if len(findings) != 0 || len(resolved.candidate.Files) != 2 {
+			t.Fatalf("public project projection: files=%d findings=%#v", len(resolved.candidate.Files), findings)
+		}
+	})
+	t.Run("read-only-generation", func(t *testing.T) {
+		envelope := services.GenerateRepository(context.Background(), root, false, source)
+		if envelope.ExitCode != 0 {
+			t.Fatalf("public project generation: %#v", envelope.Findings)
+		}
+	})
+	if _, err := os.Stat(filepath.Join(root, ".gds", "compiled-policy.json")); !os.IsNotExist(err) {
+		t.Fatalf("candidate generation wrote a projection: %v", err)
+	}
+}
 
 func TestReleasedPublicProjectRequiresArtifactWithoutFallingBackToEstate(t *testing.T) {
 	root := releasedProjectFixture(t, "public")

@@ -55,6 +55,33 @@ func (compiler *Compiler) CompileDirectory(
 	anchor domain.RepositoryAnchor,
 	bundleVersion string,
 ) CompileResult {
+	return compiler.compileDirectory(root, anchor, bundleVersion, isPublicModuleAnchor(anchor))
+}
+
+// CompileReleasedPublicDirectory compiles the portable policy inputs extracted
+// from a verified public release. Those inputs deliberately omit an estate's
+// owner register. Explicit owner selectors remain unresolvable and are rejected;
+// this does not permit a development estate to lose its owner register.
+func (compiler *Compiler) CompileReleasedPublicDirectory(
+	root string,
+	anchor domain.RepositoryAnchor,
+	bundleVersion string,
+) CompileResult {
+	if anchor.Classification.VisibilityContract != "public" {
+		return CompileResult{Findings: []domain.Finding{{
+			Code: "GDS_POLICY_RELEASE_TARGET_INVALID", Severity: domain.SeverityHigh,
+			Message: "Portable released policy requires a public target repository.",
+		}}}
+	}
+	return compiler.compileDirectory(root, anchor, bundleVersion, true)
+}
+
+func (compiler *Compiler) compileDirectory(
+	root string,
+	anchor domain.RepositoryAnchor,
+	bundleVersion string,
+	allowMissingOwnerRegister bool,
+) CompileResult {
 	sources, findings := compiler.loader.Load(root)
 	if len(findings) != 0 {
 		return CompileResult{Findings: findings}
@@ -63,7 +90,7 @@ func (compiler *Compiler) CompileDirectory(
 	if len(ownerFindings) != 0 {
 		ownerDirectory := filepath.Join(root, "estate", "owners")
 		_, ownerErr := os.Stat(ownerDirectory)
-		if !(isPublicModuleAnchor(anchor) && os.IsNotExist(ownerErr) &&
+		if !(allowMissingOwnerRegister && os.IsNotExist(ownerErr) &&
 			allFindingCodes(ownerFindings, "GDS_POLICY_OWNER_REGISTER_UNAVAILABLE")) {
 			return CompileResult{Findings: ownerFindings}
 		}
