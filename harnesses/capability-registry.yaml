@@ -33,6 +33,13 @@ harnesses:
 
 
 
+  - id: "devin"
+    status: "provisional"
+    profile: "harnesses/devin/profile.yaml"
+    verified_at: "2026-10-08"
+    runtime_evidence: "not-proven"
+    legacy_aliases: []
+
   - id: "grok-build"
     status: "supported"
     profile: "harnesses/grok-build/profile.yaml"
@@ -58,6 +65,4 @@ harnesses:
     verified_at: "2026-08-28"
     runtime_evidence: "delegated"
     legacy_aliases: []
-
-
 

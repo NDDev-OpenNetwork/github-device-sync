@@ -18,6 +18,7 @@ antigravity
 claude-code
 codex
 cursor
+devin
 grok-build
 opencode
 pi

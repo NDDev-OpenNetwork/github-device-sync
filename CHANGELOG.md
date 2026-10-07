@@ -5,6 +5,10 @@ Versioning.
 
 ## [Unreleased]
 
+- Observe installed Devin CLI as the eighth catalogue identity while retaining
+  seven verified execution adapters. Bind per-mapping runtime evidence policy
+  and refuse unproven Devin configuration projections or runtime-proof claims.
+
 - Converge the ci-workflows reusable callers on the signed 0.1.26 tag
   (`a7b90bd`); the `gds-ci` projection pin moves through its canonical
   `ci.workflow_ref` input.

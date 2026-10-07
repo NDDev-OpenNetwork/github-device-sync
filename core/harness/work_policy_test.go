@@ -1,20 +1,25 @@
 package harness
 
-import "testing"
+import (
+	"slices"
+	"testing"
+)
 
 // The catalogue and the work-policy allowlist were once different sizes: ten
 // catalogued harnesses had no setup system and were carried on-pause. Every
-// catalogued harness is now delivered by one of the seven setup systems, so the
-// two sets are identical and nothing can be catalogued-but-paused. A harness
-// that is not in the catalogue is rejected as unknown, not as paused.
-func TestWorkPolicyCatalogueEqualsActiveSeven(t *testing.T) {
-	if len(CanonicalIDs) != 7 || len(WorkPolicyActiveIDs) != 7 {
-		t.Fatalf("catalogue=%d active=%d, want 7 and 7", len(CanonicalIDs), len(WorkPolicyActiveIDs))
+// seven execution adapters retain their proof requirements. An installed-only
+// CLI may be observed without being selected for configuration or execution.
+func TestWorkPolicyCatalogueIncludesObservedDevinAndActiveSeven(t *testing.T) {
+	if len(CanonicalIDs) != 8 || len(WorkPolicyActiveIDs) != 7 {
+		t.Fatalf("catalogue=%d active=%d, want 8 and 7", len(CanonicalIDs), len(WorkPolicyActiveIDs))
 	}
-	for index, id := range CanonicalIDs {
-		if WorkPolicyActiveIDs[index] != id {
-			t.Fatalf("catalogue and active set diverge at %d: %q vs %q", index, id, WorkPolicyActiveIDs[index])
+	for _, id := range WorkPolicyActiveIDs {
+		if !slices.Contains(CanonicalIDs, id) {
+			t.Fatalf("active identity %q is not catalogued", id)
 		}
+	}
+	if findings := ValidateDeviceSelection([]string{"devin"}); len(findings) != 1 || findings[0].Code != "GDS_DEVICE_HARNESS_PAUSED" {
+		t.Fatalf("observation-only Devin must not be selected as a configured adapter: %+v", findings)
 	}
 	findings := ValidateDeviceSelection([]string{"codex", "zcode"})
 	if len(findings) != 1 || findings[0].Code != "GDS_HARNESS_SELECTED_UNKNOWN" ||

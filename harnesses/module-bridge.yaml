@@ -9,7 +9,7 @@ evidence_owner:
 runtime_tests:
   required: false
 
-# Seven harnesses, seven setup systems, one mapping each. The retired harness
+# Seven execution adapters and one installed-only CLI, one mapping each. The retired harness
 # application line is archived and is deliberately not named in this file --
 # not as a module, not as an alias. A bridge is a statement about what exists;
 # ADR 0037 holds the history.
@@ -30,6 +30,10 @@ mappings:
   - module_id: "cursor-setup-system"
     harness_id: "cursor"
     lifecycle: "active"
+  - module_id: "macos-ubuntu-bootstrap"
+    harness_id: "devin"
+    lifecycle: "active"
+    runtime_evidence: "not-proven"
   - module_id: "grok-setup-system"
     harness_id: "grok-build"
     lifecycle: "active"

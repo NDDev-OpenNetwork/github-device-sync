@@ -6,6 +6,7 @@ harnesses:
   - "claude-code"
   - "codex"
   - "cursor"
+  - "devin"
   - "grok-build"
   - "opencode"
   - "pi"

@@ -1,11 +1,12 @@
 # Harness capability registry
 
-`capability-registry.yaml` is the canonical index for the seven agent harnesses
-this estate installs, one per setup system in `NDDev-OpenNetwork`. Each profile
-records only current official documentation facts.
+`capability-registry.yaml` is the canonical index for eight harness identities.
+Seven have execution adapters delivered by setup systems. Devin is registered
+for bounded installed-version observation through the public bootstrap.
 
-The catalogue and the work-policy allowlist are the same set, so nothing can be
-catalogued but paused. ADR 0037 records why the catalogue is seven.
+The execution/configuration allowlist remains the seven proven adapters.
+Devin is provisional and cannot install a GDS configuration projection.
+ADR 0041 records this separation; ADR 0037 retains the historical decision.
 
 Canonical harness identities are:
 
@@ -14,6 +15,7 @@ Canonical harness identities are:
 - `claude-code`;
 - `codex`;
 - `cursor`;
+- `devin`;
 - `grok-build`;
 - `opencode`;
 - `pi`.
