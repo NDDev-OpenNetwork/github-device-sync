@@ -17,14 +17,14 @@ var CanonicalIDs = []string{
 	"claude-code",
 	"codex",
 	"cursor",
+	"devin",
 	"grok-build",
 	"opencode",
 	"pi",
 }
 
-// WorkPolicyActiveIDs is the global execution/release allowlist. It equals
-// CanonicalIDs: every catalogued harness is delivered by a setup system, so
-// there is no longer an on-pause remainder to separate.
+// WorkPolicyActiveIDs is the execution/configuration allowlist. The catalogue
+// also includes installed-only harnesses whose adapter behavior is not proven.
 var WorkPolicyActiveIDs = []string{
 	"antigravity",
 	"claude-code",
@@ -209,7 +209,11 @@ func validateAll(
 		for _, alias := range entry.LegacyAliases {
 			report.Aliases[alias] = entry.ID
 		}
-		entryRuntime := includeRuntime && (selected == nil || selected[entry.ID])
+		// A mapping declaring installation-only coverage is observed statically
+		// in all-mode. An explicit runtime request for that identity remains
+		// unproven, rather than inheriting another harness's delegated proof.
+		entryRuntime := includeRuntime && (selected == nil || selected[entry.ID]) &&
+			(entry.RuntimeEvidence != "not-proven" || selected != nil && selected[entry.ID])
 		var item Report
 		var profile CapabilityProfile
 		var itemFindings []domain.Finding
@@ -324,6 +328,9 @@ func delegationIndex(bridge ModuleBridgeDocument) map[string]string {
 	}
 	index := make(map[string]string, len(bridge.Mappings))
 	for _, mapping := range bridge.Mappings {
+		if mapping.RuntimeEvidence == "not-proven" {
+			continue
+		}
 		index[mapping.HarnessID] = bridge.EvidenceOwner.Repository
 	}
 	return index

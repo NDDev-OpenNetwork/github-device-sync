@@ -76,6 +76,10 @@
           "lifecycle": {
             "enum": ["active", "renamed", "retired"]
           },
+          "runtime_evidence": {
+            "description": "Optional per-mapping runtime proof policy. Missing retains delegated behavior; not-proven declares installation-only coverage.",
+            "enum": ["delegated", "not-proven"]
+          },
           "module_aliases": {
             "type": "array",
             "uniqueItems": true,

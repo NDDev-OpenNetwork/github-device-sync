@@ -39,6 +39,11 @@ func TestCanonicalModuleBridgeCoversEveryHarnessAndDigestsDeterministically(t *t
 	if changed == first.IdentityDigest {
 		t.Fatal("identity digest did not bind lifecycle identity")
 	}
+	mutated.Mappings[0].RuntimeEvidence = "not-proven"
+	changedEvidence, err := moduleBridgeIdentityDigest(mutated)
+	if err != nil || changedEvidence == changed {
+		t.Fatalf("identity digest did not bind runtime evidence policy: %s %v", changedEvidence, err)
+	}
 }
 
 func TestModuleBridgeIdentityDigestIgnoresOrderingButBindsIdentityDrift(t *testing.T) {
@@ -262,7 +267,7 @@ func TestSelectedRuntimeValidationReportsDelegationRatherThanSilentSuccess(t *te
 	if err != nil {
 		t.Fatal(err)
 	}
-	report, findings := ValidateSelected(root, CanonicalIDs, schemas)
+	report, findings := ValidateSelected(root, WorkPolicyActiveIDs, schemas)
 	if len(findings) != 0 {
 		t.Fatalf("findings = %#v", findings)
 	}
@@ -270,6 +275,12 @@ func TestSelectedRuntimeValidationReportsDelegationRatherThanSilentSuccess(t *te
 		t.Fatalf("harness count = %d, want %d", len(report.Harnesses), len(CanonicalIDs))
 	}
 	for _, item := range report.Harnesses {
+		if item.Harness == "devin" {
+			if item.RuntimeEvidence != "not-proven" || item.RuntimeEvidenceOwner != "" || item.CapabilityStatus != "provisional" {
+				t.Fatalf("installed-only Devin inherited execution proof: %+v", item)
+			}
+			continue
+		}
 		if item.RuntimeEvidence != "delegated" {
 			t.Fatalf("%s runtime evidence = %q, want delegated", item.Harness, item.RuntimeEvidence)
 		}

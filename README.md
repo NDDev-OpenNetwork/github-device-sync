@@ -90,7 +90,7 @@ also runs the source-bound 2000-repository assurance scenario and requires
 current source evidence before any artifact can be attested.
 
 It does **not** prove harness runtime behaviour, and no longer claims to. The
-seven harnesses are registered here with delegated runtime evidence; their
+seven execution adapters are registered here with delegated runtime evidence; their
 runtime suites live in the private `NDDev-it-com/setup-systems` repository,
 which `harnesses/module-bridge.yaml` names as the evidence owner. Each profile
 records `runtime_tests.last_result: delegated`, and
@@ -101,5 +101,9 @@ claiming `delegated` that the bridge does not map is rejected
 (`GDS_HARNESS_RUNTIME_DELEGATION_UNDECLARED`), as is one that neither proves
 evidence here nor delegates it (`GDS_HARNESS_RUNTIME_UNOWNED`). Promoting a
 harness to `supported` still requires a local `pass`.
+
+The eighth catalogue identity, Devin, is installed-only and provisional. GDS
+observes its version but neither configures it nor claims model/runtime proof.
+Its bootstrap mapping explicitly declares unproven evidence (ADR 0041).
 
 Architecture and contracts are in `docs/architecture/` and `docs/contracts/`.

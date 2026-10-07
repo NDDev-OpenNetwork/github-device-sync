@@ -26,10 +26,11 @@ type ModuleBridgeDocument struct {
 }
 
 type ModuleHarnessMapping struct {
-	ModuleID      string   `json:"module_id"`
-	HarnessID     string   `json:"harness_id"`
-	Lifecycle     string   `json:"lifecycle"`
-	ModuleAliases []string `json:"module_aliases,omitempty"`
+	ModuleID        string   `json:"module_id"`
+	HarnessID       string   `json:"harness_id"`
+	Lifecycle       string   `json:"lifecycle"`
+	ModuleAliases   []string `json:"module_aliases,omitempty"`
+	RuntimeEvidence string   `json:"runtime_evidence,omitempty"`
 }
 
 type BridgeConsumer struct {
@@ -123,6 +124,12 @@ func validateModuleBridgeSemantics(
 		}
 	}
 	for _, mapping := range document.Mappings {
+		if mapping.RuntimeEvidence != "" && mapping.RuntimeEvidence != "delegated" && mapping.RuntimeEvidence != "not-proven" {
+			findings = append(findings, bridgeFinding(
+				"GDS_MODULE_BRIDGE_EVIDENCE_POLICY_INVALID", "Module mapping has an unknown runtime evidence policy.",
+				map[string]any{"harness_id": mapping.HarnessID, "runtime_evidence": mapping.RuntimeEvidence},
+			))
+		}
 		findings = append(findings,
 			claimBridgeIdentity(seenModule, mapping.ModuleID, mapping.ModuleID, "MODULE_ID")...,
 		)
