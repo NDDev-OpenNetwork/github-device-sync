@@ -7,6 +7,7 @@ import (
 
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/domain"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/harness"
+	"github.com/NDDev-OpenNetwork/github-device-sync/core/projections"
 )
 
 func (services *Services) RenderHarnessAdapter(
@@ -155,8 +156,9 @@ func (services *Services) EvaluateHarnessAdapter(
 	}
 	options.RuntimeDriver = normalizePath(options.RuntimeDriver)
 	options.EvidenceDirectory = normalizePath(options.EvidenceDirectory)
+	engineRoot := projections.ResolveDevelopmentSourceLayout(info.WorktreeRoot).EngineRoot
 	run, findings := harness.Evaluate(
-		ctx, info.WorktreeRoot, harnessID, options, services.Schemas, services.Now(), nil,
+		ctx, engineRoot, harnessID, options, services.Schemas, services.Now(), nil,
 	)
 	exitClass := domain.ExitSuccess
 	if run.Result == "not-proven" {
@@ -192,7 +194,8 @@ func (services *Services) resolveHarnessAdapter(
 		envelope := envelopeForError(command, path, err)
 		return nil, &envelope
 	}
-	adapter, findings := harness.NewAdapter(info.WorktreeRoot, harnessID, services.Schemas)
+	engineRoot := projections.ResolveDevelopmentSourceLayout(info.WorktreeRoot).EngineRoot
+	adapter, findings := harness.NewAdapter(engineRoot, harnessID, services.Schemas)
 	if len(findings) != 0 {
 		envelope := domain.NewEnvelope(command, classifyFindings(findings), nil, findings...)
 		return nil, &envelope

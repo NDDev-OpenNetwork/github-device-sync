@@ -9,6 +9,7 @@ import (
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/domain"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/harness"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/materialize"
+	"github.com/NDDev-OpenNetwork/github-device-sync/core/projections"
 	"github.com/NDDev-OpenNetwork/github-device-sync/core/workspace"
 )
 
@@ -71,6 +72,7 @@ func (services *Services) ReconcileDeviceHarnesses(
 	// currently holds. Two selected harnesses that share a skill root collide on
 	// an empty root too, where no on-disk evidence of the conflict exists yet.
 	claims := map[string][]harness.AdapterFile{}
+	engineRoot := projections.ResolveDevelopmentSourceLayout(info.WorktreeRoot).EngineRoot
 	for _, id := range harness.CanonicalIDs {
 		// A selected harness that cannot be rendered is a hard error: the device
 		// cannot converge on it. An unselected one is skipped instead, so an
@@ -78,7 +80,7 @@ func (services *Services) ReconcileDeviceHarnesses(
 		// the same separation ValidateSelected already makes. It is recorded, not
 		// swallowed: an unobservable entry could be a leftover install, and
 		// removing what cannot be seen is never safe.
-		adapter, adapterFindings := harness.NewAdapter(info.WorktreeRoot, id, services.Schemas)
+		adapter, adapterFindings := harness.NewAdapter(engineRoot, id, services.Schemas)
 		if len(adapterFindings) != 0 {
 			if wanted[id] {
 				return domain.NewEnvelope(
