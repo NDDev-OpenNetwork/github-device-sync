@@ -5,6 +5,10 @@ Versioning.
 
 ## [Unreleased]
 
+- Resolve read-only harness detection, rendering, inspection, evaluation and
+  device reconciliation against the consumed engine module in external estates;
+  preserve estate-relative input paths and explicit mutation targets.
+
 - Observe installed Devin CLI as the eighth catalogue identity while retaining
   seven verified execution adapters. Bind per-mapping runtime evidence policy
   and refuse unproven Devin configuration projections or runtime-proof claims.

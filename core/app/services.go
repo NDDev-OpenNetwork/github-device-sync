@@ -1323,10 +1323,11 @@ func (services *Services) DetectHarness(
 	}
 	var report any
 	var findings []domain.Finding
+	engineRoot := projections.ResolveDevelopmentSourceLayout(info.WorktreeRoot).EngineRoot
 	if harnessID == "all" {
-		report, findings = harness.DetectAll(ctx, info.WorktreeRoot, services.Schemas)
+		report, findings = harness.DetectAll(ctx, engineRoot, services.Schemas)
 	} else {
-		report, findings = harness.Detect(ctx, info.WorktreeRoot, harnessID, services.Schemas)
+		report, findings = harness.Detect(ctx, engineRoot, harnessID, services.Schemas)
 	}
 	return domain.NewEnvelope(
 		"gds harness detect", classifyFindings(findings), report, findings...,
