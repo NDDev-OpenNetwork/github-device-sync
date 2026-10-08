@@ -73,6 +73,22 @@ func TestRecoveryDecisionReportsCompensationWithoutApplyingIt(t *testing.T) {
 	}
 }
 
+func TestRecoveryDecisionAcceptsWriteSetRepositoryLockScope(t *testing.T) {
+	now := time.Now().UTC()
+	snapshot := recoveryDecisionFixture(now)
+	snapshot.Locks[0].ScopeID = "repo_fixture:repository"
+	plan := operations.Plan{
+		Steps: []operations.Step{{
+			StepID: "step-1", Compensation: operations.Compensation{Mode: "manual"},
+		}},
+		Scope: operations.Scope{Repositories: []string{"repo_fixture"}},
+	}
+	decision := decideRecovery(snapshot, plan, now, "device:test")
+	if !decision.Automatable || decision.Classification != "safe-abort" {
+		t.Fatalf("decision=%#v", decision)
+	}
+}
+
 func containsString(values []string, expected string) bool {
 	for _, value := range values {
 		if value == expected {
