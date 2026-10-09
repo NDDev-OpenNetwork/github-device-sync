@@ -556,7 +556,7 @@ func decideRecovery(
 		if lock.Scope != "repository" {
 			decision.Blockers = append(decision.Blockers, "unexpected-lock-scope")
 		}
-		if _, allowed := allowedRepositories[lock.ScopeID]; !allowed {
+		if !repositoryLockBelongsToPlan(lock.ScopeID, allowedRepositories) {
 			decision.Blockers = append(decision.Blockers, "lock-scope-outside-plan")
 		}
 		if lock.DeviceID != deviceID {
@@ -653,6 +653,24 @@ func decideRecovery(
 		decision.DecisionDigest = digest
 	}
 	return decision
+}
+
+// repositoryLockBelongsToPlan accepts both the legacy bare repository scope
+// and the operation engine's write-set scope (`<repository-id>:<target>`).
+// Locks are keyed by the latter so independent write targets in one repository
+// do not collide, while recovery is scoped by the repository id in the plan.
+// Comparing only exact strings made every interrupted write-set operation look
+// foreign and left its expired lock unrecoverable.
+func repositoryLockBelongsToPlan(scopeID string, allowedRepositories map[string]struct{}) bool {
+	if _, allowed := allowedRepositories[scopeID]; allowed {
+		return true
+	}
+	for repositoryID := range allowedRepositories {
+		if strings.HasPrefix(scopeID, repositoryID+":") {
+			return true
+		}
+	}
+	return false
 }
 
 func processAlive(pid int) (bool, error) {
